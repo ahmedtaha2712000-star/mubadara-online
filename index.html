@@ -2067,10 +2067,9 @@ function printRiskReport(){
   setTimeout(cleanup,60000);
 }
 async function downloadRiskPDF(){
-  const layer=buildRiskPrintLayer(true); if(!layer){alert("لا توجد أقساط متأخرة لاستخراجها.");return}
-  if(typeof html2pdf==="undefined"){printRiskReport(); return}
-  document.body.appendChild(layer);
-  try{await html2pdf().set({margin:[12,10,6,10],filename:`جمعية_المبادرة_المتأخرات_${new Date().toISOString().slice(0,10)}.pdf`,image:{type:"jpeg",quality:.98},html2canvas:{scale:2,useCORS:true,backgroundColor:"#ffffff",logging:false},jsPDF:{unit:"mm",format:"a4",orientation:"portrait"},pagebreak:{mode:["css","legacy"]}}).from(layer).save()}catch(e){alert("تعذر إنشاء ملف PDF. يمكنك استخدام زر الطباعة ثم اختيار حفظ كـ PDF.")}finally{layer.remove()}
+  // التطابق الكامل مع الطباعة يتطلب استخدام محرك المتصفح نفسه.
+  // من نافذة الطباعة اختر: حفظ كـ PDF.
+  printRiskReport();
 }
 function printCurrentScreen(){
   const active=document.querySelector(".screen.active");
