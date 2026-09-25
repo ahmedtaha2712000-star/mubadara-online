@@ -899,6 +899,7 @@ document.addEventListener("DOMContentLoaded",()=>{
 </script>
 <script>
 const USER_KEY="mub_users_v2";
+const SESSION_KEY="mub_session_v2";
 const DEFAULT_OWNER_USERS=[
  {username:"محاسب الفرع",password:"1234",name:"محاسب الفرع",role:"owner",ownerRole:"محاسب الفرع",active:true,blocked:false,linked:true},
  {username:"مدير الفرع",password:"1234",name:"مدير الفرع",role:"owner",ownerRole:"مدير الفرع",active:true,blocked:false,linked:true},
@@ -953,7 +954,7 @@ function login(){
   msg.style.display="block"; return;
  }
  session={user:uname,name:user.name,role:user.role,ownerRole:user.ownerRole||"",officerName:user.officerName||""};
- localStorage.removeItem("mub_session");
+ try{localStorage.setItem(SESSION_KEY,JSON.stringify(session))}catch(e){}
  auditLog("تسجيل الدخول",`المستخدم: ${user.name}`);
  applySession();
 }
@@ -977,17 +978,18 @@ function applyPermissions(){
  renderUsers();
 }
 function logout(silent=false){
- const old=session; session=null; localStorage.removeItem("mub_session");
+ const old=session; session=null; localStorage.removeItem(SESSION_KEY); localStorage.removeItem("mub_session");
  if(!silent && old)auditLog("تسجيل الخروج",`المستخدم: ${old.name}`);
  document.getElementById("app").style.display="none";
  document.getElementById("loginScreen").style.display="flex";
  document.getElementById("loginPass").value="";
  refreshLoginUsers();
 }
-// لا يتم فتح البرنامج تلقائيًا بعد تحديث الصفحة؛ يجب تسجيل الدخول في كل جلسة جديدة.
-session=null;
+// استعادة جلسة الدخول بعد تحديث الصفحة، ولا تُمسح إلا عند تسجيل الخروج اليدوي.
+try{session=JSON.parse(localStorage.getItem(SESSION_KEY)||"null")}catch(e){session=null}
 loadUsers();
 refreshLoginUsers();
+if(session) applySession();
 </script>
 
 <script>
@@ -2609,7 +2611,9 @@ async function loadDB(){
 }
 initSupabase();
 subscribeCloud();
-session=null; localStorage.removeItem("mub_session"); document.getElementById("app").style.display="none"; document.getElementById("loginScreen").style.display="flex"; refreshLoginUsers();
+// الجلسة محفوظة؛ لا نعيد المستخدم إلى شاشة الدخول عند تحديث الصفحة.
+if(session) applySession();
+else {document.getElementById("app").style.display="none"; document.getElementById("loginScreen").style.display="flex"; refreshLoginUsers();}
 setInterval(()=>{if(session)enforceSession()},1500);
 setCollectionCurrentMonth();
 setClientsCurrentMonth();
