@@ -954,13 +954,14 @@ function login(){
   msg.style.display="block"; return;
  }
  session={user:uname,name:user.name,role:user.role,ownerRole:user.ownerRole||"",officerName:user.officerName||""};
- try{localStorage.setItem(SESSION_KEY,JSON.stringify(session))}catch(e){}
+ try{sessionStorage.setItem(SESSION_KEY,JSON.stringify(session))}catch(e){}
  auditLog("تسجيل الدخول",`المستخدم: ${user.name}`);
  applySession();
 }
 function applySession(){
  if(!session)return;
  if(!enforceSession())return;
+ resetInactivityTimer();
  renderAudit();
  document.getElementById("loginScreen").style.display="none";
  document.getElementById("app").style.display="block";
@@ -970,6 +971,19 @@ function applySession(){
  if(session.role==="officer") showScreen("clients");
  else if(document.querySelector(".screen.active.hidden")) showScreen("import");
 }
+const INACTIVITY_LIMIT=15*60*1000;
+let inactivityTimer=null;
+function resetInactivityTimer(){
+ if(inactivityTimer)clearTimeout(inactivityTimer);
+ if(!session)return;
+ inactivityTimer=setTimeout(()=>{
+  if(session){logout(true);showMsg("تم تسجيل الخروج تلقائيًا بعد 15 دقيقة من عدم النشاط.","warn");}
+ },INACTIVITY_LIMIT);
+}
+function startActivityTracking(){
+ ["click","keydown","mousemove","mousedown","touchstart","scroll"].forEach(type=>window.addEventListener(type,resetInactivityTimer,{passive:true}));
+ resetInactivityTimer();
+}
 function applyPermissions(){
  const owner=enforceSession() && isOwnerRole(session.role);
  document.querySelectorAll('[data-owner-only],[data-manager-only]').forEach(e=>e.classList.toggle("hidden",!owner));
@@ -978,18 +992,19 @@ function applyPermissions(){
  renderUsers();
 }
 function logout(silent=false){
- const old=session; session=null; localStorage.removeItem(SESSION_KEY); localStorage.removeItem("mub_session");
+ const old=session; session=null; if(inactivityTimer)clearTimeout(inactivityTimer); inactivityTimer=null; sessionStorage.removeItem(SESSION_KEY); localStorage.removeItem(SESSION_KEY); localStorage.removeItem("mub_session");
  if(!silent && old)auditLog("تسجيل الخروج",`المستخدم: ${old.name}`);
  document.getElementById("app").style.display="none";
  document.getElementById("loginScreen").style.display="flex";
  document.getElementById("loginPass").value="";
  refreshLoginUsers();
 }
-// استعادة جلسة الدخول بعد تحديث الصفحة، ولا تُمسح إلا عند تسجيل الخروج اليدوي.
-try{session=JSON.parse(localStorage.getItem(SESSION_KEY)||"null")}catch(e){session=null}
+// تبقى الجلسة عند تحديث الصفحة داخل نفس التبويب، وتظهر شاشة الدخول عند فتح التطبيق من جديد.
+try{session=JSON.parse(sessionStorage.getItem(SESSION_KEY)||"null")}catch(e){session=null}
 loadUsers();
 refreshLoginUsers();
 if(session) applySession();
+startActivityTracking();
 </script>
 
 <script>
