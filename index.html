@@ -2613,6 +2613,17 @@ async function loadDB(){
   showMsg(cloudReady?"تم تحميل البيانات المشتركة من الخادم.":"تم استرجاع آخر بيانات محفوظة محليًا.","ok");
  }
 }
+let openingRefreshInProgress=false;
+async function refreshOnOpen(){
+ if(openingRefreshInProgress)return;
+ openingRefreshInProgress=true;
+ const statusEl=document.getElementById("status");
+ if(statusEl)statusEl.textContent="🔄 جاري تحديث أحدث البيانات من الخادم...";
+ try{
+  if(!cloudReady)initSupabase();
+  await loadDB();
+ }finally{openingRefreshInProgress=false}
+}
 initSupabase();
 subscribeCloud();
 // الجلسة محفوظة؛ لا نعيد المستخدم إلى شاشة الدخول عند تحديث الصفحة.
@@ -2621,7 +2632,9 @@ else {document.getElementById("app").style.display="none"; document.getElementBy
 setInterval(()=>{if(session)enforceSession()},1500);
 setCollectionCurrentMonth();
 setClientsCurrentMonth();
-loadDB();
+refreshOnOpen();
+window.addEventListener("pageshow",()=>{if(session)refreshOnOpen()});
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"&&session)refreshOnOpen()});
 </script>
 </div>
 <script>
