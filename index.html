@@ -2117,6 +2117,11 @@ async function downloadCurrentPDF(){
     await downloadRiskPDF();
     return;
   }
+  if(active.id==="clients"||active.id==="print"){
+    // المستخدمون يفتحون شاشة العملاء افتراضيًا؛ استخدم محرك الطباعة نفسه لضمان التطابق.
+    printCurrentScreen();
+    return;
+  }
   if(typeof html2pdf==="undefined"){alert("مكتبة PDF غير متاحة. افتح الصفحة مع اتصال بالإنترنت.");return}
   const clone=active.cloneNode(true);
   clone.classList.add("pdf-copy");
