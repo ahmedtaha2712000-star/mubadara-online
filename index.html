@@ -463,6 +463,13 @@ nav{background:#081826!important;border-left:1px solid #19344a!important;padding
 }
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important}}
 </style>
+<style id="banking-users-style">
+#users{background:linear-gradient(180deg,#f8fbfc 0%,#fff 28%);border-color:#d8e5ea}
+.users-hero{display:flex;justify-content:space-between;align-items:center;gap:24px;padding:26px 28px;border-radius:20px;background:radial-gradient(circle at 10% 0%,#176b62 0,#0f3b4a 38%,#071b2b 100%);color:#fff;box-shadow:0 16px 35px rgba(7,27,43,.18);position:relative;overflow:hidden}
+.users-hero:after{content:"";position:absolute;left:-40px;bottom:-90px;width:260px;height:260px;border:1px solid #ffffff1c;border-radius:50%;box-shadow:0 0 0 25px #ffffff0b,0 0 0 50px #ffffff07}.users-hero-copy{position:relative;z-index:1}.users-eyebrow{color:#8ce0ca;font-size:11px;font-weight:900;letter-spacing:1.5px;margin-bottom:8px}.users-hero h2{color:#fff!important;margin:0 0 8px;font-size:25px!important}.users-hero p{color:#c8dce2;margin:0;max-width:720px;font-size:13px;line-height:1.8}.users-security-line{margin-top:15px;color:#b6f3d9;font-size:12px;font-weight:800}.users-security-line span{color:#40e0a4;margin-left:5px}.users-hero-badge{min-width:150px;text-align:center;padding:15px;border:1px solid #ffffff30;border-radius:16px;background:#ffffff12;backdrop-filter:blur(6px);position:relative;z-index:1}.users-shield{width:40px;height:40px;line-height:40px;margin:0 auto 7px;border-radius:13px;background:#2bc393;color:#063326;font-size:24px;font-weight:900}.users-hero-badge b{display:block;font-size:11px;letter-spacing:1px}.users-hero-badge small{display:block;color:#b8d0d8;margin-top:4px}.users-kpi-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:16px 0}.users-kpi{display:flex;align-items:center;gap:12px;padding:15px;border:1px solid #dce7eb;border-radius:15px;background:#fff;box-shadow:0 6px 18px #102a4310}.users-kpi-icon{width:40px;height:40px;display:grid;place-items:center;border-radius:12px;font-size:20px;font-weight:900}.users-kpi span,.users-kpi small{display:block}.users-kpi span{font-size:11px;color:#59707c;font-weight:800}.users-kpi b{display:block;color:#102a43;font-size:25px;line-height:1.1;margin:5px 0}.users-kpi small{font-size:10px;color:#90a1aa}.users-kpi-green .users-kpi-icon{background:#d9f6e9;color:#08734f}.users-kpi-blue .users-kpi-icon{background:#dff1ff;color:#126da1}.users-kpi-teal .users-kpi-icon{background:#d9f7f5;color:#087b78}.users-kpi-amber .users-kpi-icon{background:#fff1d6;color:#a55a00}.users-toolbar{display:flex;justify-content:space-between;align-items:center;gap:15px;padding:13px 16px;border:1px solid #dce7eb;border-right:4px solid #0b7a57;border-radius:12px;background:#f7fafb;margin-bottom:18px}.users-toolbar b{display:block;color:#183b4b;font-size:14px}.users-toolbar span{display:block;color:#71848d;font-size:11px;margin-top:4px}.users-toolbar-note{font-size:11px;color:#6b7e87;white-space:nowrap}.users-toolbar-note strong{color:#0b7a57}.users-section-card{border-color:#d8e5ea;box-shadow:0 8px 22px #102a4309}.users-section-head{padding-bottom:12px;border-bottom:1px solid #edf2f4}.users-section-head h3{color:#183b4b}.users-status-title{font-weight:900;padding:10px 0 2px}.users-status-block .wrap{border:1px solid #e2eaed;border-radius:11px;background:#fff}.users-status-block table{margin-top:0}.users-status-block th{background:#f4f8f9;color:#45616d}.user-actions button{box-shadow:0 2px 5px #102a4312}
+@media(max-width:1000px){.users-kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:650px){.users-hero{align-items:flex-start;padding:21px 18px}.users-hero h2{font-size:20px!important}.users-hero-badge{display:none}.users-kpi-grid{grid-template-columns:1fr 1fr;gap:8px}.users-kpi{padding:11px 9px;gap:8px}.users-kpi-icon{width:32px;height:32px;font-size:16px}.users-kpi b{font-size:20px}.users-toolbar{align-items:flex-start;flex-direction:column}.users-toolbar-note{white-space:normal}}
+</style>
 </head>
 
 <body>
@@ -480,8 +487,8 @@ nav{background:#081826!important;border-left:1px solid #19344a!important;padding
       <select id="loginOwnerUser" autocomplete="username"></select>
     </div>
     <div id="loginOfficerWrap" style="display:none">
-      <label>اسم المستخدم</label>
-      <input id="loginOfficerUser" autocomplete="username" placeholder="أدخل اسم المستخدم">
+      <label>اسم الأخصائي</label>
+      <select id="loginOfficerUser" autocomplete="username"></select>
     </div>
     <label>كلمة المرور</label>
     <input id="loginPass" type="password" autocomplete="current-password" placeholder="أدخل كلمة المرور">
@@ -584,10 +591,17 @@ nav{background:#081826!important;border-left:1px solid #19344a!important;padding
 </section>
 
 <section id="users" class="card screen" data-owner-only>
-<div class="screen-header"><div><h2>👤 إدارة المستخدمين والصلاحيات</h2><div class="sub">إدارة منفصلة للملاك والأخصائيين مع تحديد حالة النشاط وبيانات الدخول.</div></div></div>
-<div class="grid" style="margin-bottom:14px">
-  <div class="kpi"><span>الملاك</span><b id="usersOwnersCount">0</b></div><div class="kpi"><span>الأخصائيون</span><b id="usersOfficersCount">0</b></div><div class="kpi"><span>النشطون</span><b id="usersActiveCount">0</b></div><div class="kpi"><span>غير النشطين</span><b id="usersInactiveCount">0</b></div>
+<div class="users-hero">
+  <div class="users-hero-copy"><div class="users-eyebrow">مركز التحكم المؤسسي</div><h2>👤 إدارة المستخدمين والصلاحيات</h2><p>إدارة آمنة ومركزية للحسابات، الصلاحيات، كلمات المرور، والارتباط الوظيفي — بتجربة احترافية مستوحاة من الأنظمة المصرفية.</p><div class="users-security-line"><span>●</span> نظام الصلاحيات نشط</div></div>
+  <div class="users-hero-badge"><div class="users-shield">✓</div><b>SECURE ACCESS</b><small>تحكم كامل للمالك</small></div>
 </div>
+<div class="users-kpi-grid">
+  <div class="users-kpi users-kpi-green"><div class="users-kpi-icon">♛</div><div><span>إجمالي الملاك</span><b id="usersOwnersCount">0</b><small>حسابات الإدارة</small></div></div>
+  <div class="users-kpi users-kpi-blue"><div class="users-kpi-icon">♙</div><div><span>الأخصائيون</span><b id="usersOfficersCount">0</b><small>حسابات التشغيل</small></div></div>
+  <div class="users-kpi users-kpi-teal"><div class="users-kpi-icon">✓</div><div><span>حسابات نشطة</span><b id="usersActiveCount">0</b><small>وصول مسموح</small></div></div>
+  <div class="users-kpi users-kpi-amber"><div class="users-kpi-icon">!</div><div><span>غير نشطة / محظورة</span><b id="usersInactiveCount">0</b><small>تحتاج مراجعة</small></div></div>
+</div>
+<div class="users-toolbar"><div><b>دليل الحسابات والصلاحيات</b><span>أضف المستخدمين أو عدّل بيانات الدخول والربط من النماذج أدناه.</span></div><div class="users-toolbar-note">آخر تحديث: <strong id="usersLastRefresh">الآن</strong></div></div>
 <div class="users-section-card">
   <div class="users-section-head"><div><h3>👑 الملاك</h3><p>جميع الملاك النشطين لديهم صلاحيات الإدارة الكاملة، ويمكنهم إدارة حسابات الملاك والأخصائيين.</p></div></div>
   <div id="ownerManagementBox" class="import-box no-print" style="display:none">
@@ -596,10 +610,10 @@ nav{background:#081826!important;border-left:1px solid #19344a!important;padding
       <input id="ownerEditKey" type="hidden">
       <div><label>اسم المستخدم</label><input id="ownerFormUsername" placeholder="مثال: اسم المستخدم"></div>
       <div><label>اسم المالك</label><input id="ownerFormName" placeholder="اسم المالك"></div>
-      <div><label>كلمة المرور</label><input id="ownerFormPassword" type="password" autocomplete="new-password" placeholder="كلمة المرور"></div>
+      <div><label>كلمة المرور</label><input id="ownerFormPassword" type="password" autocomplete="new-password" placeholder="أنشئ أو غيّر كلمة المرور"></div>
       <div><label>الحالة</label><select id="ownerFormActive"><option value="1">نشط</option><option value="0">غير نشط</option></select></div>
     </div>
-    <div class="user-actions"><button class="green" onclick="saveOwnerUser()">💾 حفظ المالك</button><button class="light" onclick="clearOwnerForm()">مسح</button></div>
+    <div class="user-actions"><button class="green" onclick="saveOwnerUser()">💾 حفظ المالك</button><button class="light" onclick="clearOwnerForm()">مسح النموذج</button></div>
     <div id="ownerMsg" class="msg"></div>
   </div>
   <div class="users-status-block"><div class="users-status-title ok">🟢 الملاك النشطون</div><div class="wrap"><table><thead><tr><th>اسم المستخدم</th><th>اسم المالك</th><th>الحالة</th><th>الصلاحية</th><th>الإجراءات</th></tr></thead><tbody id="ownersActiveBody"></tbody></table></div></div>
@@ -611,10 +625,10 @@ nav{background:#081826!important;border-left:1px solid #19344a!important;padding
     <b>إضافة / تعديل أخصائي</b>
     <div class="user-management-grid">
       <input id="userEditKey" type="hidden">
-      <div><label>اسم المستخدم</label><input id="userFormUsername" autocomplete="off" placeholder="مثال: ahmed"></div>
-      <div><label>اسم الأخصائي</label><input id="userFormName" placeholder="الاسم كما يظهر في Excel"></div>
-      <div><label>كلمة المرور</label><input id="userFormPassword" type="password" autocomplete="new-password" placeholder="كلمة المرور"></div>
-      <div><label>ربط الأخصائي</label><select id="userFormOfficer"></select></div>
+      <div><label>اسم المستخدم</label><input id="userFormUsername" autocomplete="off" placeholder="مثال: ahmed أو اسم مختصر"></div>
+      <div><label>الاسم الظاهر</label><input id="userFormName" placeholder="اسم الأخصائي كما يظهر في Excel"></div>
+      <div><label>كلمة المرور</label><input id="userFormPassword" type="password" autocomplete="new-password" placeholder="الافتراضية 1234 — قابلة للتغيير"></div>
+      <div><label>الاسم من شيت Excel</label><select id="userFormOfficer"></select><small>اختر الاسم المطابق للبيانات حتى يظهر في شاشة الدخول.</small></div>
     </div>
     <div class="user-actions"><button class="green" onclick="saveOfficerUser()">💾 حفظ المستخدم</button><button class="light" onclick="clearUserForm()">مسح</button></div>
     <div id="usersMsg" class="msg"></div>
@@ -944,19 +958,47 @@ function refreshLoginUsers(){
      : '<option value="">لا توجد حسابات ملاك متاحة</option>';
    input.disabled=!owners.length;
  }
+ const officerInput=document.getElementById("loginOfficerUser");
+ if(officerInput && role==="officer"){
+   const excelNames=typeof window.getExcelOfficerNames==="function"?window.getExcelOfficerNames():[];
+   const names=excelNames.length?excelNames:[...new Set(users.filter(u=>u.role==="officer"&&u.active!==false&&!u.blocked&&u.linked!==false).map(u=>String(u.officerName||u.name||"").trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,"ar"));
+   const officerMatchKey=value=>typeof window.getOfficerKey==="function"?window.getOfficerKey(value):String(value??"").replace(/\s+/g," ").trim().toLowerCase();
+   officerInput.innerHTML=names.length
+     ? '<option value="">— اختر اسم الأخصائي —</option>'+names.map(n=>{const u=users.find(x=>x.role==="officer"&&officerMatchKey(x.officerName||x.name)===officerMatchKey(n));return `<option value="${esc(u?.username||n)}" data-officer-name="${esc(n)}">${esc(n)}</option>`}).join("")
+     : '<option value="">لا توجد حسابات أخصائيين متاحة</option>';
+   officerInput.disabled=!names.length;
+ }
+ const passInput=document.getElementById("loginPass");
+ if(passInput && role==="officer"){passInput.value="";passInput.placeholder="كلمة المرور المحددة للمستخدم (الافتراضية 1234)";}
+ else if(passInput){passInput.value="";passInput.placeholder="أدخل كلمة المرور";}
  const msg=document.getElementById("loginMsg");if(msg){msg.textContent="";msg.style.display="none";}
 }
 function login(){
  const selectedRole=document.getElementById("loginRole").value;
- const uname=(selectedRole==="owner"?document.getElementById("loginOwnerUser")?.value:document.getElementById("loginOfficerUser")?.value||"").trim();
+ const officerSelect=document.getElementById("loginOfficerUser");
+ const selectedOfficerToken=(selectedRole==="officer"?officerSelect?.value||"":"").trim();
+ const selectedOfficerName=(selectedRole==="officer"?officerSelect?.selectedOptions?.[0]?.dataset?.officerName||selectedOfficerToken:"").trim();
+ const uname=(selectedRole==="owner"?document.getElementById("loginOwnerUser")?.value||"":"").trim();
  const pass=document.getElementById("loginPass").value;
- const user=users.find(x=>String(x.username).toLowerCase()===uname.toLowerCase());
+ const loginOfficerKey=value=>String(value??"").replace(/\u00a0/g," ").replace(/\s+/g," ").trim().toLowerCase();
+ let user=selectedRole==="officer"
+   ? users.find(x=>x.role==="officer" && String(x.username).toLowerCase()===selectedOfficerToken.toLowerCase()) || users.find(x=>x.role==="officer" && loginOfficerKey(x.officerName||x.name)===loginOfficerKey(selectedOfficerName))
+   : users.find(x=>String(x.username).toLowerCase()===uname.toLowerCase());
+ if(!user && selectedRole==="officer" && pass==="1234" && selectedOfficerName){
+   const excelNames=typeof window.getExcelOfficerNames==="function"?window.getExcelOfficerNames():[];
+   if(excelNames.some(n=>loginOfficerKey(n)===loginOfficerKey(selectedOfficerName))){
+     const generatedUsername="officer_"+Date.now().toString(36);
+     user={username:generatedUsername,name:selectedOfficerName,password:"1234",passwordIsCustom:false,role:"officer",officerName:selectedOfficerName,active:true,blocked:false,linked:true,autoCreated:true};
+     users.push(user);saveUsers();
+   }
+ }
  const msg=document.getElementById("loginMsg");
- if(!user || user.password!==pass || user.blocked || user.active===false || (user.role==="officer" && user.linked===false) || (selectedRole==="owner" ? !isOwnerRole(user.role) : user.role!==selectedRole)){
+ const passwordIsValid=user?.password===pass || (selectedRole==="officer" && pass==="1234" && user?.passwordIsCustom!==true);
+ if(!user || !passwordIsValid || user.blocked || user.active===false || (user.role==="officer" && user.linked===false) || (selectedRole==="owner" ? !isOwnerRole(user.role) : user.role!==selectedRole)){
   msg.textContent=user?.blocked?"هذا المستخدم محظور من الدخول.":(user?.active===false?"هذا المستخدم غير نشط.":(user?.linked===false?"هذا الأخصائي غير مرتبط بالبرنامج حاليًا.":"بيانات الدخول غير صحيحة."));
   msg.style.display="block"; return;
  }
- session={user:uname,name:user.name,role:user.role,ownerRole:user.ownerRole||"",officerName:user.officerName||""};
+ session={user:user.username,name:user.name,role:user.role,ownerRole:user.ownerRole||"",officerName:user.officerName||selectedOfficerName};
  try{sessionStorage.setItem(SESSION_KEY,JSON.stringify(session))}catch(e){}
  auditLog("تسجيل الدخول",`المستخدم: ${user.name}`);
  applySession();
@@ -1253,6 +1295,7 @@ function build(){
  populateClientsLists();
  updateRiskFilterLists();
  refreshDataQuality();
+ refreshLoginUsers();
  // Do not render all large tables during startup. They will be rendered
  // only when the user opens the corresponding screen.
  renderDash();
@@ -1687,6 +1730,15 @@ function uniqueOfficers(){
   });
   return [...seen.values()].sort((a,b)=>a.localeCompare(b,"ar"));
 }
+window.getExcelOfficerNames=()=>{
+  const seen=new Map();
+  rows.forEach(r=>{
+    const value=String(get(r,"officer")||"").trim();
+    if(value&&!seen.has(norm(value)))seen.set(norm(value),value);
+  });
+  return [...seen.values()].sort((a,b)=>a.localeCompare(b,"ar"));
+};
+window.getOfficerKey=officerKey;
 function populateOfficerList(){
   const list=document.getElementById("officerList");
   if(!list)return;
@@ -2467,10 +2519,10 @@ function clearUserForm(){["userEditKey","userFormUsername","userFormName","userF
 function editOfficerUser(username){if(!canManageOfficers())return alert("إدارة الأخصائيين متاحة لمحاسب الفرع ومدير الفرع فقط.");const u=users.find(x=>x.username===username&&x.role==="officer");if(!u)return;document.getElementById("userEditKey").value=u.username;document.getElementById("userFormUsername").value=u.username;document.getElementById("userFormName").value=u.name||"";document.getElementById("userFormPassword").value=u.password||"";renderUsers();document.getElementById("userFormOfficer").value=u.officerName||"";document.getElementById("userFormUsername").focus();}
 function saveOfficerUser(){
  if(!canManageOfficers())return alert("هذه الشاشة متاحة لمحاسب الفرع ومدير الفرع فقط.");
- const old=document.getElementById("userEditKey").value.trim().toLowerCase(),username=document.getElementById("userFormUsername").value.trim().toLowerCase(),name=document.getElementById("userFormName").value.trim(),password=document.getElementById("userFormPassword").value,officerName=document.getElementById("userFormOfficer").value;
- if(!username||!name||!password)return alert("أكمل اسم المستخدم والاسم وكلمة المرور.");if(users.some(u=>u.username===username&&u.username!==old))return alert("اسم المستخدم مستخدم بالفعل.");
+ const old=document.getElementById("userEditKey").value.trim().toLowerCase(),username=document.getElementById("userFormUsername").value.trim().toLowerCase(),name=document.getElementById("userFormName").value.trim(),password=document.getElementById("userFormPassword").value||"1234",officerName=document.getElementById("userFormOfficer").value;
+ if(!username||!name)return alert("أكمل اسم المستخدم والاسم.");if(users.some(u=>u.username===username&&u.username!==old))return alert("اسم المستخدم مستخدم بالفعل.");
  const existing=old?users.find(u=>u.username===old):null;const canonicalOfficer=uniqueOfficers().find(o=>officerKey(o)===officerKey(officerName||name))||officerName;
- if(existing)Object.assign(existing,{username,name,password,officerName:canonicalOfficer,linked:!!canonicalOfficer,active:true,manualUnlink:false});else users.push({username,name,password,role:"officer",officerName:canonicalOfficer,active:true,blocked:false,linked:!!canonicalOfficer,manualUnlink:false});
+ if(existing)Object.assign(existing,{username,name,password,passwordIsCustom:password!=="1234",officerName:canonicalOfficer,linked:!!canonicalOfficer,active:true,manualUnlink:false});else users.push({username,name,password,passwordIsCustom:password!=="1234",role:"officer",officerName:canonicalOfficer,active:true,blocked:false,linked:!!canonicalOfficer,manualUnlink:false});
  saveUsers();clearUserForm();renderUsers();auditLog(existing?"تعديل مستخدم":"إضافة مستخدم",`الأخصائي: ${name}`);showMsg("تم حفظ مستخدم الأخصائي بنجاح.","ok","usersMsg");
 }
 function toggleUserBlock(username){if(!canManageOfficers())return alert("إدارة الأخصائيين متاحة لجميع الملاك النشطين.");const u=users.find(x=>x.username===username&&x.role==="officer");if(!u)return;u.blocked=!u.blocked;saveUsers();renderUsers();auditLog(u.blocked?"حظر أخصائي":"فك حظر أخصائي",`المستخدم: ${u.name}`);}
