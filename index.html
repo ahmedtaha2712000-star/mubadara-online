@@ -463,6 +463,12 @@ nav{background:#081826!important;border-left:1px solid #19344a!important;padding
 }
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important}}
 </style>
+<style id="ux-professional-style">
+.nav-section-title{color:#7dd3c0;font-size:10px;font-weight:900;letter-spacing:.5px;padding:12px 10px 5px;margin-top:3px;border-bottom:1px solid #ffffff10}.nav-section-title:first-child{margin-top:0}.nav-admin-title{margin-top:13px;color:#9db6c5}nav a{position:relative}nav a small{display:block;color:#78909c;font-size:9px;font-weight:400;margin-top:3px;padding-right:25px}nav a:hover small,nav a.active small{color:#b9e8dc}
+.command-center{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:18px 20px;margin:0 0 16px;border:1px solid #d8e8e5;border-radius:16px;background:linear-gradient(110deg,#effaf6,#f5f9fc);box-shadow:0 6px 18px #0f766e0b}.command-copy{min-width:190px}.command-eyebrow{color:#0b7a57;font-size:10px;font-weight:900;letter-spacing:1px}.command-copy h3{margin:4px 0;color:#123b4b;font-size:19px}.command-copy p{margin:0;color:#6d808a;font-size:11px;line-height:1.6}.command-actions{display:grid;grid-template-columns:repeat(4,minmax(125px,1fr));gap:8px;flex:1}.command-action{display:flex;align-items:center;gap:8px;text-align:right;padding:11px 10px;border:1px solid #d6e4e7;background:#fff;color:#173d4b;border-radius:11px;box-shadow:none}.command-action:hover{transform:translateY(-2px);border-color:#66b9a2;background:#fbfffe}.command-action.primary{background:#087f5b;color:#fff;border-color:#087f5b}.command-action b{font-size:19px}.command-action span{font-size:11px;font-weight:900}.command-action small{display:block;font-size:9px;font-weight:400;opacity:.72;margin-top:3px}.dashboard-note{display:flex;align-items:center;gap:10px;padding:11px 14px;margin:14px 0;border-right:3px solid #0b7a57;background:#f3faf7;border-radius:10px;color:#45616d}.dashboard-note>span{font-size:20px}.dashboard-note b{font-size:12px;color:#0b7a57}.dashboard-note p{display:inline;margin:0 0 0 6px;font-size:11px}
+@media(max-width:1050px){.command-center{align-items:stretch;flex-direction:column}.command-actions{width:100%}}
+@media(max-width:600px){nav a small{display:none}.nav-section-title{padding-top:8px}.command-actions{grid-template-columns:repeat(2,minmax(0,1fr))}.command-action{padding:10px 8px}.dashboard-note{align-items:flex-start}.dashboard-note p{display:block;margin:4px 0 0}}
+</style>
 <style id="banking-users-style">
 #users{background:linear-gradient(180deg,#f8fbfc 0%,#fff 28%);border-color:#d8e5ea}
 .users-hero{display:flex;justify-content:space-between;align-items:center;gap:24px;padding:26px 28px;border-radius:20px;background:radial-gradient(circle at 10% 0%,#176b62 0,#0f3b4a 38%,#071b2b 100%);color:#fff;box-shadow:0 16px 35px rgba(7,27,43,.18);position:relative;overflow:hidden}
@@ -514,16 +520,18 @@ nav{background:#081826!important;border-left:1px solid #19344a!important;padding
 
 <div class="layout">
 <nav class="no-print">
-<a href="#clients" data-screen="clients">👥 العملاء</a>
-<a href="#search" data-screen="search">🔍 البحث</a>
-<a href="#dash" data-screen="dash" data-manager-only>📊 لوحة التحكم</a>
-<a href="#collection" data-screen="collection">📅 التحصيل</a>
-<a href="#risk" data-screen="risk">⚠️ المتأخرات</a>
-<a href="#portfolio" data-screen="portfolio">💼 المحفظة</a>
-<a href="#print" data-screen="print">🖨️ الطباعة</a>
-<a href="#users" data-screen="users" data-owner-only>👤 المستخدمون</a>
-<a href="#audit" data-screen="audit" data-owner-only>🧾 سجل العمليات</a>
-<a href="#import" data-screen="import">📥 رفع Excel</a>
+<div class="nav-section-title">التشغيل اليومي</div>
+<a href="#dash" data-screen="dash" data-manager-only>📊 لوحة التحكم <small>ملخص سريع</small></a>
+<a href="#clients" data-screen="clients">👥 العملاء <small>عرض ومتابعة</small></a>
+<a href="#collection" data-screen="collection">📅 التحصيل <small>الأقساط المستحقة</small></a>
+<a href="#search" data-screen="search">🔍 البحث السريع <small>الوصول لأي سجل</small></a>
+<a href="#risk" data-screen="risk">⚠️ المتأخرات <small>المخاطر والمتابعة</small></a>
+<a href="#portfolio" data-screen="portfolio">💼 المحفظة <small>المؤشرات المالية</small></a>
+<a href="#print" data-screen="print">🖨️ الطباعة <small>تقارير جاهزة</small></a>
+<div class="nav-section-title nav-admin-title">الإدارة والبيانات</div>
+<a href="#users" data-screen="users" data-owner-only>👤 المستخدمون <small>الحسابات والصلاحيات</small></a>
+<a href="#audit" data-screen="audit" data-owner-only>🧾 سجل العمليات <small>الرقابة والتدقيق</small></a>
+<a href="#import" data-screen="import" data-owner-only>📥 بيانات Excel <small>رفع وتحديث البيانات</small></a>
 </nav>
 
 <main class="print-area">
@@ -698,6 +706,10 @@ nav{background:#081826!important;border-left:1px solid #19344a!important;padding
   <div><h2>📊 لوحة التحكم</h2><div class="sub">ملخص تشغيلي للمحفظة والتحصيل والمتأخرات.</div></div>
   <span class="live-badge">● بيانات النظام</span>
 </div>
+<div class="command-center">
+  <div class="command-copy"><span class="command-eyebrow">مركز القيادة</span><h3>ابدأ من هنا</h3><p>الوصول السريع إلى أكثر المهام استخدامًا بدل التنقل بين القوائم.</p></div>
+  <div class="command-actions"><button class="command-action primary" onclick="showScreen('collection')"><b>📅</b><span>متابعة التحصيل<small>الأقساط والفترات</small></span></button><button class="command-action" onclick="showScreen('search')"><b>🔍</b><span>بحث سريع<small>عميل أو قرض</small></span></button><button class="command-action" onclick="showScreen('risk')"><b>⚠️</b><span>مراجعة المخاطر<small>المتأخرات الحالية</small></span></button><button class="command-action" onclick="showScreen('import')"><b>📥</b><span>تحديث البيانات<small>رفع ملف Excel</small></span></button></div>
+</div>
 <div class="pro-kpis">
   <div class="pro-kpi"><span>👥 العملاء / القروض</span><b id="n">0</b><small>إجمالي السجلات المجمعة</small></div>
   <div class="pro-kpi"><span>💼 قيمة المحفظة</span><b id="portfolioTotal">0 ج.م</b><small>إجمالي قيم التمويل</small></div>
@@ -715,6 +727,7 @@ nav{background:#081826!important;border-left:1px solid #19344a!important;padding
   <div><span>قيمة المتأخرات</span><b id="riskAmount">0</b></div>
   <div><span>جودة البيانات</span><b id="dataQuality">100%</b></div>
 </div>
+<div class="dashboard-note"><span>💡</span><div><b>نصيحة تشغيلية</b><p>ابدأ بمراجعة التحصيل اليومي، ثم راجع المتأخرات قبل اعتماد التقارير أو الطباعة.</p></div></div>
 <div class="dashboard-control-grid">
   <div class="control-card"><div class="control-title">📈 مؤشر التحصيل</div><div class="progress"><span id="collectionProgress"></span></div><div class="control-note" id="collectionProgressText">0%</div></div>
   <div class="control-card"><div class="control-title">⚠️ مستوى المخاطر</div><div class="risk-meter"><span id="riskMeter"></span></div><div class="control-note" id="riskMeterText">لا توجد بيانات</div></div>
@@ -1014,7 +1027,7 @@ function applySession(){
  document.getElementById("currentRole").textContent=isOwnerRole(session.role)?(session.ownerRole||"مالك / إدارة"):"أخصائي تمويل";
  applyPermissions();
  if(session.role==="officer") showScreen("clients");
- else if(document.querySelector(".screen.active.hidden")) showScreen("import");
+ else showScreen("dash");
 }
 const INACTIVITY_LIMIT=15*60*1000;
 let inactivityTimer=null;
@@ -1088,6 +1101,7 @@ function officerKey(s){
 function num(v){let s=String(v??"").replace(/,/g,"").replace(/[^\d.-]/g,"");let x=parseFloat(s);return isNaN(x)?0:x}
 function money(v){return num(v).toLocaleString("ar-EG",{maximumFractionDigits:2})+" ج.م"}
 function esc(v){return String(v??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;")}
+function escAttr(v){return esc(v).replace(/`/g,"&#096;")}
 function val(r,k){return r[k]??""}
 
 function showMsg(text,type="ok",targetId="msg"){
