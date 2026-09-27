@@ -951,6 +951,70 @@ nav a.active{background:#1e293b;color:#fff}
 <style id="collection-status-professional-style">
 .collection-status-widget{margin-top:8px!important}.collection-status-widget .smart-select-control{border:1px solid #b8d8e6!important;border-radius:15px!important;background:linear-gradient(135deg,#f7fcff,#eef8f5)!important;box-shadow:0 5px 16px rgba(20,100,130,.12)!important;padding:4px!important}.collection-status-widget .smart-select-search{height:42px!important;border:0!important;background:transparent!important;color:#164453!important;font-size:14px!important;font-weight:900!important;padding:9px 13px!important}.collection-status-widget .smart-select-search::placeholder{color:#5d8290!important;font-weight:800!important}.collection-status-widget .smart-select-search:focus{background:#fff!important;box-shadow:0 0 0 3px rgba(14,145,117,.14)!important;border-radius:11px!important}.collection-status-widget .smart-select-menu{border-color:#acd4df!important;border-radius:14px!important;background:#fbffff!important;box-shadow:0 18px 36px rgba(20,70,90,.2)!important}.collection-status-widget .smart-select-option{font-size:13px!important;font-weight:900!important;padding:11px 14px!important;border-bottom:1px solid #edf4f4!important}.collection-status-widget .smart-select-option[data-value="open"]{color:#087652!important}.collection-status-widget .smart-select-option[data-value="closed"]{color:#9b3d32!important}.collection-status-widget .smart-select-option[data-value="all"]{color:#23627a!important}.collection-status-widget .smart-select-option.active{background:#e1f4ed!important;box-shadow:inset -3px 0 #159a78!important}.collection-status-widget .smart-select-option[data-value="closed"].active{background:#fff0ed!important;box-shadow:inset -3px 0 #e57362!important}
 </style>
+<style id="desktop-navigation-easy-access">
+/* شريط تنقل أفقي متعدد الصفوف للكمبيوتر: كل الشاشات ظاهرة دون تمرير طويل */
+@media (min-width:801px){
+  .layout{display:block!important;width:100%!important;min-height:0!important}
+  .layout>nav{display:flex!important;flex-direction:row!important;flex-wrap:wrap!important;align-items:stretch!important;gap:8px!important;width:100%!important;max-width:none!important;height:auto!important;max-height:none!important;position:sticky!important;top:68px!important;overflow:visible!important;padding:12px 18px!important;box-sizing:border-box!important;z-index:1100!important;background:linear-gradient(135deg,#0b1220,#122333)!important;border-bottom:1px solid #274052!important;box-shadow:0 8px 20px rgba(15,35,55,.16)!important}
+  .layout>nav .nav-section-title{flex:0 0 100%!important;width:100%!important;margin:0!important;padding:3px 4px 4px!important;border-bottom:1px solid #ffffff18!important;line-height:1.2!important}
+  .layout>nav a{display:flex!important;flex:1 1 145px!important;width:auto!important;min-width:135px!important;min-height:54px!important;height:auto!important;margin:0!important;padding:9px 12px!important;align-items:center!important;justify-content:center!important;text-align:center!important;white-space:normal!important;border:1px solid #ffffff0d!important;border-radius:11px!important;background:#111d2d!important;box-shadow:0 3px 8px #00000018!important;line-height:1.25!important}
+  .layout>nav a:hover,.layout>nav a.active{background:linear-gradient(135deg,#087957,#0b5e69)!important;border-color:#49b99a!important;color:#fff!important;box-shadow:0 6px 14px #0000002b!important;transform:translateY(-1px)!important}
+  .layout>nav a small{padding:0!important;margin-top:3px!important;color:#91a8b4!important}
+  .layout>nav a:hover small,.layout>nav a.active small{color:#d0f5e9!important}
+  .layout>main{display:block!important;width:100%!important;max-width:none!important;min-width:0!important;padding:18px 22px!important;box-sizing:border-box!important}
+}
+</style>
+<style id="professional-global-color-system">
+/* هوية لونية مؤسسية موحدة: كحلي + تركواز + لمسة ذهبية */
+:root{
+  --bg:#f3f7fa!important;--surface:#ffffff!important;--surface2:#f7fafc!important;
+  --text:#102a43!important;--muted:#607789!important;--primary:#087f72!important;
+  --primary2:#10a58c!important;--blue:#1769aa!important;--danger:#c2413b!important;
+  --warning:#c27a18!important;--border:#d7e5ea!important;
+  --shadow:0 10px 28px rgba(16,42,67,.08)!important;--radius:16px!important;
+}
+html,body{background:linear-gradient(180deg,#eef5f7 0%,#f7fafb 44%,#f3f7fa 100%)!important;color:#102a43!important}
+.pro-header,header{background:linear-gradient(110deg,#071b2b 0%,#0d3041 52%,#0b4d4c 100%)!important;border-bottom:2px solid #c99332!important;box-shadow:0 5px 20px rgba(7,27,43,.22)!important}
+.logo{color:#5ee0bd!important}.brand-sub{color:#c4dce1!important}.status{background:#174354!important;color:#dffaf2!important}
+.layout>nav{background:linear-gradient(135deg,#071827 0%,#102b3b 60%,#0c3b3a 100%)!important;border-bottom-color:#2b5663!important}
+.layout>nav .nav-section-title{color:#7ce1c8!important;border-bottom-color:#ffffff24!important}
+.layout>nav a{background:linear-gradient(145deg,#112536,#152d3e)!important;border-color:#ffffff14!important;color:#d8e8ed!important}
+.layout>nav a:hover,.layout>nav a.active{background:linear-gradient(135deg,#07866f,#126a77)!important;border-color:#5bd2b5!important;color:#fff!important}
+.layout>nav a small{color:#8eaab5!important}.layout>nav a:hover small,.layout>nav a.active small{color:#d8fff3!important}
+.layout>main{background:transparent!important}
+.card{border-color:#d5e4e9!important;background:rgba(255,255,255,.96)!important;box-shadow:0 10px 28px rgba(16,42,67,.075)!important}
+.card h2,.screen-header h2,.dashboard-title h2{color:#123b4b!important}
+.screen-header{padding-bottom:11px!important;border-bottom:1px solid #e0ecef!important}
+.screen-header h2{position:relative!important;padding-right:13px!important}
+.screen-header h2:before{content:"";position:absolute;right:0;top:4px;bottom:4px;width:4px;border-radius:4px;background:linear-gradient(#d2a23a,#0b967d)!important}
+.sub{color:#69808d!important}
+input,select{border-color:#c8dce2!important;background:#fbfdfd!important;color:#102a43!important}
+input:focus,select:focus{border-color:#11a388!important;box-shadow:0 0 0 3px #11a38822!important}
+button{box-shadow:0 3px 8px rgba(16,42,67,.09)!important}
+button:hover{box-shadow:0 6px 14px rgba(16,42,67,.15)!important}
+.green{background:linear-gradient(135deg,#087f72,#0ca58c)!important}.blue{background:linear-gradient(135deg,#1769aa,#1686ba)!important}.dark{background:linear-gradient(135deg,#1b3448,#274b5b)!important}.red{background:linear-gradient(135deg,#b63d3a,#d85b4b)!important}.light{background:#e8f1f3!important;color:#173d4d!important;border:1px solid #c9dde2!important}
+.kpi{border-color:#d6e6e9!important;background:linear-gradient(145deg,#fff,#f5fbfa)!important}.kpi span{color:#5d7885!important}.kpi b{color:#123b4b!important}
+th{background:#eaf4f2!important;color:#275564!important;border-bottom-color:#d1e2e6!important}
+tbody tr:nth-child(even) td{background:#fbfdfd!important}tbody tr:hover td{background:#eef9f5!important}
+.export-toolbar{background:linear-gradient(180deg,#f3f9f8,#fff)!important;border-color:#d4e5e8!important}
+.msg.ok{background:#e9f8f1!important;border-color:#a9dfcb!important;color:#087052!important}
+@media(max-width:800px){.card{box-shadow:0 7px 20px rgba(16,42,67,.07)!important}.screen-header{padding-bottom:8px!important}}
+</style>
+<style id="navigation-typography-professional">
+/* شريط التنقل: قراءة أوضح وتباين احترافي */
+@media (min-width:801px){
+  .layout>nav{gap:10px!important;padding:14px 20px!important;background:linear-gradient(135deg,#061724,#0b2b3b 58%,#0a4140)!important}
+  .layout>nav .nav-section-title{font-size:12px!important;font-weight:900!important;letter-spacing:.2px!important;color:#8ae7cf!important;padding:4px 7px 6px!important}
+  .layout>nav a{min-width:145px!important;min-height:62px!important;padding:10px 14px!important;font-size:15px!important;font-weight:900!important;line-height:1.25!important;color:#e5f1f4!important;border:1px solid #4a7180!important;background:linear-gradient(145deg,#132c3e,#173749)!important;box-shadow:0 5px 12px rgba(0,0,0,.18)!important}
+  .layout>nav a small{font-size:11px!important;font-weight:700!important;line-height:1.25!important;color:#a8c0c8!important}
+  .layout>nav a:hover,.layout>nav a.active{color:#fff!important;background:linear-gradient(145deg,#087f72,#0c9b86)!important;border-color:#e0b84e!important;box-shadow:0 7px 16px rgba(5,123,105,.28)!important}
+  .layout>nav a:hover small,.layout>nav a.active small{color:#e6fff8!important}
+}
+@media (max-width:800px){
+  .layout>nav a{font-size:12px!important;font-weight:900!important;color:#e5f1f4!important}
+  .layout>nav a small{font-size:9px!important;font-weight:700!important}
+}
+</style>
 </head>
 
 <body>
