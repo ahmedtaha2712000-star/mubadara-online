@@ -1079,6 +1079,100 @@ tbody tr:nth-child(even) td{background:#fbfdfd!important}tbody tr:hover td{backg
   .layout>nav .nav-section-title{font-size:11px!important}
 }
 </style>
+<style id="mobile-bottom-navigation">
+/* Mobile navigation only: desktop navigation and every screen remain untouched. */
+#app .mobile-bottom-nav,#app .mobile-more-panel{display:none!important}
+@media(max-width:760px){
+ #app .layout>nav{display:none!important}
+ #app .mobile-bottom-nav{position:fixed!important;inset:auto 0 0!important;z-index:10050!important;display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;align-items:stretch!important;gap:2px!important;box-sizing:border-box!important;min-height:74px!important;padding:7px 8px calc(7px + env(safe-area-inset-bottom))!important;background:rgba(7,21,34,.97)!important;border-top:1px solid #2a3d51!important;box-shadow:0 -8px 24px rgba(0,0,0,.28)!important;backdrop-filter:blur(14px)!important;direction:rtl!important}
+ #app .mobile-bottom-nav .mobile-nav-item,#app .mobile-bottom-nav .mobile-more-toggle{display:flex!important;min-width:0!important;min-height:56px!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:4px!important;padding:3px 1px!important;background:transparent!important;color:#9eacbb!important;border:0!important;border-radius:12px!important;text-decoration:none!important;font:700 11px/1.2 Tahoma,Arial,sans-serif!important;white-space:nowrap!important;cursor:pointer!important}
+ #app .mobile-bottom-nav .mobile-nav-item.active,#app .mobile-bottom-nav .mobile-more-toggle.active{color:#d9b64d!important;background:rgba(213,176,75,.09)!important}
+ #app .mobile-nav-icon{display:grid!important;place-items:center!important;width:26px!important;height:26px!important;background:transparent!important;color:currentColor!important;border:0!important}
+ #app .mobile-nav-icon svg,#app .mobile-more-toggle svg{width:25px!important;height:25px!important;fill:none!important;stroke:currentColor!important;stroke-width:1.9!important;stroke-linecap:round!important;stroke-linejoin:round!important}
+ #app .mobile-nav-label{display:block!important;max-width:100%!important;overflow:hidden!important;text-overflow:ellipsis!important}
+ #app .mobile-more-panel{position:fixed!important;inset:auto 12px calc(82px + env(safe-area-inset-bottom)) 12px!important;z-index:10049!important;display:none!important;flex-direction:column!important;gap:8px!important;box-sizing:border-box!important;max-height:62vh!important;overflow:auto!important;padding:14px!important;background:#0d1d2c!important;color:#e9eef3!important;border:1px solid #30445a!important;border-radius:18px!important;box-shadow:0 18px 44px rgba(0,0,0,.45)!important;direction:rtl!important}
+ #app .mobile-more-panel.open{display:flex!important}
+ #app .mobile-more-title{margin:0 0 3px!important;padding:2px 5px 10px!important;color:#dfbf5d!important;border-bottom:1px solid #2c4054!important;font-size:13px!important;font-weight:900!important}
+ #app .mobile-more-panel a{display:grid!important;grid-template-columns:36px minmax(0,1fr)!important;grid-template-rows:auto auto!important;align-items:center!important;gap:1px 10px!important;min-height:50px!important;margin:0!important;padding:8px 10px!important;background:#142538!important;color:#e7edf3!important;border:1px solid #2d4156!important;border-radius:12px!important;text-align:right!important;text-decoration:none!important}
+ #app .mobile-more-panel a.active{background:#d9b64d!important;color:#152235!important;border-color:#f0d982!important}
+ #app .mobile-more-panel a .nav-icon{grid-column:1!important;grid-row:1/span 2!important;display:grid!important;place-items:center!important;width:32px!important;height:32px!important;margin:0!important;background:transparent!important;color:currentColor!important;border:0!important}
+ #app .mobile-more-panel a .nav-icon svg{width:23px!important;height:23px!important;fill:none!important;stroke:currentColor!important;stroke-width:1.8!important;stroke-linecap:round!important;stroke-linejoin:round!important}
+ #app .mobile-more-panel a .nav-label{grid-column:2!important;grid-row:1!important;color:inherit!important;font-size:12px!important;font-weight:900!important}
+ #app .mobile-more-panel a small{grid-column:2!important;grid-row:2!important;display:block!important;color:#aab8c6!important;font-size:10px!important}
+ #app .mobile-more-panel a.active small{color:#283548!important}
+ #app{padding-bottom:calc(80px + env(safe-area-inset-bottom))!important}
+}
+
+/* Compact mobile bar; put the More label above its icon and keep its menu compact. */
+@media(max-width:760px){
+ #app .mobile-bottom-nav{inset:auto 0 env(safe-area-inset-bottom)!important;grid-template-columns:repeat(6,minmax(0,1fr))!important;min-height:54px!important;padding:3px 8px!important}
+ #app .mobile-bottom-nav .mobile-nav-item,#app .mobile-bottom-nav .mobile-more-toggle{min-height:44px!important;gap:1px!important;padding:1px!important}
+ #app .mobile-bottom-nav .mobile-more-toggle{flex-direction:column-reverse!important}
+ #app .mobile-more-panel{inset:auto 12px calc(62px + env(safe-area-inset-bottom)) 12px!important;max-height:52vh!important;gap:6px!important;padding:10px!important}
+ #app .mobile-more-title{padding:0 4px 7px!important}
+ #app .mobile-more-panel a{min-height:42px!important;padding:6px 9px!important}
+ #app{padding-bottom:calc(62px + env(safe-area-inset-bottom))!important}
+}
+</style>
+<style id="compact-export-icons">
+/* Compact export controls: only print, PDF and Excel buttons. */
+button.icon-action{box-sizing:border-box!important;display:inline-grid!important;place-items:center!important;gap:0!important;width:36px!important;height:36px!important;min-width:36px!important;min-height:36px!important;max-width:36px!important;max-height:36px!important;flex:0 0 36px!important;padding:6px!important;justify-content:center!important;align-items:center!important;border-radius:8px!important}
+button.icon-action .action-label{display:none!important}
+button.icon-action .action-glyph{display:grid!important;place-items:center!important;width:20px!important;height:20px!important;flex:0 0 20px!important;margin:0!important}
+button.icon-action .action-glyph svg{display:block!important;width:18px!important;height:18px!important}
+.collection-export-icons{gap:5px!important;padding:4px 6px!important}
+@media(max-width:760px){
+ button.icon-action{width:32px!important;height:32px!important;min-width:32px!important;min-height:32px!important;max-width:32px!important;max-height:32px!important;flex:0 0 32px!important;padding:5px!important}
+ .export-toolbar button.icon-action{justify-self:center!important;align-self:center!important}
+ .export-toolbar:has(>button.icon-action):not(:has(>button:not(.icon-action))){display:flex!important;grid-template-columns:none!important;flex-wrap:wrap!important;align-items:center!important;gap:4px!important;padding:4px!important}
+ .collection-export-icons{gap:4px!important;padding:3px!important}
+}
+</style>
+<style id="professional-export-icons">
+/* Recognizable export glyphs with restrained, action-specific color. */
+button.print-btn.icon-action{color:#334b62!important;background:linear-gradient(145deg,#f5f8fb,#e6edf4)!important;border:1px solid #d2dde8!important;box-shadow:0 2px 5px rgba(35,58,80,.12),inset 0 1px 0 rgba(255,255,255,.9)!important}
+button.pdf-btn.icon-action{color:#c62828!important;background:linear-gradient(145deg,#fff7f7,#ffe9eb)!important;border:1px solid #f3c5cb!important;box-shadow:0 2px 5px rgba(168,40,50,.12),inset 0 1px 0 rgba(255,255,255,.95)!important}
+button.excel-btn.icon-action{color:#147a48!important;background:linear-gradient(145deg,#f3fbf5,#e3f4e9)!important;border:1px solid #bfe0ca!important;box-shadow:0 2px 5px rgba(20,122,72,.12),inset 0 1px 0 rgba(255,255,255,.95)!important}
+button.icon-action .action-glyph svg{fill:none!important;stroke:currentColor!important;stroke-width:1.8!important;stroke-linecap:round!important;stroke-linejoin:round!important}
+button.icon-action:hover{transform:translateY(-1px);filter:saturate(1.08)}
+button.icon-action:focus-visible{outline:2px solid #c5a34a!important;outline-offset:2px!important}
+button.icon-action:disabled{opacity:.48!important;cursor:not-allowed!important;transform:none!important}
+</style>
+<style id="distinctive-export-glyphs">
+/* Enlarge only the glyphs inside the existing compact export buttons. */
+button.icon-action .action-glyph{width:22px!important;height:22px!important;flex:0 0 22px!important}
+button.icon-action .action-glyph svg{width:22px!important;height:22px!important;display:block!important}
+@media(max-width:760px){button.icon-action{padding:4px!important}}
+</style>
+<style id="mobile-section-transition-style">
+@keyframes mobileSectionEnter{from{opacity:0;transform:translate3d(0,8px,0)}to{opacity:1;transform:translate3d(0,0,0)}}
+@keyframes mobileTabActivate{0%{transform:scale(.94);opacity:.82}65%{transform:scale(1.045);opacity:1}100%{transform:scale(1);opacity:1}}
+@media(max-width:760px){
+ #app .screen.mobile-section-enter{animation:mobileSectionEnter 190ms cubic-bezier(.22,.68,.2,1) both}
+ #mobileBottomNav .mobile-tab-activate{animation:mobileTabActivate 170ms cubic-bezier(.22,.68,.2,1) both}
+}
+@media(prefers-reduced-motion:reduce){
+ #app .screen.mobile-section-enter,#mobileBottomNav .mobile-tab-activate{animation:none!important}
+}
+</style>
+<style id="elegant-more-dropdown">
+@media(max-width:760px){
+ #app .mobile-more-panel{display:flex!important;inset:auto auto calc(62px + env(safe-area-inset-bottom)) 12px!important;width:min(320px,calc(100vw - 24px))!important;max-width:calc(100vw - 24px)!important;max-height:52vh!important;gap:7px!important;padding:13px!important;background:linear-gradient(155deg,rgba(20,42,61,.98),rgba(9,23,36,.98))!important;border:1px solid rgba(220,188,91,.38)!important;border-radius:20px!important;box-shadow:0 18px 44px rgba(0,0,0,.38),0 4px 12px rgba(0,0,0,.18),inset 0 1px 0 rgba(255,255,255,.06)!important;backdrop-filter:blur(16px);opacity:0!important;visibility:hidden!important;pointer-events:none!important;transform:translateY(10px) scale(.97)!important;transform-origin:bottom left!important;transition:opacity 180ms ease,transform 190ms cubic-bezier(.2,.72,.2,1),visibility 0s linear 190ms!important}
+ #app .mobile-more-panel.open{display:flex!important;opacity:1!important;visibility:visible!important;pointer-events:auto!important;transform:translateY(0) scale(1)!important;transition:opacity 180ms ease,transform 190ms cubic-bezier(.2,.72,.2,1),visibility 0s!important}
+ #app .mobile-more-title{position:relative!important;margin:0 0 3px!important;padding:1px 9px 10px!important;color:#f0d37b!important;border-bottom:1px solid rgba(214,225,236,.15)!important;font-size:13px!important;letter-spacing:.1px!important}
+ #app .mobile-more-title:after{content:"";position:absolute;right:8px;bottom:-1px;width:34px;height:2px;border-radius:2px;background:linear-gradient(90deg,#f0d37b,#c79c32)}
+ #app .mobile-more-panel a{background:rgba(255,255,255,.045)!important;border:1px solid rgba(170,191,210,.15)!important;border-radius:13px!important;transition:background 150ms ease,border-color 150ms ease,transform 150ms ease,box-shadow 150ms ease!important}
+ #app .mobile-more-panel a:hover,#app .mobile-more-panel a:focus-visible{background:rgba(217,182,77,.12)!important;border-color:rgba(230,200,110,.42)!important;transform:translateX(-2px);box-shadow:0 5px 14px rgba(0,0,0,.15)!important;outline:none}
+ #app .mobile-more-panel a.active{background:linear-gradient(135deg,#f0d781,#d4ae49)!important;color:#152235!important;border-color:#f4df9d!important;box-shadow:0 4px 12px rgba(211,176,75,.24)!important}
+ #app .mobile-more-panel a.active small{color:#354256!important}
+ #mobileBottomNav .mobile-more-toggle[aria-expanded="true"]{background:rgba(217,182,77,.16)!important;color:#f0d37b!important;box-shadow:inset 0 0 0 1px rgba(221,190,96,.3)!important}
+ #mobileBottomNav .mobile-more-toggle .more-caret{transform-box:fill-box;transform-origin:center;transition:transform 180ms cubic-bezier(.2,.72,.2,1)}
+ #mobileBottomNav .mobile-more-toggle[aria-expanded="true"] .more-caret{transform:rotate(180deg)}
+}
+@media(prefers-reduced-motion:reduce){
+ #app .mobile-more-panel,#app .mobile-more-panel.open,#app .mobile-more-panel a,#mobileBottomNav .mobile-more-toggle .more-caret{transition:none!important}
+}
+</style>
 </head>
 
 <body>
@@ -1142,9 +1236,9 @@ tbody tr:nth-child(even) td{background:#fbfdfd!important}tbody tr:hover td{backg
 
 <section id="clients" class="card screen">
 <div class="export-toolbar no-print">
-  <button class="print-btn icon-action" aria-label="طباعة" title="طباعة" onclick="printCurrentScreen()"><span class="action-glyph glyph-print" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 9V3h12v6M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2M6 14h12v7H6z"/></svg></span><span class="action-label">طباعة</span></button>
-  <button class="pdf-btn icon-action" aria-label="تحميل PDF" title="تحميل PDF" onclick="downloadCurrentPDF()"><span class="action-glyph glyph-pdf" aria-hidden="true">PDF</span><span class="action-label">PDF</span></button>
-  <button class="excel-btn icon-action" aria-label="تحميل Excel" title="تحميل Excel" onclick="exportCurrentExcel()"><span class="action-glyph glyph-excel" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 3h10l6 6v12H4z"/><path d="M14 3v6h6M8 12l5 6M13 12l-5 6"/></svg></span><span class="action-label">Excel</span></button>
+  <button class="print-btn icon-action" aria-label="طباعة" title="طباعة" onclick="printCurrentScreen()"><span class="action-glyph glyph-print" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M7.25 8V3.5h9.5V8" fill="#eaf3ff" stroke="#3769a3" stroke-width="1.25"/><path d="M5.75 8.5h12.5A2.75 2.75 0 0 1 21 11.25v2A2.75 2.75 0 0 1 18.25 16H17v-2.5H7V16H5.75A2.75 2.75 0 0 1 3 13.25v-2A2.75 2.75 0 0 1 5.75 8.5Z" fill="#4d86c6" stroke="#225d9c" stroke-width="1.2"/><path d="M7 13.5h10v7H7z" fill="#fff" stroke="#225d9c" stroke-width="1.2"/><path d="M9 16.5h6" fill="none" stroke="#77a5d6" stroke-width="1.25"/><circle cx="17.25" cy="11.3" r=".7" fill="#e7f8ff" stroke="#fff" stroke-width=".45"/></svg></span><span class="action-label">طباعة</span></button>
+  <button class="pdf-btn icon-action" aria-label="تحميل PDF" title="تحميل PDF" onclick="downloadCurrentPDF()"><span class="action-glyph glyph-pdf" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M6 2.75h8l4.25 4.25v14.25H6z" fill="#fff" stroke="#b51f2b" stroke-width="1.2"/><path d="M14 2.75V7h4.25" fill="#ffd9dd" stroke="#b51f2b" stroke-width="1.1"/><rect x="5.75" y="10" width="13" height="8.25" rx="1.3" fill="#d62839" stroke="#b51f2b" stroke-width=".6"/><text x="12.25" y="15.9" text-anchor="middle" font-family="Arial,sans-serif" font-size="7.1" font-weight="900" textLength="12" lengthAdjust="spacingAndGlyphs" fill="#fff">PDF</text><path d="M8.5 19.35h8" fill="none" stroke="#ed9ca4" stroke-width=".8"/></svg></span><span class="action-label">PDF</span></button>
+  <button class="excel-btn icon-action" aria-label="تحميل Excel" title="تحميل Excel" onclick="exportCurrentExcel()"><span class="action-glyph glyph-excel" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M7 2.75h7l4 4v14.5H7z" fill="#fff" stroke="#168045" stroke-width="1.15"/><path d="M14 2.75v4h4" fill="#d8f2e2" stroke="#168045" stroke-width="1.05"/><path d="M12.4 10.1h3.8m-3.8 2.7h3.8m-3.8 2.7h3.8m-3.8 2.7h3.8" fill="none" stroke="#72b48c" stroke-width=".8" stroke-linecap="round"/><path d="M3.15 8.7h9.7v10.1h-9.7z" fill="#107c41" stroke="#075e2f" stroke-width="1.1"/><path d="m5.65 11.1 4.7 5.3m-4.7 0 4.7-5.3" fill="none" stroke="#fff" stroke-width="1.45" stroke-linecap="round"/></svg></span><span class="action-label">Excel</span></button>
 </div>
 
 <div class="screen-header no-print">
@@ -1213,8 +1307,8 @@ tbody tr:nth-child(even) td{background:#fbfdfd!important}tbody tr:hover td{backg
 
 <section id="specialists" class="card screen" data-owner-only>
 <div class="export-toolbar no-print">
-  <button class="print-btn icon-action" aria-label="طباعة" title="طباعة" onclick="printSpecialistsScreen()"><span class="action-glyph glyph-print" aria-hidden="true">▣</span><span class="action-label">طباعة</span></button>
-  <button class="excel-btn icon-action" aria-label="تحميل Excel" title="تحميل Excel" onclick="exportSpecialistsExcel()"><span class="action-glyph glyph-excel" aria-hidden="true">X</span><span class="action-label">Excel</span></button>
+  <button class="print-btn icon-action" aria-label="طباعة" title="طباعة" onclick="printSpecialistsScreen()"><span class="action-glyph glyph-print" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M7.25 8V3.5h9.5V8" fill="#eaf3ff" stroke="#3769a3" stroke-width="1.25"/><path d="M5.75 8.5h12.5A2.75 2.75 0 0 1 21 11.25v2A2.75 2.75 0 0 1 18.25 16H17v-2.5H7V16H5.75A2.75 2.75 0 0 1 3 13.25v-2A2.75 2.75 0 0 1 5.75 8.5Z" fill="#4d86c6" stroke="#225d9c" stroke-width="1.2"/><path d="M7 13.5h10v7H7z" fill="#fff" stroke="#225d9c" stroke-width="1.2"/><path d="M9 16.5h6" fill="none" stroke="#77a5d6" stroke-width="1.25"/><circle cx="17.25" cy="11.3" r=".7" fill="#e7f8ff" stroke="#fff" stroke-width=".45"/></svg></span><span class="action-label">طباعة</span></button>
+  <button class="excel-btn icon-action" aria-label="تحميل Excel" title="تحميل Excel" onclick="exportSpecialistsExcel()"><span class="action-glyph glyph-excel" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M7 2.75h7l4 4v14.5H7z" fill="#fff" stroke="#168045" stroke-width="1.15"/><path d="M14 2.75v4h4" fill="#d8f2e2" stroke="#168045" stroke-width="1.05"/><path d="M12.4 10.1h3.8m-3.8 2.7h3.8m-3.8 2.7h3.8m-3.8 2.7h3.8" fill="none" stroke="#72b48c" stroke-width=".8" stroke-linecap="round"/><path d="M3.15 8.7h9.7v10.1h-9.7z" fill="#107c41" stroke="#075e2f" stroke-width="1.1"/><path d="m5.65 11.1 4.7 5.3m-4.7 0 4.7-5.3" fill="none" stroke="#fff" stroke-width="1.45" stroke-linecap="round"/></svg></span><span class="action-label">Excel</span></button>
 </div>
 <div class="specialists-hero"><div><span class="specialists-eyebrow">دليل الأداء التشغيلي</span><h2>🧑‍💼 شاشة الأخصائيين</h2><p>عرض بيانات الأخصائيين، مؤشرات الأداء، المحفظة، العملاء، والتحصيل من بيانات Excel في شاشة واحدة منظمة.</p></div><div class="specialists-hero-actions no-print"><button class="specialists-print-btn" type="button" onclick="printSpecialistCardsPDF('active')">📄 طباعة بطاقات الحاليين</button><button class="specialists-print-btn inactive" type="button" onclick="printSpecialistCardsPDF('inactive')">📄 طباعة بطاقات غير النشطين</button><button class="specialists-manage-btn" type="button" onclick="showScreen('users')">⚙ إدارة الحسابات</button></div></div>
 <div class="specialist-manual-launch no-print"><button type="button" class="specialist-manual-open" onclick="toggleManualSpecialists()">🗂️ فتح التصنيف اليدوي للأخصائيين</button><small>إجراء إضافي مستقل — لا يظهر في الإحصائيات إلا بعد الحفظ</small></div><div id="specialistManualPanel" class="specialist-manual-panel no-print" style="display:none"><div class="specialist-manual-head"><div><span class="specialist-manual-eyebrow">إجراء إضافي مستقل</span><h3>🗂️ تصنيف الأخصائيين يدويًا</h3><p>جميع الأخصائيين من ملف Excel. عدّل الحالة ثم اختر حفظ لتحديث قوائم الفلترة.</p></div><div class="specialist-manual-actions"><button type="button" class="specialist-manual-save" onclick="saveManualSpecialistStatuses()">حفظ وتحديث الفلاتر</button><button type="button" class="specialist-manual-cancel" onclick="cancelManualSpecialistStatuses()">إلغاء / تراجع</button><button type="button" class="specialist-manual-reset" onclick="resetManualSpecialistStatuses()">إعادة التلقائي</button></div></div><div id="specialistManualList" class="specialist-manual-list"></div></div>
@@ -1273,7 +1367,7 @@ tbody tr:nth-child(even) td{background:#fbfdfd!important}tbody tr:hover td{backg
 </section>
 
 <section id="audit" class="card screen" data-owner-only>
-<div class="export-toolbar no-print"><button class="print-btn icon-action" aria-label="طباعة" title="طباعة" onclick="printCurrentScreen()"><span class="action-glyph glyph-print" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 9V3h12v6M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2M6 14h12v7H6z"/></svg></span><span class="action-label">طباعة</span></button><button class="excel-btn icon-action" aria-label="تحميل Excel" title="تحميل Excel" onclick="exportAuditExcel()"><span class="action-glyph glyph-excel" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 3h10l6 6v12H4z"/><path d="M14 3v6h6M8 12l5 6M13 12l-5 6"/></svg></span><span class="action-label">Excel</span></button><button class="red" onclick="clearAuditLog()">🗑️ مسح السجل</button></div>
+<div class="export-toolbar no-print"><button class="print-btn icon-action" aria-label="طباعة" title="طباعة" onclick="printCurrentScreen()"><span class="action-glyph glyph-print" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M7.25 8V3.5h9.5V8" fill="#eaf3ff" stroke="#3769a3" stroke-width="1.25"/><path d="M5.75 8.5h12.5A2.75 2.75 0 0 1 21 11.25v2A2.75 2.75 0 0 1 18.25 16H17v-2.5H7V16H5.75A2.75 2.75 0 0 1 3 13.25v-2A2.75 2.75 0 0 1 5.75 8.5Z" fill="#4d86c6" stroke="#225d9c" stroke-width="1.2"/><path d="M7 13.5h10v7H7z" fill="#fff" stroke="#225d9c" stroke-width="1.2"/><path d="M9 16.5h6" fill="none" stroke="#77a5d6" stroke-width="1.25"/><circle cx="17.25" cy="11.3" r=".7" fill="#e7f8ff" stroke="#fff" stroke-width=".45"/></svg></span><span class="action-label">طباعة</span></button><button class="excel-btn icon-action" aria-label="تحميل Excel" title="تحميل Excel" onclick="exportAuditExcel()"><span class="action-glyph glyph-excel" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M7 2.75h7l4 4v14.5H7z" fill="#fff" stroke="#168045" stroke-width="1.15"/><path d="M14 2.75v4h4" fill="#d8f2e2" stroke="#168045" stroke-width="1.05"/><path d="M12.4 10.1h3.8m-3.8 2.7h3.8m-3.8 2.7h3.8m-3.8 2.7h3.8" fill="none" stroke="#72b48c" stroke-width=".8" stroke-linecap="round"/><path d="M3.15 8.7h9.7v10.1h-9.7z" fill="#107c41" stroke="#075e2f" stroke-width="1.1"/><path d="m5.65 11.1 4.7 5.3m-4.7 0 4.7-5.3" fill="none" stroke="#fff" stroke-width="1.45" stroke-linecap="round"/></svg></span><span class="action-label">Excel</span></button><button class="red" onclick="clearAuditLog()">🗑️ مسح السجل</button></div>
 <div class="screen-header"><div><h2>🧾 سجل العمليات والرقابة</h2><div class="sub">سجل محلي للعمليات المهمة داخل النظام: الدخول، رفع البيانات، التصدير والطباعة.</div></div></div>
 <div class="audit-summary"><div><span>إجمالي العمليات</span><b id="auditCount">0</b></div><div><span>آخر عملية</span><b id="auditLast">—</b></div><div><span>المستخدم الحالي</span><b id="auditUser">—</b></div></div>
 <div class="wrap"><table><thead><tr><th>التاريخ والوقت</th><th>المستخدم</th><th>الصلاحية</th><th>العملية</th><th>التفاصيل</th></tr></thead><tbody id="auditBody"></tbody></table></div>
@@ -1324,9 +1418,9 @@ tbody tr:nth-child(even) td{background:#fbfdfd!important}tbody tr:hover td{backg
 
 <section id="dash" class="card screen" data-owner-only>
 <div class="export-toolbar no-print">
-  <button class="print-btn icon-action" aria-label="طباعة" title="طباعة" onclick="printCurrentScreen()"><span class="action-glyph glyph-print" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 9V3h12v6M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2M6 14h12v7H6z"/></svg></span><span class="action-label">طباعة</span></button>
-  <button class="pdf-btn icon-action" aria-label="تحميل PDF" title="تحميل PDF" onclick="downloadCurrentPDF()"><span class="action-glyph glyph-pdf" aria-hidden="true">PDF</span><span class="action-label">PDF</span></button>
-  <button class="excel-btn icon-action" aria-label="تحميل Excel" title="تحميل Excel" onclick="exportCurrentExcel()"><span class="action-glyph glyph-excel" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 3h10l6 6v12H4z"/><path d="M14 3v6h6M8 12l5 6M13 12l-5 6"/></svg></span><span class="action-label">Excel</span></button>
+  <button class="print-btn icon-action" aria-label="طباعة" title="طباعة" onclick="printCurrentScreen()"><span class="action-glyph glyph-print" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M7.25 8V3.5h9.5V8" fill="#eaf3ff" stroke="#3769a3" stroke-width="1.25"/><path d="M5.75 8.5h12.5A2.75 2.75 0 0 1 21 11.25v2A2.75 2.75 0 0 1 18.25 16H17v-2.5H7V16H5.75A2.75 2.75 0 0 1 3 13.25v-2A2.75 2.75 0 0 1 5.75 8.5Z" fill="#4d86c6" stroke="#225d9c" stroke-width="1.2"/><path d="M7 13.5h10v7H7z" fill="#fff" stroke="#225d9c" stroke-width="1.2"/><path d="M9 16.5h6" fill="none" stroke="#77a5d6" stroke-width="1.25"/><circle cx="17.25" cy="11.3" r=".7" fill="#e7f8ff" stroke="#fff" stroke-width=".45"/></svg></span><span class="action-label">طباعة</span></button>
+  <button class="pdf-btn icon-action" aria-label="تحميل PDF" title="تحميل PDF" onclick="downloadCurrentPDF()"><span class="action-glyph glyph-pdf" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M6 2.75h8l4.25 4.25v14.25H6z" fill="#fff" stroke="#b51f2b" stroke-width="1.2"/><path d="M14 2.75V7h4.25" fill="#ffd9dd" stroke="#b51f2b" stroke-width="1.1"/><rect x="5.75" y="10" width="13" height="8.25" rx="1.3" fill="#d62839" stroke="#b51f2b" stroke-width=".6"/><text x="12.25" y="15.9" text-anchor="middle" font-family="Arial,sans-serif" font-size="7.1" font-weight="900" textLength="12" lengthAdjust="spacingAndGlyphs" fill="#fff">PDF</text><path d="M8.5 19.35h8" fill="none" stroke="#ed9ca4" stroke-width=".8"/></svg></span><span class="action-label">PDF</span></button>
+  <button class="excel-btn icon-action" aria-label="تحميل Excel" title="تحميل Excel" onclick="exportCurrentExcel()"><span class="action-glyph glyph-excel" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M7 2.75h7l4 4v14.5H7z" fill="#fff" stroke="#168045" stroke-width="1.15"/><path d="M14 2.75v4h4" fill="#d8f2e2" stroke="#168045" stroke-width="1.05"/><path d="M12.4 10.1h3.8m-3.8 2.7h3.8m-3.8 2.7h3.8m-3.8 2.7h3.8" fill="none" stroke="#72b48c" stroke-width=".8" stroke-linecap="round"/><path d="M3.15 8.7h9.7v10.1h-9.7z" fill="#107c41" stroke="#075e2f" stroke-width="1.1"/><path d="m5.65 11.1 4.7 5.3m-4.7 0 4.7-5.3" fill="none" stroke="#fff" stroke-width="1.45" stroke-linecap="round"/></svg></span><span class="action-label">Excel</span></button>
 </div>
 <div class="dashboard-title">
   <div><h2>📊 لوحة التحكم</h2><div class="sub">ملخص تشغيلي للمحفظة والتحصيل والمتأخرات.</div></div>
@@ -1363,9 +1457,9 @@ tbody tr:nth-child(even) td{background:#fbfdfd!important}tbody tr:hover td{backg
 
 <section id="collection" class="card screen">
 <div class="export-toolbar no-print collection-export-icons">
-  <button class="print-btn icon-action" aria-label="طباعة" title="طباعة" onclick="printCollectionStandalone()"><span class="action-glyph glyph-print" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 9V3h12v6M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2M6 14h12v7H6z"/></svg></span><span class="action-label">طباعة</span></button>
-  <button class="pdf-btn icon-action" aria-label="تحميل PDF" title="تحميل PDF" onclick="downloadCurrentPDF()"><span class="action-glyph glyph-pdf" aria-hidden="true">PDF</span><span class="action-label">PDF</span></button>
-  <button class="excel-btn icon-action" aria-label="تحميل Excel" title="تحميل Excel" onclick="exportCurrentExcel()"><span class="action-glyph glyph-excel" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 3h10l6 6v12H4z"/><path d="M14 3v6h6M8 12l5 6M13 12l-5 6"/></svg></span><span class="action-label">Excel</span></button>
+  <button class="print-btn icon-action" aria-label="طباعة" title="طباعة" onclick="printCollectionStandalone()"><span class="action-glyph glyph-print" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M7.25 8V3.5h9.5V8" fill="#eaf3ff" stroke="#3769a3" stroke-width="1.25"/><path d="M5.75 8.5h12.5A2.75 2.75 0 0 1 21 11.25v2A2.75 2.75 0 0 1 18.25 16H17v-2.5H7V16H5.75A2.75 2.75 0 0 1 3 13.25v-2A2.75 2.75 0 0 1 5.75 8.5Z" fill="#4d86c6" stroke="#225d9c" stroke-width="1.2"/><path d="M7 13.5h10v7H7z" fill="#fff" stroke="#225d9c" stroke-width="1.2"/><path d="M9 16.5h6" fill="none" stroke="#77a5d6" stroke-width="1.25"/><circle cx="17.25" cy="11.3" r=".7" fill="#e7f8ff" stroke="#fff" stroke-width=".45"/></svg></span><span class="action-label">طباعة</span></button>
+  <button class="pdf-btn icon-action" aria-label="تحميل PDF" title="تحميل PDF" onclick="downloadCurrentPDF()"><span class="action-glyph glyph-pdf" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M6 2.75h8l4.25 4.25v14.25H6z" fill="#fff" stroke="#b51f2b" stroke-width="1.2"/><path d="M14 2.75V7h4.25" fill="#ffd9dd" stroke="#b51f2b" stroke-width="1.1"/><rect x="5.75" y="10" width="13" height="8.25" rx="1.3" fill="#d62839" stroke="#b51f2b" stroke-width=".6"/><text x="12.25" y="15.9" text-anchor="middle" font-family="Arial,sans-serif" font-size="7.1" font-weight="900" textLength="12" lengthAdjust="spacingAndGlyphs" fill="#fff">PDF</text><path d="M8.5 19.35h8" fill="none" stroke="#ed9ca4" stroke-width=".8"/></svg></span><span class="action-label">PDF</span></button>
+  <button class="excel-btn icon-action" aria-label="تحميل Excel" title="تحميل Excel" onclick="exportCurrentExcel()"><span class="action-glyph glyph-excel" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M7 2.75h7l4 4v14.5H7z" fill="#fff" stroke="#168045" stroke-width="1.15"/><path d="M14 2.75v4h4" fill="#d8f2e2" stroke="#168045" stroke-width="1.05"/><path d="M12.4 10.1h3.8m-3.8 2.7h3.8m-3.8 2.7h3.8m-3.8 2.7h3.8" fill="none" stroke="#72b48c" stroke-width=".8" stroke-linecap="round"/><path d="M3.15 8.7h9.7v10.1h-9.7z" fill="#107c41" stroke="#075e2f" stroke-width="1.1"/><path d="m5.65 11.1 4.7 5.3m-4.7 0 4.7-5.3" fill="none" stroke="#fff" stroke-width="1.45" stroke-linecap="round"/></svg></span><span class="action-label">Excel</span></button>
 </div>
 
 <div class="screen-header">
@@ -1440,9 +1534,9 @@ tbody tr:nth-child(even) td{background:#fbfdfd!important}tbody tr:hover td{backg
 
 <section id="risk" class="card screen">
 <div class="export-toolbar no-print">
-  <button class="print-btn icon-action" aria-label="طباعة" title="طباعة" onclick="printCurrentScreen()"><span class="action-glyph glyph-print" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 9V3h12v6M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2M6 14h12v7H6z"/></svg></span><span class="action-label">طباعة</span></button>
-  <button class="pdf-btn icon-action" aria-label="تحميل PDF" title="تحميل PDF" onclick="downloadCurrentPDF()"><span class="action-glyph glyph-pdf" aria-hidden="true">PDF</span><span class="action-label">PDF</span></button>
-  <button class="excel-btn icon-action" aria-label="تحميل Excel" title="تحميل Excel" onclick="exportCurrentExcel()"><span class="action-glyph glyph-excel" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 3h10l6 6v12H4z"/><path d="M14 3v6h6M8 12l5 6M13 12l-5 6"/></svg></span><span class="action-label">Excel</span></button>
+  <button class="print-btn icon-action" aria-label="طباعة" title="طباعة" onclick="printCurrentScreen()"><span class="action-glyph glyph-print" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M7.25 8V3.5h9.5V8" fill="#eaf3ff" stroke="#3769a3" stroke-width="1.25"/><path d="M5.75 8.5h12.5A2.75 2.75 0 0 1 21 11.25v2A2.75 2.75 0 0 1 18.25 16H17v-2.5H7V16H5.75A2.75 2.75 0 0 1 3 13.25v-2A2.75 2.75 0 0 1 5.75 8.5Z" fill="#4d86c6" stroke="#225d9c" stroke-width="1.2"/><path d="M7 13.5h10v7H7z" fill="#fff" stroke="#225d9c" stroke-width="1.2"/><path d="M9 16.5h6" fill="none" stroke="#77a5d6" stroke-width="1.25"/><circle cx="17.25" cy="11.3" r=".7" fill="#e7f8ff" stroke="#fff" stroke-width=".45"/></svg></span><span class="action-label">طباعة</span></button>
+  <button class="pdf-btn icon-action" aria-label="تحميل PDF" title="تحميل PDF" onclick="downloadCurrentPDF()"><span class="action-glyph glyph-pdf" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M6 2.75h8l4.25 4.25v14.25H6z" fill="#fff" stroke="#b51f2b" stroke-width="1.2"/><path d="M14 2.75V7h4.25" fill="#ffd9dd" stroke="#b51f2b" stroke-width="1.1"/><rect x="5.75" y="10" width="13" height="8.25" rx="1.3" fill="#d62839" stroke="#b51f2b" stroke-width=".6"/><text x="12.25" y="15.9" text-anchor="middle" font-family="Arial,sans-serif" font-size="7.1" font-weight="900" textLength="12" lengthAdjust="spacingAndGlyphs" fill="#fff">PDF</text><path d="M8.5 19.35h8" fill="none" stroke="#ed9ca4" stroke-width=".8"/></svg></span><span class="action-label">PDF</span></button>
+  <button class="excel-btn icon-action" aria-label="تحميل Excel" title="تحميل Excel" onclick="exportCurrentExcel()"><span class="action-glyph glyph-excel" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M7 2.75h7l4 4v14.5H7z" fill="#fff" stroke="#168045" stroke-width="1.15"/><path d="M14 2.75v4h4" fill="#d8f2e2" stroke="#168045" stroke-width="1.05"/><path d="M12.4 10.1h3.8m-3.8 2.7h3.8m-3.8 2.7h3.8m-3.8 2.7h3.8" fill="none" stroke="#72b48c" stroke-width=".8" stroke-linecap="round"/><path d="M3.15 8.7h9.7v10.1h-9.7z" fill="#107c41" stroke="#075e2f" stroke-width="1.1"/><path d="m5.65 11.1 4.7 5.3m-4.7 0 4.7-5.3" fill="none" stroke="#fff" stroke-width="1.45" stroke-linecap="round"/></svg></span><span class="action-label">Excel</span></button>
 </div>
 <h2>⚠️ المتأخرات والمخاطر</h2>
 <div class="risk-summary-cards" aria-label="ملخص المتأخرات">
@@ -1487,9 +1581,9 @@ tbody tr:nth-child(even) td{background:#fbfdfd!important}tbody tr:hover td{backg
 
 <section id="portfolio" class="card screen">
 <div class="export-toolbar no-print">
-  <button class="print-btn icon-action" aria-label="طباعة" title="طباعة" onclick="printCurrentScreen()"><span class="action-glyph glyph-print" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 9V3h12v6M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2M6 14h12v7H6z"/></svg></span><span class="action-label">طباعة</span></button>
-  <button class="pdf-btn icon-action" aria-label="تحميل PDF" title="تحميل PDF" onclick="downloadCurrentPDF()"><span class="action-glyph glyph-pdf" aria-hidden="true">PDF</span><span class="action-label">PDF</span></button>
-  <button class="excel-btn icon-action" aria-label="تحميل Excel" title="تحميل Excel" onclick="exportCurrentExcel()"><span class="action-glyph glyph-excel" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 3h10l6 6v12H4z"/><path d="M14 3v6h6M8 12l5 6M13 12l-5 6"/></svg></span><span class="action-label">Excel</span></button>
+  <button class="print-btn icon-action" aria-label="طباعة" title="طباعة" onclick="printCurrentScreen()"><span class="action-glyph glyph-print" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M7.25 8V3.5h9.5V8" fill="#eaf3ff" stroke="#3769a3" stroke-width="1.25"/><path d="M5.75 8.5h12.5A2.75 2.75 0 0 1 21 11.25v2A2.75 2.75 0 0 1 18.25 16H17v-2.5H7V16H5.75A2.75 2.75 0 0 1 3 13.25v-2A2.75 2.75 0 0 1 5.75 8.5Z" fill="#4d86c6" stroke="#225d9c" stroke-width="1.2"/><path d="M7 13.5h10v7H7z" fill="#fff" stroke="#225d9c" stroke-width="1.2"/><path d="M9 16.5h6" fill="none" stroke="#77a5d6" stroke-width="1.25"/><circle cx="17.25" cy="11.3" r=".7" fill="#e7f8ff" stroke="#fff" stroke-width=".45"/></svg></span><span class="action-label">طباعة</span></button>
+  <button class="pdf-btn icon-action" aria-label="تحميل PDF" title="تحميل PDF" onclick="downloadCurrentPDF()"><span class="action-glyph glyph-pdf" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M6 2.75h8l4.25 4.25v14.25H6z" fill="#fff" stroke="#b51f2b" stroke-width="1.2"/><path d="M14 2.75V7h4.25" fill="#ffd9dd" stroke="#b51f2b" stroke-width="1.1"/><rect x="5.75" y="10" width="13" height="8.25" rx="1.3" fill="#d62839" stroke="#b51f2b" stroke-width=".6"/><text x="12.25" y="15.9" text-anchor="middle" font-family="Arial,sans-serif" font-size="7.1" font-weight="900" textLength="12" lengthAdjust="spacingAndGlyphs" fill="#fff">PDF</text><path d="M8.5 19.35h8" fill="none" stroke="#ed9ca4" stroke-width=".8"/></svg></span><span class="action-label">PDF</span></button>
+  <button class="excel-btn icon-action" aria-label="تحميل Excel" title="تحميل Excel" onclick="exportCurrentExcel()"><span class="action-glyph glyph-excel" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M7 2.75h7l4 4v14.5H7z" fill="#fff" stroke="#168045" stroke-width="1.15"/><path d="M14 2.75v4h4" fill="#d8f2e2" stroke="#168045" stroke-width="1.05"/><path d="M12.4 10.1h3.8m-3.8 2.7h3.8m-3.8 2.7h3.8m-3.8 2.7h3.8" fill="none" stroke="#72b48c" stroke-width=".8" stroke-linecap="round"/><path d="M3.15 8.7h9.7v10.1h-9.7z" fill="#107c41" stroke="#075e2f" stroke-width="1.1"/><path d="m5.65 11.1 4.7 5.3m-4.7 0 4.7-5.3" fill="none" stroke="#fff" stroke-width="1.45" stroke-linecap="round"/></svg></span><span class="action-label">Excel</span></button>
 </div>
 <h2>💼 المحفظة</h2>
 <div class="portfolio-summary-cards no-print"><div class="portfolio-total-card"><div class="portfolio-total-icon">▣</div><div><span>إجمالي المحفظة</span><b id="portfolioTotalPrincipal">0</b></div></div><div class="portfolio-total-card portfolio-client-count-card"><div class="portfolio-total-icon">♙</div><div><span>عدد العملاء</span><b id="portfolioClientCount">0</b></div></div><div id="portfolioClosedLoansCard" class="portfolio-total-card portfolio-closed-loans-card"><div class="portfolio-total-icon">✓</div><div><span>إجمالي القروض المغلقة</span><b id="portfolioClosedLoansTotal">0</b></div></div></div>
@@ -1508,9 +1602,9 @@ tbody tr:nth-child(even) td{background:#fbfdfd!important}tbody tr:hover td{backg
 
 <section id="print" class="card screen">
 <div class="export-toolbar no-print">
-  <button class="print-btn icon-action" aria-label="طباعة" title="طباعة" onclick="printCurrentScreen()"><span class="action-glyph glyph-print" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 9V3h12v6M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2M6 14h12v7H6z"/></svg></span><span class="action-label">طباعة</span></button>
-  <button class="pdf-btn icon-action" aria-label="تحميل PDF" title="تحميل PDF" onclick="downloadCurrentPDF()"><span class="action-glyph glyph-pdf" aria-hidden="true">PDF</span><span class="action-label">PDF</span></button>
-  <button class="excel-btn icon-action" aria-label="تحميل Excel" title="تحميل Excel" onclick="exportCurrentExcel()"><span class="action-glyph glyph-excel" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 3h10l6 6v12H4z"/><path d="M14 3v6h6M8 12l5 6M13 12l-5 6"/></svg></span><span class="action-label">Excel</span></button>
+  <button class="print-btn icon-action" aria-label="طباعة" title="طباعة" onclick="printCurrentScreen()"><span class="action-glyph glyph-print" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M7.25 8V3.5h9.5V8" fill="#eaf3ff" stroke="#3769a3" stroke-width="1.25"/><path d="M5.75 8.5h12.5A2.75 2.75 0 0 1 21 11.25v2A2.75 2.75 0 0 1 18.25 16H17v-2.5H7V16H5.75A2.75 2.75 0 0 1 3 13.25v-2A2.75 2.75 0 0 1 5.75 8.5Z" fill="#4d86c6" stroke="#225d9c" stroke-width="1.2"/><path d="M7 13.5h10v7H7z" fill="#fff" stroke="#225d9c" stroke-width="1.2"/><path d="M9 16.5h6" fill="none" stroke="#77a5d6" stroke-width="1.25"/><circle cx="17.25" cy="11.3" r=".7" fill="#e7f8ff" stroke="#fff" stroke-width=".45"/></svg></span><span class="action-label">طباعة</span></button>
+  <button class="pdf-btn icon-action" aria-label="تحميل PDF" title="تحميل PDF" onclick="downloadCurrentPDF()"><span class="action-glyph glyph-pdf" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M6 2.75h8l4.25 4.25v14.25H6z" fill="#fff" stroke="#b51f2b" stroke-width="1.2"/><path d="M14 2.75V7h4.25" fill="#ffd9dd" stroke="#b51f2b" stroke-width="1.1"/><rect x="5.75" y="10" width="13" height="8.25" rx="1.3" fill="#d62839" stroke="#b51f2b" stroke-width=".6"/><text x="12.25" y="15.9" text-anchor="middle" font-family="Arial,sans-serif" font-size="7.1" font-weight="900" textLength="12" lengthAdjust="spacingAndGlyphs" fill="#fff">PDF</text><path d="M8.5 19.35h8" fill="none" stroke="#ed9ca4" stroke-width=".8"/></svg></span><span class="action-label">PDF</span></button>
+  <button class="excel-btn icon-action" aria-label="تحميل Excel" title="تحميل Excel" onclick="exportCurrentExcel()"><span class="action-glyph glyph-excel" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M7 2.75h7l4 4v14.5H7z" fill="#fff" stroke="#168045" stroke-width="1.15"/><path d="M14 2.75v4h4" fill="#d8f2e2" stroke="#168045" stroke-width="1.05"/><path d="M12.4 10.1h3.8m-3.8 2.7h3.8m-3.8 2.7h3.8m-3.8 2.7h3.8" fill="none" stroke="#72b48c" stroke-width=".8" stroke-linecap="round"/><path d="M3.15 8.7h9.7v10.1h-9.7z" fill="#107c41" stroke="#075e2f" stroke-width="1.1"/><path d="m5.65 11.1 4.7 5.3m-4.7 0 4.7-5.3" fill="none" stroke="#fff" stroke-width="1.45" stroke-linecap="round"/></svg></span><span class="action-label">Excel</span></button>
 </div>
 <div class="screen-header no-print">
   <div><h2>🖨️ طباعة بيانات العملاء</h2><div class="sub">نفس أعمدة شاشة العملاء، مرتبة تصاعديًا حسب تاريخ الاستحقاق، وبدون إظهار الوقت في التواريخ.</div></div>
@@ -4326,6 +4420,153 @@ document.addEventListener('DOMContentLoaded', function () {
     window.smartSelectSync=()=>document.querySelectorAll(".smart-select").forEach(syncWidget);setInterval(()=>window.smartSelectSync?.(),500)
   }
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init();
+})();
+</script>
+<script id="mobile-bottom-navigation-script">
+(function(){
+  function initMobileNavigation(){
+    const app=document.getElementById('app');
+    const sourceNav=app&&app.querySelector('.layout>nav');
+    if(!app||!sourceNav||app.querySelector('#mobileBottomNav')) return;
+
+    const primary=[['search','البحث'],['dash','اللوحة'],['collection','التحصيل'],['risk','المتأخرات'],['clients','العملاء']];
+    const primaryIds=new Set(primary.map(x=>x[0]));
+    const mobileNav=document.createElement('nav');
+    mobileNav.id='mobileBottomNav';
+    mobileNav.className='mobile-bottom-nav no-print';
+    mobileNav.setAttribute('aria-label','التنقل الرئيسي للهاتف');
+
+    const morePanel=document.createElement('nav');
+    morePanel.id='mobileMorePanel';
+    morePanel.className='mobile-more-panel no-print';
+    morePanel.setAttribute('aria-label','المزيد من الشاشات');
+    morePanel.setAttribute('aria-hidden','true');
+    const title=document.createElement('div');
+    title.className='mobile-more-title';
+    title.textContent='المزيد';
+    morePanel.appendChild(title);
+
+    function navigate(event,id){
+      event.preventDefault();
+      event.stopPropagation();
+      closeMore();
+      if(typeof window.showScreen==='function') window.showScreen(id);
+    }
+    function screenLink(id,label){
+      const source=sourceNav.querySelector('a[data-screen="'+id+'"]');
+      if(!source) return null;
+      const a=document.createElement('a');
+      a.href='#'+id;
+      a.dataset.screen=id;
+      a.className='mobile-nav-item';
+      a.setAttribute('aria-label',label);
+      ['data-manager-only','data-owner-only'].forEach(name=>{if(source.hasAttribute(name))a.setAttribute(name,'');});
+      const iconWrap=document.createElement('span');
+      iconWrap.className='mobile-nav-icon';
+      const sourceSvg=source.querySelector('.nav-icon svg');
+      if(sourceSvg) iconWrap.appendChild(sourceSvg.cloneNode(true));
+      const caption=document.createElement('span');
+      caption.className='mobile-nav-label';
+      caption.textContent=label;
+      a.append(iconWrap,caption);
+      a.addEventListener('click',event=>navigate(event,id));
+      return a;
+    }
+    primary.forEach(([id,label])=>{const a=screenLink(id,label);if(a)mobileNav.appendChild(a);});
+
+    const moreButton=document.createElement('button');
+    moreButton.type='button';
+    moreButton.className='mobile-more-toggle';
+    moreButton.setAttribute('aria-label','المزيد');
+    moreButton.setAttribute('aria-controls','mobileMorePanel');
+    moreButton.setAttribute('aria-expanded','false');
+    moreButton.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="8" r="1.1"/><circle cx="12" cy="8" r="1.1"/><circle cx="19" cy="8" r="1.1"/><path class="more-caret" d="m8 14 4 4 4-4"/></svg><span class="mobile-nav-label">المزيد</span>';
+    mobileNav.appendChild(moreButton);
+
+    const sourceLinks=[...sourceNav.querySelectorAll('a[data-screen]')];
+    const clones=new Map();
+    sourceLinks.forEach(source=>{
+      const id=source.dataset.screen;
+      if(primaryIds.has(id)) return;
+      const clone=source.cloneNode(true);
+      clone.classList.add('mobile-more-link');
+      clone.addEventListener('click',event=>navigate(event,id));
+      morePanel.appendChild(clone);
+      clones.set(id,clone);
+    });
+
+    function setMore(open){
+      morePanel.classList.toggle('open',open);
+      morePanel.setAttribute('aria-hidden',String(!open));
+      moreButton.setAttribute('aria-expanded',String(open));
+    }
+    function closeMore(){setMore(false);}
+    moreButton.addEventListener('click',event=>{
+      event.preventDefault();
+      event.stopPropagation();
+      setMore(!morePanel.classList.contains('open'));
+    });
+    document.addEventListener('click',event=>{
+      if(!morePanel.contains(event.target)&&!mobileNav.contains(event.target)) closeMore();
+    });
+    document.addEventListener('keydown',event=>{if(event.key==='Escape') closeMore();});
+
+    function syncNavigation(){
+      sourceLinks.forEach(source=>{
+        const clone=clones.get(source.dataset.screen);
+        if(clone){
+          clone.hidden=source.hidden;
+          clone.style.display=source.style.display;
+          const aria=source.getAttribute('aria-hidden');
+          if(aria===null)clone.removeAttribute('aria-hidden');else clone.setAttribute('aria-hidden',aria);
+        }
+        if(primaryIds.has(source.dataset.screen)){
+          const item=mobileNav.querySelector('[data-screen="'+source.dataset.screen+'"]');
+          if(item){item.hidden=source.hidden;item.style.display=source.style.display;}
+        }
+      });
+      const active=sourceNav.querySelector('a.active[data-screen]')?.dataset.screen||'';
+      mobileNav.querySelectorAll('a[data-screen]').forEach(a=>a.classList.toggle('active',a.dataset.screen===active));
+      const moreActive=Boolean(active&&!primaryIds.has(active));
+      moreButton.classList.toggle('active',moreActive);
+      const visible=[...mobileNav.children].filter(item=>!item.hidden&&item.style.display!=='none').length;
+      mobileNav.style.setProperty('grid-template-columns','repeat('+Math.max(1,visible)+',minmax(0,1fr))','important');
+    }
+    app.append(morePanel,mobileNav);
+    syncNavigation();
+    const observer=new MutationObserver(syncNavigation);
+    observer.observe(sourceNav,{subtree:true,childList:true,attributes:true,attributeFilter:['class','style','hidden','aria-hidden']});
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',initMobileNavigation,{once:true});
+  else initMobileNavigation();
+})();
+</script>
+<script id="mobile-section-transition-script">
+(function(){
+ const mobileQuery=window.matchMedia('(max-width:760px)');
+ const reducedQuery=window.matchMedia('(prefers-reduced-motion: reduce)');
+ document.addEventListener('click',function(event){
+  if(!mobileQuery.matches||reducedQuery.matches)return;
+  const node=event.target instanceof Element?event.target:null;
+  const link=node&&node.closest('#mobileBottomNav a[data-screen],#mobileMorePanel a[data-screen]');
+  if(!link)return;
+  const before=document.querySelector('#app .screen.active')?.id||'';
+  requestAnimationFrame(function(){
+   const active=document.querySelector('#app .screen.active');
+   if(!active||active.id===before)return;
+   active.classList.remove('mobile-section-enter');
+   void active.offsetWidth;
+   active.classList.add('mobile-section-enter');
+   active.addEventListener('animationend',function(){active.classList.remove('mobile-section-enter')},{once:true});
+   const tab=document.querySelector('#mobileBottomNav .mobile-nav-item.active,#mobileBottomNav .mobile-more-toggle.active');
+   if(tab){
+    tab.classList.remove('mobile-tab-activate');
+    void tab.offsetWidth;
+    tab.classList.add('mobile-tab-activate');
+    tab.addEventListener('animationend',function(){tab.classList.remove('mobile-tab-activate')},{once:true});
+   }
+  });
+ },true);
 })();
 </script>
 </body>
