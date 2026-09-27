@@ -1173,6 +1173,158 @@ button.icon-action .action-glyph svg{width:22px!important;height:22px!important;
  #app .mobile-more-panel,#app .mobile-more-panel.open,#app .mobile-more-panel a,#mobileBottomNav .mobile-more-toggle .more-caret{transition:none!important}
 }
 </style>
+<style id="mobile-compact-summary-rails">
+/* Compact, swipeable summary cards on phones only. Desktop and data tables are unchanged. */
+@media(max-width:760px){
+ #dash .pro-kpis,#dash .dashboard-summary,#risk .risk-summary-cards,#collection .collection-kpis,#portfolio .portfolio-summary-cards,#specialists .specialists-kpis,#specialists .specialist-profile-grid,#users .users-kpi-grid,#clients .clients-summary,#clients .profile-kpis,#clients .profile-installment-summary,#audit .audit-summary{display:flex!important;flex-flow:row nowrap!important;align-items:stretch!important;gap:8px!important;width:100%!important;max-width:100%!important;margin:10px 0!important;padding:3px 2px 8px!important;box-sizing:border-box!important;direction:rtl!important;overflow-x:auto!important;overflow-y:hidden!important;-webkit-overflow-scrolling:touch!important;overscroll-behavior-x:contain;scroll-snap-type:x proximity;scroll-padding-inline:8px;scrollbar-width:thin;scrollbar-color:rgba(186,157,78,.55) transparent}
+ #dash .pro-kpis>.pro-kpi,#dash .dashboard-summary>div,#collection .collection-kpis>.kpi,#specialists .specialists-kpis>.specialist-kpi,#specialists .specialist-profile-grid>.specialist-profile-stat,#users .users-kpi-grid>.users-kpi,#clients .clients-summary>div,#clients .profile-kpis>*,#clients .profile-installment-summary>.installment-stat,#audit .audit-summary>div{flex:0 0 clamp(128px,40vw,170px)!important;width:auto!important;min-width:128px!important;max-width:170px!important;margin:0!important;box-sizing:border-box!important;scroll-snap-align:start}
+ #dash .pro-kpi{min-height:88px!important;padding:10px!important;border-radius:12px!important}
+ #dash .pro-kpi span,#collection .collection-kpis .kpi span{font-size:11px!important;line-height:1.35!important}
+ #dash .pro-kpi b,#collection .collection-kpis .kpi b{font-size:18px!important}
+ #dash .pro-kpi small{font-size:10px!important;line-height:1.35!important}
+ #dash .dashboard-summary>div,#clients .clients-summary>div,#audit .audit-summary>div{min-height:66px!important;padding:9px 10px!important;border-radius:12px!important}
+ #dash .dashboard-summary span,#clients .clients-summary span,#audit .audit-summary span{font-size:10px!important;line-height:1.35!important}
+ #dash .dashboard-summary b,#clients .clients-summary b,#audit .audit-summary b{font-size:13px!important;line-height:1.35!important;overflow-wrap:anywhere}
+ #risk .risk-summary-cards>.risk-summary-card{flex:0 0 min(250px,68vw)!important;width:auto!important;min-width:190px!important;max-width:250px!important;min-height:100px!important;padding:12px 13px!important;border-radius:14px!important;grid-column:auto!important;scroll-snap-align:start}
+ #risk .risk-summary-card span{font-size:11px!important}
+ #risk .risk-summary-card b{margin-top:6px!important;font-size:22px!important}
+ #risk .risk-summary-card small{font-size:10px!important}
+ #portfolio .portfolio-summary-cards>.portfolio-total-card{flex:0 0 min(250px,68vw)!important;width:auto!important;min-width:190px!important;max-width:250px!important;min-height:88px!important;padding:11px!important;border-radius:14px!important;scroll-snap-align:start}
+ #collection .collection-kpis>.kpi{min-height:82px!important;padding:10px!important;border-radius:12px!important}
+ #specialists .specialists-kpis>.specialist-kpi,#users .users-kpi-grid>.users-kpi{min-height:84px!important;padding:10px!important;border-radius:12px!important}
+ #specialists .specialist-profile-grid>.specialist-profile-stat{min-height:70px!important;padding:10px!important;border-radius:11px!important}
+ #clients .profile-installment-summary>.installment-stat,#clients .profile-kpis>*{min-height:68px!important;padding:9px!important;border-radius:11px!important}
+ #dash .pro-kpis::-webkit-scrollbar,#dash .dashboard-summary::-webkit-scrollbar,#risk .risk-summary-cards::-webkit-scrollbar,#collection .collection-kpis::-webkit-scrollbar,#portfolio .portfolio-summary-cards::-webkit-scrollbar,#specialists .specialists-kpis::-webkit-scrollbar,#specialists .specialist-profile-grid::-webkit-scrollbar,#users .users-kpi-grid::-webkit-scrollbar,#clients .clients-summary::-webkit-scrollbar,#clients .profile-kpis::-webkit-scrollbar,#clients .profile-installment-summary::-webkit-scrollbar,#audit .audit-summary::-webkit-scrollbar{height:4px}
+ #dash .pro-kpis::-webkit-scrollbar-thumb,#dash .dashboard-summary::-webkit-scrollbar-thumb,#risk .risk-summary-cards::-webkit-scrollbar-thumb,#collection .collection-kpis::-webkit-scrollbar-thumb,#portfolio .portfolio-summary-cards::-webkit-scrollbar-thumb,#specialists .specialists-kpis::-webkit-scrollbar-thumb,#specialists .specialist-profile-grid::-webkit-scrollbar-thumb,#users .users-kpi-grid::-webkit-scrollbar-thumb,#clients .clients-summary::-webkit-scrollbar-thumb,#clients .profile-kpis::-webkit-scrollbar-thumb,#clients .profile-installment-summary::-webkit-scrollbar-thumb,#audit .audit-summary::-webkit-scrollbar-thumb{background:rgba(186,157,78,.5);border-radius:6px}
+}
+</style>
+<style id="mobile-summary-rail-dots-style">
+.mobile-summary-rail-dots{display:none}
+@media(max-width:760px){
+ .mobile-summary-rail-dots:not([hidden]){display:flex;align-items:center;justify-content:center;gap:5px;min-height:8px;margin:-3px 0 8px;padding:0;direction:rtl;pointer-events:none}
+ .mobile-summary-rail-dots[hidden]{display:none!important}
+ .mobile-summary-rail-dot{display:block;width:6px;height:6px;flex:0 0 6px;border-radius:999px;background:#728393;opacity:.58;transition:width .18s ease,background-color .18s ease,opacity .18s ease}
+ .mobile-summary-rail-dot.is-active{width:16px;flex-basis:16px;background:#c3a24d;opacity:1;box-shadow:0 1px 4px rgba(147,112,35,.3)}
+}
+@media(min-width:761px){.mobile-summary-rail-dots{display:none!important}}
+@media(prefers-reduced-motion:reduce){.mobile-summary-rail-dot{transition:none!important}}
+</style>
+<style id="mobile-compact-filter-controls">
+/* Compact, clear filter controls on phones only; desktop and filter logic are untouched. */
+@media(max-width:760px){
+ #search .filter-row,#search .advanced-filters,#clients .clients-filters,#portfolio .portfolio-filters,#specialists .specialists-filters{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:7px!important;align-items:end!important}
+ #search .filter-row{grid-template-columns:minmax(0,1.35fr) minmax(118px,.85fr)!important;margin:8px 0!important}
+ #search .advanced-filters{margin-top:8px!important;padding:9px!important;border-radius:12px!important}
+ #search .filter-row>div,#search .advanced-filters>div,#clients .clients-filters>.client-filter-box,#portfolio .portfolio-filter-box,#specialists .specialists-filters>div{min-width:0!important}
+ #search .advanced-filters>div:last-child{grid-column:1/-1!important;display:flex!important;align-items:center!important;justify-content:space-between!important;gap:8px!important}
+ #search .advanced-filters>div:last-child button{width:auto!important;min-width:74px!important;margin:0!important}
+ #clients .clients-filters{gap:7px!important;margin:7px 0!important}
+ #clients .client-filter-box{padding:7px!important;border-radius:10px!important}
+ #clients .clients-date-buttons{grid-column:1/-1!important;display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:5px!important;margin:4px 0 0!important}
+ #risk>.filter-row:not(.toolbar){display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:7px!important;margin:8px 0!important}
+ #risk>.filter-row:not(.toolbar)>div{min-width:0!important;margin:0!important}
+ #risk>.filter-row:not(.toolbar)>div:nth-child(3){grid-column:1/-1!important}
+ #risk .filter-row>div:nth-child(3)>div[style*="display:flex"]{display:grid!important;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr)!important;gap:6px!important;align-items:center!important}
+ #risk #riskFrom,#risk #riskTo{width:100%!important;min-width:0!important;flex:1 1 0!important}
+ #risk .filter-row .toolbar{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:5px!important;margin-top:6px!important}
+ #risk>.toolbar.no-print{display:flex!important;justify-content:flex-start!important;margin:5px 0!important}
+ #collection .collection-tools{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:5px!important;margin:8px 0!important}
+ #collection .collection-panel{padding:8px 9px!important;margin:6px 0!important;border-radius:11px!important}
+ #collection .date-range{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:6px!important}
+ #collection .date-tools{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:5px!important;margin-top:7px!important}
+ #collection .filter-row.no-print{grid-template-columns:minmax(0,1fr)!important;gap:0!important;margin:6px 0!important}
+ #collection .filter-row.no-print>div:empty{display:none!important}
+ #portfolio .portfolio-filters{gap:7px!important;margin:8px 0!important}
+ #portfolio .portfolio-filter-box{padding:8px!important;border-radius:10px!important}
+ #portfolio .portfolio-date-filter{grid-column:1/-1!important}
+ #portfolio .portfolio-date-range{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:7px!important}
+ #portfolio .portfolio-date-field{min-width:0!important}
+ #portfolio .portfolio-date-tools{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:5px!important;margin-top:6px!important}
+ #portfolio .portfolio-filter-actions{grid-column:1/-1!important;display:flex!important;justify-content:space-between!important;align-items:center!important;gap:7px!important;flex-wrap:wrap!important}
+ #portfolio .portfolio-filter-actions .filter-status-note{font-size:10px!important}
+ #portfolio .portfolio-date-input{gap:3px!important}
+ #portfolio .portfolio-calendar-trigger{width:30px!important;height:30px!important;min-width:30px!important;min-height:30px!important;flex:0 0 30px!important;padding:2px!important}
+ #specialists .specialists-filters{gap:7px!important;margin:8px 0!important}
+ #specialists .specialists-filter-actions{grid-column:1/-1!important;display:flex!important;justify-content:flex-start!important}
+ #search .filter-label,#clients .client-filter-box label,#risk .filter-label,#collection .filter-label,#portfolio .portfolio-filter-box label,#specialists .specialists-filters label{display:block!important;margin:0 0 4px!important;font-size:10.5px!important;line-height:1.25!important;font-weight:800!important}
+ #search .filter-row input,#search .filter-row select,#search .advanced-filters input,#clients .clients-filters input,#clients .clients-filters select,#risk .filter-row input,#risk .filter-row select,#collection .collection-panel input,#collection .filter-row select,#portfolio .portfolio-filters input:not(.portfolio-date-picker-input),#portfolio .portfolio-filters select,#specialists .specialists-filters input,#specialists .specialists-filters select{box-sizing:border-box!important;width:100%!important;min-width:0!important;min-height:36px!important;height:36px!important;padding:6px 9px!important;border-radius:9px!important;font-size:14px!important;line-height:1.2!important}
+ #search .filter-row input:focus,#search .filter-row select:focus,#search .advanced-filters input:focus,#clients .clients-filters input:focus,#clients .clients-filters select:focus,#risk .filter-row input:focus,#risk .filter-row select:focus,#collection .collection-panel input:focus,#collection .filter-row select:focus,#portfolio .portfolio-filters input:not(.portfolio-date-picker-input):focus,#portfolio .portfolio-filters select:focus,#specialists .specialists-filters input:focus,#specialists .specialists-filters select:focus{outline:none!important;border-color:#16827d!important;box-shadow:0 0 0 2px rgba(22,130,125,.14)!important}
+ #search .advanced-filters button,#clients .clients-date-buttons button,#risk .filter-row .toolbar button,#risk>.toolbar.no-print button,#collection .collection-tools .filter-icon,#collection .date-tools button,#portfolio .portfolio-date-tools button,#portfolio .portfolio-filter-actions button,#portfolio .portfolio-calendar-trigger,#specialists .specialists-filter-actions button{box-sizing:border-box!important;min-height:34px!important;height:auto!important;padding:5px 5px!important;border-radius:9px!important;font-size:10.5px!important;line-height:1.15!important;white-space:normal!important;overflow-wrap:anywhere!important}
+ #search .advanced-filters button,#risk>.toolbar.no-print button,#specialists .specialists-filter-actions button{width:auto!important}
+ #collection .collection-tools .filter-icon{width:100%!important}
+ #portfolio .portfolio-calendar-trigger{white-space:nowrap!important;font-size:13px!important}
+}
+
+@media(max-width:760px){
+ /* Keep both client date inputs together and give the loan-status selector a clean full row. */
+ #clients .clients-filters>.client-filter-box:nth-child(4){grid-row:2!important;grid-column:1!important}
+ #clients .clients-filters>.client-filter-box:nth-child(5){grid-row:2!important;grid-column:2!important}
+ #clients .clients-filters>.client-filter-box:nth-child(3){grid-row:3!important;grid-column:1/-1!important}
+ /* Show the active client/officer panels side by side without overriding the hidden state. */
+ #collection #collectionClientPanel.show,#collection #collectionOfficerPanel.show{display:inline-block!important;box-sizing:border-box!important;width:calc(50% - 8px)!important;min-width:0!important;vertical-align:top!important;margin:6px 2px!important;padding:8px 7px!important}
+ #collection #collectionClientPanel input,#collection #collectionOfficerPanel input{padding:6px!important}
+ /* Keep the portfolio clear-filter action beside loan status and make date values fully readable. */
+ #portfolio .portfolio-filter-actions{grid-column:auto!important;flex-direction:column!important;align-items:flex-start!important;justify-content:center!important;gap:5px!important;min-width:0!important}
+ #portfolio .portfolio-filter-actions .filter-status-note{width:100%!important;text-align:right!important;line-height:1.2!important}
+ #portfolio .portfolio-date-input{display:flex!important;align-items:center!important;gap:2px!important;padding-inline:4px!important;min-width:0!important}
+ #portfolio .portfolio-date-input>span{flex:0 0 16px!important;width:16px!important;font-size:12px!important}
+ #portfolio .portfolio-date-input input:not(.portfolio-date-picker-input){width:0!important;min-width:0!important;flex:1 1 0!important;padding:3px 0!important;font-size:13px!important;letter-spacing:0!important;font-weight:700!important}
+}
+</style>
+
+<style id="collection-filter-like-risk">
+/* Match collection filters to the compact grouped layout used on the arrears screen. */
+#collection .collection-filter-shortcuts{display:none!important}
+#collection .collection-filter-card{display:block!important;box-sizing:border-box!important;margin:10px 0 12px!important;padding:12px!important;background:#f8fafc!important;border:1px solid #d8e2ea!important;border-radius:14px!important}
+#collection .collection-filter-grid{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important;align-items:end!important}
+#collection .collection-filter-card .collection-panel{display:block!important;box-sizing:border-box!important;width:auto!important;min-width:0!important;margin:0!important;padding:9px!important;background:#fff!important;border:1px solid #d7e1e7!important;border-radius:11px!important}
+#collection .collection-filter-card .collection-panel .filter-label{display:block!important;margin:0 0 4px!important;font-size:11px!important;line-height:1.3!important;font-weight:800!important}
+#collection #collectionDatePanel{grid-column:1/-1!important}
+#collection #collectionDatePanel .date-range{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important}
+#collection #collectionDatePanel .date-tools{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:6px!important;margin-top:8px!important}
+#collection #collectionDatePanel .date-tools button{box-sizing:border-box!important;width:100%!important;min-height:36px!important;height:auto!important;padding:6px 5px!important;border-radius:9px!important;font-size:11px!important;line-height:1.2!important;white-space:normal!important}
+#collection .collection-status-filter{grid-column:1/2!important;display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:0!important;margin:0!important;min-width:0!important}
+#collection .collection-status-filter>div:empty{display:none!important}
+#collection .collection-status-filter>div:not(:empty){box-sizing:border-box!important;min-width:0!important;margin:0!important;padding:9px!important;background:#fff!important;border:1px solid #d7e1e7!important;border-radius:11px!important}
+#collection .collection-status-filter .filter-label{display:block!important;margin:0 0 4px!important;font-size:11px!important;font-weight:800!important}
+#collection .collection-filter-actions{display:flex!important;justify-content:flex-end!important;margin-top:8px!important}
+#collection .collection-filter-actions button{min-height:36px!important;height:auto!important;padding:7px 14px!important;border-radius:9px!important;font-size:12px!important;font-weight:800!important}
+
+#collection .collection-filter-grid #collectionClientPanel.show,#collection .collection-filter-grid #collectionOfficerPanel.show{display:block!important;box-sizing:border-box!important;width:auto!important;min-width:0!important;margin:0!important;padding:9px!important;vertical-align:initial!important}
+
+#collection .collection-filter-grid>.collection-panel{padding:0!important;background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important}
+#collection .collection-filter-grid #collectionClientPanel.show,#collection .collection-filter-grid #collectionOfficerPanel.show{padding:0!important;background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important}
+#collection .collection-status-filter{padding:0!important;background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important}
+#collection .collection-status-filter>div:not(:empty){padding:0!important;background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important}
+</style>
+<style id="collection-autocomplete-style">
+#collection .collection-autocomplete{position:relative!important;display:block!important;width:100%!important;min-width:0!important;overflow:visible!important;z-index:1}
+#collection .collection-panel.autocomplete-open{position:relative!important;z-index:11000!important;overflow:visible!important}
+#collection .collection-autocomplete.has-open{z-index:11001!important}
+#collection .collection-autocomplete-menu{display:none!important;position:absolute!important;top:calc(100% + 4px)!important;inset-inline:-4px!important;width:auto!important;max-height:min(240px,38vh)!important;overflow-y:auto!important;overscroll-behavior:contain!important;background:#fff!important;border:1px solid #cbd5e1!important;border-radius:12px!important;box-shadow:0 12px 28px rgba(15,35,55,.2)!important;padding:5px!important;direction:rtl!important;text-align:right!important;font-size:14px!important;line-height:1.45!important}
+#collection .collection-autocomplete-menu.is-open{display:flex!important;flex-direction:column!important;gap:3px!important}
+#collection .collection-autocomplete-option{display:block!important;box-sizing:border-box!important;flex:0 0 auto!important;width:100%!important;min-height:40px!important;margin:0!important;padding:9px 12px!important;background:#fff!important;color:#1f2937!important;border:0!important;border-radius:8px!important;box-shadow:none!important;text-align:right!important;cursor:pointer!important;white-space:normal!important;font-size:14px!important;font-weight:700!important;line-height:1.45!important}
+#collection .collection-autocomplete-option:hover,#collection .collection-autocomplete-option.is-active,#collection .collection-autocomplete-option.is-selected{background:#edf3f8!important;color:#132b40!important}
+</style>
+<style id="login-screen-reference-style">
+#loginScreen.login-screen{box-sizing:border-box!important;overflow-x:hidden!important;overflow-y:auto!important;padding:24px max(16px,env(safe-area-inset-right)) 24px max(16px,env(safe-area-inset-left))!important;background:radial-gradient(ellipse at 50% 20%,#172b42 0%,#0b1b2a 55%,#07131f 100%)!important}
+#loginScreen .login-card.login-card-pro{box-sizing:border-box!important;width:min(460px,100%)!important;max-width:460px!important;margin:auto!important;padding:34px clamp(22px,7vw,36px)!important;border:1px solid rgba(150,177,201,.34)!important;border-radius:28px!important;background:linear-gradient(160deg,#17263b 0%,#102033 54%,#0e1d2c 100%)!important;color:#e7eef5!important;box-shadow:0 24px 70px rgba(0,0,0,.42)!important}
+#loginScreen .login-brand{display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:8px!important;margin-bottom:14px!important}
+#loginScreen .association-logo.large{display:block!important;width:76px!important;height:76px!important;max-width:76px!important;object-fit:contain!important;padding:5px!important;border:2px solid #dfc15d!important;border-radius:20px!important;background:#fff!important;box-shadow:0 7px 18px rgba(0,0,0,.24)!important}
+#loginScreen .login-logo{display:block!important;margin:10px 0 0!important;color:#e5c65c!important;font-size:27px!important;font-weight:900!important;line-height:1.3!important;text-align:center!important}
+#loginScreen .login-sub{margin:10px 0 24px!important;color:#b9c6d4!important;font-size:14px!important;line-height:1.8!important;text-align:center!important}
+#loginScreen .login-card label{display:block!important;margin:17px 0 8px!important;color:#d0d9e3!important;font-size:15px!important;font-weight:800!important;text-align:right!important}
+#loginScreen .login-card select,#loginScreen .login-card input{box-sizing:border-box!important;display:block!important;width:100%!important;min-height:54px!important;margin:0!important;padding:12px 14px!important;border:1.5px solid #40566b!important;border-radius:13px!important;background-color:#0a1a28!important;color:#f1f5f9!important;font-size:16px!important;font-weight:600!important;text-align:right!important;direction:rtl!important;box-shadow:none!important;outline:none!important}
+#loginScreen .login-card select{appearance:none!important;-webkit-appearance:none!important;padding-left:44px!important;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23d4dee8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")!important;background-repeat:no-repeat!important;background-position:left 15px center!important;background-size:18px!important;color-scheme:dark!important}
+#loginScreen .login-card input::placeholder{color:#8998a8!important;opacity:1!important}
+#loginScreen .login-card select:focus,#loginScreen .login-card input:focus{border-color:#d8b84f!important;box-shadow:0 0 0 3px rgba(216,184,79,.16)!important}
+#loginScreen .login-card .login-submit{box-sizing:border-box!important;display:block!important;width:100%!important;min-height:58px!important;margin:22px 0 0!important;padding:12px 16px!important;border:1px solid #f4dc83!important;border-radius:14px!important;background:linear-gradient(100deg,#d8b442 0%,#edcf62 48%,#d6ae37 100%)!important;color:#17202a!important;font-size:17px!important;font-weight:900!important;box-shadow:0 8px 22px rgba(214,174,55,.18)!important;cursor:pointer!important}
+#loginScreen .login-card .login-submit:hover{filter:brightness(1.06)!important}
+#loginScreen .login-card .role-note{margin-top:15px!important;color:#aebccc!important;font-size:13px!important;line-height:1.9!important;text-align:right!important}
+#loginScreen .login-card .msg{margin-top:10px!important;color:#fca5a5!important}
+@media(max-width:600px){#loginScreen.login-screen{padding-top:20px!important;padding-bottom:20px!important}#loginScreen .login-card.login-card-pro{width:min(100%,420px)!important;padding:28px clamp(20px,7vw,30px)!important;border-radius:26px!important}#loginScreen .association-logo.large{width:72px!important;height:72px!important}#loginScreen .login-logo{font-size:25px!important}#loginScreen .login-sub{margin-bottom:21px!important}}
+@media(max-height:700px){#loginScreen.login-screen{align-items:flex-start!important;padding-top:14px!important;padding-bottom:14px!important}}
+</style>
 </head>
 
 <body>
@@ -1389,7 +1541,7 @@ button.icon-action .action-glyph svg{width:22px!important;height:22px!important;
 </div>
 </section>
 
-<section id="search" class="card no-print">
+<section id="search" class="card no-print screen">
 <h2>🔍 البحث السريع في القروض</h2>
 <div class="filter-row">
   <div>
@@ -1483,16 +1635,14 @@ button.icon-action .action-glyph svg{width:22px!important;height:22px!important;
   <button class="filter-icon active" id="btnDateFilter" onclick="toggleCollectionFilter('date')">📅 البحث بين تاريخين</button>
 </div>
 
-<div id="collectionClientPanel" class="collection-panel show no-print">
+<div class="collection-filter-card no-print"><div class="collection-filter-grid"><div id="collectionClientPanel" class="collection-panel show no-print">
   <span class="filter-label">اسم العميل</span>
-  <input id="collectionClient" list="collectionClientList" autocomplete="off" placeholder="اكتب أي حرف من اسم العميل...">
-  <datalist id="collectionClientList"></datalist>
+  <div class="collection-autocomplete"><input id="collectionClient" autocomplete="off" placeholder="اكتب أي حرف من اسم العميل..." aria-autocomplete="list" aria-controls="collectionClientSuggestions" aria-expanded="false"><datalist id="collectionClientList"></datalist><div id="collectionClientSuggestions" class="collection-autocomplete-menu" aria-label="اقتراحات اسم العميل"></div></div>
 </div>
 
 <div id="collectionOfficerPanel" class="collection-panel show no-print">
   <span class="filter-label">اسم الأخصائي</span>
-  <input id="collectionOfficer" list="collectionOfficerList" autocomplete="off" placeholder="اكتب أي حرف من اسم الأخصائي...">
-  <datalist id="collectionOfficerList"></datalist>
+  <div class="collection-autocomplete"><input id="collectionOfficer" autocomplete="off" placeholder="اكتب أي حرف من اسم الأخصائي..." aria-autocomplete="list" aria-controls="collectionOfficerSuggestions" aria-expanded="false"><datalist id="collectionOfficerList"></datalist><div id="collectionOfficerSuggestions" class="collection-autocomplete-menu" aria-label="اقتراحات اسم الأخصائي"></div></div>
 </div>
 
 <div id="collectionDatePanel" class="collection-panel show no-print">
@@ -1504,11 +1654,11 @@ button.icon-action .action-glyph svg{width:22px!important;height:22px!important;
     <button class="light" onclick="setCollectionCurrentMonth()">📅 الشهر الحالي</button>
     <button class="light" onclick="setCollectionPreviousMonth()">◀️ الشهر السابق</button>
     <button class="blue" onclick="setCollectionToday()">📍 تاريخ اليوم</button>
-    <button class="light" onclick="clearCollectionFilters()">🧹 مسح الفلاتر</button>
+    
   </div>
 </div>
 
-<div class="filter-row no-print">
+<div class="filter-row no-print collection-status-filter">
   <div></div>
   <div><span class="filter-label">حالة القرض</span>
     <select id="collectionStatus">
@@ -1517,9 +1667,7 @@ button.icon-action .action-glyph svg{width:22px!important;height:22px!important;
       <option value="all">كل القروض</option>
     </select>
   </div>
-</div>
-
-<div class="wrap">
+</div></div><div class="collection-filter-actions"><button type="button" class="light" onclick="clearCollectionFilters()">مسح البحث</button></div></div> <div class="wrap">
 <table class="collection-main-table">
 <thead><tr>
 <th>الأخصائي</th><th>اسم العميل</th><th>رقم الهاتف</th><th>قيمة القسط</th><th>تاريخ الاستحقاق</th><th>رقم القسط</th>
@@ -3913,9 +4061,11 @@ function setCollectionToday(){
   renderCollection();
 }
 function clearCollectionFilters(){
-  document.getElementById("collectionClient").value="";
-  document.getElementById("collectionOfficer").value="";
-  setCollectionCurrentMonth();
+  const client=document.getElementById("collectionClient");if(client)client.value="";
+  const officer=document.getElementById("collectionOfficer");if(officer)officer.value="";
+  window.collectionAutocompleteHideAll?.();
+  updateCollectionFilterLists();
+  renderCollection();
 }
 
 /* v14: operational controls, audit trail and data quality */
@@ -4568,6 +4718,202 @@ document.addEventListener('DOMContentLoaded', function () {
   });
  },true);
 })();
+</script>
+<script id="mobile-summary-rail-dots-script">
+(function(){
+ 'use strict';
+ var selectors=['#dash .pro-kpis','#dash .dashboard-summary','#risk .risk-summary-cards','#collection .collection-kpis','#portfolio .portfolio-summary-cards','#specialists .specialists-kpis','#specialists .specialist-profile-grid','#users .users-kpi-grid','#clients .clients-summary','#clients .profile-kpis','#clients .profile-installment-summary','#audit .audit-summary'];
+ var bound=new WeakSet(),rtlModes=new WeakMap(),pendingFrames=new WeakMap(),refreshQueued=false;
+ var resizeObserver=typeof ResizeObserver!=='undefined'?new ResizeObserver(scheduleRefresh):null;
+ function mobile(){return window.matchMedia('(max-width: 760px)').matches;}
+ function indicatorFor(rail){
+  var next=rail.nextElementSibling;
+  if(next&&next.classList.contains('mobile-summary-rail-dots'))return next;
+  var box=document.createElement('div');box.className='mobile-summary-rail-dots';box.setAttribute('aria-hidden','true');box.hidden=true;rail.insertAdjacentElement('afterend',box);return box;
+ }
+ function activeIndex(rail,box,max){
+  var raw=rail.scrollLeft,normalized=raw;
+  if(getComputedStyle(rail).direction==='rtl'){
+   if(!rtlModes.has(rail))rtlModes.set(rail,raw>0?'positive':'negative');
+   normalized=rtlModes.get(rail)==='positive'?max-raw:Math.abs(raw);
+  }
+  var ratio=Math.max(0,Math.min(1,normalized/max));
+  return Math.round(ratio*(box.children.length-1));
+ }
+ function update(rail){
+  if(!rail||!rail.isConnected)return;
+  var box=indicatorFor(rail);
+  if(!mobile()||rail.clientWidth===0){box.hidden=true;return;}
+  var max=Math.max(0,rail.scrollWidth-rail.clientWidth);
+  if(max<8){box.hidden=true;return;}
+  var count=Math.max(2,Math.min(8,Math.ceil(rail.scrollWidth/rail.clientWidth)));
+  if(box.children.length!==count){
+   var fragment=document.createDocumentFragment();
+   for(var i=0;i<count;i++){var dot=document.createElement('span');dot.className='mobile-summary-rail-dot';fragment.appendChild(dot);}
+   box.replaceChildren(fragment);
+  }
+  box.hidden=false;
+  var active=activeIndex(rail,box,max);
+  Array.prototype.forEach.call(box.children,function(dot,i){dot.classList.toggle('is-active',i===active);});
+ }
+ function scheduleRail(rail){
+  if(pendingFrames.has(rail))return;
+  var id=requestAnimationFrame(function(){pendingFrames.delete(rail);update(rail);});pendingFrames.set(rail,id);
+ }
+ function refresh(){
+  var rails=[];selectors.forEach(function(sel){document.querySelectorAll(sel).forEach(function(el){rails.push(el);});});
+  rails.forEach(function(rail){
+   if(!bound.has(rail)){bound.add(rail);rail.addEventListener('scroll',function(){scheduleRail(rail);},{passive:true});if(resizeObserver)resizeObserver.observe(rail);}
+   update(rail);
+  });
+ }
+ function scheduleRefresh(){
+  if(refreshQueued)return;refreshQueued=true;
+  requestAnimationFrame(function(){refreshQueued=false;refresh();});
+ }
+ window.addEventListener('resize',scheduleRefresh,{passive:true});
+ window.addEventListener('orientationchange',scheduleRefresh,{passive:true});
+ if(typeof MutationObserver!=='undefined'&&document.body){var observer=new MutationObserver(scheduleRefresh);observer.observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['class']});}
+ refresh();
+})();
+</script>
+<script id="prefix-datalist-filter-v1">
+(function installPrefixDatalistFilter(){
+  if(window.__prefixDatalistFilterInstalled)return;
+  window.__prefixDatalistFilterInstalled=true;
+  const sourceOptions=new WeakMap();
+  const renderedOptions=new WeakMap();
+  const normalizeValue=value=>typeof norm==="function"?norm(String(value??"")):String(value??"").normalize("NFKC").toLocaleLowerCase().trim();
+  const readOptions=list=>Array.from(list.options).map(option=>String(option.value||option.textContent||"").trim()).filter(Boolean);
+  const sameOptions=(a,b)=>Array.isArray(a)&&Array.isArray(b)&&a.length===b.length&&a.every((value,index)=>value===b[index]);
+  function renderForInput(input,list,refreshSource){
+    const live=readOptions(list);
+    const last=renderedOptions.get(list);
+    if(refreshSource&&(!last||!sameOptions(live,last)))sourceOptions.set(list,live);
+    if(!sourceOptions.has(list))sourceOptions.set(list,live);
+    const source=sourceOptions.get(list)||[];
+    const query=normalizeValue(input.value);
+    const matches=query?source.filter(value=>normalizeValue(value).startsWith(query)):source;
+    const fragment=document.createDocumentFragment();
+    matches.forEach(value=>{const option=document.createElement("option");option.value=value;fragment.appendChild(option);});
+    list.replaceChildren(fragment);
+    renderedOptions.set(list,matches.slice());
+  }
+  function inputForList(list){return Array.from(document.querySelectorAll("input[list]")).find(input=>input.getAttribute("list")===list.id)||null;}
+  document.addEventListener("input",event=>{
+    const input=event.target;
+    if(!(input instanceof HTMLInputElement)||!input.getAttribute("list"))return;
+    const list=document.getElementById(input.getAttribute("list"));
+    if(list&&list.tagName==="DATALIST")renderForInput(input,list,true);
+  },true);
+  const observer=new MutationObserver(records=>{
+    const lists=new Set();
+    records.forEach(record=>{const list=record.target.tagName==="DATALIST"?record.target:record.target.closest?.("datalist");if(list)lists.add(list);});
+    lists.forEach(list=>{
+      const live=readOptions(list),last=renderedOptions.get(list);
+      if(last&&sameOptions(live,last))return;
+      sourceOptions.set(list,live);
+      const input=inputForList(list);
+      if(input)renderForInput(input,list,false);else renderedOptions.set(list,live.slice());
+    });
+  });
+  document.querySelectorAll("datalist").forEach(list=>observer.observe(list,{childList:true,subtree:true,characterData:true,attributes:true,attributeFilter:["value","label"]}));
+})();
+
+</script>
+<script id="collection-autocomplete-script">
+(function installCollectionAutocomplete(){
+  if(window.__collectionAutocompleteInstalled)return;
+  window.__collectionAutocompleteInstalled=true;
+  const configs=[
+    {inputId:"collectionClient",listId:"collectionClientList",menuId:"collectionClientSuggestions"},
+    {inputId:"collectionOfficer",listId:"collectionOfficerList",menuId:"collectionOfficerSuggestions"}
+  ];
+  const states=[];
+  const normalize=value=>typeof norm==="function"?norm(String(value??"")):String(value??"").normalize("NFKC").toLocaleLowerCase().trim();
+  const readValues=list=>Array.from(list.options).map(option=>String(option.value||option.textContent||"").trim()).filter(Boolean);
+  function close(state){
+    state.menu.classList.remove("is-open");
+    state.wrapper.classList.remove("has-open");
+    state.panel.classList.remove("autocomplete-open");
+    state.input.setAttribute("aria-expanded","false");
+    state.input.removeAttribute("aria-activedescendant");
+    state.activeIndex=-1;
+  }
+  function render(state){
+    const query=normalize(state.input.value);
+    const values=readValues(state.list);
+    const matches=query?values.filter(value=>normalize(value).startsWith(query)):values;
+    state.menu.replaceChildren();
+    state.activeIndex=-1;
+    if(matches.length){
+      matches.slice(0,100).forEach((value,index)=>{
+        const option=document.createElement("button");
+        option.type="button";option.className="collection-autocomplete-option";
+        option.id=state.menuId+"-option-"+index;option.setAttribute("role","option");
+        const selected=Boolean(query)&&normalize(value)===query;
+        option.setAttribute("aria-selected",selected?"true":"false");option.classList.toggle("is-selected",selected);option.dataset.value=value;option.textContent=value;
+        option.addEventListener("pointerdown",event=>event.preventDefault());
+        option.addEventListener("mousedown",event=>event.preventDefault());
+        option.addEventListener("click",event=>{event.preventDefault();choose(state,value);});
+        state.menu.appendChild(option);
+      });
+    }
+    const shouldOpen=matches.length>0;
+    state.menu.classList.toggle("is-open",shouldOpen);
+    state.wrapper.classList.toggle("has-open",shouldOpen);
+    state.panel.classList.toggle("autocomplete-open",shouldOpen);
+    state.input.setAttribute("aria-expanded",shouldOpen?"true":"false");
+  }
+  function choose(state,value){
+    state.input.value=value;
+    state.input.focus({preventScroll:true});
+    state.input.dispatchEvent(new Event("input",{bubbles:true}));
+    state.input.dispatchEvent(new Event("change",{bubbles:true}));
+    close(state);
+  }
+  function setActive(state,index){
+    const options=Array.from(state.menu.querySelectorAll('[role="option"]'));
+    if(!options.length)return;
+    state.activeIndex=Math.max(0,Math.min(index,options.length-1));
+    options.forEach((option,i)=>{const active=i===state.activeIndex;option.classList.toggle("is-active",active);option.setAttribute("aria-selected",active?"true":"false");});
+    state.input.setAttribute("aria-activedescendant",options[state.activeIndex].id);
+    options[state.activeIndex].scrollIntoView({block:"nearest"});
+  }
+  configs.forEach(config=>{
+    const input=document.getElementById(config.inputId),list=document.getElementById(config.listId),menu=document.getElementById(config.menuId);
+    if(!input||!list||!menu)return;
+    const wrapper=input.closest(".collection-autocomplete"),panel=input.closest(".collection-panel");
+    if(!wrapper||!panel)return;
+    input.removeAttribute("list");input.setAttribute("aria-autocomplete","list");input.setAttribute("aria-controls",config.menuId);input.setAttribute("aria-expanded","false");
+    menu.setAttribute("role","listbox");
+    const state={...config,input,list,menu,wrapper,panel,activeIndex:-1};states.push(state);
+    input.addEventListener("input",()=>render(state));
+    input.addEventListener("keydown",event=>{
+      if(event.key==="ArrowDown"){
+        if(!state.menu.classList.contains("is-open"))render(state);
+        const options=state.menu.querySelectorAll('[role="option"]');
+        if(options.length){event.preventDefault();setActive(state,state.activeIndex+1);}
+      }else if(event.key==="ArrowUp"){
+        const options=state.menu.querySelectorAll('[role="option"]');
+        if(options.length){event.preventDefault();setActive(state,Math.max(0,state.activeIndex-1));}
+      }else if(event.key==="Enter"&&state.menu.classList.contains("is-open")){
+        const options=state.menu.querySelectorAll('[role="option"]');
+        if(options.length){event.preventDefault();const selected=options[state.activeIndex>=0?state.activeIndex:0];choose(state,selected.dataset.value);}
+      }else if(event.key==="Escape")close(state);
+    });
+  });
+  const listObserver=new MutationObserver(records=>{
+    const changed=new Set();
+    records.forEach(record=>{const list=record.target.tagName==="DATALIST"?record.target:record.target.closest?.("datalist");if(list)changed.add(list);});
+    states.forEach(state=>{if(changed.has(state.list)&&state.menu.classList.contains("is-open"))render(state);});
+  });
+  states.forEach(state=>listObserver.observe(state.list,{childList:true,subtree:true,characterData:true,attributes:true,attributeFilter:["value","label"]}));
+  document.addEventListener("pointerdown",event=>{if(!event.target.closest?.(".collection-autocomplete"))states.forEach(close);},true);
+  document.addEventListener("focusin",event=>{states.forEach(state=>{if(event.target!==state.input)close(state);});});
+  window.collectionAutocompleteHideAll=()=>states.forEach(close);
+})();
+
 </script>
 </body>
 </html>
