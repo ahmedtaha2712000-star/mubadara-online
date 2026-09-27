@@ -2027,7 +2027,7 @@ function showCollectionDetails(groupIndex){
     const unpaid=num(get(r,"unpaid")), cls=unpaid>0?"unpaid-row":"paid-row";
     html+=`<tr class="${cls}">
       <td>${esc(get(r,"installment"))}</td>
-      <td>${esc(collectionDisplayDate(get(r,"date")))}</td>
+      <td>${esc(collectionDisplayDate(riskDueDateValue(r)))}</td>
       <td>${money(get(r,"value"))}</td>
       <td>${money(get(r,"total"))}</td>
       <td>${money(get(r,"paid"))}</td>
@@ -2110,8 +2110,9 @@ function riskInstallmentRows(){
   });
   return result;
 }
+function riskDueDateValue(r){return getAny(r,["تاريخ الاستحقاق","تاريخ استحقاق القسط","تاريخ القسط","تاريخ القسط المستحق",H.date])||get(r,"date")}
 function riskDateInRange(r,from,to){
-  const d=parseExcelDate(get(r,"date"));
+  const d=parseExcelDate(riskDueDateValue(r));
   if(!d)return false;
   return (!from || d>=from) && (!to || d<=to);
 }
@@ -2160,23 +2161,31 @@ function renderRisk(){
      && (!client || rClient.includes(client))
      && riskDateInRange(r,from,to);
  }).sort((a,b)=>{
-   const da=parseExcelDate(get(a.r,"date"))?.getTime()||0;
-   const db=parseExcelDate(get(b.r,"date"))?.getTime()||0;
+   const da=parseExcelDate(riskDueDateValue(a.r))?.getTime()||0;
+   const db=parseExcelDate(riskDueDateValue(b.r))?.getTime()||0;
    return da-db;
  });
+ // شاشة المتأخرات: صف واحد لكل اسم عميل مع تجميع أقساطه المتأخرة.
+ const riskClients=[];const riskClientMap=new Map();
  filteredRiskRows.forEach(x=>{
-   const g=x.g,r=x.r,delay=rowDelayDays(r),unpaid=installmentUnpaid(r);
-   totalDue+=num(get(r,"value"));
-   totalPaid+=num(get(r,"paid"));
-   totalUnpaid+=unpaid;
-   const excelOverdue=getAny(r,[H.late,"عدد الأقساط المتأخرة","عدد الاقساط المتاخرة","عدد الأقساط المتاخرة"]);
-   const overdueCount=String(excelOverdue??"").trim()!==""?num(excelOverdue):(g.items||[g.r]).filter(installmentIsOverdue).length;
-   i++;
-   out+=`<tr class="${unpaid>0?"risk-unpaid":"risk-paid"}">
-    <td>${i}</td><td><b>${esc(get(r,"client")||get(g.r,"client"))}</b></td><td>${esc(get(r,"nid")||get(g.r,"nid"))}</td><td>${esc(clientPhones(r)||get(r,"phone"))}</td><td>${esc(get(r,"installment"))}</td><td>${esc(collectionDisplayDate(get(r,"date")))}</td><td>${esc(num(get(r,"value")).toLocaleString("ar-EG",{maximumFractionDigits:2}))}</td><td>${esc(num(get(r,"paid")).toLocaleString("ar-EG",{maximumFractionDigits:2}))}</td><td>${esc(unpaid.toLocaleString("ar-EG",{maximumFractionDigits:2}))}</td><td>${esc(overdueCount.toLocaleString("ar-EG"))}</td><td>${esc(delay)}</td><td>${esc(rowAddress(r)||get(g.r,"address"))}</td><td>${esc(guarantorText(r,1))}</td><td>${esc(guarantorText(r,2))}</td><td>${esc(guarantorText(r,3))}</td>
-   </tr>`;
+   const clientValue=String(get(x.r,"client")||get(x.g.r,"client")||"").trim();
+   const key=norm(clientValue)||`row:${riskClients.length}`;
+   let item=riskClientMap.get(key);
+   if(!item){item={...x,rows:[]};riskClientMap.set(key,item);riskClients.push(item)}
+   item.rows.push(x.r);
  });
- document.getElementById("rt").innerHTML=out||'<tr><td colspan="15">لا توجد أقساط متأخرة</td></tr>';
+ riskClients.forEach(x=>{
+   const g=x.g,r=x.r,rowsForClient=x.rows;
+   const value=rowsForClient.reduce((sum,row)=>sum+num(get(row,"value")),0);
+   const paid=rowsForClient.reduce((sum,row)=>sum+num(get(row,"paid")),0);
+   const unpaid=rowsForClient.reduce((sum,row)=>sum+installmentUnpaid(row),0);
+   const delay=Math.max(...rowsForClient.map(row=>rowDelayDays(row)),0);
+   const clientKey=norm(get(r,"client")||get(g.r,"client"));const allClientRows=[];visibleGroups().forEach(group=>(group.items||[group.r]).forEach(row=>{if(norm(get(row,"client")||get(group.r,"client"))===clientKey)allClientRows.push(row)}));const excelOverdueCounts=allClientRows.map(row=>getAny(row,[H.late,"عدد الأقساط المتأخرة","عدد الاقساط المتاخرة","عدد الأقساط المتاخرة"])).filter(v=>String(v??"").trim()!=="").map(num).filter(v=>v>=0);const overdueCount=excelOverdueCounts.length?Math.max(...excelOverdueCounts):rowsForClient.length;
+   totalDue+=value;totalPaid+=paid;totalUnpaid+=unpaid;i++;
+   out+=`<tr class="${unpaid>0?"risk-unpaid":"risk-paid"}">
+    <td>${i}</td><td><b>${esc(get(r,"client")||get(g.r,"client"))}</b></td><td>${esc(get(r,"nid")||get(g.r,"nid"))}</td><td>${esc(clientPhones(r)||get(r,"phone"))}</td><td>${esc(rowsForClient.length>1?`(${rowsForClient.length} أقساط)`:get(r,"installment"))}</td><td>${esc(collectionDisplayDate(get(r,"date")))}</td><td>${esc(value.toLocaleString("ar-EG",{maximumFractionDigits:2}))}</td><td>${esc(paid.toLocaleString("ar-EG",{maximumFractionDigits:2}))}</td><td>${esc(unpaid.toLocaleString("ar-EG",{maximumFractionDigits:2}))}</td><td>${esc(overdueCount.toLocaleString("ar-EG"))}</td><td>${esc(delay)}</td><td>${esc(rowAddress(r)||get(g.r,"address"))}</td><td>${esc(guarantorText(r,1))}</td><td>${esc(guarantorText(r,2))}</td><td>${esc(guarantorText(r,3))}</td>
+   </tr>`;
+ }); document.getElementById("rt").innerHTML=out||'<tr><td colspan="15">لا توجد أقساط متأخرة</td></tr>';
  document.getElementById("riskTotalUnpaid").textContent=totalUnpaid.toLocaleString("ar-EG",{maximumFractionDigits:2});
  document.getElementById("riskTotalDue").textContent=totalDue.toLocaleString("ar-EG",{maximumFractionDigits:2});
  document.getElementById("riskTotalPaid").textContent=totalPaid.toLocaleString("ar-EG",{maximumFractionDigits:2});
