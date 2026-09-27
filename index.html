@@ -555,7 +555,7 @@ nav{background:#081826!important;border-left:1px solid #19344a!important;padding
 @media(max-width:480px){.specialists-kpis{grid-template-columns:1fr!important}.specialist-profile-grid{grid-template-columns:1fr}}
 </style>
 <style id="dropdown-caret-selection-suppression">
-.smart-select-search,.smart-select-search:focus,.smart-select-search:active{caret-color:transparent!important;-webkit-tap-highlight-color:transparent!important}
+.smart-select-search,.smart-select-search:focus,.smart-select-search:active{caret-color:#000!important;-webkit-tap-highlight-color:transparent!important}
 .smart-select-search::selection{background:transparent!important;color:inherit!important}
 .smart-select-search::-moz-selection{background:transparent!important;color:inherit!important}
 </style>
@@ -568,7 +568,7 @@ nav{background:#081826!important;border-left:1px solid #19344a!important;padding
  .smart-select-menu{position:absolute!important;top:calc(100% + 6px)!important;left:0!important;right:0!important;grid-column:auto!important;grid-row:auto!important;display:none;width:100%!important;min-width:100%!important;max-width:calc(100vw - 32px)!important;max-height:220px!important;margin:0!important;box-sizing:border-box!important;overflow-y:auto!important;z-index:1003!important;direction:rtl!important}
  .smart-select.open{z-index:1002!important}
  .smart-select.open .smart-select-menu{display:block!important}
- .smart-select-search{caret-color:transparent!important}
+ .smart-select-search{caret-color:#000!important}
  .smart-select-option{white-space:normal!important;line-height:1.45!important;padding:10px 12px!important;-webkit-user-select:none!important;user-select:none!important}
  .smart-select-clear{ -webkit-user-select:none!important;user-select:none!important}
  .smart-select-menu+.smart-select-clear{z-index:2}
@@ -1353,7 +1353,7 @@ nav a.active{background:#1e293b;color:#fff}
 </div>
 <div class="toolbar no-print"><button class="light" onclick="clearSectionFilter('risk')">مسح البحث</button></div>
 <div class="wrap risk-installments-wrap"><table class="risk-installments-table"><thead><tr>
-<th>م</th><th>الاسم</th><th>الرقم القومي</th><th>الهاتف</th><th>القسط</th><th>تاريخ الاستحقاق</th><th>القيمة</th><th>المسدد</th><th>المتبقي</th><th>عدد الأقساط المتأخرة</th><th>أيام التأخير</th><th>العنوان</th><th>الضامن الأول</th><th>الضامن الثاني</th><th>الضامن الثالث</th>
+<th>م</th><th>الاسم</th><th>الرقم القومي</th><th>مبلغ القرض</th><th>مدة القرض</th><th>الهاتف</th><th>رقم القسط</th><th>تاريخ الاستحقاق</th><th>القيمة</th><th>المسدد</th><th>المتبقي</th><th>عدد الأقساط المتأخرة</th><th>أيام التأخير</th><th>العنوان</th><th>الضامن الأول</th><th>الضامن الثاني</th><th>الضامن الثالث</th>
 </tr></thead><tbody id="rt"></tbody></table></div>
 </section>
 
@@ -2179,13 +2179,14 @@ function renderRisk(){
    const value=rowsForClient.reduce((sum,row)=>sum+num(get(row,"value")),0);
    const paid=rowsForClient.reduce((sum,row)=>sum+num(get(row,"paid")),0);
    const unpaid=rowsForClient.reduce((sum,row)=>sum+installmentUnpaid(row),0);
-   const delay=Math.max(...rowsForClient.map(row=>rowDelayDays(row)),0);
-   const clientKey=norm(get(r,"client")||get(g.r,"client"));const allClientRows=[];visibleGroups().forEach(group=>(group.items||[group.r]).forEach(row=>{if(norm(get(row,"client")||get(group.r,"client"))===clientKey)allClientRows.push(row)}));const excelOverdueCounts=allClientRows.map(row=>getAny(row,[H.late,"عدد الأقساط المتأخرة","عدد الاقساط المتاخرة","عدد الأقساط المتاخرة"])).filter(v=>String(v??"").trim()!=="").map(num).filter(v=>v>=0);const overdueCount=excelOverdueCounts.length?Math.max(...excelOverdueCounts):rowsForClient.length;
+   const delay=Math.max(...rowsForClient.map(row=>rowDelayDays(row)),0);const installmentNumbers=rowsForClient.map(row=>num(get(row,"installment"))).filter(v=>v>0);const minimumInstallmentNumber=installmentNumbers.length?Math.min(...installmentNumbers):String(get(r,"installment")??"").trim();
+   const loanRows=uniqueProfileInstallments(g.items||[g.r]);const loanAmountValue=profileLoanExcelValueFromRows(loanRows,[H.loanAmount,"مبلغ القرض","قيمة القرض","قيمة التمويل","قيمة الموافقة"],q=>q.includes("مبلغ")&&q.includes("قرض"));const loanTermValue=profileLoanExcelValueFromRows(loanRows,[H.term,"مدة القرض","مده القرض","مدة التمويل","عدد الأقساط","عدد الاقساط"],q=>q.includes("مدة")||q.includes("مده"));const loanAmountDisplay=String(loanAmountValue??"").trim()!==""?num(loanAmountValue).toLocaleString("ar-EG",{maximumFractionDigits:2}):"—";
+   const clientKey=norm(get(r,"client")||get(g.r,"client"));const allClientRows=[];visibleGroups().forEach(group=>(group.items||[group.r]).forEach(row=>{if(norm(get(row,"client")||get(group.r,"client"))===clientKey)allClientRows.push(row)}));const eligibleInstallmentNumbers=allClientRows.filter(row=>installmentUnpaid(row)>0).map(row=>num(get(row,"installment"))).filter(v=>v>0);const firstLateInstallment=eligibleInstallmentNumbers.length?Math.min(...eligibleInstallmentNumbers):minimumInstallmentNumber;const excelOverdueCounts=allClientRows.map(row=>getAny(row,[H.late,"عدد الأقساط المتأخرة","عدد الاقساط المتاخرة","عدد الأقساط المتاخرة"])).filter(v=>String(v??"").trim()!=="").map(num).filter(v=>v>=0);const overdueCount=excelOverdueCounts.length?Math.max(...excelOverdueCounts):rowsForClient.length;
    totalDue+=value;totalPaid+=paid;totalUnpaid+=unpaid;i++;
    out+=`<tr class="${unpaid>0?"risk-unpaid":"risk-paid"}">
-    <td>${i}</td><td><b>${esc(get(r,"client")||get(g.r,"client"))}</b></td><td>${esc(get(r,"nid")||get(g.r,"nid"))}</td><td>${esc(clientPhones(r)||get(r,"phone"))}</td><td>${esc(rowsForClient.length>1?`(${rowsForClient.length} أقساط)`:get(r,"installment"))}</td><td>${esc(collectionDisplayDate(get(r,"date")))}</td><td>${esc(value.toLocaleString("ar-EG",{maximumFractionDigits:2}))}</td><td>${esc(paid.toLocaleString("ar-EG",{maximumFractionDigits:2}))}</td><td>${esc(unpaid.toLocaleString("ar-EG",{maximumFractionDigits:2}))}</td><td>${esc(overdueCount.toLocaleString("ar-EG"))}</td><td>${esc(delay)}</td><td>${esc(rowAddress(r)||get(g.r,"address"))}</td><td>${esc(guarantorText(r,1))}</td><td>${esc(guarantorText(r,2))}</td><td>${esc(guarantorText(r,3))}</td>
+    <td>${i}</td><td><b>${esc(get(r,"client")||get(g.r,"client"))}</b></td><td>${esc(get(r,"nid")||get(g.r,"nid"))}</td><td>${esc(loanAmountDisplay)}</td><td>${esc(loanTermValue||"—")}</td><td>${esc(clientPhones(r)||get(r,"phone"))}</td><td>${esc(firstLateInstallment)}</td><td>${esc(collectionDisplayDate(get(r,"date")))}</td><td>${esc(value.toLocaleString("ar-EG",{maximumFractionDigits:2}))}</td><td>${esc(paid.toLocaleString("ar-EG",{maximumFractionDigits:2}))}</td><td>${esc(unpaid.toLocaleString("ar-EG",{maximumFractionDigits:2}))}</td><td>${esc(overdueCount.toLocaleString("ar-EG"))}</td><td>${esc(delay)}</td><td>${esc(rowAddress(r)||get(g.r,"address"))}</td><td>${esc(guarantorText(r,1))}</td><td>${esc(guarantorText(r,2))}</td><td>${esc(guarantorText(r,3))}</td>
    </tr>`;
- }); document.getElementById("rt").innerHTML=out||'<tr><td colspan="15">لا توجد أقساط متأخرة</td></tr>';
+ }); document.getElementById("rt").innerHTML=out||'<tr><td colspan="17">لا توجد أقساط متأخرة</td></tr>';
  document.getElementById("riskTotalUnpaid").textContent=totalUnpaid.toLocaleString("ar-EG",{maximumFractionDigits:2});
  document.getElementById("riskTotalDue").textContent=totalDue.toLocaleString("ar-EG",{maximumFractionDigits:2});
  document.getElementById("riskTotalPaid").textContent=totalPaid.toLocaleString("ar-EG",{maximumFractionDigits:2});
