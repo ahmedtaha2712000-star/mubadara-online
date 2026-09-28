@@ -1479,6 +1479,17 @@ button.icon-action .action-glyph svg{width:22px!important;height:22px!important;
 #paymentFollowupPrintLayer .pf-print-table tr{break-inside:avoid}
 
 </style>
+<style id="unified-table-visual-style">
+/* تنسيق موحد للجداول: خلفية بيضاء، إطار سميك، ورأس رمادي متوسط غامق */
+table{background:#fff!important;border:2px solid #4b5563!important;border-collapse:collapse!important}
+table th,table td{border:2px solid #4b5563!important;background:#fff!important;color:#111827!important}
+table thead th{background:#6b7280!important;color:#fff!important;font-weight:900!important}
+@media print{
+  table{background:#fff!important;border:2px solid #374151!important}
+  table th,table td{border:2px solid #374151!important;background:#fff!important;color:#111!important}
+  table thead th{background:#6b7280!important;color:#fff!important}
+}
+</style>
 </head>
 
 <body>
@@ -5457,23 +5468,33 @@ document.addEventListener('DOMContentLoaded', function () {
 <script>
 (function(){
   function centerNumericTableCells(root){
-    (root||document).querySelectorAll?.("table td,table th").forEach(cell=>{
+    const scope=root||document;
+    scope.querySelectorAll?.("table td,table th").forEach(cell=>{
       const value=String(cell.textContent||"").trim();
-      if(/[0-9٠-٩۰-۹]/.test(value)){
+      const hasNumber=/[0-9٠-٩۰-۹]/.test(value);
+      const isNumeric=/^[0-9٠-٩۰-۹\s.,/%+()\/-]+$/.test(value);
+      const isDate=/^(?:\d{4}[-/]\d{2}[-/]\d{2}|\d{2}[-/]\d{2}[-/]\d{4})$/.test(value);
+      if(hasNumber){
         cell.style.setProperty("text-align","center","important");
-        if(/^[0-9٠-٩۰-۹\s.,/%+()\/-]+$/.test(value)||/^\d{4}\/\d{2}\/\d{2}$/.test(value)){
-          cell.style.setProperty("direction","ltr","important");
-        }
+        if(isNumeric||isDate)cell.style.setProperty("direction","ltr","important");
+      }
+      if(isDate){
+        cell.style.setProperty("white-space","nowrap","important");
+        cell.style.setProperty("word-break","keep-all","important");
+        cell.style.setProperty("overflow-wrap","normal","important");
       }
     });
   }
   window.centerNumericTableCells=centerNumericTableCells;
   centerNumericTableCells(document);
   new MutationObserver(mutations=>{
-    mutations.forEach(m=>m.addedNodes.forEach(node=>{
-      if(node.nodeType===1)centerNumericTableCells(node);
-    }));
-  }).observe(document.body,{childList:true,subtree:true});
+    let refresh=false;
+    mutations.forEach(m=>{
+      if(m.type==="characterData"||m.type==="childList")refresh=true;
+      m.addedNodes?.forEach(node=>{if(node.nodeType===1)centerNumericTableCells(node)});
+    });
+    if(refresh)centerNumericTableCells(document);
+  }).observe(document.body,{childList:true,subtree:true,characterData:true});
 })();
 </script>
 </body>
