@@ -369,6 +369,10 @@ nav{background:#081826!important;border-left:1px solid #19344a!important;padding
  body.printing-risk #risk .risk-installments-table th:nth-child(11){width:12%}
  body.printing-risk #risk .risk-installments-table th:nth-child(12),body.printing-risk #risk .risk-installments-table th:nth-child(13),body.printing-risk #risk .risk-installments-table th:nth-child(14){width:7%}
 }
+.risk-installments-table th:nth-child(8),.risk-installments-table td:nth-child(8),.risk-installments-table th:nth-child(11),.risk-installments-table td:nth-child(11){white-space:nowrap!important;word-break:keep-all!important;overflow-wrap:normal!important}
+@media print{
+  body.printing-risk #risk .risk-installments-table th:nth-child(8),body.printing-risk #risk .risk-installments-table td:nth-child(8),body.printing-risk #risk .risk-installments-table th:nth-child(11),body.printing-risk #risk .risk-installments-table td:nth-child(11){white-space:nowrap!important;word-break:keep-all!important;overflow-wrap:normal!important}
+}
 </style>
 
 <style id="risk-print-final-fix">
@@ -1269,6 +1273,12 @@ button.icon-action .action-glyph svg{width:22px!important;height:22px!important;
  #portfolio .portfolio-date-input{display:flex!important;align-items:center!important;gap:2px!important;padding-inline:4px!important;min-width:0!important}
  #portfolio .portfolio-date-input>span{flex:0 0 16px!important;width:16px!important;font-size:12px!important}
  #portfolio .portfolio-date-input input:not(.portfolio-date-picker-input){width:0!important;min-width:0!important;flex:1 1 0!important;padding:3px 0!important;font-size:13px!important;letter-spacing:0!important;font-weight:700!important}
+}
+</style>
+
+<style id="risk-print-date-nowrap-final">
+@media print{
+  body.printing-risk-report #riskPrintLayer .risk-print-table th:nth-child(8),body.printing-risk-report #riskPrintLayer .risk-print-table td:nth-child(8),body.printing-risk-report #riskPrintLayer .risk-print-table th:nth-child(11),body.printing-risk-report #riskPrintLayer .risk-print-table td:nth-child(11){white-space:nowrap!important;word-break:keep-all!important;overflow-wrap:normal!important}
 }
 </style>
 
@@ -2598,9 +2608,7 @@ function collectionDisplayDate(v){
 function riskDisplayDate(v){
   const d=parseExcelDate(v);
   if(!d)return String(v??"").trim();
-  const months=["يناير","فبراير","مارس","أبريل","مايو","يونيو","يوليو","أغسطس","سبتمبر","أكتوبر","نوفمبر","ديسمبر"];
-  const arabicDigits=value=>String(value).replace(/\d/g,d=>"٠١٢٣٤٥٦٧٨٩"[d]);
-  return `${arabicDigits(String(d.getDate()).padStart(2,"0"))}/${months[d.getMonth()]}/${arabicDigits(d.getFullYear())}`;
+  return `${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,"0")}/${String(d.getDate()).padStart(2,"0")}`;
 }
 function renderCollection(){
   const filter=document.getElementById("collectionStatus").value;
