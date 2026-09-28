@@ -2595,6 +2595,12 @@ function collectionDisplayDate(v){
   const d=parseExcelDate(v);
   return d ? clientsDateText(d) : String(v??"").trim();
 }
+function riskDisplayDate(v){
+  const d=parseExcelDate(v);
+  if(!d)return String(v??"").trim();
+  const months=["يناير","فبراير","مارس","أبريل","مايو","يونيو","يوليو","أغسطس","سبتمبر","أكتوبر","نوفمبر","ديسمبر"];
+  return `${String(d.getDate()).padStart(2,"0")}/${months[d.getMonth()]}/${d.getFullYear()}`;
+}
 function renderCollection(){
   const filter=document.getElementById("collectionStatus").value;
   const client=norm(document.getElementById("collectionClient").value);
@@ -2756,7 +2762,7 @@ function renderRisk(){
    const excelOverdueCounts=allClientRows.map(row=>getAny(row,[H.late,"عدد الأقساط المتأخرة","عدد الاقساط المتاخرة","عدد الأقساط المتاخرة"])).filter(v=>String(v??"").trim()!=="").map(num).filter(v=>v>=0);const overdueCount=excelOverdueCounts.length?Math.max(...excelOverdueCounts):rowsForClient.length;
    totalDue+=value;totalPaid+=paid;totalUnpaid+=unpaid;i++;
    out+=`<tr class="${unpaid>0?"risk-unpaid":"risk-paid"}">
-    <td>${i}</td><td><b>${esc(get(r,"client")||get(g.r,"client"))}</b></td><td>${esc(get(r,"nid")||get(g.r,"nid"))}</td><td>${esc(loanAmountDisplay)}</td><td>${esc(loanTermValue||"—")}</td><td>${esc(clientPhones(r)||get(r,"phone"))}</td><td>${esc(firstLateInstallment)}</td><td>${esc(collectionDisplayDate(riskDueDateValue(displayInstallmentRow))||"—")}</td><td>${esc(installmentValue===null?"—":installmentValue.toLocaleString("ar-EG",{maximumFractionDigits:2}))}</td><td>${esc(installmentPaid.toLocaleString("ar-EG",{maximumFractionDigits:2}))}</td><td>${esc(collectionDisplayDate(paymentDateValue)||"—")}</td><td>${esc(installmentRemaining===null?"—":installmentRemaining.toLocaleString("ar-EG",{maximumFractionDigits:2}))}</td><td>${esc(overdueCount.toLocaleString("ar-EG"))}</td><td>${esc(totalArrears.toLocaleString("ar-EG",{maximumFractionDigits:2}))}</td><td>${esc(delay)}</td><td>${esc(rowAddress(r)||get(g.r,"address"))}</td><td>${esc(guarantorText(r,1))}</td><td>${esc(guarantorText(r,2))}</td><td>${esc(guarantorText(r,3))}</td>
+    <td>${i}</td><td><b>${esc(get(r,"client")||get(g.r,"client"))}</b></td><td>${esc(get(r,"nid")||get(g.r,"nid"))}</td><td>${esc(loanAmountDisplay)}</td><td>${esc(loanTermValue||"—")}</td><td>${esc(clientPhones(r)||get(r,"phone"))}</td><td>${esc(firstLateInstallment)}</td><td>${esc(riskDisplayDate(riskDueDateValue(displayInstallmentRow))||"—")}</td><td>${esc(installmentValue===null?"—":installmentValue.toLocaleString("ar-EG",{maximumFractionDigits:2}))}</td><td>${esc(installmentPaid.toLocaleString("ar-EG",{maximumFractionDigits:2}))}</td><td>${esc(riskDisplayDate(paymentDateValue)||"—")}</td><td>${esc(installmentRemaining===null?"—":installmentRemaining.toLocaleString("ar-EG",{maximumFractionDigits:2}))}</td><td>${esc(overdueCount.toLocaleString("ar-EG"))}</td><td>${esc(totalArrears.toLocaleString("ar-EG",{maximumFractionDigits:2}))}</td><td>${esc(delay)}</td><td>${esc(rowAddress(r)||get(g.r,"address"))}</td><td>${esc(guarantorText(r,1))}</td><td>${esc(guarantorText(r,2))}</td><td>${esc(guarantorText(r,3))}</td>
    </tr>`;
  }); out=riskEnglishDigits(out); document.getElementById("rt").innerHTML=out||'<tr><td colspan="19">لا توجد أقساط متأخرة</td></tr>';
  document.getElementById("riskTotalUnpaid").textContent=totalUnpaid.toLocaleString("ar-EG",{maximumFractionDigits:2});
