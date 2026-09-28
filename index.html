@@ -1325,6 +1325,143 @@ button.icon-action .action-glyph svg{width:22px!important;height:22px!important;
 @media(max-width:600px){#loginScreen.login-screen{padding-top:20px!important;padding-bottom:20px!important}#loginScreen .login-card.login-card-pro{width:min(100%,420px)!important;padding:28px clamp(20px,7vw,30px)!important;border-radius:26px!important}#loginScreen .association-logo.large{width:72px!important;height:72px!important}#loginScreen .login-logo{font-size:25px!important}#loginScreen .login-sub{margin-bottom:21px!important}}
 @media(max-height:700px){#loginScreen.login-screen{align-items:flex-start!important;padding-top:14px!important;padding-bottom:14px!important}}
 </style>
+<style id="payment-followup-style">
+/* Payment follow-up screen: scoped styles only */
+#paymentFollowup{direction:rtl;color:#172033!important}
+#paymentFollowup .pf-shell{display:grid;gap:16px}
+#paymentFollowup .pf-topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:16px 18px;border-radius:16px;background:linear-gradient(125deg,#111d31,#1b2d47);color:#f8fafc;box-shadow:0 10px 24px rgba(15,23,42,.14)}
+#paymentFollowup .pf-title{margin:0;color:#f3d47a!important;font-size:22px;font-weight:800}
+#paymentFollowup .pf-subtitle{margin:5px 0 0;color:#c5d0dc!important;font-size:13px}
+#paymentFollowup .pf-actions{display:flex;align-items:center;gap:7px}
+#paymentFollowup .pf-actions button{border:1px solid #ffffff30;border-radius:10px;padding:8px 11px;background:#ffffff12;color:#fff;font-weight:700;cursor:pointer;transition:transform .15s,background .15s}
+#paymentFollowup .pf-actions button:hover{transform:translateY(-1px);background:#ffffff22}
+#paymentFollowup .pf-actions .pf-pdf{background:#a92736;border-color:#d66b75}
+#paymentFollowup .pf-actions .pf-excel{background:#16664f;border-color:#48a486}
+#paymentFollowup .pf-filterbar{display:grid;grid-template-columns:minmax(230px,1.6fr) minmax(175px,1fr) minmax(175px,1fr) minmax(155px,1fr) minmax(155px,1fr) auto;gap:10px;align-items:end;padding:12px;background:#fff;border:1px solid #d9e1eb;border-radius:14px;box-shadow:0 4px 14px #0f172a0a}
+#paymentFollowup .pf-period-field input{direction:ltr;text-align:center}
+#paymentFollowup .pf-filter-field input[list]{cursor:text}
+#paymentFollowup .pf-period-actions{grid-column:1/-1;display:flex;justify-content:flex-start;gap:8px;flex-wrap:wrap;padding-top:2px}
+#paymentFollowup .pf-period-btn{height:36px;border:1px solid #c8d4e0;border-radius:9px;background:#f4f7fb;color:#29425e;padding:0 12px;font:inherit;font-size:12px;font-weight:800;cursor:pointer}
+#paymentFollowup .pf-period-btn:hover{background:#e8eef6;border-color:#9eafc2}
+#paymentFollowup .pf-summary-card-period{border-top:3px solid #0c7886;background:linear-gradient(180deg,#f0fbfb,#fff)!important}
+#paymentFollowup .pf-summary-card-period b{font-size:14px;white-space:nowrap;color:#0c6170!important}
+#paymentFollowup .pf-filter-field{display:grid;gap:5px;min-width:0}
+#paymentFollowup .pf-filter-field label{font-size:12px;color:#526175;font-weight:700}
+#paymentFollowup .pf-filter-field input,#paymentFollowup .pf-filter-field select{height:40px;min-width:0;width:100%;border:1px solid #cbd5e1;border-radius:9px;background:#fbfcfe;color:#172033;padding:0 11px;font:inherit;outline:none}
+#paymentFollowup .pf-filter-field input:focus,#paymentFollowup .pf-filter-field select:focus{border-color:#c99d3d;box-shadow:0 0 0 3px #dfbd672c}
+#paymentFollowup .pf-clear{height:40px;border:1px solid #cbd5e1;border-radius:9px;background:#f3f6fa;color:#334155;padding:0 13px;font-weight:700;cursor:pointer;white-space:nowrap}
+#paymentFollowup .pf-clear:hover{background:#e8edf4}
+#paymentFollowup .pf-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+#paymentFollowup .pf-summary-card{padding:12px 15px;border:1px solid #dce3eb;border-radius:13px;background:linear-gradient(180deg,#fff,#f7f9fc)!important;color:#172033!important;box-shadow:0 4px 12px #0f172a08}
+#paymentFollowup .pf-summary-card span{display:block;color:#526175!important;font-size:12px;font-weight:700}
+#paymentFollowup .pf-summary-card b{display:block;margin-top:4px;color:#172b45!important;font-size:20px}
+#paymentFollowup .pf-summary-card-gold{border-top:3px solid #c9a24a}
+#paymentFollowup .pf-summary-card-blue{border-top:3px solid #416d9e}
+#paymentFollowup .pf-feedback{display:none;border-radius:10px;padding:9px 12px;font-size:13px;font-weight:700}
+#paymentFollowup .pf-feedback.show{display:block}
+#paymentFollowup .pf-feedback.ok{color:#176147;background:#e9f6ef;border:1px solid #b8e0c8}
+#paymentFollowup .pf-feedback.warn{color:#8a4e0d;background:#fff6e5;border:1px solid #ecd39b}
+#paymentFollowup .pf-table-wrap{overflow:auto;border:1px solid #dce3eb;border-radius:14px;background:#fff;box-shadow:0 5px 18px #0f172a0a}
+#paymentFollowup .pf-table{width:100%;min-width:1280px;border-collapse:separate;border-spacing:0;font-size:12px}
+#paymentFollowup .pf-table th{position:sticky;top:0;z-index:1;background:#17263c;color:#f8fafc;padding:11px 9px;text-align:right;white-space:nowrap}
+#paymentFollowup .pf-table td{padding:10px 9px;vertical-align:top;border-bottom:1px solid #e9edf2;line-height:1.5}
+#paymentFollowup .pf-table tbody tr:nth-child(even){background:#fafbfd}
+#paymentFollowup .pf-table tbody tr:hover{background:#fffaf0}
+#paymentFollowup .pf-main-name{font-weight:800;color:#152943;font-size:13px}
+#paymentFollowup .pf-secondary{display:block;margin-top:3px;color:#64748b;font-size:11px}
+#paymentFollowup .pf-amount{font-weight:800;color:#18324f;white-space:nowrap}
+#paymentFollowup .pf-arrears{font-weight:800;color:#9b2c2c;white-space:nowrap}
+#paymentFollowup .pf-delay{display:inline-flex;min-width:54px;justify-content:center;padding:4px 8px;border-radius:999px;color:#8f2626;background:#fff0ed;border:1px solid #ffd3ca;font-weight:800;white-space:nowrap}
+#paymentFollowup .pf-contacts{display:grid;gap:6px;min-width:190px}
+#paymentFollowup .pf-contact{display:flex;align-items:center;justify-content:space-between;gap:7px;padding:5px 7px;background:#f6f8fb;border:1px solid #e4eaf1;border-radius:8px}
+#paymentFollowup .pf-contact-name{font-size:11px;font-weight:700;color:#526175;white-space:nowrap}
+#paymentFollowup .pf-call-link{display:inline-flex;align-items:center;gap:4px;color:#245782;text-decoration:none;font-size:12px;font-weight:800;direction:ltr}
+#paymentFollowup .pf-call-link:hover{text-decoration:underline;color:#9a7120}
+#paymentFollowup .pf-missing{color:#94a3b8;font-size:11px}
+#paymentFollowup .pf-latest{max-width:245px;min-width:150px;padding:7px;border-radius:8px;background:#f7f9fc;border:1px solid #e7ebf1}
+#paymentFollowup .pf-latest strong{display:block;color:#243b57;font-size:11px}
+#paymentFollowup .pf-latest p{margin:5px 0 0;white-space:pre-wrap;overflow-wrap:anywhere;color:#475569;font-size:11px}
+#paymentFollowup .pf-editor,#paymentFollowup .pf-history{margin-top:7px;border:1px solid #e0e6ee;border-radius:9px;background:#fff}
+#paymentFollowup .pf-editor summary,#paymentFollowup .pf-history summary{padding:7px 9px;color:#243b57;font-weight:800;font-size:11px;cursor:pointer;list-style:none}
+#paymentFollowup .pf-editor summary::-webkit-details-marker,#paymentFollowup .pf-history summary::-webkit-details-marker{display:none}
+#paymentFollowup .pf-editor summary:after,#paymentFollowup .pf-history summary:after{content:'＋';float:left;color:#987321}
+#paymentFollowup .pf-editor[open] summary:after,#paymentFollowup .pf-history[open] summary:after{content:'−'}
+#paymentFollowup .pf-form{display:grid;grid-template-columns:1fr 1fr;gap:7px;padding:9px;border-top:1px solid #edf0f4}
+#paymentFollowup .pf-form label{display:grid;gap:4px;color:#64748b;font-size:10px;font-weight:700}
+#paymentFollowup .pf-form select,#paymentFollowup .pf-form input,#paymentFollowup .pf-form textarea{width:100%;min-width:0;border:1px solid #cbd5e1;border-radius:8px;background:#fff;padding:7px;color:#172033;font:inherit;font-size:12px}
+#paymentFollowup .pf-form textarea{grid-column:1/-1;min-height:64px;resize:vertical}
+#paymentFollowup .pf-form .pf-save{grid-column:1/-1;border:0;border-radius:8px;padding:8px 10px;background:linear-gradient(100deg,#d0aa4c,#f0d574);color:#172033;font-weight:800;cursor:pointer}
+#paymentFollowup .pf-form .pf-save:disabled{opacity:.6;cursor:wait}
+#paymentFollowup .pf-history-list{display:grid;gap:7px;padding:8px}
+#paymentFollowup .pf-history-item{padding:8px;border-radius:8px;background:#f6f8fb;border:1px solid #e7ebf1;font-size:11px}
+#paymentFollowup .pf-history-item b{color:#243b57}
+#paymentFollowup .pf-history-item p{margin:5px 0 0;white-space:pre-wrap;overflow-wrap:anywhere;color:#475569}
+#paymentFollowup .pf-empty{padding:24px 14px;text-align:center;color:#64748b;background:#fff;border:1px dashed #cbd5e1;border-radius:12px}
+#paymentFollowup .pf-mobile-cases{display:none}
+#paymentFollowup .pf-print-layer{direction:rtl;background:#fff;color:#111;font-family:Arial,Tahoma,sans-serif;padding:16px}
+#paymentFollowup .pf-print-layer h1{font-size:20px;margin:0 0 5px;color:#17263c}
+#paymentFollowup .pf-print-meta{font-size:11px;color:#64748b;margin-bottom:12px}
+#paymentFollowup .pf-print-table{width:100%;border-collapse:collapse;font-size:9px}
+#paymentFollowup .pf-print-table th,#paymentFollowup .pf-print-table td{border:1px solid #b8c1cc;padding:5px;text-align:right;vertical-align:top;overflow-wrap:anywhere}
+#paymentFollowup .pf-print-table th{background:#17263c;color:#fff}
+#paymentFollowup .pf-print-table tr{break-inside:avoid}
+@media(max-width:760px){
+ #paymentFollowup{padding:10px!important}
+ #paymentFollowup .pf-shell{gap:10px}
+ #paymentFollowup .pf-topbar{padding:12px;border-radius:13px;align-items:flex-start}
+ #paymentFollowup .pf-title{font-size:18px}
+ #paymentFollowup .pf-subtitle{font-size:11px;line-height:1.45}
+ #paymentFollowup .pf-actions{width:100%;display:grid;grid-template-columns:repeat(3,1fr)}
+ #paymentFollowup .pf-actions button{padding:7px 5px;font-size:11px}
+ #paymentFollowup .pf-filterbar{grid-template-columns:1fr 1fr;gap:7px;padding:9px}
+ #paymentFollowup .pf-filter-field:first-child{grid-column:1/-1}
+ #paymentFollowup .pf-period-field{grid-column:span 1}
+ #paymentFollowup .pf-period-actions{grid-column:1/-1;display:grid;grid-template-columns:repeat(3,1fr);gap:5px}
+ #paymentFollowup .pf-period-btn{padding:0 5px;font-size:10px}
+ #paymentFollowup .pf-filter-field label{font-size:10px}
+ #paymentFollowup .pf-filter-field input,#paymentFollowup .pf-filter-field select{height:36px;padding:0 8px;font-size:12px}
+ #paymentFollowup .pf-clear{height:36px;padding:0 8px;font-size:11px}
+ #paymentFollowup .pf-summary{display:flex;overflow-x:auto;gap:8px;padding:1px 1px 7px;scroll-snap-type:x mandatory;scrollbar-width:thin}
+ #paymentFollowup .pf-summary-card{flex:0 0 42%;min-width:132px;padding:9px 11px;scroll-snap-align:start}
+ #paymentFollowup .pf-summary-card b{font-size:17px!important}
+ #paymentFollowup .pf-summary-card span{font-size:10px!important}
+ #paymentFollowup .pf-table-wrap{display:none}
+ #paymentFollowup .pf-mobile-cases{display:grid;gap:9px}
+ #paymentFollowup .pf-case{min-width:0;padding:11px;border:1px solid #d7e0ea;border-radius:13px;background:linear-gradient(180deg,#fff,#fafbfd);box-shadow:0 4px 13px #0f172a0c}
+ #paymentFollowup .pf-case-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;padding-bottom:8px;border-bottom:1px solid #e8edf2}
+ #paymentFollowup .pf-case-head .pf-main-name{font-size:14px}
+ #paymentFollowup .pf-case-head .pf-delay{font-size:10px;min-width:0;padding:4px 7px}
+ #paymentFollowup .pf-card-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin-top:8px}
+ #paymentFollowup .pf-card-field{min-width:0;padding:7px;border-radius:8px;background:#f6f8fb;border:1px solid #e8edf2}
+ #paymentFollowup .pf-card-field small{display:block;color:#64748b;font-size:9px;font-weight:700}
+ #paymentFollowup .pf-card-field b{display:block;margin-top:3px;color:#243b57;font-size:12px;overflow-wrap:anywhere}
+ #paymentFollowup .pf-card-field.pf-wide{grid-column:1/-1}
+ #paymentFollowup .pf-card-field .pf-arrears{color:#9b2c2c}
+ #paymentFollowup .pf-contacts{min-width:0;gap:5px;margin-top:8px}
+ #paymentFollowup .pf-contact{padding:6px 7px}
+ #paymentFollowup .pf-contact-name{font-size:10px}
+ #paymentFollowup .pf-call-link{font-size:11px}
+ #paymentFollowup .pf-latest{max-width:none;min-width:0;margin-top:8px}
+ #paymentFollowup .pf-form{grid-template-columns:1fr 1fr}
+ #paymentFollowup .pf-form select,#paymentFollowup .pf-form input{min-height:35px;font-size:11px}
+ #paymentFollowup .pf-form textarea{min-height:58px}
+ #paymentFollowup .pf-editor summary,#paymentFollowup .pf-history summary{font-size:11px}
+}
+@media print{
+ html,body{height:auto!important;min-height:0!important;overflow:visible!important}
+ body.printing-payment-followup>*:not(#paymentFollowupPrintLayer){display:none!important;visibility:hidden!important}
+ body.printing-payment-followup #paymentFollowupPrintLayer,body.printing-payment-followup #paymentFollowupPrintLayer *{visibility:visible!important}
+ body.printing-payment-followup #paymentFollowupPrintLayer{display:block!important;position:relative!important;inset:auto!important;width:100%!important;height:auto!important;min-height:0!important;max-height:none!important;overflow:visible!important;padding:8mm!important;background:#fff!important;z-index:auto!important}
+}
+#paymentFollowupPrintLayer{direction:rtl;background:#fff;color:#111;font-family:Arial,Tahoma,sans-serif;padding:14px;box-sizing:border-box}
+#paymentFollowupPrintLayer h1{font-size:20px;margin:0 0 5px;color:#17263c}
+#paymentFollowupPrintLayer .pf-print-meta{font-size:11px;color:#64748b;margin-bottom:12px}
+#paymentFollowupPrintLayer .pf-print-table{width:100%;border-collapse:collapse;font-size:9px}
+#paymentFollowupPrintLayer .pf-print-table th,#paymentFollowupPrintLayer .pf-print-table td{border:1px solid #b8c1cc;padding:5px;text-align:right;vertical-align:top;overflow-wrap:anywhere}
+#paymentFollowupPrintLayer .pf-print-table th{background:#17263c;color:#fff}
+#paymentFollowupPrintLayer .pf-print-table tr{break-inside:avoid}
+
+</style>
 </head>
 
 <body>
@@ -1375,6 +1512,7 @@ button.icon-action .action-glyph svg{width:22px!important;height:22px!important;
 <a href="#collection" data-screen="collection"><span class="nav-icon nav-icon-collection" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 3v3m10-3v3M4 9h16M6 5h12a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Zm2 8h3m2 0h3m-8 4h3m2 0h3"/></svg></span><span class="nav-label">التحصيل</span><small>الأقساط المستحقة</small></a>
 <a href="#search" data-screen="search"><span class="nav-icon nav-icon-search" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 5 5"/></svg></span><span class="nav-label">البحث السريع</span><small>الوصول لأي سجل</small></a>
 <a href="#risk" data-screen="risk"><span class="nav-icon nav-icon-risk" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m12 3 9 17H3L12 3Zm0 6v5m0 3h.01"/></svg></span><span class="nav-label">المتأخرات</span><small>المخاطر والمتابعة</small></a>
+<a href="#paymentFollowup" data-screen="paymentFollowup"><span class="nav-icon nav-icon-risk" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 3.5h3l2 4.7-2.1 1.8a13 13 0 0 0 4.1 4.1l1.8-2.1 4.7 2v3a2 2 0 0 1-2.1 2A15.5 15.5 0 0 1 5 5.6a2 2 0 0 1 2-2.1Z"/></svg></span><span class="nav-label">متابعة السداد</span><small>الاتصالات والملاحظات</small></a>
 <a href="#portfolio" data-screen="portfolio"><span class="nav-icon nav-icon-portfolio" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 19V5m0 14h16M7 16l3-4 3 2 5-7"/></svg></span><span class="nav-label">المحفظة</span><small>المؤشرات المالية</small></a>
 <a href="#print" data-screen="print"><span class="nav-icon nav-icon-print" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 9V4h10v5M7 18H5a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2M7 14h10v7H7v-7Zm10-3h.01"/></svg></span><span class="nav-label">الطباعة</span><small>تقارير جاهزة</small></a>
 <div class="nav-section-title nav-admin-title">الإدارة والبيانات</div>
@@ -1389,7 +1527,7 @@ button.icon-action .action-glyph svg{width:22px!important;height:22px!important;
 <section id="clients" class="card screen">
 <div class="export-toolbar no-print">
   <button class="print-btn icon-action" aria-label="طباعة" title="طباعة" onclick="printCurrentScreen()"><span class="action-glyph glyph-print" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M7.25 8V3.5h9.5V8" fill="#eaf3ff" stroke="#3769a3" stroke-width="1.25"/><path d="M5.75 8.5h12.5A2.75 2.75 0 0 1 21 11.25v2A2.75 2.75 0 0 1 18.25 16H17v-2.5H7V16H5.75A2.75 2.75 0 0 1 3 13.25v-2A2.75 2.75 0 0 1 5.75 8.5Z" fill="#4d86c6" stroke="#225d9c" stroke-width="1.2"/><path d="M7 13.5h10v7H7z" fill="#fff" stroke="#225d9c" stroke-width="1.2"/><path d="M9 16.5h6" fill="none" stroke="#77a5d6" stroke-width="1.25"/><circle cx="17.25" cy="11.3" r=".7" fill="#e7f8ff" stroke="#fff" stroke-width=".45"/></svg></span><span class="action-label">طباعة</span></button>
-  <button class="pdf-btn icon-action" aria-label="تحميل PDF" title="تحميل PDF" onclick="downloadCurrentPDF()"><span class="action-glyph glyph-pdf" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M6 2.75h8l4.25 4.25v14.25H6z" fill="#fff" stroke="#b51f2b" stroke-width="1.2"/><path d="M14 2.75V7h4.25" fill="#ffd9dd" stroke="#b51f2b" stroke-width="1.1"/><rect x="5.75" y="10" width="13" height="8.25" rx="1.3" fill="#d62839" stroke="#b51f2b" stroke-width=".6"/><text x="12.25" y="15.9" text-anchor="middle" font-family="Arial,sans-serif" font-size="7.1" font-weight="900" textLength="12" lengthAdjust="spacingAndGlyphs" fill="#fff">PDF</text><path d="M8.5 19.35h8" fill="none" stroke="#ed9ca4" stroke-width=".8"/></svg></span><span class="action-label">PDF</span></button>
+  <button class="pdf-btn icon-action" aria-label="تحميل PDF" title="فتح نافذة الطباعة لحفظ التقرير PDF" onclick="downloadCurrentPDF()"><span class="action-glyph glyph-pdf" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M6 2.75h8l4.25 4.25v14.25H6z" fill="#fff" stroke="#b51f2b" stroke-width="1.2"/><path d="M14 2.75V7h4.25" fill="#ffd9dd" stroke="#b51f2b" stroke-width="1.1"/><rect x="5.75" y="10" width="13" height="8.25" rx="1.3" fill="#d62839" stroke="#b51f2b" stroke-width=".6"/><text x="12.25" y="15.9" text-anchor="middle" font-family="Arial,sans-serif" font-size="7.1" font-weight="900" textLength="12" lengthAdjust="spacingAndGlyphs" fill="#fff">PDF</text><path d="M8.5 19.35h8" fill="none" stroke="#ed9ca4" stroke-width=".8"/></svg></span><span class="action-label">PDF</span></button>
   <button class="excel-btn icon-action" aria-label="تحميل Excel" title="تحميل Excel" onclick="exportCurrentExcel()"><span class="action-glyph glyph-excel" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M7 2.75h7l4 4v14.5H7z" fill="#fff" stroke="#168045" stroke-width="1.15"/><path d="M14 2.75v4h4" fill="#d8f2e2" stroke="#168045" stroke-width="1.05"/><path d="M12.4 10.1h3.8m-3.8 2.7h3.8m-3.8 2.7h3.8m-3.8 2.7h3.8" fill="none" stroke="#72b48c" stroke-width=".8" stroke-linecap="round"/><path d="M3.15 8.7h9.7v10.1h-9.7z" fill="#107c41" stroke="#075e2f" stroke-width="1.1"/><path d="m5.65 11.1 4.7 5.3m-4.7 0 4.7-5.3" fill="none" stroke="#fff" stroke-width="1.45" stroke-linecap="round"/></svg></span><span class="action-label">Excel</span></button>
 </div>
 
@@ -1723,7 +1861,7 @@ button.icon-action .action-glyph svg{width:22px!important;height:22px!important;
 </div>
 <div class="toolbar no-print"><button class="light" onclick="clearSectionFilter('risk')">مسح البحث</button></div>
 <div class="wrap risk-installments-wrap"><table class="risk-installments-table"><thead><tr>
-<th>م</th><th>الاسم</th><th>الرقم القومي</th><th>مبلغ القرض</th><th>مدة القرض</th><th>الهاتف</th><th>رقم القسط</th><th>تاريخ الاستحقاق</th><th>القيمة</th><th>المسدد</th><th>تاريخ السداد</th><th>المتبقي من القسط</th><th>عدد الأقساط المتأخرة</th><th>إجمالي المتأخرات</th><th>أيام التأخير</th><th>العنوان</th><th>الضامن الأول</th><th>الضامن الثاني</th><th>الضامن الثالث</th>
+<th>م</th><th>الاسم</th><th>الرقم القومي</th><th>مبلغ القرض</th><th>مدة القرض</th><th>الهاتف</th><th>رقم القسط</th><th>تاريخ الاستحقاق</th><th>قيمة القسط</th><th>المسدد</th><th>تاريخ السداد</th><th>المتبقي من القسط</th><th>عدد الأقساط المتأخرة</th><th>إجمالي المتأخرات</th><th>أيام التأخير</th><th>العنوان</th><th>الضامن الأول</th><th>الضامن الثاني</th><th>الضامن الثالث</th>
 </tr></thead><tbody id="rt"></tbody></table></div>
 </section>
 
@@ -1769,13 +1907,33 @@ button.icon-action .action-glyph svg{width:22px!important;height:22px!important;
 </section>
 
 
+
+<section id="paymentFollowup" class="card screen" aria-label="متابعة السداد">
+  <div class="pf-shell">
+    <div class="pf-topbar"><div><h2 class="pf-title">متابعة السداد</h2><p class="pf-subtitle">سجّل نتيجة الاتصال وملاحظات العميل، وتابع الأقساط المتأخرة والضامنين من مكان واحد.</p></div>
+      <div class="pf-actions no-print"><button type="button" onclick="printPaymentFollowupReport()" title="طباعة التقرير">طباعة</button><button type="button" class="pf-pdf" onclick="downloadPaymentFollowupPDF()" title="تحميل PDF">PDF</button><button type="button" class="pf-excel" onclick="exportPaymentFollowupExcel()" title="تصدير Excel">Excel</button></div>
+    </div>
+    <div class="pf-filterbar no-print">
+      <div class="pf-filter-field"><label for="paymentFollowupSearch">اسم العميل</label><input id="paymentFollowupSearch" list="paymentFollowupClientList" autocomplete="off" placeholder="اكتب أي حرف من اسم العميل..."><datalist id="paymentFollowupClientList"></datalist></div>
+      <div class="pf-filter-field"><label for="paymentFollowupOfficer">اسم الأخصائي</label><input id="paymentFollowupOfficer" list="paymentFollowupOfficerList" autocomplete="off" placeholder="اكتب أي حرف من اسم الأخصائي..."><datalist id="paymentFollowupOfficerList"></datalist></div>
+      <div class="pf-filter-field"><label for="paymentFollowupStatus">حالة الاتصال</label><select id="paymentFollowupStatus"><option value="all">كل الحالات</option><option value="not-called">لم يتم الاتصال</option><option value="called">تم الاتصال</option><option value="تم التواصل — وعد بالسداد">وعد بالسداد</option><option value="لم يرد">لم يرد</option><option value="طلب إعادة الاتصال">طلب إعادة الاتصال</option><option value="تم السداد">تم السداد</option><option value="تعذر الاتفاق">تعذر الاتفاق</option><option value="أخرى">أخرى</option></select></div>
+      <div class="pf-filter-field pf-period-field"><label for="paymentFollowupFrom">الفترة — من تاريخ</label><input id="paymentFollowupFrom" type="date"></div>
+      <div class="pf-filter-field pf-period-field"><label for="paymentFollowupTo">الفترة — إلى تاريخ</label><input id="paymentFollowupTo" type="date"></div>
+      <div class="pf-period-actions"><button type="button" class="pf-period-btn" onclick="pfSetToday()">📍 تاريخ اليوم</button><button type="button" class="pf-period-btn" onclick="pfSetPreviousMonth()">◀️ الشهر السابق</button><button type="button" id="paymentFollowupClear" class="pf-period-btn pf-clear">مسح الفلتر</button></div>
+    </div>
+    <div id="paymentFollowupFeedback" class="pf-feedback" role="status" aria-live="polite"></div>
+    <div class="pf-summary"><div class="pf-summary-card pf-summary-card-blue"><span>حالات المتابعة</span><b id="paymentFollowupCount">0</b></div><div class="pf-summary-card"><span>عملاء مختلفون</span><b id="paymentFollowupClientsCount">0</b></div><div class="pf-summary-card pf-summary-card-gold"><span>إجمالي متأخرات العملاء الظاهرين</span><b id="paymentFollowupTotalArrears">0</b></div><div class="pf-summary-card pf-summary-card-period"><span>الفترة</span><b id="paymentFollowupPeriod">حتى اليوم</b></div></div>
+    <div id="paymentFollowupMobileCases" class="pf-mobile-cases" aria-live="polite"></div>
+    <div class="pf-table-wrap"><table id="paymentFollowupTable" class="pf-table"><thead><tr><th>العميل / الأخصائي</th><th>تاريخ الاستحقاق</th><th>القسط</th><th>المسدد / تاريخ السداد</th><th>المتبقي من القسط</th><th>إجمالي متأخرات العميل</th><th>أيام التأخير</th><th>العميل والضامنون</th><th>آخر مكالمة</th><th>القائم بالمتابعة</th><th class="no-print">الإجراء / السجل</th></tr></thead><tbody id="paymentFollowupTableBody"></tbody></table></div>
+  </div>
+</section>
 </main></div>
 
 <script>
 /* compatibility: old localStorage key is no longer used */
 </script>
 <script>
-const SCREEN_IDS=["clients","search","dash","collection","risk","portfolio","print","users","specialists","audit","import"];
+const SCREEN_IDS=["clients","search","dash","collection","risk","paymentFollowup","portfolio","print","users","specialists","audit","import"];
 function showScreen(id){
   if(!enforceSession()) return;
   if(!SCREEN_IDS.includes(id)) id="import";
@@ -2269,7 +2427,7 @@ function renderScreenData(id){
   case "print": renderPrint(); break;
   case "audit": renderAudit(); break;
   case "users": renderUsers(); break;
-  case "import": refreshDataQuality(); break;
+  case "import": refreshDataQuality(); break;   case "paymentFollowup": if(typeof window.renderPaymentFollowup==="function"){window.renderPaymentFollowup(); if(cloudReady&&typeof refreshClientContactLogCloud==="function")refreshClientContactLogCloud().then(window.renderPaymentFollowup).catch(()=>{});} break;
  }
 }
 
@@ -2585,6 +2743,8 @@ function renderRisk(){
    const targetInstallmentNumber=num(firstLateInstallment);
    const matchingInstallmentRows=allClientRows.filter(row=>norm(get(row,"installment"))===norm(firstLateInstallment)||(num(get(row,"installment"))>0&&num(get(row,"installment"))===targetInstallmentNumber));
    const displayInstallmentRow=matchingInstallmentRows.find(row=>installmentUnpaid(row)>0)||matchingInstallmentRows[0]||firstOpenInstallment?.row||r;
+   const installmentValueRaw=String(getAny(displayInstallmentRow,[H.value,"قيمة القسط","قيمة القسط الشهري","قيمة القسط من الشيت"])??"").trim();
+   const installmentValue=installmentValueRaw!==""?num(installmentValueRaw):null;
    const remainingFromExcel=String(getAny(displayInstallmentRow,["المتبقي","المبلغ المتبقي","الرصيد المتبقي","المبلغ الغير مسدد",H.unpaid])??"").trim();
    const installmentRemaining=remainingFromExcel!==""?num(remainingFromExcel):null;
    const installmentPaidRaw=String(getAny(displayInstallmentRow,["المسدد","المبلغ المسدد","مبلغ المسدد","المبلغ المدفوع",H.paid])??"").trim();
@@ -2593,7 +2753,7 @@ function renderRisk(){
    const excelOverdueCounts=allClientRows.map(row=>getAny(row,[H.late,"عدد الأقساط المتأخرة","عدد الاقساط المتاخرة","عدد الأقساط المتاخرة"])).filter(v=>String(v??"").trim()!=="").map(num).filter(v=>v>=0);const overdueCount=excelOverdueCounts.length?Math.max(...excelOverdueCounts):rowsForClient.length;
    totalDue+=value;totalPaid+=paid;totalUnpaid+=unpaid;i++;
    out+=`<tr class="${unpaid>0?"risk-unpaid":"risk-paid"}">
-    <td>${i}</td><td><b>${esc(get(r,"client")||get(g.r,"client"))}</b></td><td>${esc(get(r,"nid")||get(g.r,"nid"))}</td><td>${esc(loanAmountDisplay)}</td><td>${esc(loanTermValue||"—")}</td><td>${esc(clientPhones(r)||get(r,"phone"))}</td><td>${esc(firstLateInstallment)}</td><td>${esc(collectionDisplayDate(riskDueDateValue(displayInstallmentRow))||"—")}</td><td>${esc(value.toLocaleString("ar-EG",{maximumFractionDigits:2}))}</td><td>${esc(installmentPaid.toLocaleString("ar-EG",{maximumFractionDigits:2}))}</td><td>${esc(collectionDisplayDate(paymentDateValue)||"—")}</td><td>${esc(installmentRemaining===null?"—":installmentRemaining.toLocaleString("ar-EG",{maximumFractionDigits:2}))}</td><td>${esc(overdueCount.toLocaleString("ar-EG"))}</td><td>${esc(totalArrears.toLocaleString("ar-EG",{maximumFractionDigits:2}))}</td><td>${esc(delay)}</td><td>${esc(rowAddress(r)||get(g.r,"address"))}</td><td>${esc(guarantorText(r,1))}</td><td>${esc(guarantorText(r,2))}</td><td>${esc(guarantorText(r,3))}</td>
+    <td>${i}</td><td><b>${esc(get(r,"client")||get(g.r,"client"))}</b></td><td>${esc(get(r,"nid")||get(g.r,"nid"))}</td><td>${esc(loanAmountDisplay)}</td><td>${esc(loanTermValue||"—")}</td><td>${esc(clientPhones(r)||get(r,"phone"))}</td><td>${esc(firstLateInstallment)}</td><td>${esc(collectionDisplayDate(riskDueDateValue(displayInstallmentRow))||"—")}</td><td>${esc(installmentValue===null?"—":installmentValue.toLocaleString("ar-EG",{maximumFractionDigits:2}))}</td><td>${esc(installmentPaid.toLocaleString("ar-EG",{maximumFractionDigits:2}))}</td><td>${esc(collectionDisplayDate(paymentDateValue)||"—")}</td><td>${esc(installmentRemaining===null?"—":installmentRemaining.toLocaleString("ar-EG",{maximumFractionDigits:2}))}</td><td>${esc(overdueCount.toLocaleString("ar-EG"))}</td><td>${esc(totalArrears.toLocaleString("ar-EG",{maximumFractionDigits:2}))}</td><td>${esc(delay)}</td><td>${esc(rowAddress(r)||get(g.r,"address"))}</td><td>${esc(guarantorText(r,1))}</td><td>${esc(guarantorText(r,2))}</td><td>${esc(guarantorText(r,3))}</td>
    </tr>`;
  }); document.getElementById("rt").innerHTML=out||'<tr><td colspan="19">لا توجد أقساط متأخرة</td></tr>';
  document.getElementById("riskTotalUnpaid").textContent=totalUnpaid.toLocaleString("ar-EG",{maximumFractionDigits:2});
@@ -3093,7 +3253,7 @@ function currentScreenId(){
   return active ? active.id : (location.hash.replace("#","")||"import");
 }
 function screenTitle(id){
-  const titles={clients:"سداد العملاء",import:"رفع Excel",search:"البحث في القروض",dash:"لوحة التحكم",collection:"التحصيل",risk:"المتأخرات والمخاطر",portfolio:"المحفظة",print:"الأقساط والضامنين"};
+  const titles={clients:"سداد العملاء",import:"رفع Excel",search:"البحث في القروض",dash:"لوحة التحكم",collection:"التحصيل",risk:"المتأخرات والمخاطر",paymentFollowup:"متابعة السداد",portfolio:"المحفظة",print:"الأقساط والضامنين"};
   return titles[id]||"جمعية المبادرة";
 }
 function makeExportTable(){
@@ -3662,7 +3822,7 @@ function showClientProfile(g){
 }
 function currentClientContactLogEntries(){
   const client=String(get(window.currentClientProfileGroup?.r||{},"client")||"").trim();
-  return readClientContactLog().filter(x=>norm(x.client)===norm(client)&&!String(x.field||"").includes("ضامن")).slice(0,100);
+  return readClientContactLog().filter(x=>norm(x.client)===norm(client)&&!String(x.field||"").includes("ضامن")&&!(window.isPaymentFollowupContactLog&&window.isPaymentFollowupContactLog(x))).slice(0,100);
 }
 function clientContactLogReportHTML(){
   const client=String(get(window.currentClientProfileGroup?.r||{} ,"client")||"").trim(),items=currentClientContactLogEntries();
@@ -3763,6 +3923,64 @@ function printClientProfile(){
  
 .users-status-block{margin-top:14px}.users-status-title{font-weight:900;padding:10px 12px;border-radius:10px 10px 0 0;background:#f5f7fa}.users-status-title.ok{color:#146c43}.users-status-title.muted{color:#6b7280}.users-status-block .wrap{margin-top:0;border-radius:0 0 10px 10px}.user-badge.unlinked{background:#fff3cd;color:#856404}.user-badge.blocked{background:#fde2e1;color:#b42318}.user-badge.ok{background:#dcfce7;color:#166534}
 .import-progress{display:none;margin-top:14px;padding:14px;border:1px solid #bae6fd;border-radius:12px;background:#f0f9ff;color:#075985}.import-progress.show{display:block}.import-progress-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px;font-size:13px}.import-progress-percent{font-size:16px;font-weight:900;color:#0369a1}.import-progress-track{height:12px;overflow:hidden;border-radius:999px;background:#dbeafe}.import-progress-bar{height:100%;width:0;border-radius:inherit;background:linear-gradient(90deg,#0284c7,#10b981);transition:width .25s ease}.import-progress-note{display:block;margin-top:7px;color:#4b7288;font-size:11px}
+
+/* Professional payment-follow-up print report */
+@page{size:A4 landscape;margin:9mm}
+@media print{
+  body.printing-payment-followup{background:#fff!important}
+  body.printing-payment-followup #paymentFollowupPrintLayer{width:100%!important;padding:0!important;direction:rtl!important}
+  body.printing-payment-followup #paymentFollowupPrintLayer .pf-print-table{font-size:7.1px!important;line-height:1.3!important;table-layout:fixed!important;width:100%!important;border-collapse:collapse!important}
+  body.printing-payment-followup #paymentFollowupPrintLayer .pf-print-table thead{display:table-header-group!important}
+  body.printing-payment-followup #paymentFollowupPrintLayer .pf-print-table tr{break-inside:avoid!important;page-break-inside:avoid!important}
+}
+#paymentFollowupPrintLayer .pf-print-brand{display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:2px solid #c99d3d;padding:0 0 7px;margin-bottom:7px}
+#paymentFollowupPrintLayer .pf-print-brand h1{margin:0;color:#17263c;font-size:19px;font-weight:900}
+#paymentFollowupPrintLayer .pf-print-subtitle{margin-top:2px;color:#64748b;font-size:9px;font-weight:700}
+#paymentFollowupPrintLayer .pf-print-badge{border:1px solid #c99d3d;border-radius:6px;padding:5px 10px;color:#8b681c;background:#fff9e8;font-size:10px;font-weight:900;white-space:nowrap}
+#paymentFollowupPrintLayer .pf-print-meta{display:flex;justify-content:flex-start;gap:18px;flex-wrap:wrap;padding:5px 7px;margin:0 0 7px;border:1px solid #d5dde6;border-radius:5px;background:#f5f8fb;color:#475569;font-size:8px;line-height:1.4}
+#paymentFollowupPrintLayer .pf-print-meta b{color:#1e3550}
+#paymentFollowupPrintLayer .pf-print-summary{display:flex;gap:6px;margin:0 0 8px}
+#paymentFollowupPrintLayer .pf-print-summary>div{flex:1;border:1px solid #cbd5e1;border-top:2px solid #416d9e;border-radius:5px;padding:4px 7px;text-align:center;background:#fbfcfe}
+#paymentFollowupPrintLayer .pf-print-summary>div:nth-child(2){border-top-color:#0c7886}
+#paymentFollowupPrintLayer .pf-print-summary>div:nth-child(3){border-top-color:#c99d3d}
+#paymentFollowupPrintLayer .pf-print-summary small{display:block;color:#64748b;font-size:7px;font-weight:700}
+#paymentFollowupPrintLayer .pf-print-summary b{display:block;color:#172b45;font-size:12px;margin-top:1px}
+#paymentFollowupPrintLayer .pf-print-table{table-layout:fixed;width:100%;border-collapse:collapse;font-size:7.1px;line-height:1.3}
+#paymentFollowupPrintLayer .pf-print-table th,#paymentFollowupPrintLayer .pf-print-table td{border:1px solid #aeb9c5;padding:3px 3px;text-align:right;vertical-align:top;overflow-wrap:anywhere;word-break:normal}
+#paymentFollowupPrintLayer .pf-print-table th{background:#172b45;color:#fff;font-size:7.2px;font-weight:900;line-height:1.2;white-space:normal}
+#paymentFollowupPrintLayer .pf-print-table tbody tr:nth-child(even){background:#f7f9fb}
+#paymentFollowupPrintLayer .pf-print-table .pf-print-cell-12,#paymentFollowupPrintLayer .pf-print-table .pf-print-cell-16{font-size:6.4px;line-height:1.25}
+#paymentFollowupPrintLayer .pf-print-table .pf-print-empty{text-align:center!important;padding:12px!important;color:#64748b}
+#paymentFollowupPrintLayer .pf-print-table .pc-client{width:7%}
+#paymentFollowupPrintLayer .pf-print-table .pc-officer{width:6%}
+#paymentFollowupPrintLayer .pf-print-table .pc-loan-amount{width:5%}
+#paymentFollowupPrintLayer .pf-print-table .pc-installment{width:5%}
+#paymentFollowupPrintLayer .pf-print-table .pc-due{width:5%}
+#paymentFollowupPrintLayer .pf-print-table .pc-value{width:5%}
+#paymentFollowupPrintLayer .pf-print-table .pc-paid{width:5%}
+#paymentFollowupPrintLayer .pf-print-table .pc-payment-date{width:5%}
+#paymentFollowupPrintLayer .pf-print-table .pc-remaining{width:5%}
+#paymentFollowupPrintLayer .pf-print-table .pc-arrears{width:6%}
+#paymentFollowupPrintLayer .pf-print-table .pc-delay{width:4%}
+#paymentFollowupPrintLayer .pf-print-table .pc-contacts{width:8%}
+#paymentFollowupPrintLayer .pf-print-table .pc-call-party{width:5%}
+#paymentFollowupPrintLayer .pf-print-table .pc-status{width:6%}
+#paymentFollowupPrintLayer .pf-print-table .pc-next{width:5%}
+#paymentFollowupPrintLayer .pf-print-table .pc-note{width:10%}
+#paymentFollowupPrintLayer .pf-print-table .pc-user{width:5%}
+#paymentFollowupPrintLayer .pf-print-table .pc-actor{width:8%}
+#paymentFollowupPrintLayer .pf-print-footer{display:flex;justify-content:space-between;margin-top:7px;padding-top:4px;border-top:1px solid #cbd5e1;color:#64748b;font-size:7px}
+
+/* Keep dates and numeric values on one line; long notes/contacts may wrap normally. */
+#paymentFollowup .pf-table td:nth-child(2),#paymentFollowup .pf-table td:nth-child(3),#paymentFollowup .pf-table td:nth-child(4),#paymentFollowup .pf-table td:nth-child(5),#paymentFollowup .pf-table td:nth-child(6),#paymentFollowup .pf-table td:nth-child(7){white-space:nowrap}
+#paymentFollowup .pf-table .pf-amount,#paymentFollowup .pf-table .pf-arrears,#paymentFollowup .pf-table .pf-delay{white-space:nowrap;font-variant-numeric:tabular-nums}
+#paymentFollowupPrintLayer .pf-print-table th:nth-child(3),#paymentFollowupPrintLayer .pf-print-table th:nth-child(4),#paymentFollowupPrintLayer .pf-print-table th:nth-child(5),#paymentFollowupPrintLayer .pf-print-table th:nth-child(6),#paymentFollowupPrintLayer .pf-print-table th:nth-child(7),#paymentFollowupPrintLayer .pf-print-table th:nth-child(8),#paymentFollowupPrintLayer .pf-print-table th:nth-child(9),#paymentFollowupPrintLayer .pf-print-table th:nth-child(10),#paymentFollowupPrintLayer .pf-print-table th:nth-child(11){white-space:nowrap}
+#paymentFollowupPrintLayer .pf-print-table td:nth-child(3),#paymentFollowupPrintLayer .pf-print-table td:nth-child(4),#paymentFollowupPrintLayer .pf-print-table td:nth-child(5),#paymentFollowupPrintLayer .pf-print-table td:nth-child(6),#paymentFollowupPrintLayer .pf-print-table td:nth-child(7),#paymentFollowupPrintLayer .pf-print-table td:nth-child(8),#paymentFollowupPrintLayer .pf-print-table td:nth-child(9),#paymentFollowupPrintLayer .pf-print-table td:nth-child(10),#paymentFollowupPrintLayer .pf-print-table td:nth-child(11){white-space:nowrap;font-variant-numeric:tabular-nums}
+
+#paymentFollowup .pf-actor{display:grid;gap:2px;min-width:100px;padding:6px 7px;border:1px solid #e2e8f0;border-radius:8px;background:#f7f9fc}
+#paymentFollowup .pf-actor strong{color:#243b57;font-size:11px;white-space:nowrap;overflow-wrap:normal}
+#paymentFollowup .pf-actor span{color:#64748b;font-size:10px;white-space:nowrap;direction:rtl}
+#paymentFollowupPrintLayer .pf-print-table td:nth-child(15){white-space:nowrap;font-variant-numeric:tabular-nums}
 </style>
  <div class="report">
  <div class="company"><div class="brand">جمعية المبادرة</div><div class="title">ملف عميل وقرض</div><div class="date">تاريخ الطباعة: ${escp(new Date().toLocaleDateString("ar-EG"))}</div></div>
@@ -3877,7 +4095,7 @@ function cloudContactLogToLocal(row){return {cloudId:row.id,client:row.client_na
 async function addClientContactLog(entry){
   const item={...entry,time:entry.time||new Date().toISOString(),user:entry.user||session?.name||session?.user||"غير محدد"};
   const list=readClientContactLog();list.unshift(item);writeClientContactLog(list);
-  if(cloudReady&&supabaseClient){try{const {data,error}=await supabaseClient.from(CLIENT_CONTACT_LOG_TABLE).insert(contactLogCloudPayload(item)).select("id").single();if(error)throw error;if(data){item.cloudId=data.id;writeClientContactLog([item,...list.filter(x=>x!==item)])}}catch(e){console.warn("Supabase contact log insert:",e);showMsg("⚠️ تم حفظ سجل التعديل محليًا، وتعذر رفعه للسحابة مؤقتًا.","warn")}}
+  if(cloudReady&&supabaseClient){try{const {data,error}=await supabaseClient.from(CLIENT_CONTACT_LOG_TABLE).insert(contactLogCloudPayload(item)).select("id").single();if(error)throw error;if(data){item.cloudId=data.id;writeClientContactLog([item,...list.filter(x=>x!==item)])}}catch(e){console.warn("Supabase contact log insert:",e);showMsg("⚠️ تم حفظ السجل محليًا، وتعذر رفعه للسحابة مؤقتًا.","warn")}}
 }
 async function refreshClientContactLogCloud(clientName){
   if(!cloudReady||!supabaseClient||contactLogCloudSyncing)return;
@@ -3900,7 +4118,7 @@ async function refreshClientContactLogCloud(clientName){
 }
 function renderProfileContactLog(clientName,targetId="profileContactLog",filterFn=null){
   const box=document.getElementById(targetId);if(!box)return;
-  const key=norm(clientName),items=readClientContactLog().filter(x=>norm(x.client)===key && (!filterFn||filterFn(x))).slice(0,20);
+  const key=norm(clientName),items=readClientContactLog().filter(x=>norm(x.client)===key && !(window.isPaymentFollowupContactLog&&window.isPaymentFollowupContactLog(x)) && (!filterFn||filterFn(x))).slice(0,20);
   box.innerHTML=items.length?`<div class="profile-contact-log-wrap"><table><thead><tr><th>المستخدم</th><th>التاريخ والوقت</th><th>الحقل</th><th>القيمة القديمة</th><th>القيمة الجديدة</th></tr></thead><tbody>${items.map(x=>`<tr><td>${esc(x.user||"—")}</td><td>${esc(new Date(x.time).toLocaleString("ar-EG"))}</td><td>${esc(x.field||"—")}</td><td class="old-value">${esc(x.oldValue||"—")}</td><td class="new-value">${esc(x.newValue||"—")}</td></tr>`).join("")}</tbody></table></div>`:'<div class="profile-contact-log-empty">لا توجد تعديلات مسجلة حتى الآن.</div>';
 }
 function profileContactRows(){
@@ -4912,6 +5130,282 @@ document.addEventListener('DOMContentLoaded', function () {
   document.addEventListener("pointerdown",event=>{if(!event.target.closest?.(".collection-autocomplete"))states.forEach(close);},true);
   document.addEventListener("focusin",event=>{states.forEach(state=>{if(event.target!==state.input)close(state);});});
   window.collectionAutocompleteHideAll=()=>states.forEach(close);
+})();
+
+</script>
+<script id="payment-followup-script">
+(function installPaymentFollowup(){
+  if(window.__paymentFollowupInstalled) return;
+  window.__paymentFollowupInstalled=true;
+  const SCREEN_ID="paymentFollowup";
+  const LOG_MARKER="__PAYMENT_FOLLOWUP_V1__";
+  const CALL_RESULTS=["تم التواصل — وعد بالسداد","لم يرد","طلب إعادة الاتصال","تم السداد","تعذر الاتفاق","أخرى"];
+  let currentCases=[];
+  let lastRenderedMobile=null;
+  let feedbackText="";
+  let feedbackKind="ok";
+
+  function isPaymentFollowupContactLog(entry){return String(entry?.field||"")===LOG_MARKER;}
+  window.isPaymentFollowupContactLog=isPaymentFollowupContactLog;
+
+  function pfKeyPart(value){return norm(String(value??""));}
+  function pfCaseKey(client,loanCode,loanNo,nid){return [client,loanCode||loanNo,nid].map(pfKeyPart).join("|");}
+  function pfTextDate(value){if(String(value??"").trim()==="")return "—";const date=parseExcelDate(value);return date?clientsDateText(date):String(value).trim();}
+  function pfDateTime(value){if(!value)return "—";const date=new Date(value);return Number.isNaN(date.getTime())?String(value):date.toLocaleString("ar-EG");}
+  function pfTodayEnd(){const d=new Date();d.setHours(23,59,59,999);return d;}
+  function pfDelayDays(value){const due=parseExcelDate(value);if(!due)return 0;const start=new Date(due);start.setHours(0,0,0,0);const today=new Date();today.setHours(0,0,0,0);return Math.max(0,Math.floor((today-start)/86400000));}
+  function pfLoanRows(group){return uniqueProfileInstallments(group.items||[group.r]);}
+  function pfValueFromRows(rows,names,matcher){try{return profileLoanExcelValueFromRows(rows,names,matcher||(()=>false))}catch(e){return ""}}
+  function pfLoanAmount(rows){return pfValueFromRows(rows,[H.loanAmount,"مبلغ القرض","قيمة القرض","قيمة التمويل","قيمة الموافقة"],q=>q.includes("مبلغ")&&q.includes("قرض"));}
+  function pfClientPhones(row){
+    const source=[
+      [getAny(row,[H.phone,"رقم الهاتف","رقم الموبيل","الموبايل","الهاتف"]),"هاتف العميل"],
+      [getAny(row,[H.phone2,"رقم الهاتف الثاني","رقم الموبايل الثاني","موبيل 2","هاتف 2"]),"هاتف إضافي للعميل"],
+      [getAny(row,[H.phone3,"رقم الهاتف الثالث","رقم الموبايل الثالث","موبيل 3","هاتف 3"]),"هاتف إضافي للعميل"]
+    ];
+    const seen=new Set();return source.filter(([phone])=>String(phone??"").trim()).filter(([phone])=>{const key=normalizePhone(phone);if(!key||seen.has(key))return false;seen.add(key);return true}).map(([phone,label])=>({phone:String(phone).trim(),label}));
+  }
+  function pfContacts(rows,clientName){
+    const row=rows.find(r=>pfClientPhones(r).length)||rows[0]||{};
+    const clientPhones=pfClientPhones(row);
+    const contacts=[{kind:"client",label:"العميل",name:clientName||"العميل",phones:clientPhones}];
+    const definitions=[
+      {kind:"g1",label:"الضامن الأول",nameNames:[H.g1,"اسم الضامن الأول","اسم الضامن الاول","أسم الضامن الأول"],phoneNames:[H.g1p,"رقم هاتف الضامن الأول","رقم تليفون الضامن الأول","موبايل الضامن الأول","هاتف الضامن الأول"]},
+      {kind:"g2",label:"الضامن الثاني",nameNames:[H.g2,"اسم الضامن الثاني","اسم الضامن التاني"],phoneNames:[H.g2p,"رقم هاتف الضامن الثاني","رقم تليفون الضامن الثاني","موبايل الضامن الثاني","هاتف الضامن الثاني"]},
+      {kind:"g3",label:"الضامن الثالث",nameNames:[H.g3,"اسم الضامن الثالث"],phoneNames:[H.g3p,"رقم هاتف الضامن الثالث","رقم تليفون الضامن الثالث","موبايل الضامن الثالث","هاتف الضامن الثالث"]}
+    ];
+    for(const def of definitions){
+      const name=String(pfValueFromRows(rows,def.nameNames,q=>q.includes("ضامن"))||"").trim();
+      const phone=String(pfValueFromRows(rows,def.phoneNames,q=>q.includes("ضامن")&&(q.includes("موب")||q.includes("هاتف")||q.includes("تليف")))||"").trim();
+      if(name||phone)contacts.push({kind:def.kind,label:def.label,name:name||def.label,phones:phone?[{phone,label:def.label}]:[]});
+    }
+    return contacts;
+  }
+  function pfCustomerArrearsMap(groups,end){
+    const totals=new Map();
+    groups.forEach(group=>{
+      const groupClient=String(get(group.r,"client")||"").trim();
+      pfLoanRows(group).forEach(row=>{
+        const client=String(get(row,"client")||groupClient).trim(),key=pfKeyPart(client);
+        const due=parseExcelDate(riskDueDateValue(row));
+        if(!key||!due||due>end)return;
+        totals.set(key,(totals.get(key)||0)+Math.max(0,installmentUnpaid(row)));
+      });
+    });
+    return totals;
+  }
+  function pfBuildCases(){
+    if(typeof visibleGroups!=="function"||typeof installmentUnpaid!=="function")return [];
+    const groups=visibleGroups(),end=pfTodayEnd(),customerArrears=pfCustomerArrearsMap(groups,end),cases=[];
+    groups.forEach(group=>{
+      const rows=pfLoanRows(group),client=String(get(group.r,"client")||"").trim();
+      const lateRows=rows.filter(row=>{
+        const due=parseExcelDate(riskDueDateValue(row));
+        return due&&due<=end&&installmentUnpaid(row)>0;
+      });
+      if(!lateRows.length)return;
+      lateRows.sort((a,b)=>num(get(a,"installment"))-num(get(b,"installment"))||((parseExcelDate(riskDueDateValue(a))||0)-(parseExcelDate(riskDueDateValue(b))||0)));
+      const row=lateRows[0];
+      const loanCode=String(getAny(group.r,[H.loanCode,"كود القرض"])||"").trim();
+      const loanNo=String(get(group.r,"loan")||"").trim();
+      const nid=String(get(group.r,"nid")||"").trim();
+      const loanLabel=loanCode||loanNo||"غير محدد";
+      const key=pfCaseKey(client,loanCode,loanNo,nid);
+      const loanAmount=pfLoanAmount(rows);
+      const due=riskDueDateValue(row);
+      const contacts=pfContacts(rows,client);
+      cases.push({key,group,rows,lateRows,row,client,loanCode,loanNo,loanLabel,loanAmount,contacts,
+        officer:String(get(group.r,"officer")||"").trim(),installment:String(get(row,"installment")??"").trim(),
+        due,installmentValue:num(get(row,"value")),paid:rowPaidAmount(row),paymentDate:rowPaymentDate(row),remaining:installmentUnpaid(row),
+        customerArrears:customerArrears.get(pfKeyPart(client))||0,delay:pfDelayDays(due),loanStatus:String(get(group.r,"status")||group.status||"").trim()});
+    });
+    return cases.sort((a,b)=>b.delay-a.delay||b.customerArrears-a.customerArrears||a.client.localeCompare(b.client,"ar"));
+  }
+  function pfReadLogs(){
+    if(typeof readClientContactLog!=="function")return [];
+    return readClientContactLog().filter(isPaymentFollowupContactLog).map(entry=>{
+      let meta={};try{meta=JSON.parse(entry.oldValue||"{}")}catch(e){}
+      return {...meta,note:String(entry.newValue??""),createdAt:entry.time||"",user:entry.user||"غير محدد",cloudId:entry.cloudId||null};
+    }).filter(x=>x.caseKey);
+  }
+  function pfCaseLogs(caseKey,allLogs){return allLogs.filter(x=>String(x.caseKey)===String(caseKey)).sort((a,b)=>new Date(b.createdAt||0)-new Date(a.createdAt||0));}
+  function pfEnsureDefaultPeriod(){
+    const from=document.getElementById("paymentFollowupFrom"),to=document.getElementById("paymentFollowupTo");
+    if(from&&!from.value)from.value="2021-01-01";
+    if(to&&!to.value)to.value="2030-12-31";
+  }
+  function pfSetToday(){
+    const d=isoDate(new Date()),from=document.getElementById("paymentFollowupFrom"),to=document.getElementById("paymentFollowupTo");
+    if(from)from.value=d;if(to)to.value=d;renderPaymentFollowup();
+  }
+  function pfSetPreviousMonth(){
+    const now=new Date(),from=document.getElementById("paymentFollowupFrom"),to=document.getElementById("paymentFollowupTo");
+    if(from)from.value=isoDate(new Date(now.getFullYear(),now.getMonth()-1,1));
+    if(to)to.value=isoDate(new Date(now.getFullYear(),now.getMonth(),0));
+    renderPaymentFollowup();
+  }
+  function pfClearFilters(){
+    ["paymentFollowupSearch","paymentFollowupOfficer"].forEach(id=>{const el=document.getElementById(id);if(el)el.value=""});
+    const st=document.getElementById("paymentFollowupStatus");if(st)st.value="all";
+    const from=document.getElementById("paymentFollowupFrom"),to=document.getElementById("paymentFollowupTo");
+    if(from)from.value="2021-01-01";if(to)to.value="2030-12-31";window.smartSelectSync?.();renderPaymentFollowup();
+  }
+  function pfPeriodValues(){
+    const fromValue=document.getElementById("paymentFollowupFrom")?.value||"";
+    const toValue=document.getElementById("paymentFollowupTo")?.value||"";
+    return {fromValue,toValue,from:fromValue?parseExcelDate(fromValue):null,to:toValue?parseExcelDate(toValue):null};
+  }
+  function pfPeriodLabel(){
+    const p=pfPeriodValues();
+    if(!p.fromValue&&!p.toValue)return "حتى اليوم";
+    const from=p.fromValue?pfTextDate(p.fromValue):"بداية البيانات";
+    const to=p.toValue?pfTextDate(p.toValue):"اليوم";
+    return `${from} — ${to}`;
+  }
+  function pfFilteredCases(){
+    const query=norm(document.getElementById("paymentFollowupSearch")?.value||"");
+    const officer=norm(document.getElementById("paymentFollowupOfficer")?.value||"");
+    const status=document.getElementById("paymentFollowupStatus")?.value||"all";
+    const period=pfPeriodValues(),logs=pfReadLogs();
+    return currentCases.filter(item=>{
+      const due=parseExcelDate(item.due);
+      if(period.from&&(!due||due<period.from))return false;
+      if(period.to&&(!due||due>period.to))return false;
+      if(officer&&norm(item.officer)!==officer)return false;
+      if(query&&!norm([item.client,item.loanCode,item.loanNo,...item.contacts.flatMap(c=>[c.name,...c.phones.map(p=>p.phone)])].join(" ")).includes(query))return false;
+      const latest=pfCaseLogs(item.key,logs)[0];
+      if(status==="not-called")return !latest;
+      if(status==="called")return !!latest;
+      return status==="all"||latest?.status===status;
+    }).map(item=>({...item,logs:pfCaseLogs(item.key,logs)}));
+  }
+  function pfPhoneLine(contact){
+    const phones=contact.phones||[];
+    if(!phones.length)return `<div class="pf-contact"><span class="pf-contact-name">${esc(contact.label)}${contact.name&&contact.name!==contact.label?` — ${esc(contact.name)}`:""}</span><span class="pf-missing">غير مسجل</span></div>`;
+    return phones.map((item,index)=>{const label=contact.label==="العميل"&&phones.length>1?`${contact.label} ${index+1}`:contact.label;const href=contactHref("call",item.phone,contact.name);return `<div class="pf-contact"><span class="pf-contact-name">${esc(label)}${contact.name&&contact.name!==contact.label?` — ${esc(contact.name)}`:""}</span><a class="pf-call-link" href="${esc(href)}" aria-label="اتصال ${esc(label)}">${esc(item.phone)} <span aria-hidden="true">☎</span></a></div>`}).join("");
+  }
+  function pfContactsHTML(item){return `<div class="pf-contacts">${item.contacts.map(pfPhoneLine).join("")}</div>`;}
+  function pfLatestHTML(item){
+    const latest=item.logs?.[0];
+    if(!latest)return `<div class="pf-latest"><strong>لا توجد مكالمة مسجلة</strong><p>ابدأ الاتصال وسجّل ما ذكره العميل.</p></div>`;
+    return `<div class="pf-latest"><strong>${esc(latest.status||"متابعة مسجلة")} · ${esc(pfDateTime(latest.createdAt))}</strong><span class="pf-secondary">${esc(latest.callParty||"")}${latest.next?` · المتابعة: ${esc(pfTextDate(latest.next))}`:""}</span><p>${esc(latest.note||"—")}</p></div>`;
+  }
+  function pfActorHTML(item){
+    const latest=item.logs?.[0];
+    if(!latest)return `<div class="pf-actor"><strong>—</strong><span>لم يتم تسجيل متابعة</span></div>`;
+    const user=String(latest.user||"غير محدد").trim()||"غير محدد";
+    const stamp=latest.createdAt?pfDateTime(latest.createdAt):"—";
+    return `<div class="pf-actor"><strong>${esc(user)}</strong><span>${esc(stamp)}</span></div>`;
+  }
+  function pfActorText(item){
+    const latest=item.logs?.[0];
+    if(!latest)return "—";
+    return `${String(latest.user||"غير محدد").trim()||"غير محدد"} — ${latest.createdAt?pfDateTime(latest.createdAt):"—"}`;
+  }
+  function pfHistoryHTML(item){
+    if(!item.logs?.length)return "";
+    return `<details class="pf-history"><summary>سجل المكالمات (${item.logs.length})</summary><div class="pf-history-list">${item.logs.map(log=>`<div class="pf-history-item"><b>${esc(log.status||"متابعة")} · ${esc(pfDateTime(log.createdAt))}</b><div>${esc(log.callParty||"")}${log.next?` · المتابعة القادمة: ${esc(pfTextDate(log.next))}`:""}${log.user?` · بواسطة ${esc(log.user)}`:""}</div><p>${esc(log.note||"—")}</p></div>`).join("")}</div></details>`;
+  }
+  function pfFormHTML(item){
+    const options=item.contacts.map(c=>`<option value="${esc(c.label+(c.name&&c.name!==c.label?` — ${c.name}`:""))}">${esc(c.label+(c.name&&c.name!==c.label?` — ${c.name}`:""))}</option>`).join("");
+    return `<details class="pf-editor"><summary>تسجيل مكالمة أو ملاحظة</summary><form class="pf-form" data-case-key="${encodeURIComponent(item.key)}"><label>تم الاتصال بـ<select name="callParty" required>${options}</select></label><label>نتيجة الاتصال<select name="status" required><option value="">اختر النتيجة</option>${CALL_RESULTS.map(x=>`<option value="${esc(x)}">${esc(x)}</option>`).join("")}</select></label><label>المتابعة القادمة<input name="next" type="date"></label><label aria-hidden="true"></label><label style="grid-column:1/-1">ملاحظات المكالمة<textarea name="note" maxlength="2000" required placeholder="اكتب باختصار ما قاله العميل أو الضامن…"></textarea></label><button class="pf-save" type="submit">حفظ سجل المكالمة</button></form></details>`;
+  }
+  function pfLastStatus(item){return item.logs?.[0]?.status||"لم يتم الاتصال";}
+  function pfLatestNote(item){const l=item.logs?.[0];return l?String(l.note||""):"—";}
+  function pfDesktopRow(item){
+    return `<tr><td><span class="pf-main-name">${esc(item.client||"—")}</span><span class="pf-secondary">${esc(item.officer||"بدون أخصائي")}</span></td><td>${esc(pfTextDate(item.due))}</td><td><span class="pf-main-name">قسط ${esc(item.installment||"—")}</span><span class="pf-secondary">القيمة: ${esc(money(item.installmentValue))}</span></td><td><span class="pf-amount">${esc(money(item.paid))}</span><span class="pf-secondary">تاريخ السداد: ${esc(pfTextDate(item.paymentDate))}</span></td><td><span class="pf-arrears">${esc(money(item.remaining))}</span></td><td><span class="pf-arrears">${esc(money(item.customerArrears))}</span></td><td><span class="pf-delay">${esc(item.delay)} يوم</span></td><td>${pfContactsHTML(item)}</td><td>${pfLatestHTML(item)}</td><td>${pfActorHTML(item)}</td><td class="no-print">${pfFormHTML(item)}${pfHistoryHTML(item)}</td></tr>`;
+  }
+  function pfMobileCard(item){
+    const loan=item.loanAmount!==""&&item.loanAmount!=null?money(item.loanAmount):"—";
+    return `<article class="pf-case"><div class="pf-case-head"><div><div class="pf-main-name">${esc(item.client||"—")}</div><span class="pf-secondary">القرض ${esc(item.loanLabel)} · ${esc(item.officer||"بدون أخصائي")}</span></div><span class="pf-delay">${esc(item.delay)} يوم تأخير</span></div><div class="pf-card-grid"><div class="pf-card-field"><small>مبلغ القرض</small><b>${esc(loan)}</b></div><div class="pf-card-field"><small>رقم القسط / الاستحقاق</small><b>${esc(item.installment||"—")} · ${esc(pfTextDate(item.due))}</b></div><div class="pf-card-field"><small>قيمة القسط</small><b>${esc(money(item.installmentValue))}</b></div><div class="pf-card-field"><small>المسدد / تاريخ السداد</small><b>${esc(money(item.paid))} · ${esc(pfTextDate(item.paymentDate))}</b></div><div class="pf-card-field"><small>المتبقي من القسط</small><b class="pf-arrears">${esc(money(item.remaining))}</b></div><div class="pf-card-field"><small>إجمالي متأخرات العميل</small><b class="pf-arrears">${esc(money(item.customerArrears))}</b></div></div><div class="pf-card-field pf-wide" style="margin-top:8px"><small>العميل والضامنون</small>${pfContactsHTML(item)}</div>${pfLatestHTML(item)}${pfActorHTML(item)}${pfFormHTML(item)}${pfHistoryHTML(item)}</article>`;
+  }
+  function pfUpdateOfficerOptions(){
+    const input=document.getElementById("paymentFollowupOfficer"),list=document.getElementById("paymentFollowupOfficerList");if(!input||!list)return;
+    const selected=input.value, map=new Map();
+    visibleGroups().forEach(g=>{const name=String(get(g.r,"officer")||"").trim();if(name&&!map.has(norm(name)))map.set(norm(name),name)});
+    const values=[...map.values()].sort((a,b)=>a.localeCompare(b,"ar"));
+    list.innerHTML=values.map(x=>`<option value="${esc(x)}"></option>`).join("");
+    if(selected&&!values.some(x=>norm(x)===norm(selected)))input.value="";
+  }
+  function pfUpdateClientOptions(){
+    const list=document.getElementById("paymentFollowupClientList");if(!list)return;
+    const map=new Map();currentCases.forEach(item=>{const name=String(item.client||"").trim();if(name&&!map.has(norm(name)))map.set(norm(name),name)});
+    list.innerHTML=[...map.values()].sort((a,b)=>a.localeCompare(b,"ar")).map(x=>`<option value="${esc(x)}"></option>`).join("");
+  }
+  function renderPaymentFollowup(){
+    if(!document.getElementById(SCREEN_ID))return;
+    pfEnsureDefaultPeriod();
+    currentCases=pfBuildCases();pfUpdateOfficerOptions();pfUpdateClientOptions();
+    const filtered=pfFilteredCases();
+    const periodCard=document.getElementById("paymentFollowupPeriod");if(periodCard)periodCard.textContent=pfPeriodLabel();
+    const mobile=window.matchMedia&&window.matchMedia("(max-width: 760px)").matches;
+    const tbody=document.getElementById("paymentFollowupTableBody"),cards=document.getElementById("paymentFollowupMobileCases");
+    if(mobile){if(tbody)tbody.innerHTML="";if(cards)cards.innerHTML=filtered.length?filtered.map(pfMobileCard).join(""):'<div class="pf-empty">لا توجد حالات متأخرة مطابقة لعوامل البحث.</div>';}
+    else {if(cards)cards.innerHTML="";if(tbody)tbody.innerHTML=filtered.length?filtered.map(pfDesktopRow).join(""):'<tr><td colspan="11" class="pf-empty">لا توجد حالات متأخرة مطابقة لعوامل البحث.</td></tr>';}
+    const uniqueClients=new Map();filtered.forEach(x=>{const key=pfKeyPart(x.client);if(key&&!uniqueClients.has(key))uniqueClients.set(key,x.customerArrears)});
+    const count=document.getElementById("paymentFollowupCount"),clients=document.getElementById("paymentFollowupClientsCount"),amount=document.getElementById("paymentFollowupTotalArrears"),feedback=document.getElementById("paymentFollowupFeedback");
+    if(count)count.textContent=filtered.length.toLocaleString("ar-EG");
+    if(clients)clients.textContent=uniqueClients.size.toLocaleString("ar-EG");
+    if(amount)amount.textContent=money([...uniqueClients.values()].reduce((a,b)=>a+num(b),0));
+    if(feedback){feedback.textContent=feedbackText;feedback.className="pf-feedback"+(feedbackText?` show ${feedbackKind}`:"");}
+    lastRenderedMobile=mobile;
+  }
+  function pfSelectedCases(){return pfFilteredCases();}
+  function pfExportRows(item){
+    const latest=item.logs?.[0]||{};
+    const contactText=item.contacts.map(c=>`${c.label}${c.name&&c.name!==c.label?` (${c.name})`:""}: ${(c.phones||[]).map(p=>p.phone).join("، ")||"غير مسجل"}`).join("\n");
+    return [item.client,item.officer,item.loanLabel,item.loanAmount!==""&&item.loanAmount!=null?money(item.loanAmount):"—",item.installment,pfTextDate(item.due),money(item.installmentValue),money(item.paid),pfTextDate(item.paymentDate),money(item.remaining),money(item.customerArrears),item.delay,contactText,latest.callParty||"—",latest.status||"لم يتم الاتصال",latest.next?pfTextDate(latest.next):"—",latest.note||"—",pfActorText(item)];
+  }
+  function pfBuildExportLayer(){
+    const selected=pfSelectedCases(),layer=document.createElement("section");
+    layer.id="paymentFollowupPrintLayer";layer.className="pf-print-layer";layer.dir="rtl";
+    const headers=["اسم العميل","الأخصائي","مبلغ القرض","رقم القسط","تاريخ الاستحقاق","قيمة القسط","المبلغ المسدد","تاريخ السداد","المتبقي من القسط","إجمالي متأخرات العميل","أيام التأخير","هواتف العميل والضامنين","تم الاتصال بـ","نتيجة آخر اتصال","المتابعة القادمة","ملاحظة آخر اتصال","القائم بالمتابعة"];
+    const rows=selected.map(pfExportRows).map(row=>row.filter((_,index)=>index!==2));
+    const period=pfPeriodLabel(),now=new Date();
+    layer.innerHTML=`<div class="pf-print-brand"><div><h1>تقرير متابعة السداد</h1><div class="pf-print-subtitle">جمعية المبادرة — إدارة التمويل والتحصيل</div></div><div class="pf-print-badge">تقرير رسمي</div></div><div class="pf-print-meta"><span><b>الفترة:</b> ${esc(period)}</span><span><b>تاريخ الطباعة:</b> ${esc(now.toLocaleString("ar-EG"))}</span><span><b>عدد الحالات:</b> ${esc(selected.length)}</span></div><div class="pf-print-summary"><div><small>حالات المتابعة</small><b>${esc(document.getElementById("paymentFollowupCount")?.textContent||selected.length)}</b></div><div><small>عملاء مختلفون</small><b>${esc(document.getElementById("paymentFollowupClientsCount")?.textContent||"0")}</b></div><div><small>إجمالي المتأخرات الظاهرة</small><b>${esc(document.getElementById("paymentFollowupTotalArrears")?.textContent||"0")}</b></div></div><table class="pf-print-table"><colgroup><col class="pc-client"><col class="pc-officer"><col class="pc-loan-amount"><col class="pc-installment"><col class="pc-due"><col class="pc-value"><col class="pc-paid"><col class="pc-payment-date"><col class="pc-remaining"><col class="pc-arrears"><col class="pc-delay"><col class="pc-contacts"><col class="pc-call-party"><col class="pc-status"><col class="pc-next"><col class="pc-note"><col class="pc-actor"></colgroup><thead><tr>${headers.map(h=>`<th>${esc(h)}</th>`).join("")}</tr></thead><tbody>${rows.length?rows.map(r=>`<tr>${r.map((v,i)=>`<td class="pf-print-cell-${i}">${esc(v).replace(/\n/g,"<br>")}</td>`).join("")}</tr>`).join(""):'<tr><td colspan="17" class="pf-print-empty">لا توجد حالات للعرض</td></tr>'}</tbody></table><div class="pf-print-footer"><span>تم إنشاء التقرير من شاشة متابعة السداد</span><span>الصفحة: ______</span></div>`;
+    document.body.appendChild(layer);return layer;
+  }
+  function printPaymentFollowupReport(){
+    const layer=pfBuildExportLayer();document.body.classList.add("printing-payment-followup");const previousTitle=document.title;document.title=`متابعة_السداد_${new Date().toISOString().slice(0,10)}`;
+    let cleaned=false;const cleanup=()=>{if(cleaned)return;cleaned=true;document.body.classList.remove("printing-payment-followup");document.title=previousTitle;layer.remove();window.removeEventListener("afterprint",cleanup)};
+    window.addEventListener("afterprint",cleanup);auditLog("طباعة تقرير",screenTitle(SCREEN_ID));
+    try{window.print()}catch(e){cleanup();alert("تعذر فتح نافذة الطباعة.")}
+    setTimeout(cleanup,120000);
+  }
+  function downloadPaymentFollowupPDF(){
+    feedbackText="في نافذة الطباعة اختر «حفظ كملف PDF» لتنزيل التقرير.";feedbackKind="ok";renderPaymentFollowup();
+    setTimeout(printPaymentFollowupReport,80);
+  }
+  function exportPaymentFollowupExcel(){
+    if(typeof XLSX==="undefined"){alert("مكتبة Excel غير متاحة. افتح الصفحة مع اتصال بالإنترنت.");return}
+    const headers=["اسم العميل","الأخصائي","رقم القرض","مبلغ القرض","رقم القسط","تاريخ الاستحقاق","قيمة القسط","المبلغ المسدد","تاريخ السداد","المتبقي من القسط","إجمالي متأخرات العميل","أيام التأخير","هواتف العميل والضامنين","تم الاتصال بـ","نتيجة آخر اتصال","المتابعة القادمة","ملاحظة آخر اتصال","القائم بالمتابعة"];
+    const selected=pfSelectedCases(),ws=XLSX.utils.aoa_to_sheet([headers,...selected.map(pfExportRows)]);
+    ws["!cols"]=[20,18,16,14,12,16,14,14,16,16,18,12,42,20,24,18,48,30].map(w=>({wch:w}));
+    const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,"متابعة السداد");
+    XLSX.writeFile(wb,`متابعة_السداد_${new Date().toISOString().slice(0,10)}.xlsx`);auditLog("تصدير Excel",screenTitle(SCREEN_ID));
+  }
+  async function pfSaveCall(form){
+    const caseKey=decodeURIComponent(form.dataset.caseKey||"");
+    const item=currentCases.find(x=>x.key===caseKey);if(!item)return;
+    const data=new FormData(form),note=String(data.get("note")||"").trim(),status=String(data.get("status")||"").trim();
+    if(!note||!status){feedbackText="أدخل نتيجة الاتصال والملاحظة قبل الحفظ.";feedbackKind="warn";renderPaymentFollowup();return}
+    const meta={version:1,caseKey:item.key,client:item.client,loanCode:item.loanCode,loanNo:item.loanNo,installment:item.installment,callParty:String(data.get("callParty")||"العميل"),status,next:String(data.get("next")||"")};
+    const entry={client:item.client,field:LOG_MARKER,oldValue:JSON.stringify(meta),newValue:note,time:new Date().toISOString(),user:session?.name||session?.user||"غير محدد"};
+    feedbackText="تم حفظ سجل المكالمة"+(cloudReady?".":" على هذا الجهاز.");feedbackKind="ok";
+    const pending=addClientContactLog(entry);renderPaymentFollowup();
+    try{await pending}catch(e){console.warn("Payment follow-up save:",e)}
+  }
+  document.addEventListener("input",event=>{if(["paymentFollowupSearch","paymentFollowupOfficer","paymentFollowupFrom","paymentFollowupTo"].includes(event.target?.id))renderPaymentFollowup()});
+  document.addEventListener("change",event=>{if(["paymentFollowupOfficer","paymentFollowupStatus","paymentFollowupFrom","paymentFollowupTo"].includes(event.target?.id))renderPaymentFollowup()});
+  document.addEventListener("click",event=>{if(event.target?.closest?.("#paymentFollowupClear")){feedbackText="";pfClearFilters()}});
+  document.addEventListener("submit",event=>{const form=event.target;if(!form?.matches?.("#paymentFollowup .pf-form"))return;event.preventDefault();pfSaveCall(form)});
+  window.addEventListener("resize",()=>{if(document.getElementById(SCREEN_ID)?.classList.contains("active")){const mobile=window.matchMedia&&window.matchMedia("(max-width: 760px)").matches;if(mobile!==lastRenderedMobile)renderPaymentFollowup()}});
+  document.addEventListener("DOMContentLoaded",()=>{if(document.getElementById(SCREEN_ID)?.classList.contains("active"))renderPaymentFollowup()});
+  window.renderPaymentFollowup=renderPaymentFollowup;
+  window.pfSetToday=pfSetToday;window.pfSetPreviousMonth=pfSetPreviousMonth;window.pfClearFilters=pfClearFilters;
+  window.printPaymentFollowupReport=printPaymentFollowupReport;
+  window.downloadPaymentFollowupPDF=downloadPaymentFollowupPDF;
+  window.exportPaymentFollowupExcel=exportPaymentFollowupExcel;
 })();
 
 </script>
