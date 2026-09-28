@@ -2695,6 +2695,9 @@ function updateRiskFilterLists(){
   if(cl)cl.innerHTML=clients.map(x=>`<option value="${esc(x)}"></option>`).join("");
   if(selectedClient && !clients.some(x=>norm(x)===selectedClient) && clientInput)clientInput.value="";
 }
+function riskEnglishDigits(value){
+ return String(value??"").replace(/[٠-٩]/g,d=>"٠١٢٣٤٥٦٧٨٩".indexOf(d)).replace(/[۰-۹]/g,d=>"۰۱۲۳۴۵۶۷۸۹".indexOf(d));
+}
 function renderRisk(){
  let officer=norm(document.getElementById("riskOfficer")?.value||"");
  let client=norm(document.getElementById("riskClient")?.value||"");
@@ -2755,7 +2758,7 @@ function renderRisk(){
    out+=`<tr class="${unpaid>0?"risk-unpaid":"risk-paid"}">
     <td>${i}</td><td><b>${esc(get(r,"client")||get(g.r,"client"))}</b></td><td>${esc(get(r,"nid")||get(g.r,"nid"))}</td><td>${esc(loanAmountDisplay)}</td><td>${esc(loanTermValue||"—")}</td><td>${esc(clientPhones(r)||get(r,"phone"))}</td><td>${esc(firstLateInstallment)}</td><td>${esc(collectionDisplayDate(riskDueDateValue(displayInstallmentRow))||"—")}</td><td>${esc(installmentValue===null?"—":installmentValue.toLocaleString("ar-EG",{maximumFractionDigits:2}))}</td><td>${esc(installmentPaid.toLocaleString("ar-EG",{maximumFractionDigits:2}))}</td><td>${esc(collectionDisplayDate(paymentDateValue)||"—")}</td><td>${esc(installmentRemaining===null?"—":installmentRemaining.toLocaleString("ar-EG",{maximumFractionDigits:2}))}</td><td>${esc(overdueCount.toLocaleString("ar-EG"))}</td><td>${esc(totalArrears.toLocaleString("ar-EG",{maximumFractionDigits:2}))}</td><td>${esc(delay)}</td><td>${esc(rowAddress(r)||get(g.r,"address"))}</td><td>${esc(guarantorText(r,1))}</td><td>${esc(guarantorText(r,2))}</td><td>${esc(guarantorText(r,3))}</td>
    </tr>`;
- }); document.getElementById("rt").innerHTML=out||'<tr><td colspan="19">لا توجد أقساط متأخرة</td></tr>';
+ }); out=riskEnglishDigits(out); document.getElementById("rt").innerHTML=out||'<tr><td colspan="19">لا توجد أقساط متأخرة</td></tr>';
  document.getElementById("riskTotalUnpaid").textContent=totalUnpaid.toLocaleString("ar-EG",{maximumFractionDigits:2});
  document.getElementById("riskTotalDue").textContent=totalDue.toLocaleString("ar-EG",{maximumFractionDigits:2});
  document.getElementById("riskTotalPaid").textContent=totalPaid.toLocaleString("ar-EG",{maximumFractionDigits:2});
@@ -3539,7 +3542,9 @@ function buildRiskPrintLayer(forPdf=false){
       td.textContent=cell.textContent.trim();
       td.style.cssText="border:1px solid #111;padding:6px 3px;min-height:42px;color:#000;background:#fff;font-size:8.2px;font-weight:800;vertical-align:middle;text-align:right;white-space:normal;overflow-wrap:anywhere;word-break:normal;line-height:1.45;height:auto;max-height:none;overflow:visible;";
       // الأرقام والتواريخ تكون في المنتصف، أما النصوص الطويلة فتلتف داخل نفس الخلية.
-      if(i===0||i===1||i===2||i===3||i===4||i===5||i===6||i===7||i===8||i===9||i===10){td.style.textAlign="center";td.style.fontSize="9.2px";td.style.fontWeight="900";td.style.color="#000";}
+      if(i<=14){td.style.textAlign="center";td.style.fontSize="9.2px";td.style.fontWeight="900";td.style.color="#000";}
+      // المتبقي من القسط، عدد الأقساط المتأخرة، إجمالي المتأخرات، وأيام التأخير.
+      if(i===11||i===12||i===13||i===14){td.style.whiteSpace="nowrap";td.style.wordBreak="normal";td.style.overflowWrap="normal";td.style.direction="ltr";}
       // الرقم القومي والهاتف أرقام متصلة؛ لا نسمح بتقسيم الرقم داخل الخلية.
       if(i===2||i===3){td.style.whiteSpace="nowrap";td.style.wordBreak="normal";td.style.overflowWrap="normal";td.style.direction="ltr";} 
       tr.appendChild(td);
@@ -3981,6 +3986,13 @@ function printClientProfile(){
 #paymentFollowup .pf-actor strong{color:#243b57;font-size:11px;white-space:nowrap;overflow-wrap:normal}
 #paymentFollowup .pf-actor span{color:#64748b;font-size:10px;white-space:nowrap;direction:rtl}
 #paymentFollowupPrintLayer .pf-print-table td:nth-child(15){white-space:nowrap;font-variant-numeric:tabular-nums}
+
+/* Overdue table: clear bold centered cells and English numerals. */
+.risk-installments-table th,.risk-installments-table td{text-align:center!important;vertical-align:middle!important;font-weight:800!important;font-family:Arial,Tahoma,sans-serif;font-variant-numeric:tabular-nums}
+.risk-installments-table td b{font-weight:900!important}
+
+/* Requested overdue totals: centered and kept together in screen and print. */
+.risk-installments-table td:nth-child(12),.risk-installments-table td:nth-child(13),.risk-installments-table td:nth-child(14),.risk-installments-table td:nth-child(15){text-align:center!important;white-space:nowrap!important;vertical-align:middle!important;font-weight:900!important;direction:ltr}
 </style>
  <div class="report">
  <div class="company"><div class="brand">جمعية المبادرة</div><div class="title">ملف عميل وقرض</div><div class="date">تاريخ الطباعة: ${escp(new Date().toLocaleDateString("ar-EG"))}</div></div>
