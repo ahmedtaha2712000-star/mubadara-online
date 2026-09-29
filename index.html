@@ -1521,6 +1521,41 @@ table thead th{background:#6b7280!important;color:#fff!important;font-weight:900
 #collection .collection-autocomplete input{color:#111!important;font-weight:900!important}
 #collection .collection-autocomplete input::placeholder{color:#333!important;font-weight:800!important}
 </style>
+<style id="computer-filter-search-final">
+/* فلاتر الكمبيوتر: قوائم متجاورة، واضحة، وقابلة للبحث بأي حرف */
+@media (min-width:761px){
+  :where(#search .filter-row,#search .advanced-filters,#clients .clients-filters,#collection .collection-filter-grid,#risk>.filter-row:not(.toolbar),#dueInstallments>.filter-row:not(.toolbar),#portfolio .portfolio-filters,#specialists .specialists-filters,#paymentFollowup .pf-filterbar){
+    display:grid!important;
+    grid-template-columns:repeat(auto-fit,minmax(205px,1fr))!important;
+    gap:12px!important;
+    align-items:end!important;
+    overflow:visible!important;
+  }
+  :where(#search .filter-row>div,#search .advanced-filters>div,#clients .clients-filters>*,#collection .collection-filter-grid>*,#risk>.filter-row:not(.toolbar)>div,#dueInstallments>.filter-row:not(.toolbar)>div,#portfolio .portfolio-filters>*,#specialists .specialists-filters>div,#paymentFollowup .pf-filterbar>*){
+    min-width:0!important;
+    overflow:visible!important;
+  }
+  #risk>.filter-row:not(.toolbar)>div,#dueInstallments>.filter-row:not(.toolbar)>div{margin-bottom:0!important}
+}
+:where(#search,#clients,#collection,#risk,#dueInstallments,#portfolio,#specialists,#paymentFollowup) .smart-select,
+:where(#search,#clients,#collection,#risk,#dueInstallments,#portfolio,#specialists,#paymentFollowup) .smart-datalist,
+:where(#search,#clients,#collection,#risk,#dueInstallments,#portfolio,#specialists,#paymentFollowup) .smart-input-clear-wrap{min-width:0!important;width:100%!important;overflow:visible!important}
+:where(#search,#clients,#collection,#risk,#dueInstallments,#portfolio,#specialists,#paymentFollowup) .smart-select-search,
+:where(#search,#clients,#collection,#risk,#dueInstallments,#portfolio,#specialists,#paymentFollowup) .smart-datalist-search{color:#111!important;font-weight:900!important;font-size:14px!important}
+:where(#search,#clients,#collection,#risk,#dueInstallments,#portfolio,#specialists,#paymentFollowup) .smart-select-search::placeholder,
+:where(#search,#clients,#collection,#risk,#dueInstallments,#portfolio,#specialists,#paymentFollowup) .smart-datalist-search::placeholder{color:#333!important;font-weight:800!important}
+:where(#search,#clients,#collection,#risk,#dueInstallments,#portfolio,#specialists,#paymentFollowup) .smart-select.open,
+:where(#search,#clients,#collection,#risk,#dueInstallments,#portfolio,#specialists,#paymentFollowup) .smart-datalist:has(.smart-select-menu){z-index:12000!important}
+:where(#search,#clients,#collection,#risk,#dueInstallments,#portfolio,#specialists,#paymentFollowup) .smart-select-menu{z-index:12001!important;max-width:min(100%,430px)!important;max-height:300px!important;overflow-y:auto!important;background:#fff!important;border:2px solid #111!important;box-shadow:0 12px 28px rgba(0,0,0,.22)!important}
+:where(#search,#clients,#collection,#risk,#dueInstallments,#portfolio,#specialists,#paymentFollowup) .smart-select-option{color:#111!important;background:#fff!important;font-weight:900!important;font-size:14px!important;line-height:1.4!important}
+:where(#search,#clients,#collection,#risk,#dueInstallments,#portfolio,#specialists,#paymentFollowup) .smart-select-option:hover,
+:where(#search,#clients,#collection,#risk,#dueInstallments,#portfolio,#specialists,#paymentFollowup) .smart-select-option.active{color:#111!important;background:#e5e7eb!important}
+/* قائمة التحصيل المخصصة */
+#collection .collection-autocomplete{z-index:12000!important;overflow:visible!important}
+#collection .collection-autocomplete-menu{z-index:12001!important;max-width:100%!important;border:2px solid #111!important;background:#fff!important;box-shadow:0 12px 28px rgba(0,0,0,.22)!important}
+#collection .collection-autocomplete-option{color:#111!important;font-weight:900!important;font-size:14px!important;line-height:1.5!important}
+#collection .collection-autocomplete-option:hover,#collection .collection-autocomplete-option.is-active,#collection .collection-autocomplete-option.is-selected{color:#111!important;background:#e5e7eb!important}
+</style>
 </head>
 
 <body>
