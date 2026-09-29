@@ -1625,6 +1625,12 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
 #risk .risk-installments-table td{color:#000!important;font-weight:900!important;font-size:13.2px!important}
 @media print{#risk .risk-table-scroll-top{display:none!important}body.printing-risk-report .risk-print-table th{background:#858c95!important;color:#000!important;font-weight:900!important;font-size:9.2px!important}body.printing-risk-report .risk-print-table td{color:#000!important;font-weight:900!important;font-size:9.7px!important}body.printing-risk .risk-installments-table th{background:#858c95!important;color:#000!important;font-weight:900!important;font-size:6.8px!important}body.printing-risk .risk-installments-table td{color:#000!important;font-weight:900!important;font-size:6.7px!important}}
 </style>
+<style id="due-installments-scrollbars-final">
+#dueInstallments .due-table-scroll-top{width:100%;height:14px;overflow-x:auto;overflow-y:hidden;margin:0 0 4px;border-radius:5px;background:#eef1f4;direction:rtl;scrollbar-width:auto}
+#dueInstallments .due-table-scroll-top>div{height:1px;min-width:1500px}
+#dueInstallments .risk-installments-wrap{overflow-x:auto!important;overflow-y:visible!important;scrollbar-width:auto}
+@media print{#dueInstallments .due-table-scroll-top{display:none!important}}
+</style>
 </head>
 
 <body>
@@ -2070,7 +2076,7 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
   <div><span class="filter-label">حالة القرض</span><select id="dueStatus"><option value="open" selected>القروض القائمة</option><option value="closed">القروض المغلقة</option><option value="all">كل القروض</option></select></div>
 </div>
 <div class="toolbar no-print"><button class="light" onclick="clearSectionFilter('due')">مسح البحث</button></div>
-<div class="wrap risk-installments-wrap"><table class="risk-installments-table"><thead><tr><th>م</th><th>الاسم</th><th>الرقم القومي</th><th>مبلغ القرض</th><th>مدة القرض</th><th>الهاتف</th><th>رقم القسط</th><th>تاريخ الاستحقاق</th><th>قيمة القسط</th><th>المسدد</th><th>تاريخ السداد</th><th>المتبقي من القسط</th><th>حالة الاستحقاق</th><th>إجمالي المتأخرات</th><th>العنوان</th><th>الضامن الأول</th><th>الضامن الثاني</th><th>الضامن الثالث</th></tr></thead><tbody id="dueTableBody"></tbody></table></div>
+<div class="due-table-scroll-top" aria-label="شريط التمرير الأفقي العلوي لجدول الأقساط المستحقة"><div></div></div><div class="wrap risk-installments-wrap"><table class="risk-installments-table"><thead><tr><th>م</th><th>الاسم</th><th>الرقم القومي</th><th>مبلغ القرض</th><th>مدة القرض</th><th>الهاتف</th><th>رقم القسط</th><th>تاريخ الاستحقاق</th><th>قيمة القسط</th><th>المسدد</th><th>تاريخ السداد</th><th>المتبقي من القسط</th><th>حالة الاستحقاق</th><th>إجمالي المتأخرات</th><th>العنوان</th><th>الضامن الأول</th><th>الضامن الثاني</th><th>الضامن الثالث</th></tr></thead><tbody id="dueTableBody"></tbody></table></div>
 </section>
 
 <section id="portfolio" class="card screen">
@@ -5992,5 +5998,6 @@ document.addEventListener('DOMContentLoaded', function () {
 })();
 </script>
 <script id="overdue-table-scroll-sync">(function(){function sync(){const t=document.querySelector('#risk .risk-table-scroll-top'),w=document.querySelector('#risk .risk-installments-wrap'),table=w?.querySelector('.risk-installments-table');if(!t||!w||!table)return;const sp=t.firstElementChild;if(sp)sp.style.width=Math.max(table.scrollWidth,w.clientWidth)+'px';t.scrollLeft=w.scrollLeft}function init(){const t=document.querySelector('#risk .risk-table-scroll-top'),w=document.querySelector('#risk .risk-installments-wrap');if(!t||!w||t.dataset.ready)return;t.dataset.ready='1';let busy=false;t.addEventListener('scroll',()=>{if(!busy){busy=true;w.scrollLeft=t.scrollLeft;busy=false}},{passive:true});w.addEventListener('scroll',()=>{if(!busy){busy=true;t.scrollLeft=w.scrollLeft;busy=false}},{passive:true});new MutationObserver(sync).observe(w.querySelector('tbody')||w,{childList:true});window.addEventListener('resize',sync,{passive:true});sync()}window.syncRiskTableScrollbars=sync;document.addEventListener('DOMContentLoaded',init);setTimeout(init,0)})();</script>
+<script id="due-installments-scroll-sync">(function(){function sync(){const t=document.querySelector('#dueInstallments .due-table-scroll-top'),w=document.querySelector('#dueInstallments .risk-installments-wrap'),table=w?.querySelector('.risk-installments-table');if(!t||!w||!table)return;const sp=t.firstElementChild;if(sp)sp.style.width=Math.max(table.scrollWidth,w.clientWidth)+'px';t.scrollLeft=w.scrollLeft}function init(){const t=document.querySelector('#dueInstallments .due-table-scroll-top'),w=document.querySelector('#dueInstallments .risk-installments-wrap');if(!t||!w||t.dataset.ready)return;t.dataset.ready='1';let busy=false;t.addEventListener('scroll',()=>{if(!busy){busy=true;w.scrollLeft=t.scrollLeft;busy=false}},{passive:true});w.addEventListener('scroll',()=>{if(!busy){busy=true;t.scrollLeft=w.scrollLeft;busy=false}},{passive:true});new MutationObserver(sync).observe(w.querySelector('tbody')||w,{childList:true});window.addEventListener('resize',sync,{passive:true});sync()}window.syncDueTableScrollbars=sync;document.addEventListener('DOMContentLoaded',init);setTimeout(init,0)})();</script>
 </body>
 </html>
