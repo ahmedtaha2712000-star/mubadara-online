@@ -2685,7 +2685,8 @@ async function normalizeImportedRowsFast(raw,onProgress){
   }
   return out;
 }
-const LARGE_EXCEL_BYTES=25*1024*1024;
+const LARGE_EXCEL_BYTES=200*1024*1024;
+const DENSE_EXCEL_BYTES=15*1024*1024;
 function safeExcelFileName(name){
   const clean=String(name||"ملف Excel").replace(/[\\/:*?"<>|\u0000-\u001F]/g,"_").trim();
   return clean.length>90?clean.slice(0,42)+"…"+clean.slice(-35):clean;
@@ -2693,7 +2694,6 @@ function safeExcelFileName(name){
 function parseExcelInWorker(file){
   return new Promise((resolve,reject)=>{
     if(typeof Worker==="undefined") return reject(new Error("WORKER_UNAVAILABLE"));
-    if(file.size>LARGE_EXCEL_BYTES) return reject(new Error("LARGE_FILE_MAIN_THREAD"));
     const workerCode=`
       self.onmessage=function(e){
         try{
@@ -2725,6 +2725,7 @@ async function importExcelFile(file){
   if(!file)throw new Error("لم يتم اختيار ملف.");
   if(typeof XLSX==="undefined")throw new Error("تعذر تحميل مكتبة Excel. أعد تحميل الصفحة ثم جرّب مرة أخرى.");
   const displayFileName=safeExcelFileName(file.name);
+  if(file.size> LARGE_EXCEL_BYTES)throw new Error(`حجم الملف أكبر من الحد المسموح (${Math.round(LARGE_EXCEL_BYTES/1048576)} ميجابايت).`);
   setImportProgress(5,"بدء الاستيراد",`الملف: ${displayFileName} — الحجم: ${(file.size/1048576).toFixed(2)} ميجابايت`);
   showMsg("⏳ جاري قراءة Excel بسرعة... لا تغلق الصفحة.","warn");
   let raw,name;
@@ -2736,7 +2737,7 @@ async function importExcelFile(file){
     if(workerErr.message!=="WORKER_UNAVAILABLE") console.warn("Excel worker fallback:",workerErr);
     /* Fallback for offline/local-file restrictions. */
     const buffer=await readFileBuffer(file);
-    const isLarge=file.size>LARGE_EXCEL_BYTES;
+    const isLarge=file.size>DENSE_EXCEL_BYTES;
     const wb=XLSX.read(new Uint8Array(buffer),{type:"array",cellDates:false,dense:!isLarge});
     name=wb.SheetNames[0];
     const ws=wb.Sheets[name];
