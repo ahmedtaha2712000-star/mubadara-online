@@ -1556,6 +1556,26 @@ table thead th{background:#6b7280!important;color:#fff!important;font-weight:900
 #collection .collection-autocomplete-option{color:#111!important;font-weight:900!important;font-size:14px!important;line-height:1.5!important}
 #collection .collection-autocomplete-option:hover,#collection .collection-autocomplete-option.is-active,#collection .collection-autocomplete-option.is-selected{color:#111!important;background:#e5e7eb!important}
 </style>
+<style id="requested-date-and-address-filter-final">
+/* تعديلات محددة: شاشة التحصيل والأقساط المستحقة والمتأخرات */
+@media (min-width:761px){
+  #collection .date-tools{display:flex!important;flex-wrap:nowrap!important;align-items:center!important;gap:6px!important}
+  #collection .date-tools button{width:auto!important;min-width:0!important;flex:0 1 auto!important;white-space:nowrap!important;padding:5px 8px!important;font-size:11px!important;line-height:1.2!important}
+}
+#collection #collectionFrom,#collection #collectionTo,
+#risk #riskFrom,#risk #riskTo,
+#dueInstallments #dueFrom,#dueInstallments #dueTo{color:#111!important;font-weight:900!important}
+#collection #collectionFrom::-webkit-datetime-edit,#collection #collectionTo::-webkit-datetime-edit,
+#risk #riskFrom::-webkit-datetime-edit,#risk #riskTo::-webkit-datetime-edit,
+#dueInstallments #dueFrom::-webkit-datetime-edit,#dueInstallments #dueTo::-webkit-datetime-edit{color:#111!important;font-weight:900!important}
+#dueInstallments #dueAddress{color:#111!important;font-weight:900!important}
+#dueInstallments #dueAddress::placeholder{color:#333!important;font-weight:800!important}
+#dueInstallments .smart-select-search{color:#111!important;font-weight:900!important}
+#dueInstallments .smart-select-search::placeholder{color:#333!important;font-weight:800!important}
+#dueInstallments .smart-select-menu{z-index:12001!important;background:#fff!important;border:2px solid #111!important;box-shadow:0 12px 28px rgba(0,0,0,.22)!important}
+#dueInstallments .smart-select-option{color:#111!important;font-weight:900!important;font-size:14px!important;background:#fff!important}
+#dueInstallments .smart-select-option:hover,#dueInstallments .smart-select-option.active{color:#111!important;background:#e5e7eb!important}
+</style>
 </head>
 
 <body>
@@ -1899,7 +1919,7 @@ table thead th{background:#6b7280!important;color:#fff!important;font-weight:900
     <button class="light" onclick="setCollectionCurrentMonth()">📅 الشهر الحالي</button>
     <button class="light" onclick="setCollectionPreviousMonth()">◀️ الشهر السابق</button>
     <button class="blue" onclick="setCollectionToday()">📍 تاريخ اليوم</button>
-    
+    <button class="light" onclick="setCollectionPreviousDay()">◀️ اليوم السابق</button>
   </div>
 </div>
 
@@ -1996,7 +2016,7 @@ table thead th{background:#6b7280!important;color:#fff!important;font-weight:900
 <div class="filter-row" style="display:block">
   <div style="margin-bottom:10px"><span class="filter-label">الأخصائي</span><input id="dueOfficer" list="dueOfficerList" autocomplete="off" placeholder="اختر أو اكتب اسم الأخصائي..."><datalist id="dueOfficerList"></datalist></div>
   <div style="margin-bottom:10px"><span class="filter-label">البحث باسم العميل</span><input id="dueClient" list="dueClientList" autocomplete="off" placeholder="اكتب أي حرف من اسم العميل..."><datalist id="dueClientList"></datalist></div>
-  <div style="margin-bottom:10px"><span class="filter-label">البحث بالعنوان</span><input id="dueAddress" autocomplete="off" placeholder="اكتب أي حرف من العنوان أو المنطقة"></div>
+  <div style="margin-bottom:10px"><span class="filter-label">البحث بالعنوان</span><input id="dueAddress" list="dueAddressList" autocomplete="off" placeholder="اكتب أي حرف من العنوان أو المنطقة"><datalist id="dueAddressList"></datalist></div>
   <div style="margin-bottom:10px"><span class="filter-label">التاريخ</span><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><input id="dueFrom" type="date" title="من تاريخ"><span>إلى</span><input id="dueTo" type="date" title="إلى تاريخ"></div><div class="toolbar no-print" style="margin-top:8px"><button type="button" class="light" onclick="setDueCurrentMonth()">الشهر الحالي</button><button type="button" class="light" onclick="setDueNextMonth()">الشهر القادم</button><button type="button" class="light" onclick="setDueToday()">تاريخ اليوم</button></div></div>
   <div><span class="filter-label">حالة القرض</span><select id="dueStatus"><option value="open" selected>القروض القائمة</option><option value="closed">القروض المغلقة</option><option value="all">كل القروض</option></select></div>
 </div>
@@ -3153,7 +3173,7 @@ function dueStatusText(r){const d=parseExcelDate(riskDueDateValue(r)),today=new 
 function setDueView(type,button){window.dueView=type;document.querySelectorAll('#dueInstallments .due-nav-btn').forEach(x=>x.classList.toggle('active',x===button));renderDueInstallments()}
 function dueCustomerArrears(clientKey){let total=0;visibleGroups().forEach(group=>(group.items||[group.r]).forEach(row=>{const d=parseExcelDate(riskDueDateValue(row));if(norm(get(row,'client')||get(group.r,'client'))===clientKey&&d&&d<=new Date())total+=Math.max(0,dueRemainingForScreen(row))}));return total}
 function dueGuarantorHTML(r,n){const name=get(r,'g'+n)||getAny(r,[n===1?H.g1:n===2?H.g2:H.g3,`اسم الضامن ${n}`]),phone=get(r,'g'+n+'p')||getAny(r,[n===1?H.g1p:n===2?H.g2p:H.g3p,`هاتف الضامن ${n}`]);if(!name&&!phone)return'—';const link=phone?`<a class="due-phone-link" href="tel:${escAttr(String(phone).replace(/[^\d+]/g,''))}" title="اتصال بالضامن">${esc(phone)}</a>`:'';return `${esc(name||'—')}${link?' — '+link:''}`}
-function updateDueFilterLists(){const officerInput=document.getElementById('dueOfficer'),clientInput=document.getElementById('dueClient'),officer=norm(officerInput?.value||'');const officers=new Map(),clients=new Map();dueInstallmentRows().forEach(x=>{const on=String(get(x.r,'officer')||get(x.g.r,'officer')||'').trim(),cn=String(get(x.r,'client')||get(x.g.r,'client')||'').trim();if(on)officers.set(norm(on),on);if(cn)clients.set(norm(cn),cn)});const ol=document.getElementById('dueOfficerList'),cl=document.getElementById('dueClientList');if(ol)ol.innerHTML=[...officers.values()].sort((a,b)=>a.localeCompare(b,'ar')).map(x=>`<option value="${esc(x)}"></option>`).join('');if(cl)cl.innerHTML=[...clients.values()].sort((a,b)=>a.localeCompare(b,'ar')).map(x=>`<option value="${esc(x)}"></option>`).join('');if(officer&&!officers.has(officer)&&officerInput)officerInput.value=''}
+function updateDueFilterLists(){const officerInput=document.getElementById('dueOfficer'),clientInput=document.getElementById('dueClient'),officer=norm(officerInput?.value||'');const officers=new Map(),clients=new Map(),addresses=new Map();dueInstallmentRows().forEach(x=>{const on=String(get(x.r,'officer')||get(x.g.r,'officer')||'').trim(),cn=String(get(x.r,'client')||get(x.g.r,'client')||'').trim(),an=String(rowAddress(x.r)||rowAddress(x.g.r)||'').trim();if(on)officers.set(norm(on),on);if(cn)clients.set(norm(cn),cn);if(an)addresses.set(norm(an),an)});const ol=document.getElementById('dueOfficerList'),cl=document.getElementById('dueClientList'),al=document.getElementById('dueAddressList');if(ol)ol.innerHTML=[...officers.values()].sort((a,b)=>a.localeCompare(b,'ar')).map(x=>`<option value="${esc(x)}"></option>`).join('');if(cl)cl.innerHTML=[...clients.values()].sort((a,b)=>a.localeCompare(b,'ar')).map(x=>`<option value="${esc(x)}"></option>`).join('');if(al)al.innerHTML=[...addresses.values()].sort((a,b)=>a.localeCompare(b,'ar')).map(x=>`<option value="${esc(x)}"></option>`).join('');if(officer&&!officers.has(officer)&&officerInput)officerInput.value=''}
 function dueWhole(v){return Math.round(num(v)||0).toLocaleString('en-US')}
 function dueLoanAmount(r,g){const value=getAny(r,[H.approval]);return String(value??'').trim()!==''?value:''}
 function renderDueInstallments(){
@@ -4732,6 +4752,14 @@ function setCollectionPreviousMonth(){
 function setCollectionToday(){
   const now=new Date();
   const d=isoDate(now);
+  document.getElementById("collectionFrom").value=d;
+  document.getElementById("collectionTo").value=d;
+  renderCollection();
+}
+function setCollectionPreviousDay(){
+  const previous=new Date();
+  previous.setDate(previous.getDate()-1);
+  const d=isoDate(previous);
   document.getElementById("collectionFrom").value=d;
   document.getElementById("collectionTo").value=d;
   renderCollection();
