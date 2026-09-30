@@ -8,18 +8,29 @@ export default async function handler(req, res) {
     });
   }
 
-  const scriptUrl = String(
-    process.env.GOOGLE_SCRIPT_URL || ''
-  ).trim();
+  const clean = (value) => String(value || '')
+    .trim()
+    .replace(/^[\s'"`]+|[\s'"`]+$/g, '');
 
-  const scriptToken = String(
-    process.env.GOOGLE_SCRIPT_TOKEN || ''
-  ).trim();
+  const scriptUrl = clean(
+    process.env.GOOGLE_SCRIPT_URL
+  );
+
+  const scriptToken = clean(
+    process.env.GOOGLE_SCRIPT_TOKEN
+  );
 
   if (!scriptUrl || !scriptToken) {
     return res.status(500).json({
       ok: false,
       error: 'Google PDF service is not configured'
+    });
+  }
+
+  if (!/^https:\/\//i.test(scriptUrl)) {
+    return res.status(500).json({
+      ok: false,
+      error: 'GOOGLE_SCRIPT_URL must start with https://'
     });
   }
 
