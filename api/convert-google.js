@@ -41,26 +41,14 @@ export default async function handler(req, res) {
         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     });
 
-    const post = (url) => fetch(url, {
+    const upstream = await fetch(scriptUrl, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'text/plain;charset=utf-8'
       },
       body,
-      redirect: 'manual'
+      redirect: 'follow'
     });
-
-    let upstream = await post(scriptUrl);
-
-    const location = upstream.headers.get('location');
-
-    if (
-      upstream.status >= 300 &&
-      upstream.status < 400 &&
-      location
-    ) {
-      upstream = await post(location);
-    }
 
     const text = await upstream.text();
 
