@@ -1,6 +1,7 @@
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST');
+
     return res.status(405).json({
       ok: false,
       error: 'Method not allowed'
@@ -18,7 +19,11 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { fileBase64, fileName, mimeType } = req.body || {};
+    const {
+      fileBase64,
+      fileName,
+      mimeType
+    } = req.body || {};
 
     if (!fileBase64 || !fileName) {
       return res.status(400).json({
@@ -27,7 +32,7 @@ export default async function handler(req, res) {
       });
     }
 
-    const requestBody = JSON.stringify({
+    const body = JSON.stringify({
       token: scriptToken,
       fileBase64,
       fileName,
@@ -36,29 +41,25 @@ export default async function handler(req, res) {
         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     });
 
-    const requestOptions = {
+    const post = (url) => fetch(url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: requestBody,
+      body,
       redirect: 'manual'
-    };
+    });
 
-    let upstream = await fetch(scriptUrl, requestOptions);
-
-    const redirectCodes = new Set([
-      301,
-      302,
-      303,
-      307,
-      308
-    ]);
+    let upstream = await post(scriptUrl);
 
     const location = upstream.headers.get('location');
 
-    if (redirectCodes.has(upstream.status) && location) {
-      upstream = await fetch(location, requestOptions);
+    if (
+      upstream.status >= 300 &&
+      upstream.status < 400 &&
+      location
+    ) {
+      upstream = await post(location);
     }
 
     const text = await upstream.text();
