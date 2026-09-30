@@ -18,11 +18,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const {
-      fileBase64,
-      fileName,
-      mimeType
-    } = req.body || {};
+    const { fileBase64, fileName, mimeType } = req.body || {};
 
     if (!fileBase64 || !fileName) {
       return res.status(400).json({
@@ -31,19 +27,39 @@ export default async function handler(req, res) {
       });
     }
 
-    const upstream = await fetch(scriptUrl, {
+    const requestBody = JSON.stringify({
+      token: scriptToken,
+      fileBase64,
+      fileName,
+      mimeType:
+        mimeType ||
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    });
+
+    const requestOptions = {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({
-        token: scriptToken,
-        fileBase64,
-        fileName,
-        mimeType: mimeType ||
-          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-      })
-    });
+      body: requestBody,
+      redirect: 'manual'
+    };
+
+    let upstream = await fetch(scriptUrl, requestOptions);
+
+    const redirectCodes = new Set([
+      301,
+      302,
+      303,
+      307,
+      308
+    ]);
+
+    const location = upstream.headers.get('location');
+
+    if (redirectCodes.has(upstream.status) && location) {
+      upstream = await fetch(location, requestOptions);
+    }
 
     const text = await upstream.text();
 
