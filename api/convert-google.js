@@ -8,8 +8,13 @@ export default async function handler(req, res) {
     });
   }
 
-  const scriptUrl = process.env.GOOGLE_SCRIPT_URL;
-  const scriptToken = process.env.GOOGLE_SCRIPT_TOKEN;
+  const scriptUrl = String(
+    process.env.GOOGLE_SCRIPT_URL || ''
+  ).trim();
+
+  const scriptToken = String(
+    process.env.GOOGLE_SCRIPT_TOKEN || ''
+  ).trim();
 
   if (!scriptUrl || !scriptToken) {
     return res.status(500).json({
@@ -75,7 +80,10 @@ export default async function handler(req, res) {
   } catch (error) {
     return res.status(500).json({
       ok: false,
-      error: error?.message || 'Unexpected conversion error'
+      error:
+        error?.cause?.message ||
+        error?.message ||
+        'Unexpected conversion error'
     });
   }
 }
