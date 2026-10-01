@@ -91,6 +91,7 @@
       ['specialistsFrom', 'specialistsTo']
     ];
 
+    // يأخذ التاريخين من الشاشة الحالية فقط
     for (const [fromId, toId] of datePairs) {
       const fromEl =
         active?.querySelector('#' + fromId);
@@ -236,7 +237,7 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    font-size: 9px;
+    font-size: 6px;
     color: #475569;
     flex: 1;
     text-align: left;
@@ -494,7 +495,7 @@
       ) {
         throw new Error(
           result.error ||
-          'تعذر إنشاء PDF'
+          'تعذر إنشاء ملف PDF'
         );
       }
 
