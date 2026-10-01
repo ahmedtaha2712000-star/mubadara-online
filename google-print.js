@@ -1,7 +1,6 @@
 (function () {
   function filterText(active) {
     const values = [];
-
     active.querySelectorAll('input,select').forEach((el) => {
       if (el.type === 'file' || el.type === 'hidden') return;
 
@@ -23,16 +22,124 @@
       bytes[i] = binary.charCodeAt(i);
     }
 
-    return new Blob([bytes], {
-      type: mimeType
-    });
+    return new Blob([bytes], { type: mimeType });
+  }
+
+  function cleanFilePart(value, fallback) {
+    const text = String(value || '')
+      .replace(/[\u0000-\u001F\u007F]/g, ' ')
+      .replace(/[\/:*?"<>|]/g, ' ')
+      .replace(/[\u{1F300}-\u{1FAFF}]/gu, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+
+    return text || fallback;
+  }
+
+  function getScreenTitle(active) {
+    const heading = active?.querySelector('h1,h2,h3');
+
+    const title = String(
+      heading?.textContent ||
+      active?.id ||
+      'تقرير'
+    )
+      .replace(/شاشة/g, '')
+      .replace(/screen/gi, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+
+    return cleanFilePart(title, 'تقرير');
+  }
+
+  function getOfficerName(active) {
+    const ids = [
+      'collectionOfficer',
+      'clientsOfficer',
+      'specialistOfficer',
+      'searchOfficer',
+      'loginOfficerUser'
+    ];
+
+    for (const id of ids) {
+      const el =
+        active?.querySelector('#' + id) ||
+        document.getElementById(id);
+
+      const value =
+        el?.value ||
+        el?.selectedOptions?.[0]?.textContent ||
+        '';
+
+      if (String(value).trim()) {
+        return cleanFilePart(value, 'الكل');
+      }
+    }
+
+    return 'الكل';
+  }
+
+  function getFilterDateText(active) {
+    const datePairs = [
+      ['clientsFrom', 'clientsTo'],
+      ['collectionFrom', 'collectionTo'],
+      ['riskFrom', 'riskTo'],
+      ['dueFrom', 'dueTo'],
+      ['portfolioFrom', 'portfolioTo'],
+      ['paymentFollowupFrom', 'paymentFollowupTo'],
+      ['specialistsFrom', 'specialistsTo']
+    ];
+
+    for (const [fromId, toId] of datePairs) {
+      const fromEl =
+        active?.querySelector('#' + fromId) ||
+        document.getElementById(fromId);
+
+      const toEl =
+        active?.querySelector('#' + toId) ||
+        document.getElementById(toId);
+
+      const from = String(fromEl?.value || '').trim();
+      const to = String(toEl?.value || '').trim();
+
+      if (from || to) {
+        const format = (value) =>
+          cleanFilePart(
+            value.replace(/[\/:]/g, '-'),
+            'غير-محدد'
+          );
+
+        if (from && to && from !== to) {
+          return format(from) + '_إلى_' + format(to);
+        }
+
+        return format(from || to);
+      }
+    }
+
+    return 'بدون-تاريخ-محدد';
+  }
+
+  function buildPdfFileName(active) {
+    const filterDate = getFilterDateText(active);
+
+    return cleanFilePart(
+      getScreenTitle(active) +
+      ' - ' +
+      getOfficerName(active) +
+      ' - ' +
+      filterDate,
+
+      'تقرير - الكل - ' + filterDate
+    ) + '.pdf';
   }
 
   function showPdfInPopup(popup, blob, fileName) {
     const pdfUrl = URL.createObjectURL(blob);
 
-    const safeName = String(fileName || 'report.pdf')
-      .replace(/[\\/:*?"<>|]/g, '_');
+    const safeName = String(
+      fileName || 'report.pdf'
+    ).replace(/[\\/:*?"<>|]/g, '_');
 
     if (!popup || popup.closed) {
       const link = document.createElement('a');
@@ -391,11 +498,13 @@
           'application/pdf'
         );
 
+      const pdfFileName =
+        buildPdfFileName(active);
+
       showPdfInPopup(
         popup,
         blob,
-        result.fileName ||
-        'جمعية_المبادرة.pdf'
+        pdfFileName
       );
 
     } catch (error) {
