@@ -1,6 +1,7 @@
 (function () {
   function filterText(active) {
     const values = [];
+
     active.querySelectorAll('input,select').forEach((el) => {
       if (el.type === 'file' || el.type === 'hidden') return;
 
@@ -90,17 +91,19 @@
       ['specialistsFrom', 'specialistsTo']
     ];
 
+    // يأخذ التاريخين من الشاشة الحالية فقط
     for (const [fromId, toId] of datePairs) {
       const fromEl =
-        active?.querySelector('#' + fromId) ||
-        document.getElementById(fromId);
+        active?.querySelector('#' + fromId);
 
       const toEl =
-        active?.querySelector('#' + toId) ||
-        document.getElementById(toId);
+        active?.querySelector('#' + toId);
 
-      const from = String(fromEl?.value || '').trim();
-      const to = String(toEl?.value || '').trim();
+      const from =
+        String(fromEl?.value || '').trim();
+
+      const to =
+        String(toEl?.value || '').trim();
 
       if (from || to) {
         const format = (value) =>
@@ -121,7 +124,8 @@
   }
 
   function buildPdfFileName(active) {
-    const filterDate = getFilterDateText(active);
+    const filterDate =
+      getFilterDateText(active);
 
     return cleanFilePart(
       getScreenTitle(active) +
@@ -135,14 +139,16 @@
   }
 
   function showPdfInPopup(popup, blob, fileName) {
-    const pdfUrl = URL.createObjectURL(blob);
+    const pdfUrl =
+      URL.createObjectURL(blob);
 
-    const safeName = String(
-      fileName || 'report.pdf'
-    ).replace(/[\\/:*?"<>|]/g, '_');
+    const safeName =
+      String(fileName || 'report.pdf')
+        .replace(/[\\/:*?"<>|]/g, '_');
 
     if (!popup || popup.closed) {
-      const link = document.createElement('a');
+      const link =
+        document.createElement('a');
 
       link.href = pdfUrl;
       link.download = safeName;
@@ -299,7 +305,8 @@
               ${JSON.stringify(pdfUrl)}
             );
 
-            const blob = await response.blob();
+            const blob =
+              await response.blob();
 
             const file = new File(
               [blob],
