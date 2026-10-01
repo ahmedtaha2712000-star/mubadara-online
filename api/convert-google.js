@@ -38,7 +38,13 @@ export default async function handler(req, res) {
     const {
       fileBase64,
       fileName,
-      mimeType
+      mimeType,
+      reportTitle,
+      filterText,
+      summaryLabel,
+      summaryValue,
+      logoBase64,
+      logoMimeType
     } = req.body || {};
 
     if (!fileBase64 || !fileName) {
@@ -54,7 +60,13 @@ export default async function handler(req, res) {
       fileName,
       mimeType:
         mimeType ||
-        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      reportTitle: String(reportTitle || '').slice(0, 200),
+      filterText: String(filterText || '').slice(0, 3000),
+      summaryLabel: String(summaryLabel || '').slice(0, 120),
+      summaryValue: String(summaryValue || '').slice(0, 120),
+      logoBase64: String(logoBase64 || ''),
+      logoMimeType: String(logoMimeType || 'image/png')
     });
 
     const upstream = await fetch(scriptUrl, {
