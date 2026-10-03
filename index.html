@@ -2003,6 +2003,10 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
     <div><small>آخر رفع</small><b id="currentSheetUploadedAt">—</b></div>
     <div><small>عدد الصفوف</small><b id="currentSheetRowCount">—</b></div>
   </div>
+  <div class="current-sheet-actions no-print" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:12px">
+    <button type="button" class="blue" onclick="downloadCurrentSheetExcel()">⬇️ تنزيل الشيت الحالي Excel</button>
+    <small>يُنشئ ملفًا من بيانات الشيت الحالية المحفوظة (أول ورقة مستوردة، دون تنسيق الملف الأصلي أو أوراقه الأخرى).</small>
+  </div>
 </div>
 </section>
 
@@ -7877,6 +7881,29 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
 })();
 </script>
 
+<script id="download-current-sheet-excel-final">
+function downloadCurrentSheetExcel(){
+  if(typeof XLSX==="undefined"){alert("مكتبة Excel غير متاحة. افتح الصفحة مع اتصال بالإنترنت ثم أعد المحاولة.");return false}
+  const currentRows=Array.isArray(rows)?rows:[];
+  if(!currentRows.length){alert("لا توجد بيانات شيت حالية محفوظة للتنزيل. حمّل ملف Excel أولًا وانتظر اكتمال الاستيراد.");return false}
+  try{
+    const firstRow=currentRows.find(row=>row&&typeof row==="object"&&!Array.isArray(row));
+    if(!firstRow){alert("تعذر العثور على صفوف صالحة في الشيت الحالي.");return false}
+    const headers=Object.keys(firstRow);
+    if(!headers.length){alert("لا توجد أعمدة قابلة للتصدير في الشيت الحالي.");return false}
+    const workbook=XLSX.utils.book_new();
+    workbook.Workbook=workbook.Workbook||{};
+    workbook.Workbook.Views=[{RTL:true}];
+    const worksheet=XLSX.utils.json_to_sheet(currentRows,{header:headers});
+    XLSX.utils.book_append_sheet(workbook,worksheet,"البيانات الحالية");
+    const fileName=`الشيت_الحالي_${new Date().toISOString().slice(0,10)}.xlsx`;
+    XLSX.writeFile(workbook,fileName,{compression:true});
+    try{if(typeof auditLog==="function")auditLog("تنزيل الشيت الحالي Excel",`${currentRows.length} صف`)}catch(logError){console.warn("تعذر تسجيل تنزيل الشيت الحالي:",logError)}
+    if(typeof showMsg==="function")showMsg(`تم تنزيل الشيت الحالي بنجاح (${currentRows.length.toLocaleString("ar-EG")} صف).`,"ok");
+    return true;
+  }catch(error){console.error("تنزيل الشيت الحالي:",error);alert("تعذر إنشاء ملف Excel للشيت الحالي: "+String(error&&error.message||error));return false}
+}
+</script>
 <style id="desktop-vertical-fixed-navigation-style">
 @media (min-width:801px){
   #app .layout{display:grid!important;grid-template-columns:228px minmax(0,1fr)!important;align-items:start!important;gap:0!important;width:100%!important;min-height:calc(100vh - 74px)!important}
@@ -7911,9 +7938,26 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
     const layout=app&&app.querySelector('.layout');
     const nav=layout&&layout.querySelector(':scope > nav');
     if(!app||!layout||!nav||nav.dataset.desktopNavigationReady==='1')return;
+    if(window.innerWidth>=801){
+      const children=[...nav.children];
+      const dailyTitle=children.find(el=>el.classList.contains('nav-section-title')&&!el.classList.contains('nav-admin-title')&&!el.classList.contains('desktop-nav-reports-title'));
+      const adminTitle=children.find(el=>el.classList.contains('nav-admin-title'));
+      let reportsTitle=children.find(el=>el.classList.contains('desktop-nav-reports-title'));
+      if(!reportsTitle){reportsTitle=document.createElement('div');reportsTitle.className='nav-section-title desktop-nav-reports-title';reportsTitle.textContent='التقارير';}
+      const linkMap=new Map([...nav.querySelectorAll('a[data-screen]')].map(link=>[link.dataset.screen,link]));
+      const primaryIds=['dash','dueInstallments','clients','collection','search','risk','paymentFollowup'];
+      const reportIds=['portfolio','print'];
+      const adminIds=['specialists','users','audit','import','settings'];
+      const primaryLinks=primaryIds.map(id=>linkMap.get(id)).filter(Boolean);
+      const reportLinks=reportIds.map(id=>linkMap.get(id)).filter(Boolean);
+      const adminLinks=adminIds.map(id=>linkMap.get(id)).filter(Boolean);
+      const orderedLinks=new Set([...primaryLinks,...reportLinks,...adminLinks]);
+      const remaining=children.filter(el=>!orderedLinks.has(el)&&el!==dailyTitle&&el!==adminTitle&&el!==reportsTitle);
+      nav.replaceChildren(...[...(dailyTitle?[dailyTitle]:[]),...primaryLinks,reportsTitle,...reportLinks,...(adminTitle?[adminTitle]:[]),...adminLinks,...remaining]);
+    }
     nav.dataset.desktopNavigationReady='1';
     const links=[...nav.querySelectorAll('a[data-screen]')];
-    const visibleLimit=6;
+    const visibleLimit=7;
     let linkIndex=0;
     [...nav.children].forEach(child=>{
       if(child.classList.contains('nav-section-title')){
@@ -7933,7 +7977,7 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
     const more=document.createElement('button');
     more.type='button';more.className='desktop-nav-more-toggle';more.setAttribute('aria-expanded','false');more.setAttribute('aria-label','المزيد من الشاشات');more.title='إظهار أو إخفاء بقية الشاشات';
     more.innerHTML='<span class="desktop-nav-more-icon" aria-hidden="true">⋯</span><span class="desktop-nav-more-label">المزيد من الشاشات</span>';
-    const sixth=links[visibleLimit-1];if(sixth)sixth.insertAdjacentElement('afterend',more);else nav.appendChild(more);
+    const lastPrimary=links[visibleLimit-1];if(lastPrimary)lastPrimary.insertAdjacentElement('afterend',more);else nav.appendChild(more);
     function setCollapsed(collapsed){
       nav.classList.toggle('desktop-nav-collapsed',collapsed);layout.classList.toggle('desktop-nav-is-collapsed',collapsed);
       collapse.setAttribute('aria-expanded',String(!collapsed));collapse.setAttribute('aria-label',collapsed?'توسيع قائمة الشاشات':'طي قائمة الشاشات');
@@ -7968,6 +8012,17 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
   #app .layout>main{background:linear-gradient(135deg,#f1f5f5 0%,#f9f7f0 100%)!important;border:1px solid #e3e1d7!important;border-radius:16px!important;box-shadow:0 5px 18px rgba(28,39,51,.06)!important}
   #app .layout>main .screen.active{background-color:#fff!important;border-color:#e4dcc6!important;box-shadow:0 4px 18px rgba(26,39,54,.06)!important}
   #app .layout>main .screen.active>h2{color:#101010!important;font-weight:900!important;text-shadow:none!important}
+}
+</style>
+
+<style id="desktop-nav-label-layout-fix">
+@media (min-width:801px){
+  #app .layout>nav a[data-screen]:not(.desktop-nav-extra),#app .layout>nav.desktop-nav-more-open a[data-screen]{display:grid!important;grid-template-columns:22px minmax(0,1fr)!important;grid-template-rows:auto auto!important;align-items:center!important;justify-content:stretch!important;column-gap:8px!important;row-gap:1px!important}
+  #app .layout>nav a[data-screen] .nav-icon{grid-column:1!important;grid-row:1 / span 2!important;justify-self:center!important;align-self:center!important;min-width:20px!important}
+  #app .layout>nav a[data-screen] .nav-label{display:block!important;grid-column:2!important;grid-row:1!important;min-width:0!important;white-space:nowrap!important;word-break:normal!important;overflow-wrap:normal!important}
+  #app .layout>nav a[data-screen] small{display:block!important;grid-column:2!important;grid-row:2!important;min-width:0!important;max-width:none!important;margin:0!important;text-align:right!important;white-space:normal!important;overflow-wrap:anywhere!important}
+  #app .layout>nav.desktop-nav-collapsed a[data-screen]:not(.desktop-nav-extra),#app .layout>nav.desktop-nav-collapsed.desktop-nav-more-open a[data-screen]{display:flex!important;grid-template-columns:none!important;grid-template-rows:none!important;justify-content:center!important}
+  #app .layout>nav.desktop-nav-collapsed a[data-screen]:not(.desktop-nav-extra) .nav-icon,#app .layout>nav.desktop-nav-collapsed.desktop-nav-more-open a[data-screen] .nav-icon{grid-column:auto!important;grid-row:auto!important}
 }
 </style>
 </body>
