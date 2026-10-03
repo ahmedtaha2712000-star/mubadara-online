@@ -8,6 +8,81 @@
 #riskPrintLayer .risk-print-table td:nth-child(2){font-size:9px!important;font-weight:400!important;white-space:normal!important;overflow-wrap:anywhere!important}
 #riskPrintLayer .risk-print-table td:nth-child(n+17),#riskPrintLayer .risk-print-table td:nth-child(n+17) .phone-nowrap{font-size:8.5px!important;font-weight:400!important}
 #riskPrintLayer .risk-print-table td:nth-child(n+17) .phone-nowrap{white-space:nowrap!important;display:inline-block!important}
+
+
+#risk .risk-aging-panel{margin:12px 0 16px;padding:14px 15px;border:1px solid #dbe4ef;border-radius:15px;background:linear-gradient(135deg,#f7faff 0%,#fff 78%);box-shadow:0 5px 16px rgba(23,43,77,.06);direction:rtl}
+#risk .risk-aging-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:11px}
+#risk .risk-aging-heading h3{margin:0;color:#142235;font-size:15px;font-weight:900}
+#risk .risk-aging-heading p{margin:4px 0 0;color:#617084;font-size:11px;line-height:1.5}
+#risk .risk-aging-reset{border:1px solid #bfd0e4;border-radius:9px;background:#fff;color:#173b63;padding:7px 11px;font-size:11px;font-weight:900;white-space:nowrap;cursor:pointer}
+#risk .risk-aging-reset:hover{background:#eef5ff;border-color:#8facd0}
+#risk .risk-aging-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:9px}
+#risk .risk-aging-card{position:relative;display:flex;flex-direction:column;align-items:stretch;gap:6px;min-width:0;min-height:125px;padding:11px 12px;border:1px solid #dce4ee;border-top:3px solid var(--risk-aging-accent,#2563eb);border-radius:12px;background:#fff;color:#111827;text-align:right;direction:rtl;cursor:pointer;transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease,background .16s ease}
+#risk .risk-aging-card:hover{transform:translateY(-2px);box-shadow:0 8px 18px rgba(30,55,90,.11);border-color:var(--risk-aging-accent,#2563eb)}
+#risk .risk-aging-card.is-active{background:#f1f6ff;border-color:var(--risk-aging-accent,#2563eb);box-shadow:0 0 0 2px color-mix(in srgb,var(--risk-aging-accent,#2563eb) 18%,transparent)}
+#risk .risk-aging-range{color:#26364b;font-size:12px;font-weight:900}
+#risk .risk-aging-main{display:flex;align-items:baseline;gap:6px;color:#111827}
+#risk .risk-aging-main b{font-size:24px;line-height:1;font-weight:950}
+#risk .risk-aging-main span{color:#64748b;font-size:10px;font-weight:800}
+#risk .risk-aging-clients{display:flex;align-items:center;justify-content:space-between;color:#657287;font-size:10px}
+#risk .risk-aging-clients b{color:#1f2937;font-size:11px}
+#risk .risk-aging-amount{display:flex;align-items:baseline;justify-content:space-between;gap:6px;margin-top:auto;padding-top:6px;border-top:1px solid #edf1f6;color:#64748b;font-size:10px}
+#risk .risk-aging-amount b{color:#172033;font-size:12px;font-weight:900;direction:ltr;unicode-bidi:plaintext}
+@media(max-width:1000px){#risk .risk-aging-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:620px){#risk .risk-aging-panel{padding:11px}#risk .risk-aging-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}#risk .risk-aging-card{min-height:116px;padding:9px}#risk .risk-aging-main b{font-size:21px}#risk .risk-aging-heading{align-items:flex-start}}
+@media print{#risk .risk-aging-panel{display:none!important}}
+
+
+#dueInstallments .due-aging-panel{margin:12px 0 16px;padding:14px 15px;border:1px solid #dbe4ef;border-radius:15px;background:linear-gradient(135deg,#f7faff 0%,#fff 78%);box-shadow:0 5px 16px rgba(23,43,77,.06);direction:rtl}
+#dueInstallments .due-aging-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:11px}
+#dueInstallments .due-aging-heading h3{margin:0;color:#142235;font-size:15px;font-weight:900}
+#dueInstallments .due-aging-heading p{margin:4px 0 0;color:#617084;font-size:11px;line-height:1.5}
+#dueInstallments .due-aging-reset{border:1px solid #bfd0e4;border-radius:9px;background:#fff;color:#173b63;padding:7px 11px;font-size:11px;font-weight:900;white-space:nowrap;cursor:pointer}
+#dueInstallments .due-aging-reset:hover{background:#eef5ff;border-color:#8facd0}
+#dueInstallments .due-aging-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:9px}
+#dueInstallments .due-aging-card{position:relative;display:flex;flex-direction:column;align-items:stretch;gap:6px;min-width:0;min-height:125px;padding:11px 12px;border:1px solid #dce4ee;border-top:3px solid var(--due-aging-accent,#2563eb);border-radius:12px;background:#fff;color:#111827;text-align:right;direction:rtl;cursor:pointer;transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease,background .16s ease}
+#dueInstallments .due-aging-card:hover{transform:translateY(-2px);box-shadow:0 8px 18px rgba(30,55,90,.11);border-color:var(--due-aging-accent,#2563eb)}
+#dueInstallments .due-aging-card.is-active{background:#f1f6ff;border-color:var(--due-aging-accent,#2563eb);box-shadow:0 0 0 2px color-mix(in srgb,var(--due-aging-accent,#2563eb) 18%,transparent)}
+#dueInstallments .due-aging-range{color:#26364b;font-size:12px;font-weight:900}
+#dueInstallments .due-aging-main{display:flex;align-items:baseline;gap:6px;color:#111827}
+#dueInstallments .due-aging-main b{font-size:24px;line-height:1;font-weight:950}
+#dueInstallments .due-aging-main span{color:#64748b;font-size:10px;font-weight:800}
+#dueInstallments .due-aging-clients{display:flex;align-items:center;justify-content:space-between;color:#657287;font-size:10px}
+#dueInstallments .due-aging-clients b{color:#1f2937;font-size:11px}
+#dueInstallments .due-aging-amount{display:flex;align-items:baseline;justify-content:space-between;gap:6px;margin-top:auto;padding-top:6px;border-top:1px solid #edf1f6;color:#64748b;font-size:10px}
+#dueInstallments .due-aging-amount b{color:#172033;font-size:12px;font-weight:900;direction:ltr;unicode-bidi:plaintext}
+@media(max-width:1000px){#dueInstallments .due-aging-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:620px){#dueInstallments .due-aging-panel{padding:11px}#dueInstallments .due-aging-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}#dueInstallments .due-aging-card{min-height:116px;padding:9px}#dueInstallments .due-aging-main b{font-size:21px}#dueInstallments .due-aging-heading{align-items:flex-start}}
+@media print{#dueInstallments .due-aging-panel{display:none!important}}
+
+
+#issuedLoans .issued-loans-header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:8px 0 16px;direction:rtl}
+#issuedLoans .issued-loans-header h2{margin:0;color:#142235;font-size:22px;font-weight:950}
+#issuedLoans .issued-loans-header p{margin:5px 0 0;color:#617084;font-size:13px;line-height:1.6}
+#issuedLoans .issued-loans-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:12px 0 16px;direction:rtl}
+#issuedLoans .issued-loan-stat{display:flex;flex-direction:column;gap:8px;min-width:0;padding:14px 16px;border:1px solid #dbe4ef;border-radius:13px;background:linear-gradient(145deg,#fff,#f5f8fc);box-shadow:0 4px 14px rgba(24,43,72,.06);color:#536174}
+#issuedLoans .issued-loan-stat span{font-size:12px;font-weight:800}
+#issuedLoans .issued-loan-stat b{color:#132238;font-size:22px;font-weight:950;direction:ltr;unicode-bidi:plaintext}
+#issuedLoans .issued-loan-stat-primary{border-top:3px solid #16845b;background:linear-gradient(145deg,#f1fbf6,#fff)}
+#issuedLoans .issued-loan-stat-warning{border-top:3px solid #d97706;background:linear-gradient(145deg,#fff9ef,#fff)}
+#issuedLoans .issued-loan-filters{display:grid;grid-template-columns:repeat(4,minmax(150px,1fr));gap:11px;padding:15px;margin-bottom:14px;border:1px solid #dbe4ef;border-radius:14px;background:#f8fafc;direction:rtl}
+#issuedLoans .issued-loan-filters>label{display:flex;flex-direction:column;gap:6px;color:#27364b;font-size:12px;font-weight:900}
+#issuedLoans .issued-loan-filters input,#issuedLoans .issued-loan-filters select{width:100%;min-height:40px;border:1px solid #cbd5e1;border-radius:9px;background:#fff;padding:8px 10px;color:#111827;font:inherit;font-size:13px;box-sizing:border-box}
+#issuedLoans .issued-loan-search{grid-column:span 2}
+#issuedLoans .issued-loan-filter-actions{grid-column:1/-1;display:flex;gap:7px;flex-wrap:wrap}
+#issuedLoans .issued-loan-data-note{min-height:19px;margin:6px 2px 10px;color:#526174;font-size:12px;line-height:1.6}
+#issuedLoans .issued-loan-data-note.is-warning{color:#9a3412;font-weight:800}
+#issuedLoans .issued-loans-table-wrap{overflow:auto;border:1px solid #dbe4ef;border-radius:12px;background:#fff}
+#issuedLoans .issued-loans-table{width:100%;min-width:940px;border-collapse:collapse;direction:rtl;font-size:13px}
+#issuedLoans .issued-loans-table th{position:sticky;top:0;background:#eaf0f7;color:#172338;font-weight:950;white-space:normal;overflow-wrap:break-word}
+#issuedLoans .issued-loans-table th,#issuedLoans .issued-loans-table td{padding:10px 9px;border-bottom:1px solid #e8edf3;text-align:right;vertical-align:middle}
+#issuedLoans .issued-loans-table tbody tr:hover{background:#f5f9ff}
+#issuedLoans .issued-loans-table td.amount{text-align:left;direction:ltr;white-space:nowrap;font-weight:850}
+#issuedLoans .issued-loans-table td.empty-state{text-align:center;padding:30px;color:#66758a}
+@media(max-width:950px){#issuedLoans .issued-loans-summary{grid-template-columns:repeat(2,minmax(0,1fr))}#issuedLoans .issued-loan-filters{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){#issuedLoans .issued-loans-header{align-items:flex-start}#issuedLoans .issued-loans-header h2{font-size:18px}#issuedLoans .issued-loans-summary{gap:7px}#issuedLoans .issued-loan-stat{padding:10px}#issuedLoans .issued-loan-stat b{font-size:18px}#issuedLoans .issued-loan-filters{padding:10px;gap:8px}#issuedLoans .issued-loan-search{grid-column:1/-1}#issuedLoans .issued-loan-filter-actions>*{flex:1 1 42%}}
+@media print{#issuedLoans .issued-loan-filters,#issuedLoans .export-toolbar,#issuedLoans .no-print{display:none!important}#issuedLoans .issued-loans-summary{grid-template-columns:repeat(4,1fr)}#issuedLoans .issued-loans-table-wrap{overflow:visible!important;border:0}#issuedLoans .issued-loans-table{min-width:0;width:100%;font-size:9px;table-layout:fixed}#issuedLoans .issued-loans-table th,#issuedLoans .issued-loans-table td{padding:5px 4px;overflow-wrap:anywhere;word-break:normal}#issuedLoans .issued-loans-table thead{display:table-header-group}}
+
 </style>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -1774,6 +1849,18 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
 .app-shared-specialist-status-control label{white-space:nowrap;min-width:0;flex:0 1 auto}
 @media(max-width:700px){.app-shared-specialist-status-control{flex-direction:column!important;align-items:flex-start!important;gap:4px!important}.app-shared-specialist-status-control .due-specialist-status-title{flex:0 0 auto}.app-shared-specialist-status-control label{font-size:11px!important;flex:0 0 auto;white-space:nowrap}}
 </style>
+<style id="issued-loans-enhanced-style">
+#issuedLoans .issued-loans-header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:8px 0 14px;direction:rtl}#issuedLoans .issued-loans-header h2{margin:0;color:#142235;font-size:22px;font-weight:950}#issuedLoans .issued-loans-header p{margin:5px 0 0;color:#617084;font-size:13px;line-height:1.6}
+#issuedLoans .issued-loan-period-cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin:12px 0;direction:rtl}#issuedLoans .issued-period-card{display:flex;flex-direction:column;gap:5px;text-align:right;padding:12px 14px;border:1px solid #d7e1ec;border-radius:12px;background:linear-gradient(145deg,#fff,#f5f8fc);color:#24364e;cursor:pointer;box-shadow:0 3px 12px rgba(20,42,74,.05);transition:.16s}#issuedLoans .issued-period-card small{font-size:10px;color:#738197;font-weight:800}#issuedLoans .issued-period-card b{font-size:14px;color:#1d2c42;font-weight:950}#issuedLoans .issued-period-card:hover,#issuedLoans .issued-period-card.is-active{border-color:#18794e;background:linear-gradient(145deg,#eaf8f0,#fff);box-shadow:0 4px 13px rgba(20,121,78,.12)}
+#issuedLoans .issued-loans-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:12px 0 16px;direction:rtl}#issuedLoans .issued-loan-stat{display:flex;flex-direction:column;gap:8px;min-width:0;padding:13px 15px;border:1px solid #dbe4ef;border-radius:13px;background:linear-gradient(145deg,#fff,#f5f8fc);box-shadow:0 4px 14px rgba(24,43,72,.06);color:#536174}#issuedLoans .issued-loan-stat span{font-size:12px;font-weight:800}#issuedLoans .issued-loan-stat b{color:#132238;font-size:22px;font-weight:950;direction:ltr;unicode-bidi:plaintext}#issuedLoans .issued-loan-stat-primary{border-top:3px solid #16845b;background:linear-gradient(145deg,#f1fbf6,#fff)}#issuedLoans .issued-loan-stat-warning{border-top:3px solid #d97706;background:linear-gradient(145deg,#fff9ef,#fff)}
+#issuedLoans .issued-loan-filters{display:grid;grid-template-columns:repeat(4,minmax(145px,1fr));gap:11px;padding:14px;margin-bottom:12px;border:1px solid #dbe4ef;border-radius:14px;background:#f8fafc;direction:rtl}#issuedLoans .issued-loan-filters>label,#issuedLoans .issued-client-picker>label{display:flex;flex-direction:column;gap:6px;color:#27364b;font-size:12px;font-weight:900}#issuedLoans .issued-loan-filters input:not([type=radio]),#issuedLoans .issued-loan-filters select{width:100%;min-height:39px;border:1px solid #cbd5e1;border-radius:9px;background:#fff;padding:8px 10px;color:#111827;font:inherit;font-size:13px;box-sizing:border-box}#issuedLoans .issued-specialist-state{grid-column:1/-1;display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:10px 12px;border:1px solid #dae5f0;border-radius:11px;background:#fff}#issuedLoans .issued-specialist-state .due-specialist-status-title{font-size:12px;font-weight:950;color:#34445b}#issuedLoans .issued-specialist-state label{display:flex;align-items:center;gap:5px;color:#40516a;font-size:12px;font-weight:800}#issuedLoans .issued-specialist-state input[type=radio]{width:14px;height:14px;margin:0;accent-color:#18794e}#issuedLoans .issued-client-picker{position:relative;min-width:0}#issuedLoans .issued-client-input-wrap{position:relative;display:flex;align-items:center}#issuedLoans .issued-client-input-wrap input{padding-left:34px!important}#issuedLoans .issued-client-input-wrap button{position:absolute;left:5px;width:25px;height:25px;border:0;border-radius:7px;background:#eef2f7;color:#7f1d1d;font-size:19px;cursor:pointer}#issuedLoans .issued-client-suggestions{display:none;position:absolute;top:calc(100% + 4px);right:0;left:0;z-index:50;max-height:250px;overflow:auto;padding:4px;border:1px solid #cbd5e1;border-radius:10px;background:#fff;box-shadow:0 12px 28px rgba(15,23,42,.16)}#issuedLoans .issued-client-suggestions.is-open{display:block}#issuedLoans .issued-client-suggestions button{display:flex;width:100%;justify-content:space-between;gap:10px;padding:9px 10px;border:0;border-radius:7px;background:#fff;color:#1f2937;text-align:right;cursor:pointer}#issuedLoans .issued-client-suggestions button:hover{background:#eff6ff}#issuedLoans .issued-client-suggestions small{color:#64748b}#issuedLoans .issued-no-suggestions{padding:10px;color:#64748b;font-size:12px}
+#issuedLoans .issued-loan-filter-actions{grid-column:1/-1;display:flex;gap:7px;flex-wrap:wrap}#issuedLoans .issued-filter-history{margin:12px 0;padding:12px 14px;border:1px solid #dbe4ef;border-radius:13px;background:linear-gradient(145deg,#fbfdff,#f4f7fb)}#issuedLoans .issued-history-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}#issuedLoans .issued-history-heading>div:first-child{display:flex;flex-direction:column;gap:3px;color:#26374c}#issuedLoans .issued-history-heading small{font-size:11px;color:#708096}#issuedLoans .issued-history-save{display:flex;gap:7px;flex-wrap:wrap}#issuedLoans .issued-history-save input{min-width:180px;min-height:36px;border:1px solid #cbd5e1;border-radius:8px;padding:7px 9px}#issuedLoans .issued-filter-history-list{display:grid;gap:6px;margin-top:9px}#issuedLoans .issued-saved-filter{display:flex;justify-content:space-between;align-items:center;gap:9px;padding:8px 10px;border:1px solid #e0e7ef;border-radius:9px;background:#fff}#issuedLoans .issued-saved-filter>div:first-child{display:flex;flex-direction:column;gap:2px;min-width:0}#issuedLoans .issued-saved-filter small{font-size:10px;color:#6b7280}#issuedLoans .issued-saved-filter>div:last-child{display:flex;gap:6px}#issuedLoans .issued-delete-filter{color:#991b1b!important}#issuedLoans .issued-history-empty{padding:8px 2px;color:#768397;font-size:12px}
+#issuedLoans .issued-loan-data-note{min-height:18px;margin:6px 2px 9px;color:#526174;font-size:12px;line-height:1.6}#issuedLoans .issued-loan-data-note.is-warning{color:#9a3412;font-weight:800}#issuedLoans .issued-loan-print-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin:8px 0 10px;padding:9px;border:1px solid #ccd7e4;border-radius:10px;background:#f8fafc;direction:rtl}#issuedLoans .issued-loan-print-summary>div{display:flex;justify-content:space-between;align-items:center;gap:6px;padding:6px 8px;border-radius:7px;background:#fff}#issuedLoans .issued-loan-print-summary span{font-size:11px;color:#536174;font-weight:800}#issuedLoans .issued-loan-print-summary b{font-size:13px;color:#172338;font-weight:950;white-space:nowrap}
+#issuedLoans .issued-loans-table-wrap{overflow:auto;border:1px solid #dbe4ef;border-radius:12px;background:#fff}#issuedLoans .issued-loans-table{width:100%;min-width:1120px;border-collapse:collapse;direction:rtl;font-size:12px}#issuedLoans .issued-loans-table th{background:#eaf0f7;color:#172338;font-weight:950;white-space:normal;overflow-wrap:break-word}#issuedLoans .issued-loans-table th,#issuedLoans .issued-loans-table td{padding:8px 7px;border-bottom:1px solid #e8edf3;text-align:right;vertical-align:middle}#issuedLoans .issued-loans-table .issued-loan-grand-total-row th{position:static;background:#dfeee8;color:#16352a;border-bottom:2px solid #9ccbb4;font-weight:950}#issuedLoans .issued-loans-table tbody tr:hover{background:#f5f9ff}#issuedLoans .issued-loans-table td.amount,#issuedLoans .issued-loans-table .issued-loan-grand-total-row th:nth-child(2),#issuedLoans .issued-loans-table .issued-loan-grand-total-row th:nth-child(6){text-align:left;direction:ltr;white-space:nowrap;font-weight:850}#issuedLoans .issued-loans-table td.empty-state{text-align:center;padding:30px;color:#66758a}#issuedLoans .issued-client-open{border:0;padding:0;background:transparent;color:#155eaa;font:inherit;font-weight:900;text-align:right;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+@media(max-width:980px){#issuedLoans .issued-loans-summary{grid-template-columns:repeat(2,minmax(0,1fr))}#issuedLoans .issued-loan-filters{grid-template-columns:repeat(2,minmax(0,1fr))}#issuedLoans .issued-loan-period-cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){#issuedLoans .issued-loans-header{align-items:flex-start}#issuedLoans .issued-loans-header h2{font-size:18px}#issuedLoans .issued-loan-stat{padding:10px}#issuedLoans .issued-loan-stat b{font-size:18px}#issuedLoans .issued-loan-filters{padding:10px;gap:8px}#issuedLoans .issued-specialist-state{gap:8px}#issuedLoans .issued-loan-filter-actions>*{flex:1 1 42%}#issuedLoans .issued-history-heading{align-items:stretch}#issuedLoans .issued-history-save{width:100%}#issuedLoans .issued-history-save input{flex:1;min-width:100px}#issuedLoans .issued-loan-print-summary{grid-template-columns:repeat(2,minmax(0,1fr))}#issuedLoans .issued-loan-print-summary>div{align-items:flex-start;flex-direction:column}}
+@media print{#issuedLoans .issued-loan-filters,#issuedLoans .issued-period-cards,#issuedLoans .export-toolbar,#issuedLoans .issued-filter-history,#issuedLoans .issued-loans-header button{display:none!important}#issuedLoans .issued-loans-summary{grid-template-columns:repeat(4,1fr)}#issuedLoans .issued-loan-print-summary{display:grid!important;grid-template-columns:repeat(4,1fr);break-inside:avoid}#issuedLoans .issued-loans-table-wrap{overflow:visible!important;border:0}#issuedLoans .issued-loans-table{min-width:0;width:100%;font-size:8px;table-layout:fixed}#issuedLoans .issued-loans-table th,#issuedLoans .issued-loans-table td{padding:4px 3px;overflow-wrap:anywhere;word-break:normal}#issuedLoans .issued-loans-table thead{display:table-header-group}#issuedLoans .issued-loans-table .issued-loan-grand-total-row{display:table-row}}
+</style>
 </head>
 
 <body>
@@ -1831,6 +1918,7 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
 <a href="#dueInstallments" data-screen="dueInstallments"><span class="nav-icon nav-icon-risk" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 4h14v16H5zM8 8h8M8 12h8M8 16h5"/></svg></span><span class="nav-label">الأقساط المستحقة</span><small>المستحقات القادمة</small></a>
 <a href="#paymentFollowup" data-screen="paymentFollowup"><span class="nav-icon nav-icon-risk" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 3.5h3l2 4.7-2.1 1.8a13 13 0 0 0 4.1 4.1l1.8-2.1 4.7 2v3a2 2 0 0 1-2.1 2A15.5 15.5 0 0 1 5 5.6a2 2 0 0 1 2-2.1Z"/></svg></span><span class="nav-label">متابعة السداد</span><small>الاتصالات والملاحظات</small></a>
 <a href="#portfolio" data-screen="portfolio"><span class="nav-icon nav-icon-portfolio" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 19V5m0 14h16M7 16l3-4 3 2 5-7"/></svg></span><span class="nav-label">المحفظة</span><small>المؤشرات المالية</small></a>
+<a href="#issuedLoans" data-screen="issuedLoans"><span class="nav-icon nav-icon-portfolio" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 4h14v16H5zM8 8h8M8 12h5M8 16h4"/><path d="m15 13 2 2 4-5"/></svg></span><span class="nav-label">القروض المصدرة</span><small>تاريخ الصرف والأخصائي</small></a>
 <a href="#print" data-screen="print"><span class="nav-icon nav-icon-print" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 9V4h10v5M7 18H5a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2M7 14h10v7H7v-7Zm10-3h.01"/></svg></span><span class="nav-label">الطباعة</span><small>تقارير جاهزة</small></a>
 <div class="nav-section-title nav-admin-title">الإدارة والبيانات</div>
 <a href="#specialists" data-screen="specialists" data-owner-only><span class="nav-icon nav-icon-specialists" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M3.5 20a5.5 5.5 0 0 1 11 0M15 11a3 3 0 1 0 0-6m2 7a4.5 4.5 0 0 1 4 4.5V20"/></svg></span><span class="nav-label">الأخصائيون</span><small>الأداء والبيانات</small></a>
@@ -2168,6 +2256,13 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
   <div class="risk-summary-card risk-summary-due"><span>إجمالي المستحق</span><b id="riskTotalDue">0</b><small>إجمالي قيم الأقساط في الجدول</small></div>
   <div class="risk-summary-card risk-summary-paid"><span>إجمالي المسدد</span><b id="riskTotalPaid">0</b><small>إجمالي المسدد في الجدول</small></div>
 </div>
+<section class="risk-aging-panel no-print" id="riskAgingPanel" aria-label="تقسيم الأقساط المتأخرة حسب أيام التأخير">
+  <div class="risk-aging-heading">
+    <div><h3>الأقساط المتأخرة حسب مدة التأخير</h3><p>ملخص الأقساط وفق المرشحات الحالية؛ يعرض الجدول صفًا واحدًا لكل عميل. اضغط على شريحة للتصفية.</p></div>
+    <button type="button" class="risk-aging-reset" id="riskAgingReset" onclick="resetRiskAgingRange()" hidden>عرض كل الأقساط</button>
+  </div>
+  <div class="risk-aging-grid" id="riskAgingCards" role="group" aria-label="شرائح أيام التأخير"></div>
+</section>
 <div class="filter-row" style="display:block">
   <div style="margin-bottom:10px">
     <div class="due-specialist-status-control app-shared-specialist-status-control no-print" role="radiogroup" aria-label="حالة الأخصائي"><span class="due-specialist-status-title">حالة الأخصائي</span><label><input type="radio" style="width:14px!important;height:14px!important;min-width:14px!important;max-width:14px!important;display:inline-block!important;flex:0 0 14px!important;margin:0!important;"  name="appSpecialistStatus_risk" value="active" checked data-app-specialist-state-control onchange="setAppSpecialistStatus(this.value)">الأخصائيون النشطون</label><label><input type="radio" style="width:14px!important;height:14px!important;min-width:14px!important;max-width:14px!important;display:inline-block!important;flex:0 0 14px!important;margin:0!important;"  name="appSpecialistStatus_risk" value="inactive" data-app-specialist-state-control onchange="setAppSpecialistStatus(this.value)">أخصائي مستقيل</label><label><input type="radio" style="width:14px!important;height:14px!important;min-width:14px!important;max-width:14px!important;display:inline-block!important;flex:0 0 14px!important;margin:0!important;"  name="appSpecialistStatus_risk" value="all" data-app-specialist-state-control onchange="setAppSpecialistStatus(this.value)">جميع الأخصائيين</label></div><span class="filter-label">الأخصائي</span>
@@ -2208,6 +2303,10 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
   <button type="button" class="print-btn icon-action" aria-label="طباعة" title="طباعة التقرير" onclick="return printDueReport(event)"><span class="action-glyph glyph-print" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M7 8V3.5h10V8M6 17H4a2 2 0 0 1-2-2v-3.5A3.5 3.5 0 0 1 5.5 8h13A3.5 3.5 0 0 1 22 11.5V15a2 2 0 0 1-2 2h-2" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M6 13h12v8H6zM7.5 16h9" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><circle cx="18" cy="11.5" r=".8" fill="currentColor"/></svg></span><span class="action-label">طباعة</span></button>
   <button type="button" class="preview-btn icon-action" aria-label="معاينة التقرير" title="معاينة التقرير قبل الطباعة" onclick="return previewDueReport(event)"><span class="action-glyph" aria-hidden="true">▣</span><span class="action-label">معاينة</span></button>
   <button type="button" class="pdf-btn icon-action" aria-label="تحميل PDF" title="فتح نافذة الطباعة لحفظ PDF" onclick="return downloadDuePDF(event)"><span class="action-glyph glyph-pdf" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M6 2.5h8l4 4V21H6z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M14 2.5V7h4M8 12h8M8 15h6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M8 18h8" stroke="currentColor" stroke-width="2"/></svg></span><span class="action-label">PDF</span></button>
+<button type="button" id="dueWhatsappPdfButton" class="whatsapp-share-btn icon-action" aria-label="مشاركة تقرير الأقساط المستحقة عبر واتساب" title="إنشاء تقرير PDF ثم مشاركته عبر واتساب">
+  <span class="action-glyph" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M20.2 11.5a8.2 8.2 0 0 1-12.1 7.2L4 20l1.1-4A8.2 8.2 0 1 1 20.2 11.5Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M8.1 9.2h7.8M8.1 12h7.8M8.1 14.8h5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></span>
+  <span class="action-label">واتساب</span>
+</button>
   <button class="excel-btn icon-action" aria-label="تحميل Excel" title="تحميل ملف Excel" onclick="exportCurrentExcel()"><span class="action-glyph glyph-excel" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M7 2.5h7l4 4V21H7z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M14 2.5V7h4M8 12l4 4m0-4-4 4M14 12h2m-2 4h2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="action-label">Excel</span></button>
 </div>
 <h2>📅 الأقساط المستحقة</h2>
@@ -2226,6 +2325,10 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
   <button type="button" class="due-nav-btn" data-due-view="paid" onclick="setDueView('paid',this)">المسدد <b id="dueNavPaid">0</b></button>
   <button type="button" class="due-nav-btn" data-due-view="overdue" onclick="setDueView('overdue',this)">المتأخر <b id="dueNavOverdue">0</b></button>
 </div>
+<section id="dueAgingPanel" class="due-aging-panel no-print" aria-label="شرائح تأخير الأقساط المستحقة">
+ <div class="due-aging-heading"><div><h3>الأقساط المتأخرة حسب مدة التأخير</h3><p id="dueAgingHint">اختر شريحة لعرض الأقساط المتأخرة غير المسددة عبر جميع الفترات. تبقى فلاتر الأخصائي والعميل والعنوان وحالة القرض مطبقة.</p></div><button type="button" id="dueAgingReset" class="due-aging-reset" onclick="resetDueAgingRange()" hidden>عرض المتأخرات دون تقسيم</button></div>
+ <div id="dueAgingCards" class="due-aging-grid" role="group" aria-label="تصفية الأقساط حسب أيام التأخير"></div>
+</section>
 <div class="filter-row" style="display:block">
   <div style="margin-bottom:10px">
   <div class="due-specialist-status-control app-shared-specialist-status-control no-print" role="radiogroup" aria-label="حالة الأخصائي">
@@ -2311,6 +2414,51 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
 <div class="wrap portfolio-table-wrap"><table class="portfolio-main-table"><thead><tr>
 <th>اسم الأخصائي</th><th>اسم العميل</th><th>الرقم القومي</th><th>اسم المنتج</th><th>مبلغ القرض</th><th>مدة القرض</th><th>المتبقي أصل</th><th>المتبقي فائدة</th><th>قيمة القسط</th><th>تاريخ منح القرض</th><th>تاريخ انتهاء القرض</th><th>حالة القرض</th>
 </tr></thead><tbody id="pt"></tbody></table></div>
+</section>
+
+<section id="issuedLoans" class="card screen" aria-label="القروض المصدرة">
+ <div class="export-toolbar no-print">
+  <button class="print-btn icon-action" aria-label="طباعة تقرير القروض المصدرة" title="طباعة" onclick="printCurrentScreen()"><span class="action-glyph glyph-print" aria-hidden="true">🖨️</span><span class="action-label">طباعة</span></button>
+  <button class="pdf-btn icon-action" aria-label="تحميل تقرير القروض المصدرة PDF" title="تحميل PDF" onclick="downloadCurrentPDF()"><span class="action-glyph glyph-pdf" aria-hidden="true">📄</span><span class="action-label">PDF</span></button>
+  <button class="excel-btn icon-action" aria-label="تصدير القروض المصدرة إلى Excel" title="Excel RTL" onclick="exportIssuedLoansExcel()"><span class="action-glyph glyph-excel" aria-hidden="true">📊</span><span class="action-label">Excel</span></button>
+ </div>
+ <div class="issued-loans-header"><div><h2>📤 القروض المصدرة</h2><p>تابع القروض المصروفة حسب الفترة والأخصائي والعميل والقيمة ونوع المنتج.</p></div><button type="button" class="light no-print" onclick="renderIssuedLoans()">تحديث البيانات</button></div>
+ <div class="issued-loan-period-cards no-print" role="group" aria-label="فترات سريعة للقروض المصدرة">
+  <button type="button" class="issued-period-card is-active" data-period="current" onclick="setIssuedLoansPeriod('current')"><small>الفترة الحالية</small><b>هذا الشهر</b></button>
+  <button type="button" class="issued-period-card" data-period="previous" onclick="setIssuedLoansPeriod('previous')"><small>الفترة السابقة</small><b>الشهر السابق</b></button>
+  <button type="button" class="issued-period-card" data-period="3months" onclick="setIssuedLoansPeriod('3months')"><small>الفترة السريعة</small><b>آخر 3 شهور</b></button>
+  <button type="button" class="issued-period-card" data-period="6months" onclick="setIssuedLoansPeriod('6months')"><small>الفترة السريعة</small><b>آخر 6 شهور</b></button>
+ </div>
+ <div class="issued-loans-summary" aria-label="ملخص القروض المصدرة">
+  <article class="issued-loan-stat"><span>عدد القروض المصدرة</span><b id="issuedLoanCount">0</b></article>
+  <article class="issued-loan-stat issued-loan-stat-primary"><span>إجمالي مبالغ القروض</span><b id="issuedLoanAmountTotal">0</b></article>
+  <article class="issued-loan-stat"><span>عدد العملاء</span><b id="issuedLoanClientCount">0</b></article>
+  <article class="issued-loan-stat issued-loan-stat-warning"><span>سجلات بلا تاريخ صرف</span><b id="issuedLoanMissingDateCount">0</b></article>
+ </div>
+ <div class="issued-loan-filters no-print" aria-label="فلاتر القروض المصدرة">
+  <div class="issued-specialist-state due-specialist-status-control app-shared-specialist-status-control" role="radiogroup" aria-label="حالة الأخصائي">
+   <span class="due-specialist-status-title">حالة الأخصائي</span>
+   <label><input type="radio" name="appSpecialistStatus_issuedLoans" value="active" checked data-app-specialist-state-control onchange="setAppSpecialistStatus(this.value);renderIssuedLoans()">الأخصائيون النشطون</label>
+   <label><input type="radio" name="appSpecialistStatus_issuedLoans" value="inactive" data-app-specialist-state-control onchange="setAppSpecialistStatus(this.value);renderIssuedLoans()">أخصائي مستقيل</label>
+   <label><input type="radio" name="appSpecialistStatus_issuedLoans" value="all" data-app-specialist-state-control onchange="setAppSpecialistStatus(this.value);renderIssuedLoans()">جميع الأخصائيين</label>
+  </div>
+  <label>من تاريخ الصرف<input id="issuedLoanFrom" type="date" onchange="renderIssuedLoans()"></label>
+  <label>إلى تاريخ الصرف<input id="issuedLoanTo" type="date" onchange="renderIssuedLoans()"></label>
+  <label>الأخصائي<select id="issuedLoanOfficer" onchange="renderIssuedLoans()"><option value="">كل الأخصائيين</option></select></label>
+  <label>حالة القرض<select id="issuedLoanStatus" onchange="renderIssuedLoans()"><option value="open">القرض قائم</option><option value="closed">مغلق / منتهٍ</option><option value="all">كل الحالات</option></select></label>
+  <div class="issued-client-picker"><label for="issuedLoanClientSearch">اسم العميل</label><div class="issued-client-input-wrap"><input id="issuedLoanClientSearch" type="search" autocomplete="off" placeholder="اكتب أي جزء من اسم العميل..." oninput="renderIssuedLoans();showIssuedLoanClientSuggestions()" onfocus="showIssuedLoanClientSuggestions()" onblur="setTimeout(hideIssuedLoanClientSuggestions,180)"><button type="button" title="مسح اسم العميل" aria-label="مسح اسم العميل" onclick="clearIssuedLoanClientSearch()">×</button></div><div id="issuedLoanClientSuggestions" class="issued-client-suggestions" role="listbox" aria-label="اقتراحات أسماء العملاء"></div></div>
+  <label>نوع المنتج<select id="issuedLoanProduct" onchange="renderIssuedLoans()"><option value="">كل الأنواع</option></select></label>
+  <label>قيمة القرض من<input id="issuedLoanAmountMin" type="number" min="0" step="any" placeholder="الحد الأدنى" oninput="renderIssuedLoans()"></label>
+  <label>قيمة القرض إلى<input id="issuedLoanAmountMax" type="number" min="0" step="any" placeholder="الحد الأعلى" oninput="renderIssuedLoans()"></label>
+  <div class="issued-loan-filter-actions"><button type="button" class="light" onclick="setIssuedLoansPeriod('all')">كل الفترات</button><button type="button" class="light" onclick="clearIssuedLoansFilters()">إعادة ضبط الفلاتر</button></div>
+ </div>
+ <section class="issued-filter-history no-print" aria-label="سجل الفلاتر المحفوظة"><div class="issued-history-heading"><div><b>سجل الفلاتر</b><small>احفظ إعدادات البحث للرجوع إليها لاحقًا على هذا الجهاز.</small></div><div class="issued-history-save"><input id="issuedLoanFilterName" type="text" maxlength="60" placeholder="اسم اختياري للفلتر"><button type="button" class="light" onclick="saveIssuedLoanFilter()">حفظ الفلترة الحالية</button></div></div><div id="issuedLoanFilterHistoryList" class="issued-filter-history-list"></div></section>
+ <p id="issuedLoanDataNote" class="issued-loan-data-note" role="status"></p>
+ <div class="issued-loan-print-summary" aria-label="الإجماليات العامة للنتائج الظاهرة"><div><span>عدد القروض</span><b id="issuedPrintLoanCount">0</b></div><div><span>إجمالي مبالغ القروض</span><b id="issuedPrintLoanTotal">0</b></div><div><span>إجمالي قيم الأقساط التالية</span><b id="issuedPrintInstallmentTotal">0</b></div><div><span>عدد العملاء</span><b id="issuedPrintClientCount">0</b></div></div>
+ <div class="wrap issued-loans-table-wrap"><table class="issued-loans-table"><thead>
+  <tr class="issued-loan-grand-total-row"><th colspan="3">الإجمالي العام للنتائج الظاهرة</th><th id="issuedTableLoanTotal">0</th><th>—</th><th></th><th></th><th id="issuedTableInstallmentTotal">0</th><th></th><th></th><th></th></tr>
+  <tr><th>م</th><th>اسم العميل</th><th>اسم الأخصائي</th><th>مبلغ القرض</th><th>مدة القرض</th><th>تاريخ منح القرض</th><th>نوع المنتج</th><th>قيمة القسط</th><th>تاريخ الاستحقاق</th><th>تاريخ نهاية القرض</th><th>حالة القرض</th></tr>
+ </thead><tbody id="issuedLoansTableBody"></tbody></table></div>
 </section>
 
 <section id="print" class="card screen">
@@ -2444,7 +2592,7 @@ programSettings=readProgramSettings();
 window.addEventListener("storage",e=>{if(e.key===PROGRAM_SETTINGS_KEY){programSettings=readProgramSettings();applyProgramSettings()}});
 if(settingsChannel)settingsChannel.onmessage=()=>{programSettings=readProgramSettings();applyProgramSettings()};
 window.addEventListener("resize",()=>{if(programSettings.orientation==="auto")applyProgramSettings()});
-const SCREEN_IDS=["clients","search","dash","collection","risk","dueInstallments","paymentFollowup","portfolio","print","users","specialists","audit","import","settings"];
+const SCREEN_IDS=["clients","search","dash","collection","risk","dueInstallments","paymentFollowup","portfolio","issuedLoans","print","users","specialists","audit","import","settings"];
 let screenDataVersion=0;const screenRenderVersion=Object.create(null);
 function showScreen(id){
   if(!enforceSession()) return;
@@ -2452,7 +2600,7 @@ function showScreen(id){
   if((id==="users"||id==="specialists"||id==="audit"||id==="dash") && !isOwnerRole(session.role)) id="search";
   const screens=showScreen._screens||(showScreen._screens=[...document.querySelectorAll(".screen")]);
   screens.forEach(s=>{s.classList.remove("active");s.setAttribute("aria-hidden","true")});
-  const target=document.getElementById(id);if(target){target.classList.add("active");target.setAttribute("aria-hidden","false")}if(id==='dueInstallments'&&typeof ensureDueDefaultSpecialistOption==='function')ensureDueDefaultSpecialistOption();
+  const target=document.getElementById(id);if(target){target.classList.add("active");target.setAttribute("aria-hidden","false")}if(id==='dueInstallments'&&typeof ensureDueDefaultSpecialistOption==='function')ensureDueDefaultSpecialistOption();if(typeof renderLastImportNotices==="function")renderLastImportNotices();if(typeof syncSharedLastImportNotice==="function")syncSharedLastImportNotice();
   const navLinks=showScreen._navLinks||(showScreen._navLinks=[...document.querySelectorAll("nav a[data-screen]")]);
   navLinks.forEach(a=>a.classList.toggle("active",a.dataset.screen===id));
   window.scrollTo({top:0,behavior:"auto"});
@@ -2857,6 +3005,7 @@ async function importExcelFile(file){
   }
   document.getElementById("status").textContent=cloudSaved?"☁️ تم تحديث البيانات لجميع المستخدمين":"⚠️ تم الحفظ محليًا مؤقتًا — المزامنة معلقة";
   finishImportProgress(true,cloudSaved?"تم ضغط البيانات ورفعها ومزامنتها مع جميع المستخدمين.":"تمت القراءة والحفظ محليًا، وسيتم رفعها عند عودة الاتصال.");
+  try{recordSuccessfulImportNotice()}catch(importNoticeErr){console.warn("تعذر حفظ ملاحظة آخر استيراد:",importNoticeErr)}
 }
 document.getElementById("file").addEventListener("change",async e=>{
  const f=e.target.files[0];
@@ -3032,6 +3181,7 @@ function renderScreenData(id){
   case "risk": renderRisk(); break;
   case "dueInstallments": { const dueBase=dueInstallmentRows(); updateDueFilterLists(dueBase); renderDueInstallments(dueBase); break; }
   case "portfolio": renderPortfolio(); break;
+  case "issuedLoans": renderIssuedLoans(); break;
   case "specialists": prepareSpecialistsScreen(); renderSpecialists(); break;
   case "print": renderPrint(); break;
   case "audit": renderAudit(); break;
@@ -3367,6 +3517,41 @@ function updateRiskFilterLists(){
 function riskEnglishDigits(value){
  return String(value??"").replace(/[٠-٩]/g,d=>"٠١٢٣٤٥٦٧٨٩".indexOf(d)).replace(/[۰-۹]/g,d=>"۰۱۲۳۴۵۶۷۸۹".indexOf(d));
 }
+const RISK_AGING_BANDS=Object.freeze([
+ {id:"1-30",label:"من 1 إلى 30 يومًا",rangeHtml:"من <bdi dir=\"ltr\">1</bdi> إلى <bdi dir=\"ltr\">30</bdi> يومًا",min:1,max:30,color:"#2563eb"},
+ {id:"31-60",label:"من 31 إلى 60 يومًا",rangeHtml:"من <bdi dir=\"ltr\">31</bdi> إلى <bdi dir=\"ltr\">60</bdi> يومًا",min:31,max:60,color:"#0f766e"},
+ {id:"61-90",label:"من 61 إلى 90 يومًا",rangeHtml:"من <bdi dir=\"ltr\">61</bdi> إلى <bdi dir=\"ltr\">90</bdi> يومًا",min:61,max:90,color:"#b45309"},
+ {id:"91-120",label:"من 91 إلى 120 يومًا",rangeHtml:"من <bdi dir=\"ltr\">91</bdi> إلى <bdi dir=\"ltr\">120</bdi> يومًا",min:91,max:120,color:"#c2410c"},
+ {id:"120+",label:"أكثر من 120 يومًا",rangeHtml:"أكثر من <bdi dir=\"ltr\">120</bdi> يومًا",min:121,max:Infinity,color:"#b91c1c"}
+]);
+let riskAgingRange="";
+let dueAgingRange="";
+function riskAgingBandForDays(value){
+ const days=Math.floor(num(riskEnglishDigits(value)));
+ return RISK_AGING_BANDS.find(band=>days>=band.min&&days<=band.max)||null;
+}
+function riskAgingBandForRow(row){return riskAgingBandForDays(rowDelayDays(row));}
+function riskAgingFilterRows(rows){return riskAgingRange?rows.filter(x=>riskAgingBandForRow(x.r)?.id===riskAgingRange):rows}
+function renderRiskAgingSummary(rows){
+ const host=document.getElementById("riskAgingCards");if(!host)return;
+ const stats=new Map(RISK_AGING_BANDS.map(band=>[band.id,{installments:0,amount:0,clients:new Set()}]));
+ rows.forEach(({g,r})=>{
+  const band=riskAgingBandForRow(r);if(!band)return;
+  const stat=stats.get(band.id);stat.installments++;
+  stat.amount+=Math.max(0,installmentUnpaid(r));
+  const client=String(get(r,"client")||get(g?.r||{},"client")||"").trim();if(client)stat.clients.add(norm(client));
+ });
+ host.innerHTML=RISK_AGING_BANDS.map(band=>{
+  const stat=stats.get(band.id),active=riskAgingRange===band.id;
+  return `<button type="button" class="risk-aging-card${active?" is-active":""}" style="--risk-aging-accent:${band.color}" data-aging-band="${band.id}" aria-pressed="${active}" aria-label="${band.label}: ${stat.installments} قسط، ${stat.clients.size} عميل، إجمالي المتبقي ${stat.amount.toLocaleString("en-US",{maximumFractionDigits:2})}" onclick="setRiskAgingRange('${band.id}')"><span class="risk-aging-range">${band.rangeHtml}</span><span class="risk-aging-main"><b>${stat.installments.toLocaleString("en-US")}</b><span>قسط متأخر</span></span><span class="risk-aging-clients">عدد العملاء <b>${stat.clients.size.toLocaleString("en-US")}</b></span><span class="risk-aging-amount"><span>إجمالي المتبقي</span><b>${stat.amount.toLocaleString("en-US",{maximumFractionDigits:2})}</b></span></button>`;
+ }).join("");
+ const reset=document.getElementById("riskAgingReset");if(reset)reset.hidden=!riskAgingRange;
+}
+function setRiskAgingRange(id){
+ if(!RISK_AGING_BANDS.some(band=>band.id===id))return;
+ riskAgingRange=riskAgingRange===id?"":id;renderRisk();
+}
+function resetRiskAgingRange(){if(!riskAgingRange)return;riskAgingRange="";renderRisk();}
 function renderRisk(){
  let officer=norm(document.getElementById("riskOfficer")?.value||"");
  if(officer===norm("جميع الأخصائيين")||officer===norm("كل الأخصائيين"))officer="";
@@ -3377,7 +3562,7 @@ function renderRisk(){
  let to=toVal?parseExcelDate(toVal):null;
  let filter=document.getElementById("riskStatus").value;
  let out="",i=0,totalDue=0,totalPaid=0,totalUnpaid=0;
- const filteredRiskRows=riskInstallmentRows().filter(x=>{
+ const standardRiskRows=riskInstallmentRows().filter(x=>{
    const g=x.g,r=x.r;
    const gOfficer=norm(get(r,"officer")||get(g.r,"officer"));
    const rClient=norm(get(r,"client")||get(g.r,"client"));
@@ -3391,6 +3576,8 @@ function renderRisk(){
    const db=parseExcelDate(riskDueDateValue(b.r))?.getTime()||0;
    return da-db;
  });
+ renderRiskAgingSummary(standardRiskRows);
+ const filteredRiskRows=riskAgingFilterRows(standardRiskRows);
  // شاشة المتأخرات: صف واحد لكل اسم عميل مع تجميع أقساطه المتأخرة.
  const riskClients=[];const riskClientMap=new Map();
  filteredRiskRows.forEach(x=>{
@@ -3411,11 +3598,12 @@ function renderRisk(){
    const asOfEnd=new Date();asOfEnd.setHours(23,59,59,999);
    const totalArrears=allClientRows.reduce((sum,row)=>{const due=parseExcelDate(riskDueDateValue(row));return due&&due<=asOfEnd?sum+Math.max(0,installmentUnpaid(row)):sum;},0);
    // أول قسط لم يُسدد بالكامل؛ المتبقي الجزئي (>0) يجعله القسط الأدنى المستحق.
-   const openInstallments=allClientRows.map(row=>({row,number:num(get(row,"installment"))})).filter(x=>x.number>0&&installmentUnpaid(x.row)>0).sort((a,b)=>a.number-b.number);
+   const clientInstallmentRows=riskAgingRange?rowsForClient:allClientRows;
+   const openInstallments=clientInstallmentRows.map(row=>({row,number:num(get(row,"installment"))})).filter(x=>x.number>0&&installmentUnpaid(x.row)>0).sort((a,b)=>a.number-b.number);
    const firstOpenInstallment=openInstallments[0];
    const firstLateInstallment=firstOpenInstallment?get(firstOpenInstallment.row,"installment"):minimumInstallmentNumber;
    const targetInstallmentNumber=num(firstLateInstallment);
-   const matchingInstallmentRows=allClientRows.filter(row=>norm(get(row,"installment"))===norm(firstLateInstallment)||(num(get(row,"installment"))>0&&num(get(row,"installment"))===targetInstallmentNumber));
+   const matchingInstallmentRows=clientInstallmentRows.filter(row=>norm(get(row,"installment"))===norm(firstLateInstallment)||(num(get(row,"installment"))>0&&num(get(row,"installment"))===targetInstallmentNumber));
    const displayInstallmentRow=matchingInstallmentRows.find(row=>installmentUnpaid(row)>0)||matchingInstallmentRows[0]||firstOpenInstallment?.row||r;
    // أيام التأخير من نفس صف رقم القسط الظاهر في التقرير، وبالأولوية لقيمة Excel.
    delay=rowDelayDays(displayInstallmentRow);
@@ -3444,7 +3632,7 @@ function dueSelectedMonthLabel(monthValue,yearValue){const names=['يناير','
 function toggleDueMonthMode(){const enabled=document.getElementById('dueExcelRowMode')?.checked===true,month=document.getElementById('dueSpecificMonth'),year=document.getElementById('dueSpecificYear');if(month)month.disabled=!enabled;if(year){year.disabled=!enabled;if(enabled&&!year.value)year.value=String(new Date().getFullYear())}renderDueInstallments()}
 function dueDayType(r){const d=parseExcelDate(riskDueDateValue(r)),today=new Date();today.setHours(0,0,0,0);if(!d)return'upcoming';if(d<today)return'overdue';if(d.getTime()===today.getTime())return'due';return'upcoming'}
 function dueStatusText(r){const d=parseExcelDate(riskDueDateValue(r)),today=new Date(),type=dueDayType(r);today.setHours(0,0,0,0);if(type==='overdue')return`متأخر ${Math.max(1,Math.ceil((today-d)/86400000))} يوم`;if(type==='due')return'مستحق اليوم';return`قادم خلال ${Math.max(1,Math.ceil((d-today)/86400000))} يوم`}
-function setDueView(type,button){window.dueView=type;document.querySelectorAll('#dueInstallments .due-nav-btn').forEach(x=>x.classList.toggle('active',x===button));renderDueInstallments()}
+function setDueView(type,button){window.dueView=type;dueAgingRange='';document.querySelectorAll('#dueInstallments .due-nav-btn').forEach(x=>x.classList.toggle('active',x===button));renderDueInstallments()}
 function dueCustomerArrears(clientKey){
  const cutoff=new Date();cutoff.setHours(23,59,59,999);
  const byLoanInstallment=new Map();
@@ -3490,7 +3678,7 @@ function setAppSpecialistStatus(state){
  try{populateClientsLists()}catch(e){} try{updateCollectionFilterLists()}catch(e){} try{updateRiskFilterLists()}catch(e){} try{updateDueFilterLists()}catch(e){} try{populatePortfolioLists()}catch(e){}
  window.smartSelectSync?.();document.dispatchEvent(new CustomEvent("app-specialist-status-change",{detail:{state}}));
  const active=document.querySelector(".screen.active")?.id;
- try{if(active==="search")renderSearch();else if(active==="clients")renderClients();else if(active==="collection")renderCollection();else if(active==="risk")renderRisk();else if(active==="dueInstallments")renderDueInstallments();else if(active==="portfolio")renderPortfolio();else if(active==="specialists")renderSpecialists()}catch(e){console.warn("تعذر تحديث عرض حالة الأخصائي:",e)}
+ try{if(active==="search")renderSearch();else if(active==="clients")renderClients();else if(active==="collection")renderCollection();else if(active==="risk")renderRisk();else if(active==="dueInstallments")renderDueInstallments();else if(active==="portfolio")renderPortfolio();else if(active==="issuedLoans")renderIssuedLoans();else if(active==="specialists")renderSpecialists()}catch(e){console.warn("تعذر تحديث عرض حالة الأخصائي:",e)}
 }
 window.__appSpecialistFilterState="active";
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",()=>setAppSpecialistStatus("active"),{once:true});else setAppSpecialistStatus("active");
@@ -3576,13 +3764,58 @@ function handleDueOfficerChoice(){
  if(input.value.trim() && norm(input.value)!==norm(DUE_ALL_SPECIALISTS_LABEL))box.checked=false;
  renderDueInstallments();
 }
+function dueAgingEligibleRows(base,filter,specialistState,officer,client,address){
+ const result=[],seenGroups=new Set();
+ (base||[]).forEach(item=>{
+  const g=item.g;if(!g||seenGroups.has(g))return;seenGroups.add(g);
+  if(!statusMatch(g,filter))return;
+  uniqueProfileInstallments(g.items||[g.r]).forEach(r=>{
+   const go=norm(get(r,'officer')||get(g.r,'officer')),gc=norm(get(r,'client')||get(g.r,'client')),ga=norm(rowAddress(r)||rowAddress(g.r)||'');
+   if(!specialistMatchesState(go,specialistState)|| (officer&&!go.includes(officer)) || (client&&!gc.includes(client)) || (address&&!ga.includes(address)))return;
+   if(dueDayType(r)!=='overdue'||dueRemainingForScreen(r)<=0)return;
+   if(!riskAgingBandForRow(r))return;
+   result.push({g,r});
+  });
+ });
+ return result;
+}
+function renderDueAgingSummary(rows){
+ const host=document.getElementById('dueAgingCards');if(!host)return;
+ const stats=new Map(RISK_AGING_BANDS.map(band=>[band.id,{installments:0,amount:0,clients:new Set()}]));
+ (rows||[]).forEach(({g,r})=>{
+  const band=riskAgingBandForRow(r);if(!band)return;
+  const stat=stats.get(band.id);stat.installments++;stat.amount+=Math.max(0,dueRemainingForScreen(r));
+  const client=String(get(r,'client')||get(g?.r||{},'client')||'').trim();if(client)stat.clients.add(norm(client));
+ });
+ host.innerHTML=RISK_AGING_BANDS.map(band=>{
+  const stat=stats.get(band.id),active=dueAgingRange===band.id;
+  return `<button type="button" class="due-aging-card${active?' is-active':''}" style="--due-aging-accent:${band.color}" data-due-aging-band="${band.id}" aria-pressed="${active}" aria-label="${band.label}: ${stat.installments} قسط، ${stat.clients.size} عميل، إجمالي المتبقي ${stat.amount.toLocaleString('en-US',{maximumFractionDigits:2})}" onclick="setDueAgingRange('${band.id}')"><span class="due-aging-range">${band.rangeHtml}</span><span class="due-aging-main"><b>${stat.installments.toLocaleString('en-US')}</b><span>قسط متأخر</span></span><span class="due-aging-clients">عدد العملاء <b>${stat.clients.size.toLocaleString('en-US')}</b></span><span class="due-aging-amount"><span>إجمالي المتبقي</span><b>${stat.amount.toLocaleString('en-US',{maximumFractionDigits:2})}</b></span></button>`;
+ }).join('');
+ const reset=document.getElementById('dueAgingReset');if(reset)reset.hidden=!dueAgingRange;
+ const hint=document.getElementById('dueAgingHint');if(hint){const selected=RISK_AGING_BANDS.find(band=>band.id===dueAgingRange);hint.textContent=selected?`مفعّل: ${selected.label}. يعرض الأقساط المتأخرة غير المسددة عبر جميع الفترات؛ عدد العملاء في البطاقة يطابق الصفوف الظاهرة بالجدول بعد البحث السريع. يتجاوز فلتر التاريخ/الشهر مؤقتًا، مع بقاء فلاتر الأخصائي والعميل والعنوان وحالة القرض مطبقة.`:'اختر شريحة لعرض الأقساط المتأخرة غير المسددة عبر جميع الفترات. عند الاختيار يتجاوز فلتر التاريخ/الشهر مؤقتًا؛ تبقى فلاتر الأخصائي والعميل والعنوان وحالة القرض مطبقة.';}
+}
+function setDueAgingRange(id){
+ if(!RISK_AGING_BANDS.some(band=>band.id===id))return;
+ dueAgingRange=dueAgingRange===id?'':id;
+ if(dueAgingRange)window.dueView='overdue';
+ document.querySelectorAll('#dueInstallments .due-nav-btn').forEach(button=>button.classList.toggle('active',button.dataset.dueView===(window.dueView||'due')));
+ renderDueInstallments();
+}
+function resetDueAgingRange(){
+ if(!dueAgingRange)return;
+ dueAgingRange='';window.dueView='overdue';
+ document.querySelectorAll('#dueInstallments .due-nav-btn').forEach(button=>button.classList.toggle('active',button.dataset.dueView==='overdue'));
+ renderDueInstallments();
+}
+
 function renderDueInstallments(baseRows){
  const fromEl=document.getElementById('dueFrom'),toEl=document.getElementById('dueTo');
  if(fromEl&&toEl&&!fromEl.value&&!toEl.value){const n=new Date();fromEl.value=isoDate(new Date(n.getFullYear(),n.getMonth(),1));toEl.value=isoDate(new Date(n.getFullYear(),n.getMonth()+1,0))}
  const officerValue=norm(document.getElementById('dueOfficer')?.value||''),officer=officerValue===norm(DUE_ALL_SPECIALISTS_LABEL)?'':officerValue,client=norm(document.getElementById('dueClient')?.value||''),address=norm(document.getElementById('dueAddress')?.value||''),fromVal=fromEl?.value||'',toVal=toEl?.value||'',from=fromVal?parseExcelDate(fromVal):null,to=toVal?parseExcelDate(toVal):null,filter=document.getElementById('dueStatus')?.value||'open',view=window.dueView||'due';
  const specialistState=dueSpecialistFilterState(),excelRowMode=document.getElementById('dueExcelRowMode')?.checked===true,selectedMonth=document.getElementById('dueSpecificMonth')?.value||'',selectedYear=document.getElementById('dueSpecificYear')?.value||'',monthRange=excelRowMode&&selectedMonth?dueMonthDateRange(selectedMonth,selectedYear):null,dateFrom=monthRange?.from||from,dateTo=monthRange?.to||to;
  const base=baseRows||dueInstallmentRows(),stats={due:0,upcoming:0,partial:0,paid:0,overdue:0,todayAmount:0,todayCount:0};base.forEach(x=>{const t=dueDayType(x.r),paid=rowPaidAmount(x.r),remaining=dueRemainingForScreen(x.r),unpaid=remaining>0;if(t==='due'&&unpaid){stats.due++;stats.todayAmount+=num(get(x.r,'value'));stats.todayCount++}if(t==='upcoming'&&unpaid)stats.upcoming++;if(t==='overdue'&&unpaid)stats.overdue++;if(paid>0&&remaining>0)stats.partial++;if(paid>0&&remaining<=0)stats.paid++});
- const rows=base.filter(x=>{const g=x.g,r=x.r,go=norm(get(r,'officer')||get(g.r,'officer')),gc=norm(get(r,'client')||get(g.r,'client')),ga=norm(rowAddress(r)||rowAddress(g.r)||''),type=dueDayType(r),paid=rowPaidAmount(r),remaining=dueRemainingForScreen(r),unpaid=remaining>0,partial=paid>0&&unpaid,paidView=paid>0&&remaining<=0;const viewOk=view==='due'?unpaid:view==='upcoming'?unpaid&&type==='upcoming':view==='partial'?partial:view==='paid'?paidView:unpaid&&type==='overdue';return statusMatch(g,filter)&&specialistMatchesState(go,specialistState)&&(!officer||go.includes(officer))&&(!client||gc.includes(client))&&(!address||ga.includes(address))&&dueDateInRange(r,dateFrom,dateTo)&&viewOk}).sort((a,b)=>{const rank={overdue:0,due:1,upcoming:2};return (rank[dueDayType(a.r)]??3)-(rank[dueDayType(b.r)]??3)||((parseExcelDate(riskDueDateValue(a.r))?.getTime()||0)-(parseExcelDate(riskDueDateValue(b.r))?.getTime()||0))});
+ renderDueAgingSummary(dueAgingEligibleRows(base,filter,specialistState,officer,client,address));
+ const rows=base.filter(x=>{const g=x.g,r=x.r,go=norm(get(r,'officer')||get(g.r,'officer')),gc=norm(get(r,'client')||get(g.r,'client')),ga=norm(rowAddress(r)||rowAddress(g.r)||''),type=dueDayType(r),paid=rowPaidAmount(r),remaining=dueRemainingForScreen(r),unpaid=remaining>0,partial=paid>0&&unpaid,paidView=paid>0&&remaining<=0;const viewOk=dueAgingRange?unpaid&&type==='overdue'&&riskAgingBandForRow(r)?.id===dueAgingRange:(view==='due'?unpaid:view==='upcoming'?unpaid&&type==='upcoming':view==='partial'?partial:view==='paid'?paidView:unpaid&&type==='overdue');return statusMatch(g,filter)&&specialistMatchesState(go,specialistState)&&(!officer||go.includes(officer))&&(!client||gc.includes(client))&&(!address||ga.includes(address))&&(!dueAgingRange?dueDateInRange(r,dateFrom,dateTo):true)&&viewOk}).sort((a,b)=>{const rank={overdue:0,due:1,upcoming:2};return (rank[dueDayType(a.r)]??3)-(rank[dueDayType(b.r)]??3)||((parseExcelDate(riskDueDateValue(a.r))?.getTime()||0)-(parseExcelDate(riskDueDateValue(b.r))?.getTime()||0))});
  let totalDue=0,totalPaid=0,totalUnpaid=0,totalLateCount=0,totalDelayDays=0,totalArrears=0;const uniqueClients=new Set();let out='';
  // الاحتفاظ بعميل واحد في الجدول حسب الصفوف المطابقة لفترة العرض.
  const clientRows=new Map();rows.forEach(x=>{const key=norm(get(x.r,'client')||get(x.g.r,'client'))||`row:${clientRows.size}`;if(!clientRows.has(key))clientRows.set(key,[]);clientRows.get(key).push(x)});
@@ -3592,7 +3825,7 @@ function renderDueInstallments(baseRows){
   if(!statusMatch(g,filter))return;
   (g.items||[g.r]).forEach(r=>{
    const go=norm(get(r,'officer')||get(g.r,'officer')),gc=norm(get(r,'client')||get(g.r,'client')),ga=norm(rowAddress(r)||rowAddress(g.r)||'');
-   if(specialistMatchesState(go,specialistState)&&(!officer||go.includes(officer))&&(!client||gc.includes(client))&&(!address||ga.includes(address)))selectionRows.push({g,r});
+   if(specialistMatchesState(go,specialistState)&&(!officer||go.includes(officer))&&(!client||gc.includes(client))&&(!address||ga.includes(address))){if(dueAgingRange&&(dueDayType(r)!=='overdue'||dueRemainingForScreen(r)<=0||riskAgingBandForRow(r)?.id!==dueAgingRange))return;selectionRows.push({g,r})}
   });
  });
  const selectionByClient=new Map();selectionRows.forEach(x=>{const key=norm(get(x.r,'client')||get(x.g.r,'client'))||`row:${selectionByClient.size}`;if(!selectionByClient.has(key))selectionByClient.set(key,[]);selectionByClient.get(key).push(x)});
@@ -3670,6 +3903,100 @@ function portfolioUniqueByClient(list){
   if(!clientKey || seen.has(clientKey))return false;
   seen.add(clientKey);return true;
  });
+}
+const ISSUED_LOAN_DATE_ALIASES=["تاريخ منح القرض"];
+const ISSUED_LOAN_FILTER_HISTORY_KEY="mub_issued_loans_filter_history_v1";
+function issuedLoanDateRaw(items){for(const row of items||[]){const value=getAny(row,ISSUED_LOAN_DATE_ALIASES);if(String(value??"").trim()!=="")return value}return "";}
+function issuedLoanAmountRaw(items,g){return profileLoanExcelValueFromRows(items,[H.loanAmount,"مبلغ القرض","قيمة القرض","مبلغ التمويل","قيمة التمويل","قيمة الموافقة"],q=>(q.includes("قرض")||q.includes("تمويل")||q.includes("موافقة"))&&(q.includes("مبلغ")||q.includes("قيم")||q.includes("موافقة")))||g.approval||0;}
+function issuedLoanRecord(g){
+ const items=uniqueProfileInstallments(g.items||[g.r]),r=items.find(row=>String(issuedLoanDateRaw([row])??"").trim())||g.r;
+ const rawDate=issuedLoanDateRaw(items),date=parseExcelDate(rawDate),officer=getAny(r,[H.officer,"اسم الأخصائي","الأخصائي","اسم الاخصائي"]),client=getAny(r,[H.client,"اسم العميل","العميل"]),nid=getAny(r,[H.nid,"الرقم القومي","الرقم القومى"]),loanNo=getAny(r,[H.loan,"رقم القرض","رقم التمويل"]),loanCode=getAny(r,[H.loanCode,"كود القرض"]),product=getAny(r,["نوع المنتج","نوع القرض","المنتج","نوع التمويل","اسم المنتج"]),status=getAny(r,[H.status,"حالة القرض","الحالة"])||g.status||"غير محددة",amount=issuedLoanAmountRaw(items,g);
+ const scheduled=items.map(row=>({row,date:parseExcelDate(get(row,"date"))})).filter(x=>x.date).sort((a,b)=>a.date-b.date),next=scheduled.find(x=>rowInstallmentRemainingForCount(x.row)>0)||scheduled[0]||null;
+ const installmentValue=next?num(get(next.row,"value")||getAny(next.row,["قيمة القسط","قيمة القسط الشهري"])):0,dueDate=next?.date||null;
+ const grant=issuedLoanDateRaw(items),explicitEnd=profileLoanExcelValueFromRows(items,["تاريخ انتهاء القرض","تاريخ نهاية القرض","تاريخ انتهاء التمويل","تاريخ نهاية التمويل"],q=>q.includes("تاريخ")&&q.includes("انتهاء"));
+ const endDateRaw=explicitEnd||((scheduled.length)?scheduled[scheduled.length-1].date:"");
+ const termRaw=profileLoanExcelValueFromRows(items,[H.term,"مدة القرض","مدة التمويل","عدد الأقساط","عدد الاقساط"],q=>q.includes("مدة")||q.includes("مده"));
+ const term=String(termRaw??"").trim()||((profileInstallmentCounts(items).total||items.length)?`${(profileInstallmentCounts(items).total||items.length).toLocaleString("en-US")} قسط`:"—");
+ return {g,r,items,rawDate:grant,date,officer:String(officer||"غير محدد").trim(),client:String(client||"غير محدد").trim(),nid:String(nid||"").trim(),loanNo:String(loanNo||"").trim(),loanCode:String(loanCode||"").trim(),product:String(product||"").trim(),status:String(status).trim(),amount:num(amount),term,dueDate,installmentValue,endDateRaw};
+}
+function issuedLoanSpecialistScopedGroups(){return visibleGroups().filter(g=>specialistStatusAllows(getAny(g.r,[H.officer,"اسم الأخصائي","الأخصائي","اسم الاخصائي"])))}
+function updateIssuedLoanFilterOptions(allGroups,selectedOfficer,selectedProduct){
+ const records=(allGroups||[]).map(issuedLoanRecord),officerSelect=document.getElementById("issuedLoanOfficer"),productSelect=document.getElementById("issuedLoanProduct");
+ const officers=[...new Set(records.map(x=>x.officer).filter(x=>x&&x!=="غير محدد"))].sort((a,b)=>a.localeCompare(b,"ar"));
+ const products=[...new Set(records.map(x=>x.product).filter(Boolean))].sort((a,b)=>a.localeCompare(b,"ar"));
+ if(officerSelect){officerSelect.innerHTML='<option value="">كل الأخصائيين</option>'+officers.map(x=>`<option value="${escAttr(x)}">${esc(x)}</option>`).join("");if(officers.includes(selectedOfficer))officerSelect.value=selectedOfficer}
+ if(productSelect){productSelect.innerHTML='<option value="">كل الأنواع</option>'+products.map(x=>`<option value="${escAttr(x)}">${esc(x)}</option>`).join("");if(products.includes(selectedProduct))productSelect.value=selectedProduct}
+ return records;
+}
+function initializeIssuedLoansFilters(){
+ if(window.__issuedLoansInitialized)return;window.__issuedLoansInitialized=true;
+ const now=new Date(),from=document.getElementById("issuedLoanFrom"),to=document.getElementById("issuedLoanTo"),status=document.getElementById("issuedLoanStatus");
+ if(from&&!from.value)from.value=isoDate(new Date(now.getFullYear(),now.getMonth(),1));if(to&&!to.value)to.value=isoDate(new Date(now.getFullYear(),now.getMonth()+1,0));if(status)status.value="open";
+ document.querySelectorAll("#issuedLoans .issued-period-card").forEach(button=>button.classList.toggle("is-active",button.dataset.period==="current"));
+}
+function issuedLoanMatchesFilter(item,filters){
+ const q=norm(filters.client||""),officerOk=!filters.officer||officerKey(item.officer)===officerKey(filters.officer),statusOk=filters.status==="all"||(filters.status==="open"?isOpen(item.g):!isOpen(item.g)),productOk=!filters.product||norm(item.product)===norm(filters.product),queryOk=!q||norm(item.client).includes(q),minOk=filters.min===""||item.amount>=num(filters.min),maxOk=filters.max===""||item.amount<=num(filters.max);
+ return specialistStatusAllows(item.officer)&&officerOk&&statusOk&&productOk&&queryOk&&minOk&&maxOk;
+}
+function renderIssuedLoans(){
+ const section=document.getElementById("issuedLoans");if(!section)return;initializeIssuedLoansFilters();
+ const oldOfficer=document.getElementById("issuedLoanOfficer")?.value||"",oldProduct=document.getElementById("issuedLoanProduct")?.value||"",scoped=issuedLoanSpecialistScopedGroups(),allRecords=updateIssuedLoanFilterOptions(scoped,oldOfficer,oldProduct);
+ const filters={officer:document.getElementById("issuedLoanOfficer")?.value||"",product:document.getElementById("issuedLoanProduct")?.value||"",status:document.getElementById("issuedLoanStatus")?.value||"open",client:document.getElementById("issuedLoanClientSearch")?.value||"",min:document.getElementById("issuedLoanAmountMin")?.value??"",max:document.getElementById("issuedLoanAmountMax")?.value??"",from:document.getElementById("issuedLoanFrom")?.value||"",to:document.getElementById("issuedLoanTo")?.value||""};
+ const from=filters.from?parseExcelDate(filters.from):null,to=filters.to?parseExcelDate(filters.to):null,passes=allRecords.filter(item=>issuedLoanMatchesFilter(item,filters)),missing=passes.filter(item=>!item.date).length,filtered=passes.filter(item=>item.date&&(!from||item.date>=from)&&(!to||item.date<=to)).sort((a,b)=>b.date-a.date||a.client.localeCompare(b.client,"ar"));
+ window.__issuedLoanRecords=filtered;window.__issuedLoanModalGroups=filtered.map(item=>item.g);
+ const uniqueClients=new Set(filtered.map(item=>norm(item.nid||item.client)).filter(Boolean)),loanTotal=filtered.reduce((sum,item)=>sum+item.amount,0),installmentTotal=filtered.reduce((sum,item)=>sum+item.installmentValue,0);
+ const set=(id,value)=>{const el=document.getElementById(id);if(el)el.textContent=String(value)},count=filtered.length.toLocaleString("en-US"),clients=uniqueClients.size.toLocaleString("en-US"),loanMoney=money(loanTotal),installmentMoney=money(installmentTotal);
+ set("issuedLoanCount",count);set("issuedLoanAmountTotal",loanMoney);set("issuedLoanClientCount",clients);set("issuedLoanMissingDateCount",missing.toLocaleString("en-US"));set("issuedPrintLoanCount",count);set("issuedPrintLoanTotal",loanMoney);set("issuedPrintInstallmentTotal",installmentMoney);set("issuedPrintClientCount",clients);set("issuedTableLoanTotal",loanMoney);set("issuedTableInstallmentTotal",installmentMoney);
+ const body=document.getElementById("issuedLoansTableBody");if(body)body.innerHTML=filtered.length?filtered.map((item,index)=>`<tr><td>${(index+1).toLocaleString("en-US")}</td><td><button type="button" class="issued-client-open" aria-label="فتح ملف العميل ${escAttr(item.client)}" onclick="openIssuedLoanClientProfile(${index})">${esc(item.client)}</button></td><td>${esc(item.officer)}</td><td class="amount">${esc(money(item.amount))}</td><td>${esc(item.term)}</td><td>${esc(portfolioDateText(item.rawDate))}</td><td>${esc(item.product||"—")}</td><td class="amount">${esc(money(item.installmentValue))}</td><td>${item.dueDate?esc(clientsDateText(item.dueDate)):"—"}</td><td>${esc(portfolioDateText(item.endDateRaw))}</td><td>${esc(item.status)}</td></tr>`).join(""):'<tr><td class="empty-state" colspan="11">لا توجد قروض مطابقة للفلاتر في الفترة المحددة.</td></tr>';
+ const note=document.getElementById("issuedLoanDataNote");if(note){if(from&&to&&from>to){note.textContent="تاريخ البداية يجب أن يسبق تاريخ النهاية أو يساويه.";note.classList.add("is-warning")}else if(missing){note.textContent=`تنبيه: توجد ${missing.toLocaleString("en-US")} سجلات ضمن بقية الفلاتر بلا تاريخ صرف صالح؛ لا يمكن تحديد وقت صدورها حتى يُستكمل التاريخ في ملف البيانات.`;note.classList.add("is-warning")}else{note.textContent="كل صف يمثل قرضًا واحدًا. قيمة القسط وتاريخ الاستحقاق يعرضان أقرب قسط غير مسدد، ومدة القرض تُستكمل من عدد الأقساط عند غيابها في الملف.";note.classList.remove("is-warning")}}
+ renderIssuedLoanFilterHistory();
+}
+function setIssuedLoansPeriod(period){
+ const now=new Date(),year=now.getFullYear(),month=now.getMonth(),from=document.getElementById("issuedLoanFrom"),to=document.getElementById("issuedLoanTo");if(!from||!to)return;
+ if(period==="current"){from.value=isoDate(new Date(year,month,1));to.value=isoDate(new Date(year,month+1,0))}
+ else if(period==="previous"){from.value=isoDate(new Date(year,month-1,1));to.value=isoDate(new Date(year,month,0))}
+ else if(period==="3months"||period==="6months"){const count=period==="3months"?3:6;from.value=isoDate(new Date(year,month-(count-1),1));to.value=isoDate(now)}
+ else{from.value="";to.value=""}
+ document.querySelectorAll("#issuedLoans .issued-period-card").forEach(button=>button.classList.toggle("is-active",button.dataset.period===period));renderIssuedLoans();
+}
+function clearIssuedLoansFilters(){
+ ["issuedLoanClientSearch","issuedLoanAmountMin","issuedLoanAmountMax","issuedLoanFilterName"].forEach(id=>{const el=document.getElementById(id);if(el)el.value=""});const status=document.getElementById("issuedLoanStatus");if(status)status.value="open";const officer=document.getElementById("issuedLoanOfficer");if(officer)officer.value="";const product=document.getElementById("issuedLoanProduct");if(product)product.value="";setAppSpecialistStatus("active");setIssuedLoansPeriod("current");hideIssuedLoanClientSuggestions();
+}
+function showIssuedLoanClientSuggestions(){
+ const input=document.getElementById("issuedLoanClientSearch"),box=document.getElementById("issuedLoanClientSuggestions");if(!input||!box)return;
+ const query=norm(input.value||""),items=issuedLoanSpecialistScopedGroups().map(issuedLoanRecord),map=new Map();items.forEach(item=>{if(!item.client||item.client==="غير محدد")return;const key=norm(item.nid||item.client);if(!map.has(key))map.set(key,item)});
+ const suggestions=[...map.values()].filter(item=>!query||norm(item.client).includes(query)).sort((a,b)=>a.client.localeCompare(b.client,"ar")).slice(0,10);window.__issuedLoanClientSuggestions=suggestions;
+ box.innerHTML=suggestions.length?suggestions.map((item,index)=>`<button type="button" role="option" data-index="${index}" onpointerdown="event.preventDefault();selectIssuedLoanClientSuggestion(Number(this.dataset.index))"><b>${esc(item.client)}</b><small>${esc(item.nid||item.loanNo||"عميل")}</small></button>`).join(''):'<div class="issued-no-suggestions">لا توجد أسماء مطابقة</div>';box.classList.add("is-open");
+}
+function hideIssuedLoanClientSuggestions(){document.getElementById("issuedLoanClientSuggestions")?.classList.remove("is-open")}
+function selectIssuedLoanClientSuggestion(index){const item=window.__issuedLoanClientSuggestions?.[Number(index)],input=document.getElementById("issuedLoanClientSearch");if(!item||!input)return;input.value=item.client;hideIssuedLoanClientSuggestions();renderIssuedLoans()}
+function clearIssuedLoanClientSearch(){const input=document.getElementById("issuedLoanClientSearch");if(input)input.value="";renderIssuedLoans();showIssuedLoanClientSuggestions();input?.focus()}
+function readIssuedLoanFilterHistory(){try{const value=JSON.parse(localStorage.getItem(ISSUED_LOAN_FILTER_HISTORY_KEY)||"[]");return Array.isArray(value)?value:[]}catch(e){return[]}}
+function renderIssuedLoanFilterHistory(){
+ const box=document.getElementById("issuedLoanFilterHistoryList");if(!box)return;const items=readIssuedLoanFilterHistory();box.innerHTML=items.length?items.map(item=>`<article class="issued-saved-filter"><div><b>${esc(item.name||"فلتر محفوظ")}</b><small>${esc(item.savedAt||"")}</small></div><div><button type="button" class="light" onclick="applyIssuedLoanSavedFilter('${escAttr(item.id)}')">تطبيق</button><button type="button" class="light issued-delete-filter" onclick="deleteIssuedLoanSavedFilter('${escAttr(item.id)}')">حذف</button></div></article>`).join(""):'<div class="issued-history-empty">لا توجد فلاتر محفوظة حتى الآن.</div>';
+}
+function currentIssuedLoanFilterSnapshot(){return {from:document.getElementById("issuedLoanFrom")?.value||"",to:document.getElementById("issuedLoanTo")?.value||"",officer:document.getElementById("issuedLoanOfficer")?.value||"",status:document.getElementById("issuedLoanStatus")?.value||"open",client:document.getElementById("issuedLoanClientSearch")?.value||"",product:document.getElementById("issuedLoanProduct")?.value||"",min:document.getElementById("issuedLoanAmountMin")?.value||"",max:document.getElementById("issuedLoanAmountMax")?.value||"",specialistState:appSpecialistFilterState()}}
+function saveIssuedLoanFilter(){
+ const nameInput=document.getElementById("issuedLoanFilterName"),name=String(nameInput?.value||"").trim()||`فلترة ${new Date().toLocaleString("ar-EG")}`,items=readIssuedLoanFilterHistory();items.unshift({id:String(Date.now()),name,savedAt:new Date().toLocaleString("ar-EG"),filters:currentIssuedLoanFilterSnapshot()});
+ try{localStorage.setItem(ISSUED_LOAN_FILTER_HISTORY_KEY,JSON.stringify(items.slice(0,30)));if(nameInput)nameInput.value="";renderIssuedLoanFilterHistory()}catch(e){alert("تعذر حفظ الفلتر على هذا الجهاز.")}
+}
+function applyIssuedLoanSavedFilter(id){const saved=readIssuedLoanFilterHistory().find(item=>String(item.id)===String(id));if(!saved?.filters)return;const f=saved.filters;for(const [key,idName] of [["from","issuedLoanFrom"],["to","issuedLoanTo"],["officer","issuedLoanOfficer"],["status","issuedLoanStatus"],["client","issuedLoanClientSearch"],["product","issuedLoanProduct"],["min","issuedLoanAmountMin"],["max","issuedLoanAmountMax"]]){const el=document.getElementById(idName);if(el)el.value=f[key]||""}setAppSpecialistStatus(f.specialistState||"active");renderIssuedLoans()}
+function deleteIssuedLoanSavedFilter(id){const items=readIssuedLoanFilterHistory().filter(item=>String(item.id)!==String(id));try{localStorage.setItem(ISSUED_LOAN_FILTER_HISTORY_KEY,JSON.stringify(items));renderIssuedLoanFilterHistory()}catch(e){alert("تعذر حذف الفلتر المحفوظ.")}}
+function openIssuedLoanClientProfile(index){
+ const group=window.__issuedLoanModalGroups?.[Number(index)],profile=document.getElementById("clientProfile");if(!group||!profile)return;
+ closeIssuedLoansClientProfileModal();if(typeof closeDueClientProfileModal==="function")closeDueClientProfileModal();
+ const parent=profile.parentNode,placeholder=document.createComment("issued-loan-profile-return-point"),previousStyle=profile.getAttribute("style"),previousBodyOverflow=document.body.style.overflow;parent.insertBefore(placeholder,profile);
+ const modal=document.createElement("div");modal.id="issuedLoanClientProfileModal";modal.setAttribute("role","dialog");modal.setAttribute("aria-modal","true");modal.setAttribute("aria-label","ملف العميل");modal.style.cssText="position:fixed;inset:0;z-index:10060;display:flex;justify-content:center;align-items:flex-start;overflow:auto;padding:clamp(8px,2.5vw,28px);background:rgba(15,23,42,.72);box-sizing:border-box;";modal._profileParent=parent;modal._profilePlaceholder=placeholder;modal._profilePreviousStyle=previousStyle;modal._previousBodyOverflow=previousBodyOverflow;modal.addEventListener("click",event=>{if(event.target===modal)closeIssuedLoansClientProfileModal()});
+ profile.style.display="block";profile.style.width="100%";profile.style.maxWidth="1400px";profile.style.boxSizing="border-box";profile.style.margin="0 auto";profile.style.maxHeight="none";modal.appendChild(profile);document.body.appendChild(modal);document.body.style.overflow="hidden";
+ const statusEl=document.getElementById("clientsStatus"),previousStatus=statusEl?.value;try{if(statusEl)statusEl.value="all";showClientProfile(group)}finally{if(statusEl)statusEl.value=previousStatus||"open"}const closeButton=profile.querySelector(".action-close");if(closeButton)closeButton.onclick=closeIssuedLoansClientProfileModal;closeButton?.focus();
+}
+function closeIssuedLoansClientProfileModal(){
+ const modal=document.getElementById("issuedLoanClientProfileModal"),profile=document.getElementById("clientProfile");if(!modal){return}const parent=modal._profileParent,placeholder=modal._profilePlaceholder;if(parent&&placeholder?.parentNode===parent)parent.insertBefore(profile,placeholder);placeholder?.remove();if(profile){if(modal._profilePreviousStyle===null)profile.removeAttribute("style");else profile.setAttribute("style",modal._profilePreviousStyle)}document.body.style.overflow=modal._previousBodyOverflow||"";modal.remove();
+}
+function exportIssuedLoansExcel(){
+ if(typeof XLSX==="undefined")return alert("مكتبة Excel غير متاحة.");
+ const records=window.__issuedLoanRecords||[],data=records.map((item,index)=>({"م":index+1,"اسم العميل":item.client,"اسم الأخصائي":item.officer,"مبلغ القرض":item.amount,"مدة القرض":item.term,"تاريخ منح القرض":portfolioDateText(item.rawDate),"نوع المنتج":item.product,"قيمة القسط":item.installmentValue,"تاريخ الاستحقاق":item.dueDate?clientsDateText(item.dueDate):"","تاريخ نهاية القرض":portfolioDateText(item.endDateRaw),"حالة القرض":item.status}));
+ const ws=XLSX.utils.json_to_sheet(data.length?data:[{"ملاحظة":"لا توجد قروض مطابقة للفلاتر"}]);ws["!cols"]=[{wch:7},{wch:28},{wch:22},{wch:17},{wch:15},{wch:17},{wch:20},{wch:16},{wch:17},{wch:18},{wch:18}];const wb=XLSX.utils.book_new();wb.Workbook={Views:[{RTL:true}]};XLSX.utils.book_append_sheet(wb,ws,"القروض المصدرة");XLSX.writeFile(wb,`القروض_المصدرة_${new Date().toISOString().slice(0,10)}.xlsx`);
 }
 function renderPortfolio(){
  const officer=document.getElementById("portfolioOfficer")?.value||"";
@@ -3833,12 +4160,13 @@ function clearSectionFilter(section){
   if(section==="risk"){
     ["riskOfficer","riskClient","riskFrom","riskTo"].forEach(id=>{const el=document.getElementById(id);if(el)el.value="";});
     const st=document.getElementById("riskStatus");if(st)st.value="open";
+    riskAgingRange="";
     updateRiskFilterLists();
     renderRisk();
   }
   if(section==="due"){
     try{localStorage.removeItem("dueInstallmentsFilters_v1")}catch(e){}
-    window.dueView='due';document.querySelectorAll('#dueInstallments .due-nav-btn').forEach(x=>x.classList.toggle('active',x.dataset.dueView==='due'));
+    window.dueView='due';dueAgingRange='';document.querySelectorAll('#dueInstallments .due-nav-btn').forEach(x=>x.classList.toggle('active',x.dataset.dueView==='due'));
     ["dueOfficer","dueClient","dueAddress","dueFrom","dueTo","dueSpecificMonth"].forEach(id=>{const el=document.getElementById(id);if(el)el.value="";});
     const currentSpecialists=document.querySelector('#dueInstallments input[name="dueSpecialistStatus"][value="active"]');if(currentSpecialists)currentSpecialists.checked=true;
     const dueYear=document.getElementById("dueSpecificYear");if(dueYear)dueYear.value=String(new Date().getFullYear());
@@ -4593,7 +4921,7 @@ function buildDuePrintLayer(forPdf=false){
   const colCount=Math.max(headers.length, ...dataRows.map(r=>r.children.length));
   const col=document.createElement("colgroup");
 
-  const widths=[1.5,8,12.5,4.5,1.3,13.7,3.5,6,4,3.5,5,4,5,4,2.5,6,5,5,5];
+  const widths=forPdf?[1.5,10,6,4.5,1.3,5,3.5,6,4,3.5,5,4,5,4,2.5,12,7.4,7.4,7.4]:[1.5,8,12.5,4.5,1.3,13.7,3.5,6,4,3.5,5,4,5,4,2.5,6,5,5,5];
   for(let i=0;i<colCount;i++){
     const c=document.createElement("col");
     c.style.width=(widths[i]||6)+"%";
@@ -4607,8 +4935,8 @@ function buildDuePrintLayer(forPdf=false){
     const th=document.createElement("th");
     th.innerHTML=h==="مدة القرض"?"مدة<br>القرض":esc(h);
     th.style.cssText="border:1px solid #111;padding:6px 3px;min-height:42px;background:#969eaa;color:#000;font-size:8.5px;font-weight:900;text-align:center;vertical-align:middle;white-space:normal;overflow-wrap:anywhere;word-break:normal;line-height:1.35;";
-    if(headers.indexOf(h)===7){th.style.width="10%";th.style.minWidth="78px";th.style.whiteSpace="nowrap";th.style.wordBreak="keep-all";th.style.overflowWrap="normal";}
-    if(headers.indexOf(h)===14){th.style.width="4%";th.style.minWidth="30px";th.style.maxWidth="4%";th.style.whiteSpace="normal";th.style.wordBreak="normal";th.style.overflowWrap="anywhere";}
+    if(headers.indexOf(h)===7){th.style.width=forPdf?"6%":"10%";th.style.minWidth="78px";th.style.whiteSpace="nowrap";th.style.wordBreak="keep-all";th.style.overflowWrap="normal";}
+    if(headers.indexOf(h)===14){th.style.width=forPdf?"2.5%":"4%";th.style.minWidth="30px";th.style.maxWidth="4%";th.style.whiteSpace="normal";th.style.wordBreak="normal";th.style.overflowWrap="anywhere";}
     hr.appendChild(th);
   });
   const totalsRow=source.querySelector(".due-column-totals-row")?.cloneNode(true);
@@ -4629,19 +4957,19 @@ function buildDuePrintLayer(forPdf=false){
       td.style.cssText="border:1px solid #111;padding:6px 3px;min-height:42px;color:#000;background:#fff;font-size:8.2px;font-weight:800;vertical-align:middle;text-align:right;white-space:normal;overflow-wrap:anywhere;word-break:normal;line-height:1.45;height:auto;max-height:none;overflow:visible;";
       // الأرقام والتواريخ تكون في المنتصف، أما النصوص الطويلة فتلتف داخل نفس الخلية.
       if(i<=14){td.style.textAlign="center";td.style.fontSize="9.2px";td.style.fontWeight="900";td.style.color="#000";}
-      if(i===7){td.style.width="10%";td.style.minWidth="78px";td.style.whiteSpace="nowrap";td.style.wordBreak="keep-all";td.style.overflowWrap="normal";td.style.direction="ltr";}
-      if(i===10){td.style.width="8%";td.style.minWidth="68px";td.style.whiteSpace="nowrap";td.style.wordBreak="keep-all";td.style.overflowWrap="normal";td.style.direction="ltr";}
-      if(i===1){td.style.width="11%";td.style.minWidth="95px";td.style.whiteSpace="normal";td.style.overflowWrap="anywhere";td.style.wordBreak="normal";td.style.fontWeight="900";}
-      if(i===2){td.style.width="13%";td.style.minWidth="105px";td.style.fontSize="8.5px";td.style.whiteSpace="nowrap";td.style.wordBreak="keep-all";td.style.overflowWrap="normal";td.style.overflow="hidden";td.style.direction="ltr";}
-      if(i===5){td.style.width="11%";td.style.minWidth="95px";td.style.maxWidth="none";td.style.fontSize="7.5px";td.style.whiteSpace="nowrap";td.style.wordBreak="keep-all";td.style.overflowWrap="normal";td.style.overflow="hidden";td.style.direction="ltr";}
-      if(i===14){td.style.width="4%";td.style.minWidth="30px";td.style.maxWidth="4%";td.style.fontSize="8px";td.style.whiteSpace="normal";td.style.wordBreak="normal";td.style.overflowWrap="anywhere";}
+      if(i===7){td.style.width=forPdf?"6%":"10%";td.style.minWidth="78px";td.style.whiteSpace="nowrap";td.style.wordBreak="keep-all";td.style.overflowWrap="normal";td.style.direction="ltr";}
+      if(i===10){td.style.width=forPdf?"5%":"8%";td.style.minWidth="68px";td.style.whiteSpace="nowrap";td.style.wordBreak="keep-all";td.style.overflowWrap="normal";td.style.direction="ltr";}
+      if(i===1){td.style.width=forPdf?"10%":"11%";td.style.minWidth="95px";td.style.whiteSpace="normal";td.style.overflowWrap="anywhere";td.style.wordBreak="normal";td.style.fontWeight="900";}
+      if(i===2){td.style.width=forPdf?"6%":"13%";td.style.minWidth=forPdf?"0":"105px";td.style.fontSize="8.5px";td.style.whiteSpace="nowrap";td.style.wordBreak="keep-all";td.style.overflowWrap="normal";td.style.overflow="hidden";td.style.direction="ltr";}
+      if(i===5){td.style.width=forPdf?"5%":"11%";td.style.minWidth=forPdf?"0":"95px";td.style.maxWidth="none";td.style.fontSize="7.5px";td.style.whiteSpace="nowrap";td.style.wordBreak="keep-all";td.style.overflowWrap="normal";td.style.overflow="hidden";td.style.direction="ltr";}
+      if(i===14){td.style.width=forPdf?"2.5%":"4%";td.style.minWidth="30px";td.style.maxWidth="4%";td.style.fontSize="8px";td.style.whiteSpace="normal";td.style.wordBreak="normal";td.style.overflowWrap="anywhere";}
       if(i===12){td.style.width="5%";td.style.minWidth="55px";td.style.whiteSpace="normal";td.style.wordBreak="normal";td.style.overflowWrap="normal";td.style.lineHeight="1.15";}
-      if(i>=16){td.style.width="7%";td.style.minWidth="60px";td.style.fontSize="7px";td.style.whiteSpace="normal";td.style.wordBreak="normal";td.style.overflowWrap="anywhere";td.style.direction="rtl";}
+      if(i>=16){td.style.width=forPdf?"7.4%":"7%";td.style.minWidth="60px";td.style.fontSize="7px";td.style.whiteSpace="normal";td.style.wordBreak="normal";td.style.overflowWrap="anywhere";td.style.direction="rtl";}
       // المتبقي من القسط، عدد الأقساط المتأخرة، إجمالي المتأخرات، وأيام التأخير.
       if(i===10||i===11||i===12||i===13||i===14){td.style.whiteSpace="nowrap";td.style.wordBreak="normal";td.style.overflowWrap="normal";td.style.direction="ltr";}
       // الرقم القومي يبقى متصلًا، أما الهاتف فيبقى داخل عموده ولا يتسرب للعمود التالي.
       if(i===2||i===3){td.style.whiteSpace="nowrap";td.style.wordBreak="normal";td.style.overflowWrap="normal";td.style.direction="ltr";}
-      if(i===5){td.style.width="13%";td.style.minWidth="0";td.style.maxWidth="13%";td.style.boxSizing="border-box";td.style.whiteSpace="nowrap";td.style.wordBreak="keep-all";td.style.overflowWrap="normal";td.style.overflow="hidden";td.style.textOverflow="clip";td.style.direction="ltr";td.style.textAlign="center";}
+      if(i===5){td.style.width=forPdf?"5%":"13%";td.style.minWidth="0";td.style.maxWidth=forPdf?"5%":"13%";td.style.boxSizing="border-box";td.style.whiteSpace="nowrap";td.style.wordBreak="keep-all";td.style.overflowWrap="normal";td.style.overflow="hidden";td.style.textOverflow="clip";td.style.direction="ltr";td.style.textAlign="center";}
       // النصوص الطويلة تلتف داخل خلايا الاسم والعنوان والضامنين في الطباعة وPDF.
       if(i===1||i===15||i>=16){td.style.minWidth="0";td.style.maxWidth="none";td.style.boxSizing="border-box";td.style.whiteSpace="normal";td.style.overflowWrap="anywhere";td.style.wordBreak="normal";td.style.overflow="hidden";td.style.textOverflow="clip";td.style.direction="rtl";td.style.lineHeight="1.25";}
       tr.appendChild(td);
@@ -4683,13 +5011,13 @@ function buildDuePrintLayer(forPdf=false){
     });
     const split=[];
     reportChunks.forEach(report=>{
-      const limit=12,parts=[];
-      const reportName=specialistReportName(report.rows);let i=0,partIndex=0;while(i<report.rows.length){const limit=partIndex===0?11:12;parts.push({rows:report.rows.slice(i,i+limit),reportRows:report.rows,reportName,reportStart:i===0});i+=limit;partIndex++;}
+      const parts=[];
+      const reportName=specialistReportName(report.rows);let i=0,partIndex=0;while(i<report.rows.length){const limit=partIndex===0?(forPdf?34:11):(forPdf?36:12);parts.push({rows:report.rows.slice(i,i+limit),reportRows:report.rows,reportName,reportStart:i===0});i+=limit;partIndex++;}
       split.push(...parts);
     });
     reportChunks.length=0;reportChunks.push(...split);
   }else{
-    for(let i=0;i<allRows.length;i+=12)reportChunks.push({rows:allRows.slice(i,i+12),reportRows:allRows,reportName:"",reportStart:i===0});
+    let i=0,partIndex=0;while(i<allRows.length){const pageRowLimit=forPdf?(partIndex===0?34:36):12;reportChunks.push({rows:allRows.slice(i,i+pageRowLimit),reportRows:allRows,reportName:"",reportStart:i===0});i+=pageRowLimit;partIndex++;}
   }
   const totalPages=Math.max(1,reportChunks.length);
   layer.innerHTML="";
@@ -4698,7 +5026,7 @@ function buildDuePrintLayer(forPdf=false){
     const page=document.createElement("div");
     page.className="risk-pdf-page-block due-report-page-block print-page"+(chunk.reportStart?" risk-first-page":"");page.dir="rtl";
     page.style.cssText=forPdf
-      ?"display:block;position:relative;width:100%;height:760px;min-height:0;box-sizing:border-box;page-break-inside:avoid;break-inside:avoid;overflow:hidden;margin:0;padding:0 0 45px;"
+      ?"display:block;position:relative;width:100%;height:1450px;min-height:0;box-sizing:border-box;page-break-inside:avoid;break-inside:avoid;overflow:hidden;margin:0;padding:0 0 40px;"
       :"display:block;position:relative;width:100%;height:auto;min-height:0;box-sizing:border-box;page-break-inside:avoid;break-inside:avoid;overflow:visible;margin:0;padding:0 0 16mm;";
     if(pageIndex>0){page.style.setProperty("page-break-before","always","important");page.style.setProperty("break-before","page","important")}
     const pageContent=document.createElement("div");pageContent.className="due-page-content page-content";pageContent.dir="rtl";
@@ -4726,6 +5054,13 @@ function buildDuePrintLayer(forPdf=false){
     cell.style.setProperty("white-space","normal","important");
     cell.style.setProperty("overflow-wrap","anywhere","important");
     cell.style.setProperty("word-break","normal","important");
+    if(forPdf&&cell.tagName==="TH"){
+      cell.style.setProperty("white-space","normal","important");
+      cell.style.setProperty("overflow-wrap","normal","important");
+      cell.style.setProperty("word-break","normal","important");
+      cell.style.setProperty("hyphens","none","important");
+      cell.style.setProperty("text-align","center","important");
+    }
   });
   layer.querySelectorAll(".risk-print-table col:nth-child(5)").forEach(col=>{
     col.style.setProperty("width","28px","important");
@@ -4741,7 +5076,7 @@ function buildDuePrintLayer(forPdf=false){
     cell.style.setProperty("word-break","normal","important");
   });
   layer.querySelectorAll(".risk-print-table th:nth-child(6),.risk-print-table td:nth-child(6)").forEach(cell=>{
-    cell.style.setProperty("width","13%","important");
+    cell.style.setProperty("width",forPdf?"5%":"13%","important");
     cell.style.setProperty("white-space","nowrap","important");
     cell.style.setProperty("overflow-wrap","normal","important");
     cell.style.setProperty("word-break","keep-all","important");
@@ -4763,21 +5098,24 @@ function printRiskReport(event){
   try{window.print()}catch(e){cleanup();alert("تعذر تشغيل الطباعة. حاول مرة أخرى.");return false}
   setTimeout(cleanup,60000);return false;
 }
-async function downloadReportLayerPDF(layer,filename,className="report-pdf-download"){
-  if(typeof window.html2pdf!=="function"){layer.remove();alert("تعذر تشغيل تحميل PDF. تأكد من اتصال الإنترنت ثم أعد المحاولة.");return}
+async function downloadReportLayerPDF(layer,filename,className="report-pdf-download",returnBlob=false){
+  if(typeof window.html2pdf!=="function"){layer.remove();alert("تعذر تشغيل تحميل PDF. تأكد من اتصال الإنترنت ثم أعد المحاولة.");return null}
   const holder=document.createElement("div");
   const isRiskPDF=className==="printing-risk-report";
-  const captureWidth=isRiskPDF?2200:1120;
-  const captureFont=isRiskPDF?"16px":"7.8px";
-  const captureHeadFont=isRiskPDF?"15px":"7.4px";
+  const isDuePDF=className==="printing-due-pdf";
+  const isWidePDF=isRiskPDF||isDuePDF;
+  const captureWidth=isWidePDF?2200:1120;
+  const captureFont=isDuePDF?"12px":isRiskPDF?"16px":"7.8px";
+  const captureHeadFont=isDuePDF?"12px":isRiskPDF?"15px":"7.4px";
   holder.style.cssText=`position:absolute;left:0;top:0;width:${captureWidth}px;min-width:${captureWidth}px;background:#fff;z-index:-1;visibility:visible;display:block;direction:ltr;overflow:visible;`;
   layer.style.cssText+=(layer.style.cssText?";":"")+`font-size:${captureFont}!important;line-height:1.3!important;width:${captureWidth}px!important;text-shadow:none!important;-webkit-text-stroke:0!important;filter:none!important;min-height:20px;height:auto;display:block!important;visibility:visible!important;opacity:1!important;background:#fff!important;color:#000!important;position:static!important;margin:0!important;padding:0 12px!important;box-sizing:border-box!important;`;
   // تثبيت كل صفحة PDF كوحدة مستقلة حتى يبقى التذييل داخلها ولا يُرحّل لصفحة جديدة.
-  if(isRiskPDF){
+  if(isWidePDF){
+    const pageHeight=isDuePDF?"1450px":"760px";
     layer.querySelectorAll(".due-report-page-block").forEach((page,index,pages)=>{
-      page.style.setProperty("height","760px","important");
-      page.style.setProperty("min-height","760px","important");
-      page.style.setProperty("max-height","760px","important");
+      page.style.setProperty("height",pageHeight,"important");
+      page.style.setProperty("min-height",pageHeight,"important");
+      page.style.setProperty("max-height",pageHeight,"important");
       page.style.setProperty("overflow","hidden","important");
       page.style.setProperty("position","relative","important");
       page.style.setProperty("page-break-inside","avoid","important");
@@ -4800,7 +5138,7 @@ async function downloadReportLayerPDF(layer,filename,className="report-pdf-downl
       }
     });
   }
-  layer.querySelectorAll("table").forEach(table=>{table.style.width="100%";table.style.maxWidth="100%";table.style.minWidth="0";table.style.tableLayout="fixed";table.style.overflow="visible";table.style.direction="rtl";table.querySelectorAll("thead").forEach(t=>{t.style.display="table-header-group";t.style.position="static";t.style.breakInside="avoid";t.style.pageBreakInside="avoid";t.style.cssText+=";display:table-header-group!important;page-break-inside:avoid!important;break-inside:avoid!important;"});table.querySelectorAll("th,td").forEach(cell=>{cell.style.maxWidth="none";cell.style.minWidth="0";cell.style.overflow="hidden";cell.style.overflowWrap="anywhere";cell.style.wordBreak="break-word";cell.style.whiteSpace="normal";cell.style.setProperty("font-size",cell.tagName==="TH"?captureHeadFont:captureFont,"important");cell.style.setProperty("line-height","1.22","important");cell.style.setProperty("padding",isRiskPDF?"7px 4px":"2px 1px","important");cell.style.setProperty("min-height",isRiskPDF?"62px":"0","important");cell.style.setProperty("height",isRiskPDF?"62px":"auto","important");cell.style.setProperty("font-weight","400","important");cell.style.setProperty("vertical-align","middle","important");cell.style.textShadow="none";cell.style.webkitTextStroke="0";cell.style.filter="none";cell.style.setProperty("color","#000","important");
+  layer.querySelectorAll("table").forEach(table=>{table.style.width="100%";table.style.maxWidth="100%";table.style.minWidth="0";table.style.tableLayout="fixed";table.style.overflow="visible";table.style.direction="rtl";table.querySelectorAll("thead").forEach(t=>{t.style.display="table-header-group";t.style.position="static";t.style.breakInside="avoid";t.style.pageBreakInside="avoid";t.style.cssText+=";display:table-header-group!important;page-break-inside:avoid!important;break-inside:avoid!important;"});table.querySelectorAll("th,td").forEach(cell=>{cell.style.maxWidth="none";cell.style.minWidth="0";cell.style.overflow="hidden";cell.style.overflowWrap="anywhere";cell.style.wordBreak="break-word";cell.style.whiteSpace="normal";cell.style.setProperty("font-size",cell.tagName==="TH"?captureHeadFont:captureFont,"important");cell.style.setProperty("line-height",isDuePDF?"1.12":"1.22","important");cell.style.setProperty("padding",isDuePDF?"2px 2px":isRiskPDF?"7px 4px":"2px 1px","important");cell.style.setProperty("min-height",isDuePDF?"28px":isRiskPDF?"62px":"0","important");cell.style.setProperty("height",isDuePDF?"30px":isRiskPDF?"62px":"auto","important");cell.style.setProperty("font-weight","400","important");cell.style.setProperty("vertical-align","middle","important");cell.style.textShadow="none";cell.style.webkitTextStroke="0";cell.style.filter="none";cell.style.setProperty("color","#000","important");
     if(cell.matches("td:nth-child(3),td:nth-child(6)")){
       // الرقم القومي ورقم الهاتف: رقم كامل داخل نفس الخلية بلا التفاف أو انتقال.
       cell.style.setProperty("white-space","nowrap","important");cell.style.setProperty("word-break","keep-all","important");cell.style.setProperty("overflow-wrap","normal","important");cell.style.setProperty("direction","ltr","important");cell.style.setProperty("text-align","center","important");cell.style.setProperty("font-family","Arial,Tahoma,sans-serif","important");cell.style.setProperty("font-variant-numeric","tabular-nums","important");
@@ -4809,21 +5147,62 @@ async function downloadReportLayerPDF(layer,filename,className="report-pdf-downl
       // أرقام الضامن الأول والثاني والثالث: خط واضح ورقم متصل لا يعبر إلى الخلية التالية.
       phone.style.setProperty("font-size","0.62em","important");phone.style.setProperty("font-family","Arial,Tahoma,sans-serif","important");phone.style.setProperty("font-weight","700","important");phone.style.setProperty("font-variant-numeric","tabular-nums","important");phone.style.setProperty("white-space","nowrap","important");phone.style.setProperty("word-break","keep-all","important");phone.style.setProperty("overflow-wrap","normal","important");phone.style.setProperty("direction","ltr","important");phone.style.setProperty("unicode-bidi","plaintext","important");phone.style.setProperty("display","inline-block","important");
     });})});
+  if(isDuePDF){
+    layer.querySelectorAll(".risk-print-table").forEach(table=>{
+      [[3,"6%"],[6,"5%"]].forEach(([column,width])=>{
+        table.querySelectorAll(`col:nth-child(${column}),th:nth-child(${column}),td:nth-child(${column})`).forEach(cell=>{
+          cell.style.setProperty("width",width,"important");
+          cell.style.setProperty("min-width","0","important");
+          cell.style.setProperty("max-width",width,"important");
+          cell.style.setProperty("box-sizing","border-box","important");
+        });
+      });
+      table.querySelectorAll("thead th").forEach(cell=>{
+        cell.style.setProperty("white-space","normal","important");
+        cell.style.setProperty("overflow-wrap","normal","important");
+        cell.style.setProperty("word-break","normal","important");
+        cell.style.setProperty("hyphens","none","important");
+        cell.style.setProperty("line-height","1.12","important");
+        cell.style.setProperty("padding","3px 2px","important");
+        cell.style.setProperty("height","auto","important");
+        cell.style.setProperty("min-height","0","important");
+        cell.style.setProperty("text-align","center","important");
+      });
+      table.querySelectorAll("td:nth-child(3),td:nth-child(6)").forEach(cell=>{
+        cell.style.setProperty("white-space","nowrap","important");
+        cell.style.setProperty("overflow-wrap","normal","important");
+        cell.style.setProperty("word-break","keep-all","important");
+        cell.style.setProperty("direction","ltr","important");
+        cell.style.setProperty("unicode-bidi","plaintext","important");
+        cell.style.setProperty("text-align","center","important");
+        cell.style.setProperty("font-size","12px","important");
+        cell.style.setProperty("font-family","Arial,Tahoma,sans-serif","important");
+        cell.style.setProperty("font-variant-numeric","tabular-nums","important");
+      });
+    });
+  }
   holder.appendChild(layer);document.body.appendChild(holder);
   try{
     await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
-    await window.html2pdf().set({
+    const pdfWorker=window.html2pdf().set({
       margin:0,
       filename,
       image:{type:"jpeg",quality:.97},
       html2canvas:{scale:1,useCORS:true,backgroundColor:"#fff",logging:false,width:captureWidth,windowWidth:captureWidth,x:0,y:0,scrollX:0,scrollY:0},
-      jsPDF:{unit:"mm",format:isRiskPDF?"a2":"a4",orientation:"landscape",compress:true},
-      pagebreak:isRiskPDF
+      jsPDF:{unit:"mm",format:isWidePDF?"a2":"a4",orientation:"landscape",compress:true},
+      pagebreak:isWidePDF
         ?{mode:["css"],avoid:[".print-page",".page-footer","tr","thead","tfoot"]}
         :{mode:["css","legacy"],avoid:["tr","thead","tfoot"]}
-    }).from(layer).save();
+    }).from(layer);
+    if(returnBlob){
+      const pdfBlob=await pdfWorker.outputPdf("blob");
+      if(!(pdfBlob instanceof Blob)||pdfBlob.size<100)throw new Error("تعذر تكوين ملف PDF صالح للمشاركة.");
+      return pdfBlob;
+    }
+    await pdfWorker.save();
     showMsg("تم تحميل ملف PDF بنجاح.","ok");
-  }catch(e){console.error("PDF download failed",e);alert("تعذر إنشاء ملف PDF. حاول مرة أخرى.");}
+    return true;
+  }catch(e){console.error("PDF download failed",e);alert("تعذر إنشاء ملف PDF. حاول مرة أخرى.");return null;}
   finally{if(className)document.body.classList.remove(className);holder.remove();}
 }
 let duePrintActionBusyUntil=0;
@@ -4851,7 +5230,7 @@ function printDueReport(event){
 async function downloadDuePDF(event){
  if(event?.preventDefault)event.preventDefault();if(event?.stopImmediatePropagation)event.stopImmediatePropagation();const now=Date.now();if(now<duePrintActionBusyUntil)return false;duePrintActionBusyUntil=now+1400;
  const layer=buildDuePrintLayer(true);if(!layer){alert("لا توجد أقساط مستحقة لتحميلها PDF.");return}
- await downloadReportLayerPDF(layer,`تقرير_الأقساط_المستحقة_${new Date().toISOString().slice(0,10)}.pdf`,"printing-risk-report");
+ await downloadReportLayerPDF(layer,`تقرير_الأقساط_المستحقة_${new Date().toISOString().slice(0,10)}.pdf`,"printing-due-pdf");
 }
 // إتاحة الدوال صراحةً لمعالجات أزرار الهاتف.
 window.printDueReport=printDueReport;
@@ -4899,6 +5278,10 @@ function reportUserName(){
 }
 function reportDateTime(){const d=new Date();return {date:formatPrintDate(d),time:d.toLocaleTimeString("en-US")}}
 function reportFilterText(active){
+  if(active?.id==="issuedLoans"){
+    const out=[],value=id=>String(active.querySelector(`#${id}`)?.value||"").trim(),from=value("issuedLoanFrom"),to=value("issuedLoanTo"),client=value("issuedLoanClientSearch"),min=value("issuedLoanAmountMin"),max=value("issuedLoanAmountMax"),status=active.querySelector("#issuedLoanStatus")?.selectedOptions?.[0]?.textContent?.trim(),officer=active.querySelector("#issuedLoanOfficer")?.selectedOptions?.[0]?.textContent?.trim(),product=active.querySelector("#issuedLoanProduct")?.selectedOptions?.[0]?.textContent?.trim(),specialist=active.querySelector('input[name="appSpecialistStatus_issuedLoans"]:checked')?.parentElement?.textContent?.trim();
+    if(from||to)out.push(`الفترة: ${from||"بلا بداية"} إلى ${to||"بلا نهاية"}`);if(specialist)out.push(`حالة الأخصائي: ${specialist}`);if(officer&&officer!=="كل الأخصائيين")out.push(`الأخصائي: ${officer}`);if(status&&status!=="كل الحالات")out.push(`حالة القرض: ${status}`);if(client)out.push(`العميل: ${client}`);if(product&&product!=="كل الأنواع")out.push(`نوع المنتج: ${product}`);if(min||max)out.push(`قيمة القرض: ${min||"بلا حد أدنى"} – ${max||"بلا حد أعلى"}`);return out.length?out.join("  |  "):"كل البيانات";
+  }
   const out=[];
   active.querySelectorAll("input,select").forEach(el=>{
     if(el.type==="file"||el.type==="hidden"||el.closest(".export-toolbar"))return;
@@ -4965,6 +5348,8 @@ async function downloadCurrentPDF(){
   if(active.id==="clients"){await downloadClientsPDF();return}
   if(typeof window.html2pdf!=="function"){alert("تعذر تشغيل تحميل PDF. تأكد من اتصال الإنترنت ثم أعد المحاولة.");return}
   const clone=active.cloneNode(true);clone.removeAttribute("id");
+  if(active.id==="issuedLoans")clone.querySelectorAll(".issued-client-open").forEach(button=>{const label=document.createElement("span");label.className="issued-client-open-print";label.style.cssText="color:#155eaa;font-weight:900;text-decoration:underline;text-underline-offset:3px";label.textContent=button.textContent;button.replaceWith(label)});
+  if(active.id==="issuedLoans")clone.querySelectorAll(".issued-loans-summary").forEach(el=>el.remove());
   clone.querySelectorAll(".no-print,button,input,select,textarea").forEach(el=>el.remove());
   clone.querySelectorAll(".wrap,.clients-table-wrap,.risk-installments-wrap,.collection-details").forEach(el=>{el.style.overflow="visible";el.style.maxHeight="none";el.style.height="auto"});
   clone.style.cssText="display:block!important;visibility:visible!important;width:1120px;max-width:none;background:#fff;color:#111;padding:12px;direction:rtl;box-sizing:border-box;";
@@ -5931,6 +6316,7 @@ async function loadCloud(){
 function subscribeCloud(){
   if(!cloudReady || !supabaseClient || supabaseChannel) return;
   supabaseChannel=supabaseClient.channel("mubadara-data-sync")
+    .on("postgres_changes",{event:"*",schema:"public",table:SUPABASE_TABLE,filter:"id=eq.2147483647"},payload=>{const meta=payload?.new?.rows?.__mub_last_import_notice_v1;if(meta&&window.applySharedLastImportNotice)window.applySharedLastImportNotice(meta)})
     .on("postgres_changes",{event:"*",schema:"public",table:SUPABASE_TABLE,filter:"id=eq.1"},async payload=>{
       if(cloudWriting)return;
       const incoming=payload?.new;
@@ -7782,7 +8168,18 @@ function formatPrintDate(value){const d=value instanceof Date?value:new Date(val
 <script id="due-table-tools-final">
 function updateDueQuickSearchSuggestions(){const list=document.getElementById('dueTableQuickSearchList');if(!list)return;const values=new Set();document.querySelectorAll('#dueTableBody tr[data-due-data-row="1"]').forEach(row=>[row.cells[1]?.innerText,row.cells[2]?.innerText,row.cells[5]?.innerText].forEach(v=>{const s=String(v||'').trim();if(s&&s!=='—')values.add(s)}));list.innerHTML=[...values].slice(0,300).map(v=>`<option value="${escAttr(v)}"></option>`).join('')}
 function clearDueQuickSearch(){const input=document.getElementById('dueTableQuickSearch');if(input){input.value='';updateDueQuickSearchSuggestions();applyDueQuickSearch();input.focus()}}
-function applyDueQuickSearch(){const body=document.getElementById('dueTableBody'),input=document.getElementById('dueTableQuickSearch');if(!body)return;const q=norm(input?.value||'');let current=[];const groups=[];const flush=()=>{if(!current.length)return;const has=current.some(r=>r.dataset.quickMatch==='1');const meta=current.filter(r=>r.classList.contains('due-specialist-group-row')||r.classList.contains('due-specialist-subtotal-row')||r.classList.contains('due-specialist-screen-header-row'));meta.forEach(r=>r.style.display=has?'':'none');current=[]};[...body.children].forEach(row=>{if(row.classList.contains('due-specialist-group-row'))flush();if(row.matches('tr[data-due-data-row="1"]')){const match=!q||norm(row.textContent).includes(q);row.dataset.quickMatch=match?'1':'0';row.style.display=match?'':'none';current.push(row)}else if(row.classList.contains('due-specialist-group-row')||row.classList.contains('due-specialist-subtotal-row')||row.classList.contains('due-specialist-screen-header-row'))current.push(row)});flush();if(!q)[...body.children].forEach(r=>r.style.display='')}
+function syncDueAgingVisibleClientCount(){
+ if(!dueAgingRange)return;
+ const card=[...document.querySelectorAll('#dueAgingCards .due-aging-card')].find(button=>button.dataset.dueAgingBand===dueAgingRange);
+ const body=document.getElementById('dueTableBody');if(!card||!body)return;
+ const visibleRows=[...body.querySelectorAll('tr[data-due-data-row="1"]')].filter(row=>row.style.display!=='none'&&!row.hidden);
+ const count=visibleRows.length,clientCount=card.querySelector('.due-aging-clients b');
+ if(clientCount)clientCount.textContent=count.toLocaleString('en-US');
+ const band=RISK_AGING_BANDS.find(item=>item.id===dueAgingRange),installments=card.querySelector('.due-aging-main b')?.textContent||'0',amount=card.querySelector('.due-aging-amount b')?.textContent||'0';
+ if(band)card.setAttribute('aria-label',`${band.label}: ${installments} قسط، ${count} عميل ظاهر في الجدول، إجمالي المتبقي ${amount}`);
+}
+
+function applyDueQuickSearch(){const body=document.getElementById('dueTableBody'),input=document.getElementById('dueTableQuickSearch');if(!body)return;const q=norm(input?.value||'');let current=[];const groups=[];const flush=()=>{if(!current.length)return;const has=current.some(r=>r.dataset.quickMatch==='1');const meta=current.filter(r=>r.classList.contains('due-specialist-group-row')||r.classList.contains('due-specialist-subtotal-row')||r.classList.contains('due-specialist-screen-header-row'));meta.forEach(r=>r.style.display=has?'':'none');current=[]};[...body.children].forEach(row=>{if(row.classList.contains('due-specialist-group-row'))flush();if(row.matches('tr[data-due-data-row="1"]')){const match=!q||norm(row.textContent).includes(q);row.dataset.quickMatch=match?'1':'0';row.style.display=match?'':'none';current.push(row)}else if(row.classList.contains('due-specialist-group-row')||row.classList.contains('due-specialist-subtotal-row')||row.classList.contains('due-specialist-screen-header-row'))current.push(row)});flush();if(!q)[...body.children].forEach(r=>r.style.display='');syncDueAgingVisibleClientCount()}
 function dueCurrentSpecialistName(){const input=document.getElementById('dueOfficer'),value=(input?.value||'').trim();if(!value||norm(value)===norm(DUE_ALL_SPECIALISTS_LABEL))return '';return value}
 function dueRequireCurrentSpecialist(){const name=dueCurrentSpecialistName();if(!name){alert('اختر اسم أخصائي محدد أولًا، وليس جميع الأخصائيين.');return null}return name}
 function printDueCurrentSpecialist(event){if(event?.preventDefault)event.preventDefault();if(event?.stopImmediatePropagation)event.stopImmediatePropagation();if(!dueRequireCurrentSpecialist())return false;return printDueReport(event)}
@@ -7807,12 +8204,12 @@ function ensureDueDefaultSpecialistOption(){const input=document.getElementById(
 <script id="due-filter-persistence-final">
 const DUE_FILTER_STORAGE_KEY="dueInstallmentsFilters_v1";
 function dueFilterValue(id){return document.getElementById(id)?.value||""}
-function dueFilterSnapshot(){return {officer:dueFilterValue("dueOfficer"),client:dueFilterValue("dueClient"),address:dueFilterValue("dueAddress"),from:dueFilterValue("dueFrom"),to:dueFilterValue("dueTo"),status:dueFilterValue("dueStatus")||"open",all:document.getElementById("dueAllSpecialists")?.checked===true,excelMode:document.getElementById("dueExcelRowMode")?.checked===true,month:dueFilterValue("dueSpecificMonth"),year:dueFilterValue("dueSpecificYear"),view:window.dueView||"due"}}
+function dueFilterSnapshot(){return {officer:dueFilterValue("dueOfficer"),client:dueFilterValue("dueClient"),address:dueFilterValue("dueAddress"),from:dueFilterValue("dueFrom"),to:dueFilterValue("dueTo"),status:dueFilterValue("dueStatus")||"open",all:document.getElementById("dueAllSpecialists")?.checked===true,excelMode:document.getElementById("dueExcelRowMode")?.checked===true,month:dueFilterValue("dueSpecificMonth"),year:dueFilterValue("dueSpecificYear"),view:window.dueView||"due",aging:dueAgingRange}}
 function dueFilterStatus(text){const el=document.getElementById("dueFilterSaveStatus");if(!el)return;el.textContent=text;clearTimeout(window.__dueFilterStatusTimer);window.__dueFilterStatusTimer=setTimeout(()=>{el.textContent=""},2400)}
 function saveDueFilters(){try{localStorage.setItem(DUE_FILTER_STORAGE_KEY,JSON.stringify(dueFilterSnapshot()));dueFilterStatus("تم حفظ الفلاتر")}catch(e){dueFilterStatus("تعذر حفظ الفلاتر")}}
 function restoreDueFilters(showStatus=true){let saved=null;try{saved=JSON.parse(localStorage.getItem(DUE_FILTER_STORAGE_KEY)||"null")}catch(e){}if(!saved){if(showStatus)dueFilterStatus("لا توجد فلاتر محفوظة");return false}
- [["dueOfficer",saved.officer],["dueClient",saved.client],["dueAddress",saved.address],["dueFrom",saved.from],["dueTo",saved.to],["dueStatus",saved.status||"open"],["dueSpecificMonth",saved.month],["dueSpecificYear",saved.year]].forEach(([id,value])=>{const el=document.getElementById(id);if(el&&value!==undefined)el.value=value});const all=document.getElementById("dueAllSpecialists");if(all)all.checked=saved.all===true;const mode=document.getElementById("dueExcelRowMode");if(mode)mode.checked=saved.excelMode===true;const month=document.getElementById("dueSpecificMonth"),year=document.getElementById("dueSpecificYear");if(month)month.disabled=!mode?.checked;if(year)year.disabled=!mode?.checked;window.dueView=saved.view||"due";document.querySelectorAll('#dueInstallments .due-nav-btn').forEach(x=>x.classList.toggle('active',x.dataset.dueView===window.dueView));try{updateDueFilterLists();renderDueInstallments()}catch(e){console.warn("تعذر استعادة فلاتر الأقساط:",e)}if(showStatus)dueFilterStatus("تم استعادة الفلاتر المحفوظة");return true}
-function resetDueFiltersToDefault(){try{localStorage.removeItem(DUE_FILTER_STORAGE_KEY)}catch(e){}window.dueView="due";["dueOfficer","dueClient","dueAddress","dueFrom","dueTo","dueSpecificMonth","dueTableQuickSearch"].forEach(id=>{const el=document.getElementById(id);if(el)el.value=""});const st=document.getElementById("dueStatus");if(st)st.value="open";const all=document.getElementById("dueAllSpecialists");if(all)all.checked=false;const mode=document.getElementById("dueExcelRowMode");if(mode)mode.checked=false;const year=document.getElementById("dueSpecificYear");if(year)year.value=String(new Date().getFullYear());if(typeof toggleDueMonthMode==="function")toggleDueMonthMode();document.querySelectorAll('#dueInstallments .due-nav-btn').forEach(x=>x.classList.toggle('active',x.dataset.dueView==='due'));updateDueFilterLists();renderDueInstallments();dueFilterStatus("تمت استعادة الإعدادات الافتراضية")}
+ [["dueOfficer",saved.officer],["dueClient",saved.client],["dueAddress",saved.address],["dueFrom",saved.from],["dueTo",saved.to],["dueStatus",saved.status||"open"],["dueSpecificMonth",saved.month],["dueSpecificYear",saved.year]].forEach(([id,value])=>{const el=document.getElementById(id);if(el&&value!==undefined)el.value=value});const all=document.getElementById("dueAllSpecialists");if(all)all.checked=saved.all===true;const mode=document.getElementById("dueExcelRowMode");if(mode)mode.checked=saved.excelMode===true;const month=document.getElementById("dueSpecificMonth"),year=document.getElementById("dueSpecificYear");if(month)month.disabled=!mode?.checked;if(year)year.disabled=!mode?.checked;dueAgingRange=RISK_AGING_BANDS.some(band=>band.id===saved.aging)?saved.aging:"";window.dueView=dueAgingRange?"overdue":(saved.view||"due");document.querySelectorAll('#dueInstallments .due-nav-btn').forEach(x=>x.classList.toggle('active',x.dataset.dueView===window.dueView));try{updateDueFilterLists();renderDueInstallments()}catch(e){console.warn("تعذر استعادة فلاتر الأقساط:",e)}if(showStatus)dueFilterStatus("تم استعادة الفلاتر المحفوظة");return true}
+function resetDueFiltersToDefault(){try{localStorage.removeItem(DUE_FILTER_STORAGE_KEY)}catch(e){}window.dueView="due";dueAgingRange="";["dueOfficer","dueClient","dueAddress","dueFrom","dueTo","dueSpecificMonth","dueTableQuickSearch"].forEach(id=>{const el=document.getElementById(id);if(el)el.value=""});const st=document.getElementById("dueStatus");if(st)st.value="open";const all=document.getElementById("dueAllSpecialists");if(all)all.checked=false;const mode=document.getElementById("dueExcelRowMode");if(mode)mode.checked=false;const year=document.getElementById("dueSpecificYear");if(year)year.value=String(new Date().getFullYear());if(typeof toggleDueMonthMode==="function")toggleDueMonthMode();document.querySelectorAll('#dueInstallments .due-nav-btn').forEach(x=>x.classList.toggle('active',x.dataset.dueView==='due'));updateDueFilterLists();renderDueInstallments();dueFilterStatus("تمت استعادة الإعدادات الافتراضية")}
 document.addEventListener("DOMContentLoaded",()=>{setTimeout(()=>restoreDueFilters(false),0)},{once:true});
 </script>
 <style id="due-filter-persistence-style">#dueInstallments .due-filter-persistence-toolbar{display:flex;align-items:center;gap:6px;flex-wrap:wrap}#dueInstallments #dueFilterSaveStatus{font-size:12px;color:#087957;font-weight:900;min-height:20px;display:inline-flex;align-items:center}</style>
@@ -8025,5 +8422,114 @@ function downloadCurrentSheetExcel(){
   #app .layout>nav.desktop-nav-collapsed a[data-screen]:not(.desktop-nav-extra) .nav-icon,#app .layout>nav.desktop-nav-collapsed.desktop-nav-more-open a[data-screen] .nav-icon{grid-column:auto!important;grid-row:auto!important}
 }
 </style>
+<style id="due-whatsapp-pdf-share-style">
+#dueInstallments .whatsapp-share-btn.icon-action{color:#128c53!important;background:linear-gradient(145deg,#f1fff5,#dff7e6)!important;border:1px solid #b5e3c3!important;box-shadow:0 2px 5px rgba(18,140,83,.14),inset 0 1px 0 rgba(255,255,255,.95)!important}
+#dueInstallments .whatsapp-share-btn.icon-action .action-glyph svg{display:block;width:19px;height:19px}
+#dueWhatsappPdfShareModal{position:fixed;inset:0;z-index:26000;display:grid;place-items:center;padding:16px;background:rgba(15,23,42,.66);direction:rtl;box-sizing:border-box}
+#dueWhatsappPdfShareModal .due-whatsapp-card{width:min(520px,100%);padding:20px;border-radius:16px;background:#fff;color:#172033;box-shadow:0 20px 60px rgba(0,0,0,.28);font-family:Arial,Tahoma,sans-serif}
+#dueWhatsappPdfShareModal h3{margin:0 0 10px;font-size:20px;font-weight:900}
+#dueWhatsappPdfShareModal p{margin:8px 0;line-height:1.7;font-size:14px}
+#dueWhatsappPdfShareModal .due-whatsapp-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:16px}
+#dueWhatsappPdfShareModal button{min-height:42px;padding:9px 13px;border:1px solid #d3dce5;border-radius:9px;background:#f8fafc;color:#172033;font-weight:800;cursor:pointer}
+#dueWhatsappPdfShareModal button.due-whatsapp-primary{background:#138b52;border-color:#138b52;color:#fff}
+#dueWhatsappPdfShareModal button:disabled{opacity:.48;cursor:not-allowed}
+#dueWhatsappPdfShareStatus{margin-top:12px;padding:9px;border-radius:8px;background:#f1f5f9;color:#334155;font-size:13px;font-weight:700}
+@media(max-width:600px){#dueWhatsappPdfShareModal .due-whatsapp-card{padding:16px}#dueWhatsappPdfShareModal .due-whatsapp-actions{display:grid;grid-template-columns:1fr}}
+</style>
+<script id="due-whatsapp-pdf-share-final">
+let dueWhatsappPdfBusy=false;
+function closeDueWhatsAppShareModal(){document.getElementById("dueWhatsappPdfShareModal")?.remove();window.__dueWhatsAppPendingPDF=null}
+function dueWhatsAppSetStatus(text){const status=document.getElementById("dueWhatsappPdfShareStatus");if(status)status.textContent=text}
+function dueWhatsAppCanShareFile(file){try{return typeof navigator.share==="function"&&(!navigator.canShare||navigator.canShare({files:[file]}))}catch(e){return false}}
+function showDueWhatsAppShareModal(file){
+  closeDueWhatsAppShareModal();window.__dueWhatsAppPendingPDF=file;
+  const canShare=dueWhatsAppCanShareFile(file),overlay=document.createElement("div");overlay.id="dueWhatsappPdfShareModal";overlay.dir="rtl";overlay.setAttribute("role","presentation");
+  const card=document.createElement("div");card.className="due-whatsapp-card";card.setAttribute("role","dialog");card.setAttribute("aria-modal","true");card.setAttribute("aria-labelledby","dueWhatsappPdfShareTitle");
+  const title=document.createElement("h3");title.id="dueWhatsappPdfShareTitle";title.textContent="تقرير PDF جاهز للمشاركة";
+  const text=document.createElement("p");text.textContent="على الهاتف أو المتصفح الداعم، اضغط «مشاركة الملف» ثم اختر WhatsApp والمحادثة وأكّد الإرسال. على الكمبيوتر يمكنك تنزيل الملف ثم إرفاقه يدويًا في WhatsApp Web.";
+  const actions=document.createElement("div");actions.className="due-whatsapp-actions";
+  const shareButton=document.createElement("button");shareButton.type="button";shareButton.className="due-whatsapp-primary";shareButton.textContent="مشاركة الملف";shareButton.disabled=!canShare;shareButton.title=canShare?"افتح نافذة المشاركة واختر WhatsApp":"مشاركة الملفات غير مدعومة في هذا المتصفح";shareButton.addEventListener("click",shareDueWhatsAppFileNative);
+  const fallbackButton=document.createElement("button");fallbackButton.type="button";fallbackButton.textContent="تنزيل PDF وفتح WhatsApp Web";fallbackButton.addEventListener("click",downloadDuePDFAndOpenWhatsApp);
+  const closeButton=document.createElement("button");closeButton.type="button";closeButton.textContent="إغلاق";closeButton.addEventListener("click",closeDueWhatsAppShareModal);
+  actions.append(shareButton,fallbackButton,closeButton);
+  const status=document.createElement("div");status.id="dueWhatsappPdfShareStatus";status.setAttribute("role","status");status.setAttribute("aria-live","polite");status.textContent=canShare?`الملف جاهز (${(file.size/1048576).toFixed(2)} MB). لن يُرسل إلا بعد اختيارك وتأكيدك.`:`الملف جاهز (${(file.size/1048576).toFixed(2)} MB). هذا المتصفح لا يشارك PDF مباشرة؛ استخدم زر التنزيل والإرفاق اليدوي.`;
+  card.append(title,text,actions,status);overlay.appendChild(card);overlay.addEventListener("click",e=>{if(e.target===overlay)closeDueWhatsAppShareModal()});document.body.appendChild(overlay);
+}
+async function shareDueWhatsAppFileNative(){
+  const file=window.__dueWhatsAppPendingPDF;if(!file)return;
+  const buttons=document.querySelectorAll("#dueWhatsappPdfShareModal button");buttons.forEach(b=>b.disabled=true);
+  try{await navigator.share({files:[file],title:"تقرير الأقساط المستحقة",text:"تقرير الأقساط المستحقة بصيغة PDF"});dueWhatsAppSetStatus("اكتملت نافذة المشاركة. اختر WhatsApp والمستلم وأكّد الإرسال داخل التطبيق.")}
+  catch(error){if(error?.name==="AbortError")dueWhatsAppSetStatus("تم إلغاء المشاركة. يمكنك المحاولة مرة أخرى أو تنزيل الملف يدويًا.");else{console.warn("مشاركة PDF عبر النظام:",error);dueWhatsAppSetStatus("تعذرت المشاركة المباشرة. نزّل الملف وأرفقه يدويًا في WhatsApp Web.")}}
+  finally{buttons.forEach(b=>b.disabled=false)}
+}
+function downloadDuePDFAndOpenWhatsApp(){
+  const file=window.__dueWhatsAppPendingPDF;if(!file)return;
+  try{
+    const url=URL.createObjectURL(file),a=document.createElement("a");a.href=url;a.download=file.name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);
+    const text="تقرير الأقساط المستحقة بصيغة PDF — أرفق الملف الذي تم تنزيله قبل الإرسال.";let opened=false;
+    try{opened=!!window.open("https://wa.me/?text="+encodeURIComponent(text),"_blank","noopener,noreferrer")}catch(e){console.warn("تعذر فتح WhatsApp Web:",e)}
+    dueWhatsAppSetStatus(opened?"تم تنزيل PDF وفتح WhatsApp. أرفق الملف يدويًا في المحادثة ثم أرسلها.":"تم تنزيل PDF. افتح WhatsApp يدويًا وأرفق الملف قبل الإرسال.");
+  }catch(error){console.error("تنزيل PDF للمشاركة:",error);dueWhatsAppSetStatus("تعذر تنزيل PDF. أعد المحاولة من زر تحميل PDF المعتاد.")}
+}
+async function prepareDueWhatsAppPDF(event){
+  if(event?.preventDefault)event.preventDefault();if(event?.stopImmediatePropagation)event.stopImmediatePropagation();
+  if(dueWhatsappPdfBusy||Date.now()<duePrintActionBusyUntil)return false;
+  dueWhatsappPdfBusy=true;duePrintActionBusyUntil=Date.now()+120000;
+  const button=document.getElementById("dueWhatsappPdfButton"),oldTitle=button?.title;
+  if(button){button.disabled=true;button.title="جاري إنشاء تقرير PDF..."}
+  try{
+    if(typeof window.html2pdf!=="function"){alert("تعذر تشغيل تحميل PDF. تأكد من اتصال الإنترنت ثم أعد المحاولة.");return false}
+    const layer=buildDuePrintLayer(true);if(!layer){alert("لا توجد أقساط مستحقة لمشاركتها في التقرير الحالي.");return false}
+    const fileName=`تقرير_الأقساط_المستحقة_${new Date().toISOString().slice(0,10)}.pdf`;
+    const blob=await downloadReportLayerPDF(layer,fileName,"printing-due-pdf",true);
+    if(!(blob instanceof Blob)||blob.size<100)return false;
+    showDueWhatsAppShareModal(new File([blob],fileName,{type:"application/pdf"}));return false;
+  }catch(error){console.error("إنشاء PDF للمشاركة:",error);alert("تعذر تجهيز تقرير PDF للمشاركة. حاول مرة أخرى.");return false}
+  finally{dueWhatsappPdfBusy=false;duePrintActionBusyUntil=0;if(button){button.disabled=false;button.title=oldTitle||"إنشاء تقرير PDF ثم مشاركته عبر واتساب"}}
+}
+</script>
+<script id="due-whatsapp-button-binding-final">document.getElementById("dueWhatsappPdfButton")?.addEventListener("click",prepareDueWhatsAppPDF);</script>
+<style id="last-import-notice-style">
+.last-import-notice{display:block;margin:0 0 8px!important;padding:4px 8px;border-inline-start:3px solid #b9902e;border-radius:4px;background:linear-gradient(90deg,rgba(250,246,232,.82),rgba(255,255,255,.35));color:#92701b;font-size:11px;font-weight:900;line-height:1.6;text-align:right;direction:rtl;unicode-bidi:plaintext}
+@media(max-width:560px){.last-import-notice{font-size:10px;padding:4px 7px}}
+@media print{.last-import-notice{display:none!important}}
+</style>
+<script id="last-import-notice-logic">
+(function(){
+ const LAST_IMPORT_NOTICE_KEY="mub_last_import_notice_v1",SHEET_META_KEY="mub_current_sheet_meta_v1",SHARED_IMPORT_ROW_ID=2147483647,SHARED_IMPORT_FIELD="__mub_last_import_notice_v1";
+ let sharedSyncPromise=null,lastSharedCheck=0;
+ function safeRead(key){try{const value=JSON.parse(localStorage.getItem(key)||"null");return value&&typeof value==="object"?value:null}catch(e){return null}}
+ function localImportMeta(){const local=safeRead(LAST_IMPORT_NOTICE_KEY);if(local?.importedAt)return local;const sheet=safeRead(SHEET_META_KEY);return sheet?.importedAt&&sheet?.importedBy?{importedAt:sheet.importedAt,uploadedAt:sheet.uploadedAt||sheet.importedAt,importedBy:sheet.importedBy,importedUsername:sheet.importedUsername||"",role:sheet.role||""}:null}
+ function timestamp(meta){const value=Date.parse(meta?.importedAt||meta?.uploadedAt||"");return Number.isFinite(value)?value:0}
+ function currentMeta(){return window.__lastImportNoticeMeta||safeRead(LAST_IMPORT_NOTICE_KEY)||safeRead(SHEET_META_KEY)||null}
+ function storeImportMeta(meta){
+  if(!meta||typeof meta!=="object")return null;const stamp=meta.importedAt||meta.uploadedAt||new Date().toISOString(),userName=String(meta.importedBy||meta.userName||meta.importedUsername||"اسم المستخدم غير متاح").trim(),normalized={...meta,importedAt:stamp,uploadedAt:meta.uploadedAt||stamp,importedBy:userName,userName,importedUsername:meta.importedUsername||"",syncStatus:meta.syncStatus||"shared"};window.__lastImportNoticeMeta=normalized;
+  try{localStorage.setItem(LAST_IMPORT_NOTICE_KEY,JSON.stringify(normalized))}catch(e){console.warn("last import notice local storage:",e)}
+  try{const sheet=safeRead(SHEET_META_KEY);if(sheet){sheet.importedAt=stamp;sheet.importedBy=userName;sheet.importedUsername=normalized.importedUsername;localStorage.setItem(SHEET_META_KEY,JSON.stringify(sheet))}}catch(e){console.warn("sheet import attribution:",e)}
+  window.renderLastImportNotices();return normalized;
+ }
+ async function readSharedImportMeta(){
+  const {data,error}=await supabaseClient.from(SUPABASE_TABLE).select("id,rows,updated_at").eq("id",SHARED_IMPORT_ROW_ID).maybeSingle();if(error)throw error;if(!data)return{exists:false,meta:null};const meta=data.rows?.[SHARED_IMPORT_FIELD];return meta&&typeof meta==="object"?{exists:true,meta}:{exists:true,occupied:true,meta:null};
+ }
+ async function publishSharedImportMeta(meta){
+  if(!cloudReady||!supabaseClient||!meta)return false;const existing=await readSharedImportMeta();if(existing.occupied){console.warn("Shared import metadata record is occupied by unrelated data; it was not changed.");return false}if(existing.meta&&timestamp(existing.meta)>timestamp(meta)){storeImportMeta({...existing.meta,syncStatus:"shared"});return true}
+  const stable={...meta,importedAt:meta.importedAt||new Date().toISOString(),importedBy:String(meta.importedBy||meta.userName||meta.importedUsername||"اسم المستخدم غير متاح")};const {error}=await supabaseClient.from(SUPABASE_TABLE).upsert({id:SHARED_IMPORT_ROW_ID,rows:{[SHARED_IMPORT_FIELD]:stable},updated_at:stable.importedAt},{onConflict:"id"});if(error)throw error;storeImportMeta({...stable,syncStatus:"shared"});return true;
+ }
+ window.applySharedLastImportNotice=function(meta){const local=localImportMeta();if(local&&timestamp(local)>timestamp(meta))return false;storeImportMeta({...meta,syncStatus:"shared"});return true};
+ window.syncSharedLastImportNotice=function(force=false){
+  if(!session||!cloudReady||!supabaseClient)return Promise.resolve(false);if(sharedSyncPromise)return sharedSyncPromise;if(!force&&Date.now()-lastSharedCheck<30000)return Promise.resolve(false);lastSharedCheck=Date.now();
+  sharedSyncPromise=(async()=>{const [remote,local]=await Promise.all([readSharedImportMeta(),Promise.resolve(localImportMeta())]);if(remote.occupied){console.warn("Shared import metadata row is occupied; local notice remains unchanged.");return false}if(remote.meta){if(local&&timestamp(local)>timestamp(remote.meta))return await publishSharedImportMeta(local);storeImportMeta({...remote.meta,syncStatus:"shared"});return true}if(local)return await publishSharedImportMeta(local);return false})().catch(error=>{console.warn("Shared last-import sync:",error);const local=localImportMeta();if(local)storeImportMeta({...local,syncStatus:"local-only"});return false}).finally(()=>{sharedSyncPromise=null});return sharedSyncPromise;
+ };
+ window.renderLastImportNotices=function(){
+  const meta=currentMeta();document.querySelectorAll(".screen").forEach(screen=>{let note=screen.querySelector(":scope > .last-import-notice");if(!note){note=document.createElement("div");note.className="last-import-notice no-print";note.setAttribute("role","status");note.setAttribute("aria-live","polite");screen.insertBefore(note,screen.firstChild)}if(meta){const stamp=meta.importedAt||meta.uploadedAt||"",date=stamp?new Date(stamp):null,dateText=date&&!Number.isNaN(date.getTime())?date.toLocaleString("ar-EG",{dateStyle:"medium",timeStyle:"short"}):"وقت غير متاح",userName=String(meta.importedBy||meta.userName||meta.importedUsername||"اسم المستخدم غير متاح").trim(),syncText=meta.syncStatus==="local-only"?" — المشاركة السحابية غير متاحة حاليًا":"";note.textContent=`آخر استيراد بيانات: ${dateText} — بواسطة ${userName}${syncText}`}else note.textContent="آخر استيراد بيانات: لا يوجد سجل استيراد سابق"});
+ };
+ window.recordSuccessfulImportNotice=function(){
+  const loggedName=String(session?.name||session?.user||"").trim(),account=String(session?.user||"").trim(),timestampNow=new Date().toISOString(),meta={importedAt:timestampNow,uploadedAt:timestampNow,importedBy:loggedName||account||"اسم المستخدم غير متاح",userName:loggedName||account||"اسم المستخدم غير متاح",importedUsername:account||loggedName||"",role:String(session?.role||""),syncStatus:cloudReady&&supabaseClient?"pending":"local-only"};storeImportMeta(meta);
+  if(cloudReady&&supabaseClient)publishSharedImportMeta(meta).catch(error=>{console.warn("Shared import metadata save:",error);storeImportMeta({...meta,syncStatus:"local-only"})});
+ };
+ const init=()=>{window.renderLastImportNotices();if(session)setTimeout(()=>window.syncSharedLastImportNotice(true),900)};
+ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
+})();
+</script>
 </body>
 </html>
