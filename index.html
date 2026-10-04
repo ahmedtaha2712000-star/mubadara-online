@@ -8957,5 +8957,93 @@ body.printing-current-screen #dropoutPrintLayer .dropout-risk-print-table .dropo
  window.addEventListener('resize',disableMobileSidebar);
 })();
 </script>
+<style id="desktop-plain-navigation-items-final">
+@media(min-width:801px){
+ #app .layout>nav a{display:grid!important;grid-template-columns:28px minmax(0,1fr)!important;grid-template-rows:auto auto!important;align-items:center!important;width:100%!important;min-height:45px!important;height:auto!important;margin:0!important;padding:8px 8px!important;border:0!important;border-bottom:1px solid #edf1f5!important;border-radius:0!important;background:transparent!important;color:#475569!important;box-shadow:none!important;gap:0 9px!important}
+ #app .layout>nav a .nav-icon{grid-column:1!important;grid-row:1 / span 2!important;width:25px!important;height:25px!important;color:#64748b!important}
+ #app .layout>nav a .nav-label{grid-column:2!important;grid-row:1!important;color:#475569!important;font-size:15px!important;font-weight:900!important;line-height:1.25!important}
+ #app .layout>nav a small{grid-column:2!important;grid-row:2!important;color:#94a3b8!important;font-size:10px!important;font-weight:700!important}
+ #app .layout>nav a.active{background:#f1f5f9!important;color:#1e3a52!important;border:0!important;border-bottom:1px solid #d8e3ec!important;border-inline-start:4px solid #2b5c87!important;box-shadow:none!important}
+ #app .layout>nav a.active .nav-label,#app .layout>nav a.active .nav-icon{color:#1e3a52!important}
+ #app .layout>nav a:hover,#app .layout>nav a:focus-visible{background:#f8fafc!important;border:0!important;border-bottom:1px solid #e2e8f0!important;outline:0!important}
+ #app .layout>nav .nav-section-title{background:transparent!important;border:0!important;border-bottom:1px solid #e5ebf0!important;border-radius:0!important;color:#94a3b8!important;padding:7px 6px!important}
+ #app .layout>nav .desktop-nav-controls button,#app .layout>nav .desktop-nav-more-toggle{border:0!important;border-bottom:1px solid #e5ebf0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;color:#64748b!important}
+ #app .layout>nav .desktop-nav-controls button:hover,#app .layout>nav .desktop-nav-more-toggle:hover{background:#f8fafc!important}
+}
+</style>
+<style id="desktop-navigation-transition-final">
+@media(min-width:801px){
+ #app .layout>nav{transition:width .24s ease,padding .24s ease,box-shadow .24s ease!important}
+ #app .layout>main{transition:margin-right .24s ease,padding .24s ease!important}
+ #app .layout>nav a,#app .layout>nav .nav-section-title,#app .layout>nav .desktop-nav-controls{transition:opacity .18s ease,transform .24s ease!important}
+ #app .layout>nav.desktop-nav-collapsed{width:64px!important;min-width:64px!important;max-width:64px!important;padding:10px 5px 18px!important;overflow-x:hidden!important}
+ #app .layout:has(>nav.desktop-nav-collapsed)>main{margin-right:64px!important}
+ #app .layout>nav.desktop-nav-collapsed .nav-label,#app .layout>nav.desktop-nav-collapsed a small,#app .layout>nav.desktop-nav-collapsed .nav-section-title,#app .layout>nav.desktop-nav-collapsed .desktop-nav-toggle-label,#app .layout>nav.desktop-nav-collapsed .desktop-nav-more-label{opacity:0!important;visibility:hidden!important;width:0!important;overflow:hidden!important;transform:translateX(8px)!important}
+ #app .layout>nav.desktop-nav-collapsed a{grid-template-columns:1fr!important;justify-items:center!important;padding-inline:4px!important}
+ #app .layout>nav.desktop-nav-collapsed a .nav-icon{grid-column:1!important;grid-row:1 / span 2!important}
+ #app .layout>nav.desktop-nav-collapsed .desktop-nav-controls button,#app .layout>nav.desktop-nav-collapsed .desktop-nav-more-toggle{padding-inline:4px!important;justify-content:center!important}
+ #app .layout>nav.desktop-nav-collapsed .desktop-nav-toggle-icon{transform:rotate(180deg);display:inline-block}
+}
+@media(max-width:800px){
+ #app .layout>nav{transition:none!important}
+}
+</style>
+<style id="navigation-icons-active-colors-final">
+/* ألوان دلالية للأيقونات حسب نوع الشاشة */
+#app .layout>nav a[data-screen="dash"] .nav-icon{color:#2563eb!important}
+#app .layout>nav a[data-screen="clients"] .nav-icon{color:#0f766e!important}
+#app .layout>nav a[data-screen="collection"] .nav-icon{color:#059669!important}
+#app .layout>nav a[data-screen="search"] .nav-icon{color:#0891b2!important}
+#app .layout>nav a[data-screen="risk"] .nav-icon{color:#dc2626!important}
+#app .layout>nav a[data-screen="dueInstallments"] .nav-icon{color:#d97706!important}
+#app .layout>nav a[data-screen="paymentFollowup"] .nav-icon{color:#7c3aed!important}
+#app .layout>nav a[data-screen="portfolio"] .nav-icon{color:#0369a1!important}
+#app .layout>nav a[data-screen="issuedLoans"] .nav-icon{color:#15803d!important}
+#app .layout>nav a[data-screen="dropoutClients"] .nav-icon{color:#be123c!important}
+#app .layout>nav a[data-screen="print"] .nav-icon{color:#475569!important}
+#app .layout>nav a[data-screen="specialists"] .nav-icon{color:#9333ea!important}
+#app .layout>nav a[data-screen="users"] .nav-icon{color:#4f46e5!important}
+#app .layout>nav a[data-screen="audit"] .nav-icon{color:#64748b!important}
+#app .layout>nav a[data-screen="import"] .nav-icon{color:#0891b2!important}
+#app .layout>nav a[data-screen="settings"] .nav-icon{color:#64748b!important}
+/* تمييز ناعم للشاشة النشطة، بلون مناسب لكل وظيفة */
+@media(min-width:801px){
+ #app .layout>nav a.active{border-inline-start:4px solid currentColor!important;font-weight:900!important}
+ #app .layout>nav a.active .nav-label{color:inherit!important}
+ #app .layout>nav a[data-screen="dash"].active{background:#eff6ff!important;color:#1d4ed8!important}
+ #app .layout>nav a[data-screen="clients"].active{background:#ecfdf5!important;color:#047857!important}
+ #app .layout>nav a[data-screen="collection"].active{background:#ecfdf5!important;color:#047857!important}
+ #app .layout>nav a[data-screen="search"].active{background:#ecfeff!important;color:#0e7490!important}
+ #app .layout>nav a[data-screen="risk"].active{background:#fef2f2!important;color:#b91c1c!important}
+ #app .layout>nav a[data-screen="dueInstallments"].active{background:#fffbeb!important;color:#b45309!important}
+ #app .layout>nav a[data-screen="paymentFollowup"].active{background:#f5f3ff!important;color:#6d28d9!important}
+ #app .layout>nav a[data-screen="portfolio"].active{background:#f0f9ff!important;color:#0369a1!important}
+ #app .layout>nav a[data-screen="issuedLoans"].active{background:#f0fdf4!important;color:#15803d!important}
+ #app .layout>nav a[data-screen="dropoutClients"].active{background:#fff1f2!important;color:#be123c!important}
+ #app .layout>nav a[data-screen="print"].active{background:#f1f5f9!important;color:#334155!important}
+ #app .layout>nav a[data-screen="specialists"].active{background:#faf5ff!important;color:#7e22ce!important}
+ #app .layout>nav a[data-screen="users"].active{background:#eef2ff!important;color:#4338ca!important}
+ #app .layout>nav a[data-screen="audit"].active{background:#f8fafc!important;color:#475569!important}
+ #app .layout>nav a[data-screen="import"].active{background:#ecfeff!important;color:#0e7490!important}
+ #app .layout>nav a[data-screen="settings"].active{background:#f8fafc!important;color:#475569!important}
+}
+/* بطاقة لونية صغيرة حول الأيقونة بدل مظهر البطاقات للعناصر */
+@media(min-width:801px){
+ #app .layout>nav a .nav-icon{border-radius:7px;padding:3px;box-sizing:border-box;background:color-mix(in srgb,currentColor 10%,transparent)}
+ #app .layout>nav a.active .nav-icon{background:color-mix(in srgb,currentColor 18%,transparent)}
+}
+</style>
+<style id="desktop-compact-navigation-spacing-final">
+@media(min-width:801px){
+ #app .layout>nav{gap:1px!important;padding-top:7px!important;padding-bottom:12px!important}
+ #app .layout>nav a{min-height:37px!important;padding-top:5px!important;padding-bottom:5px!important;line-height:1.15!important}
+ #app .layout>nav a .nav-icon{width:23px!important;height:23px!important}
+ #app .layout>nav a .nav-label{line-height:1.15!important}
+ #app .layout>nav a small{line-height:1.1!important}
+ #app .layout>nav .nav-section-title{margin-top:4px!important;margin-bottom:0!important;padding-top:4px!important;padding-bottom:4px!important;line-height:1.15!important}
+ #app .layout>nav .desktop-nav-controls{gap:2px!important;margin-bottom:1px!important}
+ #app .layout>nav .desktop-nav-controls button,#app .layout>nav .desktop-nav-more-toggle{min-height:32px!important;padding-top:5px!important;padding-bottom:5px!important}
+}
+</style>
 </body>
 </html>
