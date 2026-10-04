@@ -5499,15 +5499,25 @@ function previewDueReport(event){
  const panel=document.createElement('div');panel.style.cssText='max-width:1500px;margin:0 auto;background:#fff;border-radius:10px;min-height:100%;box-shadow:0 12px 36px rgba(0,0,0,.3);position:relative;';
  const bar=document.createElement('div');bar.style.cssText='position:sticky;top:0;z-index:2;display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:#0f5f78;color:#fff;font-weight:900;';bar.innerHTML='<span>معاينة تقرير الأقساط المستحقة</span><button type="button" style="background:#fff;color:#0f5f78;border:0;border-radius:6px;padding:6px 14px;font-weight:900;cursor:pointer">إغلاق</button>';bar.querySelector('button').onclick=()=>{modal.remove();document.body.classList.remove('printing-risk-report')};panel.appendChild(bar);layer.style.cssText+=';display:block;position:static;max-width:none;overflow:visible;padding:12px;';panel.appendChild(layer);modal.appendChild(panel);modal.onclick=e=>{if(e.target===modal){modal.remove();document.body.classList.remove('printing-risk-report')}};document.body.appendChild(modal);document.body.classList.add('printing-risk-report');return false;
 }
+function dueExportFileName(extension="pdf"){
+ const screenName="الأقساط المستحقة";
+ const officer=(document.getElementById("dueOfficer")?.value||"جميع الأخصائيين").trim()||"جميع الأخصائيين";
+ const from=(document.getElementById("dueFrom")?.value||"").trim();
+ const to=(document.getElementById("dueTo")?.value||"").trim();
+ const filterDate=from&&to?(from+"_إلى_"+to):(from||to||new Date().toISOString().slice(0,10));
+ const safe=value=>String(value).replace(/[\\/:*?"<>|]/g,"_").replace(/\s+/g,"_").replace(/^_+|_+$/g,"")||"غير_محدد";
+ return `${safe(screenName)}_${safe(officer)}_${safe(filterDate)}.${extension}`;
+}
 function printDueReport(event){
  if(event?.preventDefault)event.preventDefault();if(event?.stopImmediatePropagation)event.stopImmediatePropagation();const now=Date.now();if(now<duePrintActionBusyUntil)return false;duePrintActionBusyUntil=now+1400;
  document.getElementById("riskPrintLayer")?.remove();
  document.body.classList.remove("printing-risk-report","printing-risk");
  const layer=buildDuePrintLayer(false);if(!layer){alert("لا توجد أقساط مستحقة للطباعة.");return}
  document.body.appendChild(layer);document.body.classList.add("printing-risk-report");
+ const previousTitle=document.title;document.title=dueExportFileName("pdf");
  // This legacy page has stray text nodes in body from its embedded spreadsheet bundle; suppress only while printing.
  const restoreNodes=[...document.body.childNodes].filter(node=>node.nodeType===Node.TEXT_NODE&&node.textContent.trim()).map(node=>{const marker=document.createComment("due-print-text-restore");node.parentNode.insertBefore(marker,node);node.remove();return{node,marker}});
- let cleaned=false;const cleanup=()=>{if(cleaned)return;cleaned=true;restoreNodes.forEach(({node,marker})=>{if(marker.parentNode)marker.parentNode.insertBefore(node,marker);marker.remove()});document.body.classList.remove("printing-risk-report");layer.remove();window.removeEventListener("afterprint",cleanup)};
+ let cleaned=false;const cleanup=()=>{if(cleaned)return;cleaned=true;restoreNodes.forEach(({node,marker})=>{if(marker.parentNode)marker.parentNode.insertBefore(node,marker);marker.remove()});document.title=previousTitle;document.body.classList.remove("printing-risk-report");layer.remove();window.removeEventListener("afterprint",cleanup)};
  window.addEventListener("afterprint",cleanup,{once:true});
  // يجب استدعاء الطباعة داخل نفس حدث الضغط؛ التأخير يفقد صلاحية user gesture في بعض المتصفحات.
  void layer.offsetHeight;
@@ -5517,7 +5527,7 @@ function printDueReport(event){
 async function downloadDuePDF(event){
  if(event?.preventDefault)event.preventDefault();if(event?.stopImmediatePropagation)event.stopImmediatePropagation();const now=Date.now();if(now<duePrintActionBusyUntil)return false;duePrintActionBusyUntil=now+1400;
  const layer=buildDuePrintLayer(true);if(!layer){alert("لا توجد أقساط مستحقة لتحميلها PDF.");return}
- await downloadReportLayerPDF(layer,`تقرير_الأقساط_المستحقة_${new Date().toISOString().slice(0,10)}.pdf`,"printing-due-pdf");
+ await downloadReportLayerPDF(layer,dueExportFileName("pdf"),"printing-due-pdf");
 }
 // إتاحة الدوال صراحةً لمعالجات أزرار الهاتف.
 window.printDueReport=printDueReport;
