@@ -2039,6 +2039,15 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
   #riskPrintLayer.due-print-report .due-print-meta{text-align:center!important;font-size:9px!important;line-height:1.4!important;margin-bottom:4mm!important}
 }
 </style>
+<style id="due-print-no-row-split">
+@media print{#riskPrintLayer.due-print-report .risk-print-table tr,#riskPrintLayer.due-print-report .risk-print-table td,#riskPrintLayer.due-print-report .risk-print-table th{page-break-inside:avoid!important;break-inside:avoid!important}#riskPrintLayer.due-print-report .due-report-page-block{page-break-inside:avoid!important;break-inside:avoid!important}}
+</style>
+<!-- Print reports are isolated in a separate stylesheet.
+     Keep report layout changes in print-reports.css, not in the screen UI code. -->
+<link rel="stylesheet" href="print-reports.css"><style id="arrears-filter-footer-final">
+#riskPrintLayer .risk-print-filter-card .risk-filter-card-footer{display:block!important;visibility:visible!important;position:static!important;width:100%!important;margin:3px 0 0!important;padding:2px 0 0!important;border-top:1px solid #555!important;background:transparent!important;color:#000!important;text-align:center!important;direction:rtl!important;font-size:8px!important;font-weight:700!important;line-height:1.25!important;box-sizing:border-box!important;}
+#riskPrintLayer > .risk-print-footer,#riskPrintLayer > .page-footer{display:none!important;}
+</style>
 </head>
 
 <body>
@@ -3842,32 +3851,43 @@ function toggleDueMonthMode(){const enabled=document.getElementById('dueExcelRow
 function dueDayType(r){const d=parseExcelDate(riskDueDateValue(r)),today=new Date();today.setHours(0,0,0,0);if(!d)return'upcoming';if(d<today)return'overdue';if(d.getTime()===today.getTime())return'due';return'upcoming'}
 function dueStatusText(r){const d=parseExcelDate(riskDueDateValue(r)),today=new Date(),type=dueDayType(r);today.setHours(0,0,0,0);if(type==='overdue')return`متأخر ${Math.max(1,Math.ceil((today-d)/86400000))} يوم`;if(type==='due')return'مستحق اليوم';return`قادم خلال ${Math.max(1,Math.ceil((d-today)/86400000))} يوم`}
 function setDueView(type,button){window.dueView=type;dueAgingRange='';document.querySelectorAll('#dueInstallments .due-nav-btn').forEach(x=>x.classList.toggle('active',x===button));renderDueInstallments()}
-function dueCustomerArrears(clientKey){
+let dueArrearsIndexVersion=-1;
+let dueArrearsIndex=new Map();
+function rebuildDueArrearsIndex(){
+ const version=typeof screenDataVersion==='number'?screenDataVersion:0;
+ if(dueArrearsIndexVersion===version)return;
+ const clients=new Map();
  const cutoff=new Date();cutoff.setHours(23,59,59,999);
- const byLoanInstallment=new Map();
  visibleGroups().forEach(group=>(group.items||[group.r]).forEach(row=>{
-  if(norm(get(row,'client')||get(group.r,'client'))!==clientKey)return;
+  const clientKey=norm(get(row,'client')||get(group.r,'client'));if(!clientKey)return;
   const due=parseExcelDate(riskDueDateValue(row));if(!due||due>cutoff)return;
   const loanKey=norm(get(row,'loan')||get(group.r,'loan'))||'loan';
   const rawNo=String(get(row,'installment')??'').trim(),number=num(rawNo);
   const installmentKey=number>0?`n:${number}`:(rawNo?`t:${norm(rawNo)}`:`d:${isoDate(due)}`);
   const key=`${loanKey}|${installmentKey}`;
-  if(!byLoanInstallment.has(key))byLoanInstallment.set(key,[]);
-  byLoanInstallment.get(key).push(row);
+  if(!clients.has(clientKey))clients.set(clientKey,new Map());
+  const byInstallment=clients.get(clientKey);
+  if(!byInstallment.has(key))byInstallment.set(key,[]);
+  byInstallment.get(key).push(row);
  }));
- let total=0;
- byLoanInstallment.forEach(installmentRows=>{
-  const ordered=[...installmentRows].sort((a,b)=>(parseExcelDate(rowPaymentDate(b))?.getTime()||0)-(parseExcelDate(rowPaymentDate(a))?.getTime()||0));
-  const explicit=ordered.find(row=>String(getAny(row,[H.unpaid,'المتبقي','المبلغ المتبقي','الرصيد المتبقي','المبلغ الغير مسدد'])??'').trim()!=='');
-  if(explicit){total+=Math.max(0,dueRemainingForScreen(explicit));return}
-  const value=Math.max(0,...installmentRows.map(row=>{const raw=String(get(row,'value')??'').trim();return raw===''?num(get(row,'total')):num(raw)}));
-  const paid=installmentRows.reduce((sum,row)=>sum+rowPaidAmount(row),0);
-  total+=Math.max(0,value-paid);
+ dueArrearsIndex=new Map();
+ clients.forEach((byInstallment,clientKey)=>{
+  let total=0;
+  byInstallment.forEach(installmentRows=>{
+   const ordered=[...installmentRows].sort((a,b)=>(parseExcelDate(rowPaymentDate(b))?.getTime()||0)-(parseExcelDate(rowPaymentDate(a))?.getTime()||0));
+   const explicit=ordered.find(row=>String(getAny(row,[H.unpaid,'المتبقي','المبلغ المتبقي','الرصيد المتبقي','المبلغ الغير مسدد'])??'').trim()!=='');
+   if(explicit){total+=Math.max(0,dueRemainingForScreen(explicit));return}
+   const value=Math.max(0,...installmentRows.map(row=>{const raw=String(get(row,'value')??'').trim();return raw===''?num(get(row,'total')):num(raw)}));
+   const paid=installmentRows.reduce((sum,row)=>sum+rowPaidAmount(row),0);
+   total+=Math.max(0,value-paid);
+  });
+  dueArrearsIndex.set(clientKey,total);
  });
- return total;
+ dueArrearsIndexVersion=version;
 }
-function dueGuarantorHTML(r,n){const name=get(r,'g'+n)||getAny(r,[n===1?H.g1:n===2?H.g2:H.g3,`اسم الضامن ${n}`]),phone=get(r,'g'+n+'p')||getAny(r,[n===1?H.g1p:n===2?H.g2p:H.g3p,`هاتف الضامن ${n}`]);if(!name&&!phone)return'—';const link=phone?`<a class="due-phone-link" href="tel:${escAttr(String(phone).replace(/[^\d+]/g,''))}" title="اتصال بالضامن">${esc(phone)}</a>`:'';return `${esc(name||'—')}${link?' — '+link:''}`}
+function dueCustomerArrears(clientKey){rebuildDueArrearsIndex();return dueArrearsIndex.get(clientKey)||0}
 
+function dueGuarantorHTML(r,n){const name=get(r,'g'+n)||getAny(r,[n===1?H.g1:n===2?H.g2:H.g3,`اسم الضامن ${n}`]),phone=get(r,'g'+n+'p')||getAny(r,[n===1?H.g1p:n===2?H.g2p:H.g3p,`هاتف الضامن ${n}`]);if(!name&&!phone)return'—';const link=phone?`<a class="due-phone-link" href="tel:${escAttr(String(phone).replace(/[^\d+]/g,''))}" title="اتصال بالضامن">${esc(phone)}</a>`:'';return `${esc(name||'—')}${link?' — '+link:''}`}
 function appSpecialistFilterState(){const state=window.__appSpecialistFilterState;return ["active","inactive","all"].includes(state)?state:"active"}
 function specialistStatusAllows(name){const clean=String(name??"").trim();return !clean||specialistMatchesState(clean,appSpecialistFilterState())}
 function refreshAppSpecialistFilterLists(){
@@ -3902,16 +3922,16 @@ function refreshDueSpecialistFilter(){
  if(document.getElementById('dueInstallments')?.classList.contains('active'))renderDueInstallments();
 }
 function updateDueFilterLists(baseRows){
- const officerInput=document.getElementById('dueOfficer'),clientInput=document.getElementById('dueClient'),officerValue=norm(officerInput?.value||''),officer=officerValue===norm(DUE_ALL_SPECIALISTS_LABEL)?'':officerValue;
- // قائمة الاقتراحات تعرض الدليل كاملًا، ويظل فلتر الحالة مستقلًا عن البحث.
+ const officerInput=document.getElementById('dueOfficer'),clientInput=document.getElementById('dueClient'),officerValue=norm(officerInput?.value||''),officer=officerValue===norm(DUE_ALL_SPECIALISTS_LABEL)?'':officerValue,state=dueSpecialistFilterState();
+ // تعرض الاقتراحات الأخصائيين المطابقين للحالة المحددة، مع إبقاء خيار جميع الأخصائيين للاختيار اليدوي.
  const directory=new Map();specialistDirectoryNames().forEach(name=>{const key=officerKey(name)||norm(name);if(key&&!directory.has(key))directory.set(key,String(name).trim())});
- const officers=new Map();directory.forEach(name=>officers.set(norm(name),name));
+ const officers=new Map();directory.forEach(name=>{if(specialistMatchesState(name,state))officers.set(norm(name),name)});
  const clients=new Map(),addresses=new Map();(baseRows||dueInstallmentRows()).forEach(x=>{
   const cn=String(get(x.r,'client')||get(x.g.r,'client')||'').trim(),an=String(rowAddress(x.r)||rowAddress(x.g.r)||'').trim();
   if(cn)clients.set(norm(cn),cn);if(an)addresses.set(norm(an),an);
  });
  const ol=document.getElementById('dueOfficerList'),cl=document.getElementById('dueClientList'),al=document.getElementById('dueAddressList');
- if(ol)ol.innerHTML=`<option value="${esc(DUE_ALL_SPECIALISTS_LABEL)}">${esc(DUE_ALL_SPECIALISTS_LABEL+' — الإجمالي: '+officers.size)}</option>`+[...officers.values()].sort((a,b)=>a.localeCompare(b,'ar')).map(x=>`<option value="${esc(x)}"></option>`).join('');
+ if(ol)ol.innerHTML=`<option value="${esc(DUE_ALL_SPECIALISTS_LABEL)}">${esc(DUE_ALL_SPECIALISTS_LABEL+' — الإجمالي: '+directory.size)}</option>`+[...officers.values()].sort((a,b)=>a.localeCompare(b,'ar')).map(x=>`<option value="${esc(x)}"></option>`).join('');
  if(cl)cl.innerHTML=[...clients.values()].sort((a,b)=>a.localeCompare(b,'ar')).map(x=>`<option value="${esc(x)}"></option>`).join('');
  if(al)al.innerHTML=[...addresses.values()].sort((a,b)=>a.localeCompare(b,'ar')).map(x=>`<option value="${esc(x)}"></option>`).join('');
  if(officer&&!officers.has(officer)&&officerInput)officerInput.value='';
@@ -3947,30 +3967,34 @@ function dueAllSpecialistsEnabled(){return document.getElementById('dueAllSpecia
 function toggleDueAllSpecialists(){renderDueInstallments()}
 function renderDueSpecialistGrouping(){
  const body=document.getElementById('dueTableBody'),summary=document.getElementById('dueAllSpecialistsSummary');if(!body)return;
+ const table=body.closest('.risk-installments-table'),headSection=table?.querySelector('thead');
+ if(table&&!table._dueMainHeaderRow)table._dueMainHeaderRow=headSection?.querySelector('tr:not(.due-column-totals-row)')||null;
+ const mainHeader=table?._dueMainHeaderRow||headSection?.querySelector('tr:not(.due-column-totals-row)');
  const isGrouped=dueAllSpecialistsEnabled();
  body.querySelectorAll('.due-specialist-group-row,.due-specialist-subtotal-row,.due-specialist-screen-header-row').forEach(row=>row.remove());
  const dataRows=[...body.querySelectorAll('tr[data-due-data-row="1"]')];
- if(!isGrouped){dataRows.sort((a,b)=>Number(a.dataset.rowIndex||0)-Number(b.dataset.rowIndex||0)).forEach(row=>body.appendChild(row));if(summary)summary.style.display='none';return}
+ if(!isGrouped||!dataRows.length){if(mainHeader&&headSection&&mainHeader.parentElement!==headSection)headSection.appendChild(mainHeader);if(mainHeader)mainHeader.classList.remove('due-specialist-screen-header-row');if(!isGrouped)dataRows.sort((a,b)=>Number(a.dataset.rowIndex||0)-Number(b.dataset.rowIndex||0)).forEach(row=>body.appendChild(row));if(summary)summary.style.display='none';return}
  const grouped=new Map();dataRows.forEach(row=>{const key=row.dataset.officerKey||'غير محدد';if(!grouped.has(key))grouped.set(key,{name:row.dataset.officerName||'غير محدد',rows:[]});grouped.get(key).rows.push(row)});
  const moneyAt=(row,index)=>num(row.cells[index]?.textContent||0);
  const clientCount=rows=>new Set(rows.map(row=>norm(row.cells[1]?.textContent||''))).size;
  const total=rows=>({clients:clientCount(rows),due:rows.reduce((s,r)=>s+moneyAt(r,8),0),paid:rows.reduce((s,r)=>s+moneyAt(r,9),0),remaining:rows.reduce((s,r)=>s+moneyAt(r,11),0),arrears:rows.reduce((s,r)=>s+moneyAt(r,14),0)});
  const all=total(dataRows);
- if(summary){summary.style.display=dataRows.length?'grid':'none';[['dueAllClientsTotal',all.clients],['dueAllDueTotal',all.due],['dueAllPaidTotal',all.paid],['dueAllRemainingTotal',all.remaining],['dueAllArrearsTotal',all.arrears]].forEach(([id,value])=>{const el=document.getElementById(id);if(el)el.textContent=typeof value==='number'?value.toLocaleString('en-US',{maximumFractionDigits:2}):value})}
- const fragment=document.createDocumentFragment();
+ if(summary){summary.style.display='grid';[['dueAllClientsTotal',all.clients],['dueAllDueTotal',all.due],['dueAllPaidTotal',all.paid],['dueAllRemainingTotal',all.remaining],['dueAllArrearsTotal',all.arrears]].forEach(([id,value])=>{const el=document.getElementById(id);if(el)el.textContent=typeof value==='number'?value.toLocaleString('en-US',{maximumFractionDigits:2}):value})}
+ const fragment=document.createDocumentFragment();let originalHeaderUsed=false;
  [...grouped.values()].sort((a,b)=>a.name.localeCompare(b.name,'ar')).forEach(group=>{
   const head=document.createElement('tr');head.className='due-specialist-group-row';const hd=document.createElement('td');hd.colSpan=19;const active=specialistMatchesState(group.name,'active');const status=active?'نشط':'غير نشط';hd.textContent=`الأخصائي: ${group.name} — الحالة: ${status}`;head.appendChild(hd);fragment.appendChild(head);
   const s=total(group.rows),sub=document.createElement('tr');sub.className='due-specialist-subtotal-row';const sd=document.createElement('td');sd.colSpan=19;sd.textContent=`المجموع الفرعي — عدد العملاء: ${s.clients.toLocaleString('en-US')} | الأقساط المستحقة: ${money(s.due)} | المسدد: ${money(s.paid)} | المتبقي: ${money(s.remaining)} | المتأخرات: ${money(s.arrears)}`;sub.appendChild(sd);fragment.appendChild(sub);
-  const sourceHead=document.querySelector('#dueInstallments .risk-installments-table thead tr:not(.due-column-totals-row)'),screenHead=document.createElement('tr');screenHead.className='due-specialist-screen-header-row';if(sourceHead)sourceHead.innerHTML=[...sourceHead.children].map(cell=>`<th>${cell.innerHTML}</th>`).join('');fragment.appendChild(screenHead);group.rows.forEach(row=>fragment.appendChild(row));
+  const screenHead=mainHeader&&!originalHeaderUsed?mainHeader:(mainHeader?mainHeader.cloneNode(true):document.createElement('tr'));if(screenHead!==mainHeader)screenHead.removeAttribute('id');originalHeaderUsed=true;screenHead.className='due-specialist-screen-header-row';fragment.appendChild(screenHead);group.rows.forEach(row=>fragment.appendChild(row));
  });
  body.replaceChildren(fragment);
 }
+function dueColumnHeaderRow(table){return table?.querySelector('thead tr:not(.due-column-totals-row)')||table?.querySelector('tbody tr.due-specialist-screen-header-row')||null}
 
 const DUE_ALL_SPECIALISTS_LABEL='جميع الأخصائيين';
 function handleDueOfficerChoice(){
  const input=document.getElementById('dueOfficer'),box=document.getElementById('dueAllSpecialists');if(!input||!box)return;
  if(norm(input.value)===norm(DUE_ALL_SPECIALISTS_LABEL)){box.checked=true;renderDueInstallments();return}
- if(input.value.trim() && norm(input.value)!==norm(DUE_ALL_SPECIALISTS_LABEL))box.checked=false;
+ box.checked=!input.value.trim();
  renderDueInstallments();
 }
 function dueAgingEligibleRows(base,filter,specialistState,officer,client,address){
@@ -4996,6 +5020,7 @@ function buildRiskPrintLayer(forPdf=false){
   countCard.innerHTML=`<div style="font-size:8px;font-weight:900;letter-spacing:.2px">عدد الأقساط المتأخرة</div><div style="font-size:19px;font-weight:900;margin-top:2px">${rows.length}</div>`;
   summary.appendChild(countCard);
   const filterCard=document.createElement("div");
+  filterCard.className="risk-print-filter-card";
   filterCard.style.cssText="flex:1;border:2px solid #111;background:#fff;padding:3px 5px;text-align:right;line-height:1.45;";
   const filterTitle=document.createElement("div");
   filterTitle.textContent="بيانات الفلترة الحالية";
@@ -5100,10 +5125,9 @@ function buildRiskPrintLayer(forPdf=false){
       page.dir="rtl";
       page.style.cssText="display:block;position:relative;width:100%;height:1450px;min-height:0;box-sizing:border-box;page-break-inside:avoid;break-inside:avoid;page-break-after:"+(start+pageRows<allRows.length?"always":"auto")+";break-after:"+(start+pageRows<allRows.length?"page":"auto")+";overflow:hidden;margin:0;padding:0;";
       const pageNumber=Math.floor(start/pageRows)+1;
-      if(pageNumber===1){
-        page.appendChild(title.cloneNode(true));
-        page.appendChild(meta.cloneNode(true));
-      }
+      if(pageNumber===1) page.appendChild(title.cloneNode(true));
+      const pageMeta=meta.cloneNode(true);
+      page.appendChild(pageMeta);
       const pageTable=table.cloneNode(false);
       pageTable.className="risk-print-table risk-pdf-page-table";
       pageTable.style.cssText=table.style.cssText+"width:100%;height:auto;page-break-inside:auto;break-inside:auto;";
@@ -5113,16 +5137,17 @@ function buildRiskPrintLayer(forPdf=false){
       allRows.slice(start,start+pageRows).forEach(row=>pageBody.appendChild(row.cloneNode(true)));
       pageTable.appendChild(pageBody);
       page.appendChild(pageTable);
-      page.appendChild(makePrintFooter(pageNumber,totalPages));
+      const pageFooter=makePrintFooter(pageNumber,totalPages);
+      pageFooter.className="arrears-pdf-page-footer";
+      pageFooter.style.cssText="display:block!important;position:absolute!important;left:3mm!important;right:3mm!important;bottom:5mm!important;width:auto!important;box-sizing:border-box!important;margin:0!important;padding:0!important;border:0!important;background:transparent!important;color:#000!important;text-align:center!important;direction:rtl!important;font:7pt Arial,Tahoma,sans-serif!important;line-height:1.1!important;z-index:5!important;";
+      page.appendChild(pageFooter);
       layer.appendChild(page);
     }
-  }else{layer.appendChild(table);layer.appendChild(makePrintFooter(1,1));}
+  }else{
+    layer.appendChild(table);
+  }
 
-  const footer=document.createElement("div");
-  const footerNow=new Date();
-  footer.textContent=`إجمالي الأقساط المتأخرة: ${rows.length}     المستخدم: ${printUser}     التاريخ: ${printDate}     الوقت: ${printTime}`;
-  footer.style.cssText="display:flex;justify-content:flex-start;gap:24px;direction:rtl;flex-wrap:wrap;text-align:right;margin-top:8px;padding-top:5px;border-top:1px solid #555;font-size:10px;font-weight:700;line-height:1.5;";
-  if(!forPdf) layer.appendChild(footer);
+  // معلومات المستخدم والتاريخ والوقت في تذييل كل صفحة، لا داخل بطاقة الفلترة.
   return layer;
 }
 function buildDuePrintLayer(forPdf=false){
@@ -5130,51 +5155,136 @@ function buildDuePrintLayer(forPdf=false){
   if(!active||!source)return null;
   const sourceRows=[...source.querySelectorAll("tbody tr")].filter(r=>r.textContent.trim()&&!r.classList.contains("due-specialist-screen-header-row")&&!r.classList.contains("due-specialist-group-row")&&!r.classList.contains("due-specialist-subtotal-row"));
   if(!sourceRows.length||sourceRows[0].textContent.includes("لا توجد أقساط مستحقة"))return null;
-  const visibleColumnIndexes=[0,1,2,5,6,7,8,9,11,13,15,16,17,18];
-  const widths=[3,10,11,8,4,7,5,5,5,4,9,10,10,9];
-  const layer=document.createElement("div");layer.id="riskPrintLayer";layer.dir="rtl";layer.className="due-print-report";
+  const visibleColumnIndexes=[0,1,2,5,6,7,8,9,11,13,15,16,17,18],widths=[3,9,10,8,4,7,5,5,5,4,9,8,9,14];
+  // قالب مستقل محفوظ: لا يُفعّل إلا عند اختيار «جميع الأخصائيين» من خانة البحث باسم الأخصائي.
+  // يعمل بنفس التنسيق في الطباعة والمعاينة وPDF، ولا يعتمد على بطاقة حالة الأخصائي.
+  const officerInputValue=(document.getElementById("dueOfficer")?.value||"").trim(),allSelected=norm(officerInputValue)===norm(DUE_ALL_SPECIALISTS_LABEL);
+  const layer=document.createElement("div");layer.id="riskPrintLayer";layer.dir="rtl";layer.className=allSelected?"due-print-report due-all-specialists-print-template":"due-print-report";
   layer.style.cssText="background:#fff;color:#000;width:100%;box-sizing:border-box;font-family:Arial,Tahoma,sans-serif;font-weight:400;direction:rtl;padding:0 8mm;";
-  const officer=dueAllSpecialistsEnabled()?DUE_ALL_SPECIALISTS_LABEL:(document.getElementById("dueOfficer")?.value||"الكل");
-  const from=document.getElementById("dueFrom")?.value||"—",to=document.getElementById("dueTo")?.value||"—";
-  const title=document.createElement("h1");title.className="due-print-title";title.textContent=`جمعية المبادرة — الأقساط المستحقة للأخصائي: ${officer}`;layer.appendChild(title);
-  const meta=document.createElement("div");meta.className="due-print-meta";meta.innerHTML=`الفترة من ${esc(from)} إلى ${esc(to)} — الإجمالي ${esc(money(sourceRows.reduce((sum,r)=>sum+num(r.children[8]?.textContent),0)))}<br>تاريخ الطباعة: ${esc(formatPrintDate(new Date()))}`;layer.appendChild(meta);
-  const allHeaders=[...source.querySelectorAll("thead th")].map(th=>th.textContent.trim());
-  const table=document.createElement("table");table.className="risk-print-table due-approved-table";table.dir="rtl";
-  const colgroup=document.createElement("colgroup");widths.forEach(w=>{const c=document.createElement("col");c.style.width=w+"%";colgroup.appendChild(c)});table.appendChild(colgroup);
-  const thead=document.createElement("thead"),hr=document.createElement("tr");
-  visibleColumnIndexes.forEach((sourceIndex,i)=>{const th=document.createElement("th");const h=allHeaders[sourceIndex]||"";th.innerHTML=(h==="تاريخ الاستحقاق"?"تاريخ<br>الاستحقاق":h==="أيام التأخير"?"أيام<br>التأخير":esc(h));th.title=h;hr.appendChild(th)});thead.appendChild(hr);table.appendChild(thead);
-  const makeCell=(sourceCell,index)=>{
-    const td=document.createElement("td"),text=sourceCell?.textContent.trim()||"—";
-    if(index>=11){
-      const match=text.match(/^(.*?)(?:\s*[—-]\s*)([0-9٠-٩][0-9٠-٩\s()\-+]{5,})\s*$/);
-      if(match){const name=document.createElement("span");name.className="guarantor-name";name.textContent=match[1].trim()+" —";td.appendChild(name);const phone=document.createElement("span");phone.className="phone-nowrap";phone.textContent=match[2].replace(/\s+/g,"");td.appendChild(phone)}else td.textContent=text;
-    }else td.textContent=text;
-    return td;
+  const officer=dueAllSpecialistsEnabled()?DUE_ALL_SPECIALISTS_LABEL:(officerInputValue||"الكل"),from=document.getElementById("dueFrom")?.value||"—",to=document.getElementById("dueTo")?.value||"—";
+  const groupMap=new Map();
+  if(allSelected)sourceRows.forEach(row=>{const name=String(row.dataset.officerName||"غير محدد").trim()||"غير محدد",key=String(row.dataset.officerKey||officerKey(name)||norm(name));if(!groupMap.has(key))groupMap.set(key,{key,name,rows:[]});groupMap.get(key).rows.push(row)});
+  const groups=allSelected?[...groupMap.values()].sort((a,b)=>a.name.localeCompare(b.name,"ar")):[];
+  const printRows=groups.length?groups.flatMap(group=>group.rows):sourceRows;
+  const getAmount=(row,index)=>num(row?.children?.[index]?.textContent||0);
+  const summarize=rows=>({clients:new Set(rows.map(row=>norm(row.children[1]?.textContent||"")).filter(Boolean)).size,installments:rows.length,due:rows.reduce((sum,row)=>sum+getAmount(row,8),0),paid:rows.reduce((sum,row)=>sum+getAmount(row,9),0),remaining:rows.reduce((sum,row)=>sum+getAmount(row,11),0),arrears:rows.reduce((sum,row)=>sum+getAmount(row,14),0)});
+  const groupTotals=new Map(groups.map(group=>[group.key,summarize(group.rows)])),grand=summarize(printRows);
+  let guidePage=null;
+  if(allSelected){
+    const selectedText=id=>{const el=document.getElementById(id);return el?.tagName==='SELECT'?(el.options[el.selectedIndex]?.textContent||'—').trim():(el?.value||'').trim()||'—'};
+    const viewLabels={due:'المستحق',upcoming:'القادم',partial:'المسدد جزئيًا',paid:'المسدد',overdue:'المتأخر'};
+    const agingLabel=typeof RISK_AGING_BANDS!=='undefined'&&dueAgingRange?(RISK_AGING_BANDS.find(x=>x.id===dueAgingRange)?.label||dueAgingRange):'—';
+    const now=new Date(),logoSrc=document.querySelector('.association-logo')?.src||document.querySelector('.print-logo')?.src||'';
+    const guideReportPages=Math.max(1,groups.length+1);
+    const guideUser=typeof reportUserName==='function'?reportUserName():String((typeof session!=='undefined'&&(session?.name||session?.user))||'غير محدد');
+    const guideSpecialistRows=groups.map(group=>{const totals=groupTotals.get(group.key)||summarize(group.rows);const cell=value=>`<td style="padding:2mm 1.5mm;border-bottom:1px solid #bfc6c8;font-size:13px;line-height:1.2;color:#10243e;font-weight:950;text-align:center;direction:ltr;white-space:nowrap">${esc(value)}</td>`;return `<tr><td style="padding:2mm 1.8mm;border-bottom:1px solid #bfc6c8;font-size:13px;line-height:1.2;color:#10243e;font-weight:950;text-align:right;white-space:nowrap">${esc(group.name)}</td>${cell(totals.installments.toLocaleString('en-US'))}${cell(money(totals.due))}${cell(money(totals.paid))}${cell(money(totals.remaining))}${cell(money(totals.arrears))}</tr>`}).join('');
+    guidePage=document.createElement('section');guidePage.className='due-print-guide-page';guidePage.dir='rtl';
+    guidePage.style.cssText='page-break-before:auto;break-before:auto;page-break-after:always;break-after:page;min-height:190mm;height:190mm;box-sizing:border-box;padding:6mm 8mm;background:#fff;color:#10243e;font-family:Arial,Tahoma,sans-serif;display:flex;flex-direction:column;gap:2.2mm;overflow:hidden;border:1px solid #9aa9ad;outline:1px solid #d6dcde;outline-offset:-4px;';
+    const guidePrintStyle=document.createElement('style');guidePrintStyle.textContent='#riskPrintLayer.due-print-report .due-print-guide-page table th{font-size:13px!important;font-weight:950!important;line-height:1.2!important;height:12mm!important;min-height:12mm!important;padding:2mm 1.5mm!important;background:#e2e6e6!important;color:#111!important;white-space:normal!important;overflow:visible!important}#riskPrintLayer.due-print-report .due-print-guide-page table td{font-size:13px!important;font-weight:950!important;line-height:1.2!important;height:12mm!important;min-height:12mm!important;padding:2mm 1.8mm!important;color:#10243e!important;white-space:nowrap!important;overflow:visible!important}#riskPrintLayer.due-print-report .due-print-guide-page table td:nth-child(2){color:#10243e!important}#riskPrintLayer.due-print-report .due-print-guide-page table td:nth-child(3){color:#10243e!important}#riskPrintLayer.due-print-report .due-print-guide-page table td:nth-child(4){color:#10243e!important}#riskPrintLayer.due-print-report .due-print-guide-page table td:nth-child(5){color:#10243e!important}#riskPrintLayer.due-print-report .due-print-guide-page table td:nth-child(6){color:#10243e!important}';guidePage.appendChild(guidePrintStyle);
+    const guideHeader=document.createElement('div');guideHeader.style.cssText='display:flex;align-items:center;justify-content:center;gap:4mm;padding-bottom:2.5mm;border-bottom:2px solid #0f766e;';
+    guideHeader.innerHTML=`<div style="display:flex;align-items:center;gap:4mm;min-width:70mm"><div style="width:24mm;height:24mm;flex:0 0 24mm;border:1mm solid #164e5a;border-radius:50%;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#fff;color:#164e5a;text-align:center;font-size:8px;font-weight:950;line-height:1.25">${logoSrc?`<img src="${escAttr(logoSrc)}" alt="شعار الجمعية" style="width:20mm;height:20mm;object-fit:contain">`:`<span>شعار<br>الجمعية</span>`}</div><div style="text-align:right"><div style="font-size:17px;font-weight:950;color:#0f766e">جمعية المبادرة</div><div style="font-size:15px;font-weight:950;color:#10243e;margin-top:1mm">فرع قويسنا</div><div style="font-size:11px;font-weight:900;color:#64748b;margin-top:1mm">الأقساط المستحقة</div></div></div>`;
+    guidePage.appendChild(guideHeader);
+    const reportTitle=document.createElement('div');reportTitle.style.cssText='text-align:center;font-size:23px;font-weight:950;color:#0b2239;letter-spacing:.2px;';reportTitle.textContent='الأقساط المستحقة للأخصائيين';guidePage.appendChild(reportTitle);
+    const formatGuideDate=value=>{const match=String(value||'').trim().match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})$/);return match?`${match[1]}/${match[2].padStart(2,'0')}/${match[3].padStart(2,'0')}`:String(value||'—')};const guideDateRange=from==='—'&&to==='—'?'كل الفترات':`من ${formatGuideDate(from)} إلى ${formatGuideDate(to)}`;const filterItems=[['الأخصائي','جميع الأخصائيين'],['التاريخ',guideDateRange],['عدد العملاء',grand.clients.toLocaleString('en-US')]];
+    const filterPanel=document.createElement('div');filterPanel.style.cssText='border:1.5px solid #7896a3;padding:2mm 3mm;background:#fbfdfd;';const filterCellHtml=filterItems.map(([label,value])=>{const dateMatch=label==='التاريخ'?value.match(/^من\s+(.+?)\s+إلى\s+(.+)$/):null;const dateMarkup=dateMatch?`<span style="display:inline-flex;align-items:center;justify-content:center;gap:3mm;white-space:nowrap"><span>من</span><span>${esc(dateMatch[1])}</span><span>إلى</span><span>${esc(dateMatch[2])}</span></span>`:esc(value);const valueSize=label==='الأخصائي'||label==='عدد العملاء'?'18px':'14px';return `<div style="min-height:12mm;padding:1.5mm 3mm;border-left:1px solid #b8cbd2;border-bottom:1px solid #b8cbd2;text-align:center"><div style="font-size:12px;font-weight:950;color:#000;text-shadow:none">${esc(label)}</div><div style="margin-top:1mm;font-size:${valueSize};font-weight:950;color:#000;overflow-wrap:anywhere;white-space:${dateMatch?'nowrap':'normal'};text-shadow:none">${dateMarkup}</div></div>`}).join('');filterPanel.innerHTML='<div style="font-size:13px;font-weight:950;color:#000;text-shadow:none;text-align:right;margin-bottom:1.5mm">بيانات الفلترة</div><div style="display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid #b8cbd2;border-right:1px solid #b8cbd2">'+filterCellHtml+'</div>';guidePage.appendChild(filterPanel);
+    const tablePanel=document.createElement('div');tablePanel.style.cssText='border:1.8px solid #173b63;padding:1.5mm;background:#fff;';
+    tablePanel.innerHTML=`<div style="font-size:16px;font-weight:950;color:#173b63;margin:0 0 1mm;text-align:right">تفصيل الأخصائيين</div><table style="width:100%;border-collapse:collapse;direction:rtl;table-layout:fixed"><thead><tr style="background:#e2e6e6;color:#111;font-size:13px;font-weight:950"><th style="width:20%;padding:2mm 1.5mm;text-align:right;font-size:13px;font-weight:950">اسم الأخصائي</th><th style="width:12%;padding:4mm 1.5mm;text-align:center;font-size:15px;font-weight:950">عدد الأقساط</th><th style="width:17%;padding:4mm 1.5mm;text-align:center;font-size:15px;font-weight:950">إجمالي الأقساط</th><th style="width:17%;padding:4mm 1.5mm;text-align:center;font-size:15px;font-weight:950">إجمالي المسدد</th><th style="width:17%;padding:4mm 1.5mm;text-align:center;font-size:15px;font-weight:950">إجمالي المتبقي</th><th style="width:17%;padding:4mm 1.5mm;text-align:center;font-size:15px;font-weight:950">إجمالي المتأخرات</th></tr></thead><tbody>${guideSpecialistRows||'<tr><td colspan="6" style="padding:4mm;font-size:13px;color:#64748b;text-align:center">لا توجد بيانات أخصائيين</td></tr>'}</tbody></table>`;guidePage.appendChild(tablePanel);
+    const grandTotalPanel=document.createElement('div');grandTotalPanel.style.cssText='border:2px solid #0f766e;background:#f0f9f7;padding:2mm 3mm;text-align:center;';grandTotalPanel.innerHTML=`<div style="font-size:17px;font-weight:950;color:#075e54;margin-bottom:1mm">الإجمالي العام</div><div style="display:flex;justify-content:space-around;gap:2mm;flex-wrap:wrap;font-size:12px;font-weight:950;color:#10243e"><span>الأخصائيون: ${groups.length.toLocaleString('en-US')}</span><span>الأقساط: ${grand.installments.toLocaleString('en-US')}</span><span>إجمالي الأقساط: ${esc(money(grand.due))}</span><span>المسدد: ${esc(money(grand.paid))}</span><span>المتبقي: ${esc(money(grand.remaining))}</span><span>المتأخرات: ${esc(money(grand.arrears))}</span></div>`;guidePage.appendChild(grandTotalPanel);
+    const guideFooter=document.createElement('div');guideFooter.style.cssText='margin-top:auto;display:grid;grid-template-columns:repeat(4,1fr);gap:2mm;padding-top:2mm;border-top:2px solid #173b63;color:#10243e;font-size:10px;font-weight:950;text-align:center;';guideFooter.innerHTML=`<span>عدد الصفحات: ${guideReportPages.toLocaleString('en-US')}</span><span>المستخدم: ${esc(guideUser)}</span><span>التاريخ: ${esc(formatPrintDate(now))}</span><span>الوقت: ${esc(now.toLocaleTimeString('ar-EG',{hour:'2-digit',minute:'2-digit'}))}</span>`;guidePage.appendChild(guideFooter);
+    const preserveGuidePrintStyle=(node,color="#10243e",weight="400")=>{if(!node||node.nodeType!==1||node.tagName==="STYLE")return;const ownColor=node.style?.getPropertyValue("color")?.trim()||color,ownWeight=node.style?.getPropertyValue("font-weight")?.trim()||weight;node.style?.setProperty("color",ownColor,"important");node.style?.setProperty("font-weight",ownWeight,"important");[...node.children].forEach(child=>preserveGuidePrintStyle(child,ownColor,ownWeight))};
+    preserveGuidePrintStyle(guidePage);
+    layer.appendChild(guidePage);
+  }
+  const title=document.createElement("h1");title.className="due-print-title";title.textContent=`جمعية المبادرة — الأقساط المستحقة للأخصائي: ${officer}`;
+  const meta=document.createElement("div");meta.className="due-print-meta";meta.innerHTML=allSelected?`الفترة من ${esc(from)} إلى ${esc(to)}<br>تاريخ الطباعة: ${esc(formatPrintDate(new Date()))}`:`الفترة من ${esc(from)} إلى ${esc(to)} — إجمالي الأقساط ${esc(money(grand.due))}<br>تاريخ الطباعة: ${esc(formatPrintDate(new Date()))}`;
+  let grandSummary=null;
+  if(allSelected){grandSummary=document.createElement("div");grandSummary.className="due-print-grand-total";grandSummary.innerHTML=`<strong>الإجمالي العام</strong><span>عدد الأخصائيين: <b>${groups.length.toLocaleString("en-US")}</b></span><span>عدد العملاء: <b>${grand.clients.toLocaleString("en-US")}</b></span><span>عدد الأقساط: <b>${grand.installments.toLocaleString("en-US")}</b></span><span>إجمالي الأقساط: <b>${esc(money(grand.due))}</b></span><span>المسدد: <b>${esc(money(grand.paid))}</b></span><span>المتبقي: <b>${esc(money(grand.remaining))}</b></span><span>المتأخرات: <b>${esc(money(grand.arrears))}</b></span>`}
+  const headerRow=dueColumnHeaderRow(source),allHeaders=[...(headerRow?.querySelectorAll("th")||[])].map(th=>th.textContent.trim());
+  const makeCell=(sourceCell,index)=>{const td=document.createElement("td"),text=sourceCell?.textContent.trim()||"—";if(index>=11){const match=text.match(/^(.*?)(?:\s*[—-]\s*)([0-9٠-٩][0-9٠-٩\s()\-+]{5,})\s*$/);if(match){const name=document.createElement("span");name.className="guarantor-name";name.textContent=match[1].trim()+" —";td.appendChild(name);const phone=document.createElement("span");phone.className="phone-nowrap";phone.textContent=match[2].replace(/\s+/g,"");td.appendChild(phone)}else td.textContent=text}else td.textContent=text;return td};
+  const makeTable=(rows,group=null)=>{
+    const table=document.createElement("table");table.className="risk-print-table due-approved-table";table.dir="rtl";
+    const colgroup=document.createElement("colgroup");widths.forEach(w=>{const c=document.createElement("col");c.style.width=w+"%";colgroup.appendChild(c)});table.appendChild(colgroup);
+    const thead=document.createElement("thead");if(group){const nameRow=document.createElement("tr"),nameCell=document.createElement("th");nameRow.className="due-print-specialist-heading";nameCell.colSpan=visibleColumnIndexes.length;nameCell.textContent=`الأخصائي: ${group.name}`;nameRow.appendChild(nameCell);thead.appendChild(nameRow)}
+    const hr=document.createElement("tr");visibleColumnIndexes.forEach(sourceIndex=>{const th=document.createElement("th"),h=allHeaders[sourceIndex]||"";th.innerHTML=(h==="تاريخ الاستحقاق"?"تاريخ<br>الاستحقاق":h==="أيام التأخير"?"أيام<br>التأخير":esc(h));th.title=h;hr.appendChild(th)});thead.appendChild(hr);table.appendChild(thead);
+    const tbody=document.createElement("tbody");rows.forEach((row,rowIndex)=>{const tr=document.createElement("tr");visibleColumnIndexes.forEach((sourceIndex,index)=>tr.appendChild(makeCell(row.children[sourceIndex],index)));tr.cells[0].textContent=String(rowIndex+1);tr.style.setProperty("page-break-inside","avoid","important");tr.style.setProperty("break-inside","avoid","important");tbody.appendChild(tr)});table.appendChild(tbody);return table
   };
-  const tbody=document.createElement("tbody");sourceRows.forEach((row,rowIndex)=>{const tr=document.createElement("tr");visibleColumnIndexes.forEach((sourceIndex,index)=>tr.appendChild(makeCell(row.children[sourceIndex],index)));tr.cells[0].textContent=String(rowIndex+1);tbody.appendChild(tr)});table.appendChild(tbody);
-  const pageSize=8;
-  layer.innerHTML="";
-  for(let start=0;start<sourceRows.length;start+=pageSize){
-    const page=document.createElement("section");page.className="print-page due-report-page-block";page.dir="rtl";page.style.cssText="page-break-inside:avoid;break-inside:avoid;";page.style.setProperty("height","auto","important");page.style.setProperty("min-height","0","important");page.style.setProperty("max-height","none","important");page.style.setProperty("overflow","visible","important");page.style.setProperty("box-shadow","none","important");if(start>0){page.style.pageBreakBefore="always";page.style.breakBefore="page";}
-    const content=document.createElement("div");content.className="page-content";
-    if(start===0){content.appendChild(title.cloneNode(true));content.appendChild(meta.cloneNode(true));}
-    const pageTable=table.cloneNode(false);pageTable.style.setProperty("height","auto","important");pageTable.style.setProperty("min-height","0","important");pageTable.style.setProperty("max-height","none","important");pageTable.style.setProperty("box-shadow","none","important");pageTable.appendChild(colgroup.cloneNode(true));pageTable.appendChild(thead.cloneNode(true));const pageBody=document.createElement("tbody");[...tbody.rows].slice(start,start+pageSize).forEach(r=>pageBody.appendChild(r.cloneNode(true)));pageTable.appendChild(pageBody);pageTable.querySelectorAll("th,td").forEach(cell=>{cell.style.setProperty("font-family","Arial,Tahoma,sans-serif","important");cell.style.setProperty("font-weight","400","important");cell.style.setProperty("color","#000","important");cell.style.setProperty("text-shadow","none","important");cell.style.setProperty("-webkit-text-stroke","0","important");cell.style.setProperty("filter","none","important");cell.style.setProperty("box-shadow","none","important");cell.style.setProperty("height","auto","important");cell.style.setProperty("min-height",cell.tagName==="TH"?"10mm":"10mm","important");cell.style.setProperty("line-height",cell.tagName==="TH"?"1.2":"1.25","important");cell.style.setProperty("padding","3px 2px","important");cell.style.setProperty("font-size",cell.tagName==="TH"?"8px":"8px","important");cell.style.setProperty("white-space","normal","important");cell.style.setProperty("word-break","normal","important");cell.style.setProperty("overflow-wrap","normal","important");cell.style.setProperty("vertical-align","middle","important")});content.style.setProperty("height","auto","important");content.style.setProperty("min-height","0","important");content.style.setProperty("max-height","none","important");content.style.setProperty("overflow","visible","important");content.style.setProperty("box-shadow","none","important");content.appendChild(pageTable);page.appendChild(content);
-    layer.appendChild(page);
+  if(allSelected){
+    groups.forEach((group,groupIndex)=>{
+      const section=document.createElement("section");section.className="due-specialist-flow-section";section.dir="rtl";section.style.cssText="height:auto!important;min-height:0!important;max-height:none!important;overflow:visible!important;page-break-inside:auto!important;break-inside:auto!important;";if(groupIndex>0||guidePage){section.style.pageBreakBefore="always";section.style.breakBefore="page"}
+      const content=document.createElement("div");content.className="due-specialist-flow-content";const specialistTitle=title.cloneNode(true);specialistTitle.textContent=`جمعية المبادرة - الأقساط المستحقة للأخصائي: ${group.name}`;content.appendChild(specialistTitle);content.appendChild(meta.cloneNode(true));if(groupIndex===0&&grandSummary)content.appendChild(grandSummary.cloneNode(true));content.appendChild(makeTable(group.rows,group));
+      const totals=groupTotals.get(group.key)||summarize(group.rows),subtotal=document.createElement("div");subtotal.className="due-print-specialist-subtotal";subtotal.innerHTML=`<strong>الإجمالي الفرعي — ${esc(group.name)}</strong><span>عدد العملاء: <b>${totals.clients.toLocaleString("en-US")}</b></span><span>عدد الأقساط: <b>${totals.installments.toLocaleString("en-US")}</b></span><span>قيمة الأقساط: <b>${esc(money(totals.due))}</b></span><span>المسدد: <b>${esc(money(totals.paid))}</b></span><span>المتبقي: <b>${esc(money(totals.remaining))}</b></span><span>المتأخرات: <b>${esc(money(totals.arrears))}</b></span>`;content.appendChild(subtotal);section.appendChild(content);layer.appendChild(section)
+    });
+  }else{
+    const table=makeTable(printRows),pageSize=forPdf?10:12,pageSlices=[];for(let start=0;start<printRows.length;){const remaining=printRows.length-start;let count=Math.min(pageSize,remaining);if(!forPdf&&count===pageSize&&remaining===pageSize+1)count=pageSize-1;pageSlices.push({start,rows:printRows.slice(start,start+count)});start+=count}
+    pageSlices.forEach((slice,pageIndex)=>{const page=document.createElement("section");page.className="print-page due-report-page-block";page.dir="rtl";page.style.cssText="page-break-inside:avoid;break-inside:avoid;";page.style.setProperty("height","auto","important");page.style.setProperty("min-height","0","important");page.style.setProperty("max-height","none","important");page.style.setProperty("overflow","visible","important");page.style.setProperty("box-shadow","none","important");if(pageIndex>0){page.style.pageBreakBefore="always";page.style.breakBefore="page"}const content=document.createElement("div");content.className="page-content";if(pageIndex===0){content.appendChild(title.cloneNode(true));content.appendChild(meta.cloneNode(true))}const pageTable=table.cloneNode(false);pageTable.style.setProperty("height","auto","important");pageTable.style.setProperty("min-height","0","important");pageTable.style.setProperty("max-height","none","important");pageTable.style.setProperty("box-shadow","none","important");pageTable.appendChild(table.querySelector("colgroup").cloneNode(true));pageTable.appendChild(table.querySelector("thead").cloneNode(true));const pageBody=document.createElement("tbody");slice.rows.forEach((row,index)=>{const cells=[...table.querySelector("tbody").rows[slice.start+index].cells],printed=document.createElement("tr");cells.forEach(cell=>printed.appendChild(cell.cloneNode(true)));printed.cells[0].textContent=String(slice.start+index+1);printed.style.setProperty("page-break-inside","avoid","important");printed.style.setProperty("break-inside","avoid","important");pageBody.appendChild(printed)});pageTable.appendChild(pageBody);content.appendChild(pageTable);page.appendChild(content);layer.appendChild(page)})
   }
   return layer;
 }
 function printRiskReport(event){
   if(event?.preventDefault)event.preventDefault();if(event?.stopImmediatePropagation)event.stopImmediatePropagation();
   document.getElementById("riskPrintLayer")?.remove();
-  document.body.classList.remove("printing-risk-report","printing-risk");
+  document.body.classList.remove("printing-risk-report","printing-risk","printing-arrears-report","printing-due-installments-report");
   try{renderRisk()}catch(e){console.warn("تحديث جدول المتأخرات قبل الطباعة:",e)}
   const layer=buildRiskPrintLayer(); if(!layer){alert("لا توجد أقساط متأخرة للطباعة.");return false}
-  document.body.appendChild(layer); document.body.classList.add("printing-risk-report");
+  applyArrearsPrintFormat(layer);
+  document.body.appendChild(layer); document.body.classList.add("printing-risk-report","printing-arrears-report");
+  const footerNow=new Date();
+  const footerUser=String(session?.name||session?.user||"—").replace(/\s+/g," ").trim();
+  const footerMeta=`المستخدم: ${footerUser}  •  التاريخ: ${formatPrintDate(footerNow)}  •  الوقت: ${footerNow.toLocaleTimeString("en-US",{hour:"2-digit",minute:"2-digit"})}  •  الصفحة `;
+  const cssString=value=>`"${String(value).replace(/\\/g,"\\\\").replace(/"/g,'\\"').replace(/[\r\n]/g," ")}"`;
+  const footerStyle=document.getElementById("arrears-print-isolated");
+  if(footerStyle){
+    const marker="/* arrears-runtime-footer-meta */";
+    const base=footerStyle.textContent.split(marker)[0];
+    footerStyle.textContent=base+`\n${marker}\n@media print{@page arrears{@bottom-center{content:${cssString(footerMeta)} counter(page) " من " counter(pages) !important;font:7pt Arial,Tahoma,sans-serif;color:#000;direction:rtl;vertical-align:bottom;}}}\n`;
+  }
   const restoreNodes=[...document.body.childNodes].filter(node=>node.nodeType===Node.TEXT_NODE&&node.textContent.trim()).map(node=>{const marker=document.createComment("risk-print-text-restore");node.parentNode.insertBefore(marker,node);node.remove();return{node,marker}});
-  let cleaned=false; const cleanup=()=>{if(cleaned)return;cleaned=true;restoreNodes.forEach(({node,marker})=>{if(marker.parentNode)marker.parentNode.insertBefore(node,marker);marker.remove()});document.body.classList.remove("printing-risk-report");layer.remove();window.removeEventListener("afterprint",cleanup)};
+  let cleaned=false; const cleanup=()=>{if(cleaned)return;cleaned=true;restoreNodes.forEach(({node,marker})=>{if(marker.parentNode)marker.parentNode.insertBefore(node,marker);marker.remove()});document.body.classList.remove("printing-risk-report","printing-arrears-report");layer.remove();window.removeEventListener("afterprint",cleanup)};
   window.addEventListener("afterprint",cleanup,{once:true});void layer.offsetHeight;
   try{window.print()}catch(e){cleanup();alert("تعذر تشغيل الطباعة. حاول مرة أخرى.");return false}
   setTimeout(cleanup,60000);return false;
+}
+function applyArrearsPrintFormat(layer){
+  if(!layer)return;
+  const black={color:"#000",textShadow:"none",webkitTextStroke:"0",filter:"none",boxShadow:"none",fontFamily:"Arial,Tahoma,sans-serif",fontWeight:"400",padding:"5mm 3mm",boxSizing:"border-box"};
+  Object.entries(black).forEach(([key,value])=>layer.style.setProperty(key.replace(/[A-Z]/g,m=>"-"+m.toLowerCase()),value,"important"));
+  const tables=layer.querySelectorAll(".risk-print-table,.risk-pdf-page-table,.due-approved-table,table[data-print-template]");
+  tables.forEach(table=>{
+    if(table.closest(".due-print-guide-page"))return;
+    table.style.setProperty("width","100%","important");
+    table.style.setProperty("max-width","100%","important");
+    table.style.setProperty("table-layout","auto","important");
+    table.style.setProperty("border-collapse","collapse","important");
+    table.style.setProperty("font-size","8.5px","important");
+    table.querySelectorAll("col").forEach(col=>{col.style.removeProperty("width");col.style.removeProperty("min-width");col.style.removeProperty("max-width");col.style.setProperty("width","auto","important")});
+    table.querySelectorAll("thead").forEach(t=>t.style.setProperty("display","table-header-group","important"));
+    table.querySelectorAll("tr").forEach(row=>{row.style.setProperty("break-inside","avoid","important");row.style.setProperty("page-break-inside","avoid","important")});
+    table.querySelectorAll("th,td").forEach(cell=>{
+      cell.style.removeProperty("width");cell.style.removeProperty("min-width");cell.style.removeProperty("max-width");
+      Object.entries({color:"#000",background:"#fff",backgroundImage:"none",fontFamily:"Arial,Tahoma,sans-serif",fontSize:"8.5px",fontWeight:"400",lineHeight:"1.2",textShadow:"none",webkitTextStroke:"0",filter:"none",padding:"3px 2px",height:"auto",minHeight:"0",maxHeight:"none",whiteSpace:"normal",overflowWrap:"normal",wordBreak:"normal",overflow:"visible",boxSizing:"border-box",width:"auto"}).forEach(([key,value])=>cell.style.setProperty(key.replace(/[A-Z]/g,m=>"-"+m.toLowerCase()),value,"important"));
+      const value=cell.textContent.trim();
+      const numberLike=/^[0-9٠-٩+()\-\s./,:]+$/.test(value)&&/[0-9٠-٩]/.test(value);
+      if(cell.tagName==="TD"&&numberLike){cell.style.setProperty("font-size","9.2px","important");cell.style.setProperty("white-space","nowrap","important");cell.style.setProperty("word-break","keep-all","important");cell.style.setProperty("overflow-wrap","normal","important");cell.style.setProperty("direction","ltr","important");}
+    });
+    // حساب العرض من بيانات tbody فقط، مع تجاهل عناوين الأعمدة.
+    const bodyRows=[...table.tBodies].flatMap(tbody=>[...tbody.rows]);
+    const cellsByColumn=[];
+    bodyRows.forEach(row=>[...row.cells].forEach((cell,index)=>{(cellsByColumn[index]??=[]).push(cell.textContent.trim())}));
+    const scores=cellsByColumn.map((values,index)=>{
+      const maxLength=Math.max(1,...values.map(value=>Math.max(...value.split(/\s+/).map(part=>part.length),0)));
+      const numeric=values.length>0&&values.every(value=>/^[0-9٠-٩+()\-\s./,:]+$/.test(value)&&/[0-9٠-٩]/.test(value));
+      const base=numeric?Math.min(14,Math.max(3,maxLength*0.62)):Math.min(24,Math.max(5,maxLength*0.78));
+      return index>=11?Math.min(22,Math.max(7,base)):base;
+    });
+    const scoreTotal=scores.reduce((sum,value)=>sum+value,0)||1;
+    table.querySelectorAll("col").forEach((col,index)=>{
+      const width=((scores[index]||6)/scoreTotal*100).toFixed(2)+"%";
+      col.style.setProperty("width",width,"important");
+    });
+  });
+  layer.querySelectorAll(".phone-nowrap").forEach(phone=>{
+    Object.entries({display:"inline-block",whiteSpace:"nowrap",overflowWrap:"normal",wordBreak:"keep-all",direction:"ltr",unicodeBidi:"plaintext",fontFamily:"Arial,Tahoma,sans-serif",fontSize:"9px",fontWeight:"400",color:"#000",textShadow:"none",filter:"none"}).forEach(([key,value])=>phone.style.setProperty(key.replace(/[A-Z]/g,m=>"-"+m.toLowerCase()),value,"important"));
+  });
 }
 async function downloadReportLayerPDF(layer,filename,className="report-pdf-download",returnBlob=false){
   if(typeof window.html2pdf!=="function"){layer.remove();alert("تعذر تشغيل تحميل PDF. تأكد من اتصال الإنترنت ثم أعد المحاولة.");return null}
@@ -5182,11 +5292,12 @@ async function downloadReportLayerPDF(layer,filename,className="report-pdf-downl
   const isRiskPDF=className==="printing-risk-report";
   const isDuePDF=className==="printing-due-pdf";
   const isWidePDF=isRiskPDF||isDuePDF;
-  const captureWidth=isWidePDF?2200:1120;
+  if(isWidePDF)applyArrearsPrintFormat(layer);
+  const captureWidth=isDuePDF?1200:isRiskPDF?1800:1120;
   const captureFont=isDuePDF?"8.5px":isRiskPDF?"16px":"7.8px";
   const captureHeadFont=isDuePDF?"8.5px":isRiskPDF?"15px":"7.4px";
   holder.style.cssText=`position:absolute;left:0;top:0;width:${captureWidth}px;min-width:${captureWidth}px;background:#fff;z-index:-1;visibility:visible;display:block;direction:ltr;overflow:visible;`;
-  layer.style.cssText+=(layer.style.cssText?";":"")+`font-size:${captureFont}!important;line-height:1.3!important;width:${captureWidth}px!important;text-shadow:none!important;-webkit-text-stroke:0!important;filter:none!important;min-height:20px;height:auto;display:block!important;visibility:visible!important;opacity:1!important;background:#fff!important;color:#000!important;position:static!important;margin:0!important;padding:0 4px!important;box-sizing:border-box!important;`;
+  layer.style.cssText+=(layer.style.cssText?";":"")+`font-size:${captureFont}!important;line-height:1.3!important;width:${captureWidth}px!important;text-shadow:none!important;-webkit-text-stroke:0!important;filter:none!important;min-height:20px;height:auto;display:block!important;visibility:visible!important;opacity:1!important;background:#fff!important;color:#000!important;position:static!important;margin:0!important;padding:${isWidePDF?"5mm 3mm":"0 4px"}!important;box-sizing:border-box!important;`;
   // تثبيت كل صفحة PDF كوحدة مستقلة حتى يبقى التذييل داخلها ولا يُرحّل لصفحة جديدة.
   if(isWidePDF){
     layer.querySelectorAll(".due-report-page-block").forEach((page,index)=>{
@@ -5194,14 +5305,14 @@ async function downloadReportLayerPDF(layer,filename,className="report-pdf-downl
       page.style.setProperty("min-height",isRiskPDF?"760px":"0","important");
       page.style.setProperty("max-height",isRiskPDF?"760px":"none","important");
       page.style.setProperty("overflow","visible","important");
-      page.style.setProperty("position","relative","important");
+      page.style.setProperty("position","relative","important");page.style.setProperty("width","100%","important");page.style.setProperty("box-sizing","border-box","important");
       page.style.setProperty("page-break-inside","avoid","important");
       page.style.setProperty("break-inside","avoid","important");
       page.style.setProperty("page-break-before",index>0?"always":"auto","important");
       page.style.setProperty("break-before",index>0?"page":"auto","important");
     });
   }
-  layer.querySelectorAll("table").forEach(table=>{table.style.width="100%";table.style.maxWidth="100%";table.style.minWidth="0";table.style.tableLayout="fixed";table.style.overflow="visible";table.style.direction="rtl";table.querySelectorAll("thead").forEach(t=>{t.style.display="table-header-group";t.style.position="static";t.style.breakInside="avoid";t.style.pageBreakInside="avoid";t.style.cssText+=";display:table-header-group!important;page-break-inside:avoid!important;break-inside:avoid!important;"});table.querySelectorAll("th,td").forEach(cell=>{cell.style.maxWidth="none";cell.style.minWidth="0";cell.style.overflow="hidden";cell.style.overflowWrap="anywhere";cell.style.wordBreak="break-word";cell.style.whiteSpace="normal";cell.style.setProperty("font-size",cell.tagName==="TH"?captureHeadFont:captureFont,"important");cell.style.setProperty("line-height",isDuePDF?"1.12":"1.22","important");cell.style.setProperty("padding",isDuePDF?"2px 2px":isRiskPDF?"7px 4px":"2px 1px","important");cell.style.setProperty("min-height",isDuePDF?"28px":isRiskPDF?"62px":"0","important");cell.style.setProperty("height",isDuePDF?"82px":isRiskPDF?"62px":"auto","important");cell.style.setProperty("font-weight","400","important");cell.style.setProperty("vertical-align","middle","important");cell.style.textShadow="none";cell.style.webkitTextStroke="0";cell.style.filter="none";cell.style.setProperty("color","#000","important");
+  layer.querySelectorAll("table").forEach(table=>{table.style.width="100%";table.style.maxWidth="100%";table.style.minWidth="0";table.style.tableLayout="fixed";table.style.overflow="visible";table.style.direction="rtl";table.querySelectorAll("thead").forEach(t=>{t.style.display="table-header-group";t.style.position="static";t.style.breakInside="avoid";t.style.pageBreakInside="avoid";t.style.cssText+=";display:table-header-group!important;page-break-inside:avoid!important;break-inside:avoid!important;"});table.querySelectorAll("th,td").forEach(cell=>{cell.style.maxWidth="none";cell.style.minWidth="0";cell.style.overflow="hidden";cell.style.overflowWrap="anywhere";cell.style.wordBreak="break-word";cell.style.whiteSpace="normal";cell.style.setProperty("font-size",(isRiskPDF||isDuePDF)?"8.5px":"8.8px","important");cell.style.setProperty("line-height",isDuePDF?"1.12":"1.22","important");cell.style.setProperty("padding",isDuePDF||isRiskPDF?"3px 2px":"2px 1px","important");cell.style.setProperty("min-height",isDuePDF?"28px":"0","important");cell.style.setProperty("height",isDuePDF?"82px":"auto","important");cell.style.setProperty("font-weight","400","important");cell.style.setProperty("vertical-align","middle","important");cell.style.textShadow="none";cell.style.webkitTextStroke="0";cell.style.filter="none";cell.style.setProperty("color","#000","important");
     if(cell.matches("td:nth-child(3),td:nth-child(4),td:nth-child(6)")){
       // الرقم القومي ورقم الهاتف: رقم كامل داخل نفس الخلية بلا التفاف أو انتقال.
       cell.style.setProperty("white-space","nowrap","important");cell.style.setProperty("word-break","keep-all","important");cell.style.setProperty("overflow-wrap","normal","important");cell.style.setProperty("direction","ltr","important");cell.style.setProperty("text-align","center","important");cell.style.setProperty("font-family","Arial,Tahoma,sans-serif","important");cell.style.setProperty("font-variant-numeric","tabular-nums","important");
@@ -5210,6 +5321,7 @@ async function downloadReportLayerPDF(layer,filename,className="report-pdf-downl
       // أرقام الضامن الأول والثاني والثالث: خط واضح ورقم متصل لا يعبر إلى الخلية التالية.
       phone.style.setProperty("font-size","0.72em","important");phone.style.setProperty("font-family","Arial,Tahoma,sans-serif","important");phone.style.setProperty("font-weight","400","important");phone.style.setProperty("font-variant-numeric","tabular-nums","important");phone.style.setProperty("white-space","nowrap","important");phone.style.setProperty("word-break","keep-all","important");phone.style.setProperty("overflow-wrap","normal","important");phone.style.setProperty("direction","ltr","important");phone.style.setProperty("unicode-bidi","plaintext","important");phone.style.setProperty("display","inline-block","important");
     });})});
+  if(isWidePDF)applyArrearsPrintFormat(layer);
   if(isDuePDF){
     layer.querySelectorAll(".risk-print-table").forEach(table=>{
       [[3,"6%"],[6,"5%"]].forEach(([column,width])=>{
@@ -5248,7 +5360,7 @@ async function downloadReportLayerPDF(layer,filename,className="report-pdf-downl
     layer.querySelectorAll(".risk-print-table").forEach(table=>{
       [16,17,18].forEach(column=>{
         table.querySelectorAll(`col:nth-child(${column}),th:nth-child(${column}),td:nth-child(${column})`).forEach(cell=>{
-          cell.style.setProperty("font-size","9px","important");
+          cell.style.setProperty("font-size","8px","important");
           cell.style.setProperty("font-weight","400","important");
           cell.style.setProperty("line-height","1.15","important");
           cell.style.setProperty("color","#000","important");
@@ -5267,7 +5379,7 @@ async function downloadReportLayerPDF(layer,filename,className="report-pdf-downl
   try{
     await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
     const pdfWorker=window.html2pdf().set({
-      margin:0,
+      margin:isWidePDF?[5,3,5,3]:0,
       filename,
       image:{type:"jpeg",quality:.97},
       html2canvas:{scale:1,useCORS:true,backgroundColor:"#fff",logging:false,width:captureWidth,windowWidth:captureWidth,x:0,y:0,scrollX:0,scrollY:0},
@@ -5303,25 +5415,19 @@ function dueExportFileName(extension="pdf"){
  const safe=value=>String(value).replace(/[\\/:*?"<>|]/g,"_").replace(/\s+/g,"_").replace(/^_+|_+$/g,"")||"غير_محدد";
  return `${safe(screenName)}_${safe(officer)}_${safe(filterDate)}.${extension}`;
 }
+
 function printDueReport(event){
  if(event?.preventDefault)event.preventDefault();if(event?.stopImmediatePropagation)event.stopImmediatePropagation();const now=Date.now();if(now<duePrintActionBusyUntil)return false;duePrintActionBusyUntil=now+1400;
  document.getElementById("riskPrintLayer")?.remove();
- document.body.classList.remove("printing-risk-report","printing-risk");
+ document.body.classList.remove("printing-risk-report","printing-risk","printing-arrears-report","printing-due-installments-report");
  const layer=buildDuePrintLayer(false);if(!layer){alert("لا توجد أقساط مستحقة للطباعة.");return false}
- // تثبيت نفس مقاسات المعاينة قبل فتح نافذة الطباعة.
- layer.style.setProperty("width","100%","important");layer.style.setProperty("max-width","none","important");layer.style.setProperty("min-width","0","important");layer.style.setProperty("box-sizing","border-box","important");
- layer.querySelectorAll(".due-approved-table").forEach(table=>{
-   table.style.setProperty("width","100%","important");table.style.setProperty("min-width","0","important");table.style.setProperty("max-width","100%","important");table.style.setProperty("table-layout","fixed","important");
-   const widths=[3,10,11,8,4,7,5,5,5,4,9,10,10,9];
-   table.querySelectorAll("col").forEach((col,i)=>col.style.setProperty("width",widths[i]+"%","important"));
-   table.querySelectorAll("th,td").forEach(cell=>{cell.style.setProperty("font-weight","700","important");cell.style.setProperty("color","#000","important");cell.style.setProperty("box-sizing","border-box","important");});
- });
- document.body.appendChild(layer);document.body.classList.add("printing-risk-report");
+ document.body.appendChild(layer);document.body.classList.add("printing-risk-report","printing-due-installments-report");
+ // تطبيق منسق شاشة المتأخرات بعد إلحاق الطبقة حتى تُقاس الأعمدة على عرض الطباعة الفعلي.
+ const summaryRows=[...layer.querySelectorAll(".due-print-specialist-heading,.due-print-specialist-subtotal")].map(row=>{const marker=document.createComment("due-print-summary-row");row.parentNode.insertBefore(marker,row);row.remove();return{row,marker}});applyArrearsPrintFormat(layer);summaryRows.forEach(({row,marker})=>{if(marker.parentNode)marker.parentNode.insertBefore(row,marker);marker.remove()});layer.style.setProperty("font-weight","700","important");layer.querySelectorAll("*").forEach(node=>{if(!node.closest(".due-print-guide-page"))node.style.setProperty("font-weight","700","important")});
  const previousTitle=document.title;document.title=dueExportFileName("pdf");
  const restoreNodes=[...document.body.childNodes].filter(node=>node.nodeType===Node.TEXT_NODE&&node.textContent.trim()).map(node=>{const marker=document.createComment("due-print-text-restore");node.parentNode.insertBefore(marker,node);node.remove();return{node,marker}});
- let cleaned=false;const cleanup=()=>{if(cleaned)return;cleaned=true;restoreNodes.forEach(({node,marker})=>{if(marker.parentNode)marker.parentNode.insertBefore(node,marker);marker.remove()});document.title=previousTitle;document.body.classList.remove("printing-risk-report");layer.remove();window.removeEventListener("afterprint",cleanup)};
- window.addEventListener("afterprint",cleanup,{once:true});
- void layer.offsetHeight;
+ let cleaned=false;const cleanup=()=>{if(cleaned)return;cleaned=true;restoreNodes.forEach(({node,marker})=>{if(marker.parentNode)marker.parentNode.insertBefore(node,marker);marker.remove()});document.title=previousTitle;document.body.classList.remove("printing-risk-report","printing-due-installments-report");layer.remove();window.removeEventListener("afterprint",cleanup)};
+ window.addEventListener("afterprint",cleanup,{once:true});void layer.offsetHeight;
  try{window.print()}catch(e){cleanup();alert("تعذر تشغيل الطباعة. حاول مرة أخرى.")}
  setTimeout(cleanup,60000);return false;
 }
@@ -6055,7 +6161,7 @@ const debouncedRenderRiskPortfolio=debounce(()=>{renderRisk();renderPortfolio()}
   });
 });
 const debouncedRenderDue=debounce(()=>{const dueBase=dueInstallmentRows();updateDueFilterLists(dueBase);renderDueInstallments(dueBase)},180);
-["dueOfficer","dueClient","dueAddress","dueFrom","dueTo"].forEach(id=>document.getElementById(id)?.addEventListener("input",debouncedRenderDue));
+["dueOfficer","dueClient","dueAddress","dueFrom","dueTo"].forEach(id=>document.getElementById(id)?.addEventListener("input",()=>{if(id==="dueOfficer"){const input=document.getElementById("dueOfficer"),all=document.getElementById("dueAllSpecialists"),value=input?.value||"";if(all)all.checked=!value.trim()||norm(value)===norm(DUE_ALL_SPECIALISTS_LABEL)}debouncedRenderDue()}));
 document.getElementById("dueOfficer")?.addEventListener("change",handleDueOfficerChoice);
 document.getElementById("dueSpecificMonth")?.addEventListener("change",renderDueInstallments);
 document.getElementById("dueSpecificYear")?.addEventListener("change",renderDueInstallments);
@@ -8204,7 +8310,8 @@ function formatPrintDate(value){const d=value instanceof Date?value:new Date(val
   position:relative!important;overflow:hidden!important;
 }
 @media print{
-  @page{margin:0!important;}
+  @page dueInstallmentsReport{size:A4 landscape;margin:5mm 3mm!important;@bottom-center{content:"صفحة " counter(page) " من " counter(pages);font:700 7pt Arial,Tahoma,sans-serif;color:#000;direction:rtl;vertical-align:bottom;}}
+  body.printing-due-installments-report{page:dueInstallmentsReport;}
   body.printing-risk-report #riskPrintLayer > .due-report-page-block{
     height:190mm!important;min-height:190mm!important;max-height:190mm!important;
     overflow:hidden!important;box-sizing:border-box!important;
@@ -8316,22 +8423,22 @@ function dueCurrentSpecialistName(){const input=document.getElementById('dueOffi
 function dueRequireCurrentSpecialist(){const name=dueCurrentSpecialistName();if(!name){alert('اختر اسم أخصائي محدد أولًا، وليس جميع الأخصائيين.');return null}return name}
 function printDueCurrentSpecialist(event){if(event?.preventDefault)event.preventDefault();if(event?.stopImmediatePropagation)event.stopImmediatePropagation();if(!dueRequireCurrentSpecialist())return false;return printDueReport(event)}
 async function downloadDueCurrentSpecialist(event){if(event?.preventDefault)event.preventDefault();if(event?.stopImmediatePropagation)event.stopImmediatePropagation();if(!dueRequireCurrentSpecialist())return false;return downloadDuePDF(event)}
-function exportDueCurrentSpecialistExcel(event){if(event?.preventDefault)event.preventDefault();if(event?.stopImmediatePropagation)event.stopImmediatePropagation();const name=dueRequireCurrentSpecialist();if(!name)return false;if(typeof XLSX==='undefined'){alert('مكتبة Excel غير متاحة.');return false}const table=document.querySelector('#dueInstallments .risk-installments-table'),head=[...table.querySelectorAll('thead tr:last-child th')].map(x=>x.textContent.trim()),rows=[...table.querySelectorAll('tbody tr[data-due-data-row="1"]')].filter(r=>r.style.display!=='none').map(r=>[...r.cells].map(c=>c.innerText.trim()));const ws=XLSX.utils.aoa_to_sheet([head,...rows]),wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'أقساط الأخصائي');XLSX.writeFile(wb,`أقساط_${name.replace(/[\/:*?"<>|]/g,'_')}.xlsx`);return false}
+function exportDueCurrentSpecialistExcel(event){if(event?.preventDefault)event.preventDefault();if(event?.stopImmediatePropagation)event.stopImmediatePropagation();const name=dueRequireCurrentSpecialist();if(!name)return false;if(typeof XLSX==='undefined'){alert('مكتبة Excel غير متاحة.');return false}const table=document.querySelector('#dueInstallments .risk-installments-table'),head=[...(dueColumnHeaderRow(table)?.querySelectorAll('th')||[])].map(x=>x.textContent.trim()),rows=[...table.querySelectorAll('tbody tr[data-due-data-row="1"]')].filter(r=>r.style.display!=='none').map(r=>[...r.cells].map(c=>c.innerText.trim()));const ws=XLSX.utils.aoa_to_sheet([head,...rows]),wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'أقساط الأخصائي');XLSX.writeFile(wb,`أقساط_${name.replace(/[\/:*?"<>|]/g,'_')}.xlsx`);return false}
 </script>
 <script id="due-refresh-columns-shortcuts-copy-final">
 let dueSelectedTableRow=null;
 async function refreshDueScreenData(event){if(event?.preventDefault)event.preventDefault();if(event?.stopImmediatePropagation)event.stopImmediatePropagation();await refreshDataNow(false);if(document.getElementById('dueInstallments')?.classList.contains('active')){const base=dueInstallmentRows();updateDueFilterLists(base);renderDueInstallments(base)}return false}
-function ensureDueColumnsMenu(){const menu=document.getElementById('dueColumnsMenu');if(!menu)return;const heads=[...document.querySelectorAll('#dueInstallments .risk-installments-table thead tr:nth-child(2) th')];if(menu.dataset.ready==='1'&&menu.children.length===heads.length)return;const labels=heads.map((h,i)=>h.textContent.trim()||`العمود ${i+1}`);menu.innerHTML='<strong>إظهار أو إخفاء الأعمدة</strong>'+labels.map((label,i)=>`<label><input type="checkbox" checked onchange="toggleDueColumn(${i+1},this.checked)"><span>${esc(label)}</span></label>`).join('');menu.dataset.ready='1'}
+function ensureDueColumnsMenu(){const menu=document.getElementById('dueColumnsMenu');if(!menu)return;const table=document.querySelector('#dueInstallments .risk-installments-table'),header=dueColumnHeaderRow(table),heads=[...(header?.querySelectorAll('th')||[])];if(menu.dataset.ready==='1'&&menu.children.length===heads.length)return;const labels=heads.map((h,i)=>h.textContent.trim()||`العمود ${i+1}`);menu.innerHTML='<strong>إظهار أو إخفاء الأعمدة</strong>'+labels.map((label,i)=>`<label><input type="checkbox" checked onchange="toggleDueColumn(${i+1},this.checked)"><span>${esc(label)}</span></label>`).join('');menu.dataset.ready='1'}
 function toggleDueColumnsMenu(event){if(event?.preventDefault)event.preventDefault();const menu=document.getElementById('dueColumnsMenu');if(!menu)return false;ensureDueColumnsMenu();const button=event?.currentTarget||document.querySelector('#dueInstallments .due-specialist-export-tools button:nth-child(2)');if(!menu.classList.contains('open')&&button){const r=button.getBoundingClientRect();menu.style.top=Math.min(window.innerHeight-20,r.bottom+6)+'px';menu.style.right=Math.max(8,window.innerWidth-r.right)+'px'}menu.classList.toggle('open');return false}
 function toggleDueColumn(index,show){let style=document.getElementById('due-columns-visibility-style');if(!style){style=document.createElement('style');style.id='due-columns-visibility-style';document.head.appendChild(style)}const rule=`#dueInstallments .risk-installments-table th:nth-child(${index}),#dueInstallments .risk-installments-table td:nth-child(${index})`;const id=`due-col-${index}`;let css=style.textContent.split('\n').filter(x=>!x.startsWith(`/*${id}*/`)).join('\n');if(!show)css+=`\n/*${id}*/${rule}{display:none!important}`;style.textContent=css}
 function selectDueTableRow(row){if(dueSelectedTableRow)dueSelectedTableRow.classList.remove('due-selected-copy-row');dueSelectedTableRow=row||null;if(dueSelectedTableRow){dueSelectedTableRow.classList.add('due-selected-copy-row');const b=document.getElementById('dueCopySelectedRowButton');if(b)b.disabled=false}}
 function bindDueRowSelection(){document.querySelectorAll('#dueTableBody tr[data-due-data-row="1"]').forEach(row=>{row.onclick=e=>{if(e.target.closest('a,button'))return;selectDueTableRow(row)}})}
-async function copyDueSelectedRow(){const row=dueSelectedTableRow;if(!row){alert('اضغط على صف القسط أولًا ثم اختر نسخ بيانات الصف.');return false}const table=document.querySelector('#dueInstallments .risk-installments-table'),headers=[...table.querySelectorAll('thead tr:nth-child(2) th')].map((h,i)=>h.textContent.trim()||('البيان '+(i+1))),cells=[...row.cells],lines=cells.map((c,i)=>(headers[i]||('البيان '+(i+1)))+': '+(c.innerText.trim()||'—')),text=lines.join(String.fromCharCode(10));try{await navigator.clipboard.writeText(text)}catch(e){const area=document.createElement('textarea');area.value=text;document.body.appendChild(area);area.select();document.execCommand('copy');area.remove()}const b=document.getElementById('dueCopySelectedRowButton');if(b){const old=b.textContent;b.textContent='تم النسخ ✓';setTimeout(()=>b.textContent=old,1800)}return false}
+async function copyDueSelectedRow(){const row=dueSelectedTableRow;if(!row){alert('اضغط على صف القسط أولًا ثم اختر نسخ بيانات الصف.');return false}const table=document.querySelector('#dueInstallments .risk-installments-table'),headers=[...(dueColumnHeaderRow(table)?.querySelectorAll('th')||[])].map((h,i)=>h.textContent.trim()||('البيان '+(i+1))),cells=[...row.cells],lines=cells.map((c,i)=>(headers[i]||('البيان '+(i+1)))+': '+(c.innerText.trim()||'—')),text=lines.join(String.fromCharCode(10));try{await navigator.clipboard.writeText(text)}catch(e){const area=document.createElement('textarea');area.value=text;document.body.appendChild(area);area.select();document.execCommand('copy');area.remove()}const b=document.getElementById('dueCopySelectedRowButton');if(b){const old=b.textContent;b.textContent='تم النسخ ✓';setTimeout(()=>b.textContent=old,1800)}return false}
 function dueKeyboardShortcuts(e){if(!document.getElementById('dueInstallments')?.classList.contains('active'))return;const input=document.getElementById('dueTableQuickSearch');if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='p'){e.preventDefault();printDueReport(e);return}if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='f'){e.preventDefault();input?.focus();input?.select();return}if(e.key==='Escape'&&input?.value){e.preventDefault();clearDueQuickSearch()}}
 document.addEventListener('keydown',dueKeyboardShortcuts);document.addEventListener('DOMContentLoaded',()=>{setTimeout(()=>{ensureDueColumnsMenu();bindDueRowSelection()},0)},{once:true});
 </script>
 <script id="due-default-specialist-option-final">
-function ensureDueDefaultSpecialistOption(){const input=document.getElementById('dueOfficer');if(!input)return;let saved=false;try{saved=!!localStorage.getItem(typeof DUE_FILTER_STORAGE_KEY==='string'?DUE_FILTER_STORAGE_KEY:'dueInstallmentsFilters_v1')}catch(e){}if(!saved&&!input.value.trim()){input.value=typeof DUE_ALL_SPECIALISTS_LABEL==='string'?DUE_ALL_SPECIALISTS_LABEL:'جميع الأخصائيين';const search=input.closest('.smart-datalist')?.querySelector('.smart-datalist-search');if(search){search.value=input.value;search.dataset.selectedValue=input.value}updateDueFilterLists?.()}}
+function ensureDueDefaultSpecialistOption(){const input=document.getElementById('dueOfficer'),group=document.getElementById('dueAllSpecialists');if(!input)return;let saved=false;try{saved=!!localStorage.getItem(typeof DUE_FILTER_STORAGE_KEY==='string'?DUE_FILTER_STORAGE_KEY:'dueInstallmentsFilters_v1')}catch(e){}if(!saved&&!input.value.trim()&&group)group.checked=true;updateDueFilterLists?.()}
 </script>
 <script id="due-filter-persistence-final">
 const DUE_FILTER_STORAGE_KEY="dueInstallmentsFilters_v1";
@@ -8964,6 +9071,75 @@ body.printing-current-screen #dropoutPrintLayer .dropout-risk-print-table .dropo
 #riskPrintLayer .phone-nowrap{display:block!important;white-space:nowrap!important;overflow:hidden!important;direction:ltr!important;font-size:8px!important;line-height:1.15!important;font-weight:400!important}
 #riskPrintLayer .page-footer{width:100%!important;margin:4mm 0 0!important;padding:0!important;text-align:right!important;font-size:8px!important;line-height:1.2!important}
 #riskPrintLayer .page-footer,#riskPrintLayer .risk-print-footer{display:none!important}@media print{body.printing-risk-report>*:not(#riskPrintLayer){display:none!important}body.printing-risk-report #riskPrintLayer{display:block!important;visibility:visible!important;width:100%!important;padding:0!important}body.printing-risk-report #riskPrintLayer .print-page{height:auto!important;min-height:0!important;max-height:none!important;overflow:visible!important;padding:0!important;margin:0!important;page-break-inside:avoid!important;break-inside:avoid!important}body.printing-risk-report #riskPrintLayer .page-content{height:auto!important;min-height:0!important;max-height:none!important;overflow:visible!important}body.printing-risk-report #riskPrintLayer .print-page:not(:first-child){page-break-before:always!important;break-before:page!important}body.printing-risk-report #riskPrintLayer .risk-print-table tbody tr{page-break-inside:avoid!important;break-inside:avoid!important}}
+</style>
+<style id="arrears-print-isolated">
+/* قواعد الطباعة المعزولة لشاشة المتأخرات فقط؛ ضع تعديلات هذه الشاشة داخل هذه الكتلة. */
+@page arrears {
+  size: A4 landscape;
+  margin: 8mm 8mm 5mm !important;
+  @bottom-center {
+    content: "صفحة " counter(page) " من " counter(pages);
+    font: 7pt Arial,Tahoma,sans-serif;
+    color: #000;
+    direction: rtl;
+    vertical-align: bottom;
+  }
+}
+@media print {
+  body.printing-arrears-report { page: arrears; }
+}
+</style>
+
+<style id="due-print-arrears-style-match-final">
+#riskPrintLayer.due-print-report{font-family:Arial,Tahoma,sans-serif!important;color:#000!important;background:#fff!important;padding:5mm 3mm!important;box-sizing:border-box!important;direction:rtl!important}
+#riskPrintLayer.due-print-report .due-print-title{font-family:Arial,Tahoma,sans-serif!important;font-size:20px!important;font-weight:900!important;color:#000!important;text-align:center!important;line-height:1.3!important;margin:0 0 3mm!important}
+#riskPrintLayer.due-print-report .due-print-meta{font-family:Arial,Tahoma,sans-serif!important;font-size:8px!important;font-weight:700!important;color:#000!important;text-align:center!important;line-height:1.35!important;margin:0 0 3mm!important;padding:3px 5px!important;border:1px solid #333!important;background:#fff!important;box-sizing:border-box!important}
+#riskPrintLayer.due-print-report .due-approved-table{width:100%!important;max-width:100%!important;border-collapse:collapse!important;table-layout:auto!important;font-family:Arial,Tahoma,sans-serif!important;color:#000!important;background:#fff!important}
+#riskPrintLayer.due-print-report .due-approved-table thead{display:table-header-group!important}
+#riskPrintLayer.due-print-report .due-approved-table th,#riskPrintLayer.due-print-report .due-approved-table td{border:1px solid #222!important;text-align:center!important;vertical-align:middle!important;box-sizing:border-box!important;color:#000!important;font-family:Arial,Tahoma,sans-serif!important;text-shadow:none!important;-webkit-text-stroke:0!important;filter:none!important;box-shadow:none!important;overflow-wrap:anywhere!important;word-break:normal!important}
+@media print{
+ @page dueInstallmentsReport{size:A4 landscape;margin:5mm 3mm!important;}
+ body.printing-due-installments-report{page:dueInstallmentsReport;margin:0!important;padding:0!important}
+ body.printing-due-installments-report #riskPrintLayer.due-print-report{display:block!important;visibility:visible!important;width:100%!important;max-width:none!important;overflow:visible!important}
+ body.printing-due-installments-report #riskPrintLayer.due-print-report .due-report-page-block{page-break-inside:avoid!important;break-inside:avoid!important}
+ body.printing-due-installments-report #riskPrintLayer.due-print-report .due-approved-table thead{display:table-header-group!important}
+ body.printing-due-installments-report #riskPrintLayer.due-print-report .due-approved-table tr{page-break-inside:avoid!important;break-inside:avoid!important}
+}
+</style>
+
+<style id="due-print-specialist-totals">
+#riskPrintLayer.due-print-report .due-print-grand-total{display:flex!important;flex-wrap:wrap!important;justify-content:center!important;gap:3px 10px!important;margin:0 0 3mm!important;padding:4px!important;border:1px solid #333!important;background:#f4f4f4!important;color:#000!important;font-size:8px!important;line-height:1.3!important;text-align:center!important;box-sizing:border-box!important}
+#riskPrintLayer.due-print-report .due-print-grand-total>strong{flex:0 0 100%!important;text-align:center!important;font-size:9px!important}
+#riskPrintLayer.due-print-report .due-print-specialist-heading th{background:#e8edf3!important;border:1px solid #222!important;padding:4px 3px!important;text-align:right!important;font-size:9px!important;font-weight:700!important;line-height:1.25!important;box-sizing:border-box!important}
+#riskPrintLayer.due-print-report .due-print-specialist-subtotal{display:flex!important;flex-wrap:wrap!important;align-items:center!important;gap:5px 14px!important;background:#fff8df!important;border:1px solid #777!important;padding:5px 6px!important;margin:2mm 0 0!important;text-align:right!important;font-size:10px!important;font-weight:700!important;line-height:1.35!important;box-sizing:border-box!important}
+#riskPrintLayer.due-print-report .due-print-specialist-subtotal>strong{flex:0 0 100%!important;font-size:11px!important;font-weight:700!important}
+#riskPrintLayer.due-print-report .due-print-specialist-subtotal>span{display:inline-block!important;white-space:nowrap!important;font-size:10px!important;font-weight:700!important}
+@media print{#riskPrintLayer.due-print-report .due-print-specialist-heading,#riskPrintLayer.due-print-report .due-print-specialist-subtotal{page-break-inside:avoid!important;break-inside:avoid!important}}
+</style>
+
+<style id="due-specialist-natural-flow-print">
+@media print{
+ body.printing-due-installments-report #riskPrintLayer .due-specialist-flow-section{display:block!important;position:static!important;width:100%!important;height:auto!important;min-height:0!important;max-height:none!important;overflow:visible!important;margin:0!important;padding:0!important;page-break-inside:auto!important;break-inside:auto!important;box-sizing:border-box!important}
+ body.printing-due-installments-report #riskPrintLayer .due-specialist-flow-section+.due-specialist-flow-section{page-break-before:always!important;break-before:page!important}
+ body.printing-due-installments-report #riskPrintLayer .due-specialist-flow-section .due-approved-table{height:auto!important;max-height:none!important;overflow:visible!important;page-break-inside:auto!important;break-inside:auto!important}
+ body.printing-due-installments-report #riskPrintLayer .due-specialist-flow-section .due-approved-table thead{display:table-header-group!important}
+ body.printing-due-installments-report #riskPrintLayer .due-specialist-flow-section .due-approved-table tbody tr{page-break-inside:avoid!important;break-inside:avoid!important}
+}
+</style>
+
+<style id="due-specialist-title-table-separation">
+@media print{
+ body.printing-due-installments-report #riskPrintLayer .due-specialist-flow-content{display:flow-root!important;position:static!important;float:none!important;clear:both!important;transform:none!important;overflow:visible!important;margin:0!important;padding:0!important;box-sizing:border-box!important}
+ body.printing-due-installments-report #riskPrintLayer .due-specialist-flow-content>.due-print-title{display:block!important;position:static!important;float:none!important;clear:both!important;transform:none!important;margin:0 0 2mm!important}
+ body.printing-due-installments-report #riskPrintLayer .due-specialist-flow-content>.due-print-meta{display:block!important;position:static!important;float:none!important;clear:both!important;transform:none!important;margin:0 0 4mm!important}
+ body.printing-due-installments-report #riskPrintLayer .due-specialist-flow-content>.due-print-grand-total{position:static!important;float:none!important;clear:both!important;transform:none!important;margin:0 0 4mm!important}
+ body.printing-due-installments-report #riskPrintLayer .due-specialist-flow-content>table.due-approved-table{display:table!important;position:static!important;float:none!important;clear:both!important;transform:none!important;margin:0!important}
+ body.printing-due-installments-report #riskPrintLayer .due-specialist-flow-content>.due-print-specialist-subtotal{position:static!important;float:none!important;clear:both!important;transform:none!important;margin:4mm 0 0!important}
+}
+</style>
+
+<style id="due-print-no-page-numbering-final">
+@media print{@page dueInstallmentsReport{@bottom-center{content:""!important;font-size:0!important;}}}
 </style>
 </body>
 </html>
