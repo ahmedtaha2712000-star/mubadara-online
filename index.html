@@ -3282,15 +3282,16 @@ function rowAddress(r){
   return getAny(r,[H.address,"عنوان العميل","عنوان"]);
 }
 function rowDelayDays(r){
-  const explicit=getAny(r,[H.delayDays,"أيام التأخير","عدد أيام التأخير","ايام التأخير"]);
+ const explicit=getAny(r,[H.delayDays,"أيام التأخير","عدد أيام التأخير","ايام التأخير"]);
   if(String(explicit??"").trim()!=="") return num(explicit);
   const due=parseExcelDate(get(r,"date"));
   if(!due)return 0;
   const paidDate=parseExcelDate(rowPaymentDate(r));
   const end=paidDate || new Date();
   const diff=Math.floor((end-due)/86400000);
-  return Math.max(0,diff);
+ return Math.max(0,diff);
 }
+function excelDelayDaysValue(r){const direct=getAny(r,[H.delayDays,"عدد أيام التأخير","عدد ايام التأخير","عدد أيام التاخير","عدد ايام التاخير","عدد أيام التأخر","عدد ايام التأخر","عدد أيام تاخر","عدد ايام تاخر","أيام التأخير","ايام التأخير","أيام التاخير","ايام التاخير","مدة التأخير","مدة التاخير"]);if(String(direct??"").trim()!=="")return Math.max(0,num(direct));const matched=Object.keys(r||{}).find(k=>{const name=norm(k);const hasDays=name.includes("ايام")||name.includes("يوم");const hasDelay=name.includes("تاخير")||name.includes("تأخير")||name.includes("تاخر")||name.includes("تأخر");return hasDays&&hasDelay});return matched?Math.max(0,num(r[matched])):0}
 function loanStatus(r){return String(get(r,"status")||"").trim()}
 function clientLoanStatusFromRow(r){
   const direct=getAny(r||{},[H.status,"حالة القرض","حاله القرض","حالة التمويل","حاله التمويل","الحالة"]);
@@ -3853,12 +3854,14 @@ function dueStatusText(r){const d=parseExcelDate(riskDueDateValue(r)),today=new 
 function setDueView(type,button){window.dueView=type;dueAgingRange='';document.querySelectorAll('#dueInstallments .due-nav-btn').forEach(x=>x.classList.toggle('active',x===button));renderDueInstallments()}
 let dueArrearsIndexVersion=-1;
 let dueArrearsIndex=new Map();
+function dueArrearsExcludedStatus(row,group){const rowStatus=clientLoanStatusFromRow(row),groupStatus=clientLoanStatusFromRow(group?.r||{}),status=norm(String(rowStatus||groupStatus||group?.status||'').trim());return ['معدم','معدوم','متعثر','وفاة','متوفى','إعدام','اعدام','إعدام قرض','اعدام قرض','إعدام القرض','اعدام القرض'].some(value=>status.includes(norm(value)))}
 function rebuildDueArrearsIndex(){
  const version=typeof screenDataVersion==='number'?screenDataVersion:0;
  if(dueArrearsIndexVersion===version)return;
  const clients=new Map();
  const cutoff=new Date();cutoff.setHours(23,59,59,999);
  visibleGroups().forEach(group=>(group.items||[group.r]).forEach(row=>{
+  if(dueArrearsExcludedStatus(row,group))return;
   const clientKey=norm(get(row,'client')||get(group.r,'client'));if(!clientKey)return;
   const due=parseExcelDate(riskDueDateValue(row));if(!due||due>cutoff)return;
   const loanKey=norm(get(row,'loan')||get(group.r,'loan'))||'loan';
@@ -4070,8 +4073,9 @@ function renderDueInstallments(baseRows){
     return da-db||num(get(a.r,'installment'))-num(get(b.r,'installment'));
    })[0];
    if(!selected)return null;
-   const row=selected.r,rowArrears=getAny(row,['إجمالي المتأخرات','اجمالي المتأخرات','إجمالي متأخرات العميل','إجمالي المتأخرات على العميل','إجمالي المديونية المتأخرة','المبلغ الغير مسدد',H.unpaid]);
-   return {...selected,_dueOverdueCount:num(getAny(row,[H.late,'عدد الأقساط المتأخرة','عدد الاقساط المتأخرة','عدد الأقساط المتاخرة'])),_dueDelayDays:rowDelayDays(row),_dueArrears:String(rowArrears??'').trim()===''?dueRemainingForScreen(row):num(rowArrears)};
+   const row=selected.r,rowArrears=getAny(row,['إجمالي المتأخرات','اجمالي المتأخرات','إجمالي متأخرات العميل','إجمالي المتأخرات على العميل','إجمالي المديونية المتأخرة','المبلغ الغير مسدد',H.unpaid]),selectedLoanKey=norm(get(row,'loan')||get(selected.g.r,'loan'))+'|'+norm(get(row,'nid')||get(selected.g.r,'nid')),delayRows=selectionRows.filter(x=>norm(get(x.r,'client')||get(x.g.r,'client'))===key&&norm(get(x.r,'loan')||get(x.g.r,'loan'))+'|'+norm(get(x.r,'nid')||get(x.g.r,'nid'))===selectedLoanKey);
+   const calculatedDelayDays=delayRows.reduce((sum,x)=>{const due=parseExcelDate(riskDueDateValue(x.r)),remaining=dueRemainingForScreen(x.r),paid=rowPaidAmount(x.r),payment=parseExcelDate(rowPaymentDate(x.r)),end=remaining<=0&&paid>0&&payment?payment:new Date();if(!due||due>=end)return sum;return sum+Math.max(0,Math.floor((end-due)/86400000))},0);
+   return {...selected,_dueOverdueCount:num(getAny(row,[H.late,'عدد الأقساط المتأخرة','عدد الاقساط المتأخرة','عدد الأقساط المتاخرة'])),_dueDelayDays:calculatedDelayDays,_dueArrears:String(rowArrears??'').trim()===''?dueRemainingForScreen(row):num(rowArrears)};
   }
   const items=selectionByClient.get(key)||clientRows.get(key)||[],byInstallment=new Map();
   items.forEach(x=>{
@@ -4084,14 +4088,17 @@ function renderDueInstallments(baseRows){
   const installmentValue=item=>Math.max(0,...item.rows.map(x=>{const raw=String(get(x.r,'value')??'').trim();return raw===''?num(get(x.r,'total')):num(raw)}));
   const installmentPaid=item=>item.rows.reduce((sum,x)=>sum+rowPaidAmount(x.r),0);
   const incomplete=item=>{const value=installmentValue(item),paid=installmentPaid(item);if(value>0)return paid<value-0.01;const explicit=rawRemaining(item);if(explicit!==null)return explicit>0;return item.rows.some(x=>dueRemainingForScreen(x.r)>0)};
+  const today=new Date();today.setHours(0,0,0,0);
+  const calculatedInstallmentDelay=item=>{const dueDates=item.rows.map(x=>parseExcelDate(riskDueDateValue(x.r))).filter(Boolean);if(!dueDates.length)return 0;const due=new Date(Math.min(...dueDates.map(d=>d.getTime())));const value=installmentValue(item),paid=installmentPaid(item),fullyPaid=value>0?paid>=value-0.01:!incomplete(item),payments=item.rows.map(x=>parseExcelDate(rowPaymentDate(x.r))).filter(Boolean),payment=payments.length?new Date(Math.max(...payments.map(d=>d.getTime()))):null,end=fullyPaid&&payment?payment:today;if(due>=end)return 0;return Math.max(0,Math.floor((end-due)/86400000))};
   const installments=[...byInstallment.values()].sort((a,b)=>{if(a.number>0&&b.number>0&&a.number!==b.number)return a.number-b.number;if(a.number>0&&b.number<=0)return -1;if(b.number>0&&a.number<=0)return 1;return (parseExcelDate(riskDueDateValue(a.rows[0]?.r))?.getTime()||0)-(parseExcelDate(riskDueDateValue(b.rows[0]?.r))?.getTime()||0)});
   const target=installments.find(incomplete);if(!target)return null;
   const explicitSource=orderedRows(target).find(x=>String(getAny(x.r,[H.unpaid,'المتبقي','المبلغ المتبقي','الرصيد المتبقي','المبلغ الغير مسدد'])??'').trim()!=='');
   const representative=explicitSource&&num(getAny(explicitSource.r,[H.unpaid,'المتبقي','المبلغ المتبقي','الرصيد المتبقي','المبلغ الغير مسدد']))>0?explicitSource:target.rows.map((x,index)=>({x,index,remaining:dueRemainingForScreen(x.r),filled:Object.values(x.r||{}).filter(v=>String(v??'').trim()!=='').length,time:parseExcelDate(rowPaymentDate(x.r))?.getTime()||0})).sort((a,b)=>(Number(b.remaining>0)-Number(a.remaining>0))||(b.filled-a.filled)||(b.time-a.time)||b.index-a.index)[0].x;
-  const today=new Date();today.setHours(0,0,0,0);
-  const overdueInstallments=installments.filter(item=>incomplete(item)&&item.rows.some(x=>{const due=parseExcelDate(riskDueDateValue(x.r));return due&&due<=today}));
+  const targetLoanKey=norm(get(target.rows[0]?.r,'loan')||get(target.rows[0]?.g.r,'loan'))+'|'+norm(get(target.rows[0]?.r,'nid')||get(target.rows[0]?.g.r,'nid'));
+  const loanInstallments=installments.filter(item=>item.rows.some(x=>{const loanKey=norm(get(x.r,'loan')||get(x.g.r,'loan'))+'|'+norm(get(x.r,'nid')||get(x.g.r,'nid'));return loanKey===targetLoanKey}));
+  const overdueInstallments=loanInstallments.filter(item=>incomplete(item)&&item.rows.some(x=>{const due=parseExcelDate(riskDueDateValue(x.r));return due&&due<=today}));
   const overdueCount=overdueInstallments.length;
-  const delayDays=overdueInstallments.reduce((max,item)=>{const dates=item.rows.map(x=>parseExcelDate(riskDueDateValue(x.r))).filter(d=>d&&d<=today);if(!dates.length)return max;const oldest=Math.min(...dates.map(d=>d.getTime()));return Math.max(max,Math.max(0,Math.floor((today.getTime()-oldest)/86400000)))},0);
+  const delayDays=loanInstallments.reduce((sum,item)=>sum+calculatedInstallmentDelay(item),0);
   // صف Excel نفسه هو مصدر تفاصيل القسط؛ العدّ والتأخير محسوبان من كل أقساط العميل.
   return {...representative,_dueOverdueCount:overdueCount,_dueDelayDays:delayDays};
  }).filter(Boolean).sort((a,b)=>{
@@ -4101,7 +4108,7 @@ function renderDueInstallments(baseRows){
  });
  window.dueProfileGroups=uniqueRows.map(x=>x.g);
  // إجمالي الأقساط المتأخرة للعميل مستقل عن فلتر التاريخ، ويُقرأ من عمود Excel حتى الانتظام.
- uniqueRows.forEach((x,i)=>{const g=x.g,r=x.r,installmentValueRaw=get(r,'value'),value=String(installmentValueRaw??'').trim()===''?0:num(installmentValueRaw),paid=rowPaidAmount(r),unpaid=dueRemainingForScreen(r),clientKey=norm(get(r,'client')||get(g.r,'client'));totalDue+=value;totalPaid+=paid;totalUnpaid+=unpaid;uniqueClients.add(clientKey);const phone=clientPhones(r)||'',loanAmount=dueLoanAmount(r,g),term=String(getAny(r,[H.term,'مدة القرض','مدة التمويل','عدد الأقساط'])??'').trim(),arrears=dueCustomerArrears(clientKey),delayDays=excelRowMode?(Number(x._dueDelayDays)||0):rowDelayDays(r),overdueCount=Number(x._dueOverdueCount)||0;totalLateCount+=overdueCount;totalDelayDays+=delayDays;totalArrears+=arrears;const rowOfficer=String(get(r,'officer')||get(g.r,'officer')||'غير محدد').trim();out+=`<tr data-due-data-row="1" data-row-index="${i}" data-officer-key="${escAttr(officerKey(rowOfficer))}" data-officer-name="${escAttr(rowOfficer)}"><td>${i+1}</td><td><button type="button" class="due-client-profile-link" onclick="openDueClientProfile(${i})" title="فتح ملف العميل">${esc(get(r,'client')||'—')}</button></td><td>${esc(get(r,'nid')||'—')}</td><td>${String(loanAmount??'').trim()===''?'—':dueWhole(loanAmount)}</td><td>${esc(term||'—')}</td><td>${phone?`<a class="due-phone-link" href="tel:${escAttr(String(phone).replace(/[^\d+]/g,''))}" title="اتصال بالعميل">${esc(phone)}</a>`:'—'}</td><td>${esc(get(r,'installment')||'—')}</td><td>${esc(riskDisplayDate(riskDueDateValue(r))||'—')}</td><td>${String(installmentValueRaw??'').trim()===''?'—':money(installmentValueRaw)}</td><td>${money(paid)}</td><td>${esc(riskDisplayDate(rowPaymentDate(r))||'—')}</td><td>${money(unpaid)}</td><td>${dueWhole(overdueCount)}</td><td>${dueWhole(delayDays)}</td><td>${money(arrears)}</td><td>${esc(rowAddress(r)||'—')}</td><td>${dueGuarantorHTML(r,1)}</td><td>${dueGuarantorHTML(r,2)}</td><td>${dueGuarantorHTML(r,3)}</td></tr>`});
+ uniqueRows.forEach((x,i)=>{const g=x.g,r=x.r,installmentValueRaw=get(r,'value'),value=String(installmentValueRaw??'').trim()===''?0:num(installmentValueRaw),paid=rowPaidAmount(r),unpaid=dueRemainingForScreen(r),clientKey=norm(get(r,'client')||get(g.r,'client'));totalDue+=value;totalPaid+=paid;totalUnpaid+=unpaid;uniqueClients.add(clientKey);const phone=clientPhones(r)||'',loanAmount=dueLoanAmount(r,g),term=String(getAny(r,[H.term,'مدة القرض','مدة التمويل','عدد الأقساط'])??'').trim(),arrears=dueCustomerArrears(clientKey),delayDays=Number(x._dueDelayDays)||0,overdueCount=Number(x._dueOverdueCount)||0;totalLateCount+=overdueCount;totalDelayDays+=delayDays;totalArrears+=arrears;const rowOfficer=String(get(r,'officer')||get(g.r,'officer')||'غير محدد').trim();out+=`<tr data-due-data-row="1" data-row-index="${i}" data-officer-key="${escAttr(officerKey(rowOfficer))}" data-officer-name="${escAttr(rowOfficer)}"><td>${i+1}</td><td><button type="button" class="due-client-profile-link" onclick="openDueClientProfile(${i})" title="فتح ملف العميل">${esc(get(r,'client')||'—')}</button></td><td>${esc(get(r,'nid')||'—')}</td><td>${String(loanAmount??'').trim()===''?'—':dueWhole(loanAmount)}</td><td>${esc(term||'—')}</td><td>${phone?`<a class="due-phone-link" href="tel:${escAttr(String(phone).replace(/[^\d+]/g,''))}" title="اتصال بالعميل">${esc(phone)}</a>`:'—'}</td><td>${esc(get(r,'installment')||'—')}</td><td>${esc(riskDisplayDate(riskDueDateValue(r))||'—')}</td><td>${String(installmentValueRaw??'').trim()===''?'—':money(installmentValueRaw)}</td><td>${money(paid)}</td><td>${esc(riskDisplayDate(rowPaymentDate(r))||'—')}</td><td>${money(unpaid)}</td><td>${dueWhole(overdueCount)}</td><td>${dueWhole(delayDays)}</td><td>${money(arrears)}</td><td>${esc(rowAddress(r)||'—')}</td><td>${dueGuarantorHTML(r,1)}</td><td>${dueGuarantorHTML(r,2)}</td><td>${dueGuarantorHTML(r,3)}</td></tr>`});
  const body=document.getElementById('dueTableBody');if(body)body.innerHTML=out||'<tr><td colspan="19">لا توجد أقساط مستحقة في الفترة المحددة</td></tr>';renderDueSpecialistGrouping();const setTotalMoney=(id,value)=>{const el=document.getElementById(id);if(el)el.textContent=money(value)},setTotalCount=(id,value)=>{const el=document.getElementById(id);if(el)el.textContent=dueWhole(value)};setTotalMoney('dueColumnTotalInstallmentValue',totalDue);setTotalMoney('dueColumnTotalPaid',totalPaid);setTotalMoney('dueColumnTotalRemaining',totalUnpaid);setTotalCount('dueColumnTotalLateCount',totalLateCount);setTotalCount('dueColumnTotalDelayDays',totalDelayDays);setTotalMoney('dueColumnTotalArrears',totalArrears);const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=typeof v==='number'?Math.round(num(v)||0).toLocaleString('en-US'):v};set('dueTotalDue',totalDue);set('dueTotalPaid',totalPaid);set('dueTotalUnpaid',totalUnpaid);set('dueClientsCount',uniqueClients.size);set('dueInstallmentsCount',uniqueRows.length);set('dueTodayAmount',stats.todayAmount);set('dueTodayCount',`${stats.todayCount.toLocaleString('en-US')} قسط`);set('dueNavDue',stats.due);set('dueNavUpcoming',stats.upcoming);set('dueNavPartial',stats.partial);set('dueNavPaid',stats.paid);set('dueNavOverdue',stats.overdue);const quickRows=uniqueRows,quickOfficers=new Set(quickRows.map(x=>norm(get(x.r,'officer')||get(x.g.r,'officer')||'غير محدد'))),quickSet=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=typeof v==='number'?money(v):v};quickSet('dueQuickSpecialists',quickOfficers.size);quickSet('dueQuickInstallments',quickRows.length);quickSet('dueQuickDue',totalDue);quickSet('dueQuickPaid',totalPaid);quickSet('dueQuickRemaining',totalUnpaid);quickSet('dueQuickArrears',totalArrears);updateDueQuickSearchSuggestions();applyDueQuickSearch();bindDueRowSelection();
 }
 function setDueCurrentMonth(){const n=new Date();document.getElementById("dueFrom").value=isoDate(new Date(n.getFullYear(),n.getMonth(),1));document.getElementById("dueTo").value=isoDate(new Date(n.getFullYear(),n.getMonth()+1,0));if(document.getElementById("dueExcelRowMode")?.checked){const month=document.getElementById("dueSpecificMonth"),year=document.getElementById("dueSpecificYear");if(month)month.value=String(n.getMonth()+1).padStart(2,"0");if(year)year.value=String(n.getFullYear())}renderDueInstallments()}
