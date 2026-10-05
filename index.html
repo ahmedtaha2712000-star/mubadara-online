@@ -2441,8 +2441,9 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
 <h2>⚠️ المتأخرات والمخاطر</h2>
 <div class="risk-summary-cards" aria-label="ملخص المتأخرات">
   <div class="risk-summary-card risk-summary-overdue"><span>إجمالي المتأخرات</span><b id="riskTotalUnpaid">0</b><small>إجمالي المتبقي في الجدول</small></div>
-  <div class="risk-summary-card risk-summary-due"><span>إجمالي المستحق</span><b id="riskTotalDue">0</b><small>إجمالي قيم الأقساط في الجدول</small></div>
-  <div class="risk-summary-card risk-summary-paid"><span>إجمالي المسدد</span><b id="riskTotalPaid">0</b><small>إجمالي المسدد في الجدول</small></div>
+  <div class="risk-summary-card risk-summary-due"><span>إجمالي المستحق</span><b id="riskTotalDue">0</b><small>إجمالي قيم جميع الأقساط حسب التاريخ واسم الأخصائي</small></div>
+  <div class="risk-summary-card risk-summary-paid"><span>إجمالي المسدد</span><b id="riskTotalPaid">0</b><small>إجمالي كل ما سدده العملاء حسب التاريخ واسم الأخصائي</small></div>
+  <div class="risk-summary-card risk-summary-paid"><span>نسبة السداد</span><b id="riskPaymentRate">0%</b><small>إجمالي المسدد ÷ إجمالي المستحق × 100</small></div>
 </div>
 <section class="risk-aging-panel no-print" id="riskAgingPanel" aria-label="تقسيم الأقساط المتأخرة حسب أيام التأخير">
   <div class="risk-aging-heading">
@@ -3321,6 +3322,10 @@ function isClosed(g){
  const s=normFast(g.status);
  return s.includes("مغلق") || s.includes("منتهي") || s.includes("مسدد") || s.includes("مكتمل") || s.includes("closed");
 }
+function isExcludedLoanStatus(g,r){
+ const s=normFast(String(clientLoanStatusFromRow(g,r)||g?.status||""));
+ return /اعدام|معدوم|متعثر|متوفى|متوفي|وفاه|وفاة|هالك/.test(s);
+}
 function isOpen(g){return !isClosed(g)}
 function statusMatch(g,filter){return filter==="all" || (filter==="open" ? !g.closed : g.closed)}
 function officerMatch(g,q){if(!q)return true;return normFast(get(g.r,"officer")).includes(normFast(q))}
@@ -3693,11 +3698,11 @@ function installmentIsOverdue(r){
   return installmentUnpaid(r)>0;
 }
 function riskInstallmentRows(){
-  const result=[];
-  visibleGroups().forEach(g=>{
-    const items=(g.items||[g.r]).filter(installmentIsOverdue);
+ const result=[];
+ visibleGroups().forEach(g=>{
+    const items=(g.items||[g.r]).filter(r=>!isExcludedLoanStatus(g,r)&&installmentIsOverdue(r));
     items.forEach(r=>result.push({g,r}));
-  });
+ });
   return result;
 }
 function riskDueDateValue(r){return getAny(r,["تاريخ الاستحقاق","تاريخ استحقاق القسط","تاريخ القسط","تاريخ القسط المستحق",H.date])||get(r,"date")}
@@ -3780,7 +3785,7 @@ function renderRisk(){
  let from=fromVal?parseExcelDate(fromVal):null;
  let to=toVal?parseExcelDate(toVal):null;
  let filter=document.getElementById("riskStatus").value;
- let out="",i=0,totalDue=0,totalPaid=0,totalUnpaid=0;
+ let out="",i=0,totalDue=0,totalPaid=0,totalUnpaid=0,totalDueAllMatching=0,totalPaidAllMatching=0;
  const standardRiskRows=riskInstallmentRows().filter(x=>{
    const g=x.g,r=x.r;
    const gOfficer=norm(get(r,"officer")||get(g.r,"officer"));
@@ -3795,6 +3800,12 @@ function renderRisk(){
    const db=parseExcelDate(riskDueDateValue(b.r))?.getTime()||0;
    return da-db;
  });
+ const allRiskRowsForDueTotal=[];
+ visibleGroups().forEach(g=>(g.items||[g.r]).forEach(r=>{
+   const gOfficer=norm(get(r,"officer")||get(g.r,"officer"));
+  if(!isExcludedLoanStatus(g,r)&&(!officer||gOfficer.includes(officer))&&riskDateInRange(r,from,to)){allRiskRowsForDueTotal.push(r);totalPaidAllMatching+=rowPaidAmount(r)}
+ }));
+ totalDueAllMatching=allRiskRowsForDueTotal.reduce((sum,r)=>sum+num(get(r,"value")),0);
  renderRiskAgingSummary(standardRiskRows);
  const filteredRiskRows=riskAgingFilterRows(standardRiskRows);
  // شاشة المتأخرات: صف واحد لكل اسم عميل مع تجميع أقساطه المتأخرة.
@@ -3840,11 +3851,13 @@ function renderRisk(){
    </tr>`;
  }); out=riskEnglishDigits(out); document.getElementById("rt").innerHTML=out||'<tr><td colspan="19">لا توجد أقساط متأخرة</td></tr>';
  document.getElementById("riskTotalUnpaid").textContent=totalUnpaid.toLocaleString("en-US",{maximumFractionDigits:2});
- document.getElementById("riskTotalDue").textContent=totalDue.toLocaleString("en-US",{maximumFractionDigits:2});
- document.getElementById("riskTotalPaid").textContent=totalPaid.toLocaleString("en-US",{maximumFractionDigits:2});
+ document.getElementById("riskTotalDue").textContent=totalDueAllMatching.toLocaleString("en-US",{maximumFractionDigits:2});
+ document.getElementById("riskTotalPaid").textContent=totalPaidAllMatching.toLocaleString("en-US",{maximumFractionDigits:2});
+ const riskPaymentRate=totalDueAllMatching>0?(totalPaidAllMatching/totalDueAllMatching)*100:0;
+ document.getElementById("riskPaymentRate").textContent=`${riskPaymentRate.toLocaleString("en-US",{maximumFractionDigits:2})}%`;
 }
 function dueRemainingForScreen(r){const raw=getAny(r,[H.unpaid,'المتبقي','المبلغ المتبقي','الرصيد المتبقي','المبلغ الغير مسدد']),valueCell=String(get(r,'value')??'').trim(),value=valueCell===''?num(get(r,'total')):num(valueCell),paid=rowPaidAmount(r);if(value>0&&paid>=value-0.01)return 0;if(value>0&&paid>0&&paid<value)return Math.max(0,value-paid);if(String(raw??'').trim()!==''){const explicit=num(raw);if(explicit>0)return explicit;if(explicit===0&&paid<=0&&value>0)return value;return 0}return Math.max(0,value-paid)}
-function dueInstallmentRows(){const result=[];visibleGroups().forEach(g=>(g.items||[g.r]).filter(r=>parseExcelDate(riskDueDateValue(r))).forEach(r=>result.push({g,r})));return result}
+function dueInstallmentRows(){const result=[];visibleGroups().forEach(g=>(g.items||[g.r]).filter(r=>!isExcludedLoanStatus(g,r)&&parseExcelDate(riskDueDateValue(r))).forEach(r=>result.push({g,r})));return result}
 function dueDateInRange(r,from,to){const d=parseExcelDate(riskDueDateValue(r));return d&&(!from||d>=from)&&(!to||d<=to)}
 function dueMonthDateRange(monthValue,yearValue){const month=Number(String(monthValue||'').trim()),year=Number(String(yearValue||'').trim());if(!Number.isInteger(month)||month<1||month>12||!Number.isInteger(year)||year<1900||year>2100)return null;return{from:new Date(year,month-1,1,0,0,0,0),to:new Date(year,month,0,23,59,59,999)}}
 function dueSelectedMonthLabel(monthValue,yearValue){const names=['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'],month=Number(monthValue),year=String(yearValue||'').trim();return month>=1&&month<=12&&/^\d{4}$/.test(year)?`${names[month-1]} ${year}`:''}
