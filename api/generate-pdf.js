@@ -76,14 +76,15 @@ module.exports = async function handler(req, res) {
     ${css}
 
     #riskPrintLayer,
-    #riskPrintLayer * {
+    #riskPrintLayer *,
+    body,
+    body * {
       font-family: "Noto Sans Arabic", Arial, Tahoma, sans-serif !important;
       font-synthesis: none !important;
     }
 
     html,
     body {
-      font-family: "Noto Sans Arabic", Arial, Tahoma, sans-serif !important;
       direction: rtl;
       margin: 0;
       padding: 0;
@@ -114,15 +115,41 @@ module.exports = async function handler(req, res) {
 `;
 
     await page.setContent(documentHtml, {
-      waitUntil: "networkidle0",
+      waitUntil: "networkidle2",
     });
 
     await page.emulateMediaType("print");
 
+    /*
+     * تحميل الخط العربي فعليًا قبل إنشاء PDF
+     */
     await page.evaluate(async () => {
-      if (document.fonts && document.fonts.ready) {
+      if (document.fonts) {
+        await document.fonts.load('400 16px "Noto Sans Arabic"');
+        await document.fonts.load('700 16px "Noto Sans Arabic"');
+        await document.fonts.load('900 16px "Noto Sans Arabic"');
+
         await document.fonts.ready;
       }
+
+      /*
+       * إجبار كل عناصر التقرير على استخدام الخط العربي،
+       * بما فيها أسماء العملاء والأخصائيين وبطاقات العناوين.
+       */
+      document
+        .querySelectorAll("body, body *")
+        .forEach((node) => {
+          if (
+            node.tagName !== "STYLE" &&
+            node.tagName !== "SCRIPT"
+          ) {
+            node.style.setProperty(
+              "font-family",
+              '"Noto Sans Arabic", Arial, Tahoma, sans-serif',
+              "important"
+            );
+          }
+        });
     });
 
     const pdf = await page.pdf({
@@ -142,16 +169,17 @@ module.exports = async function handler(req, res) {
 
     res.setHeader(
       "Content-Disposition",
-      `attachment; filename="${encodeURIComponent(safeFilename)}"`
+      `attachment; filename="${encodeURIComponent(
+        safeFilename
+      )}"`
     );
 
     res.setHeader("Cache-Control", "no-store");
     res.setHeader("Content-Length", String(pdf.length));
 
     /*
-     * مهم:
-     * تحويل الناتج إلى Buffer يمنع Vercel
-     * من إرساله على شكل JSON غير صالح كملف PDF.
+     * مهم جدًا:
+     * إرسال PDF كـ Buffer حتى لا يتحول إلى JSON.
      */
     return res.status(200).send(Buffer.from(pdf));
   } catch (error) {
