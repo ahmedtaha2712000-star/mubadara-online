@@ -1,7 +1,7 @@
 const chromium = require("@sparticuz/chromium");
 const puppeteer = require("puppeteer-core");
 
-function setCorsHeaders(res) {
+function cors(res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader(
@@ -11,7 +11,7 @@ function setCorsHeaders(res) {
 }
 
 module.exports = async function handler(req, res) {
-  setCorsHeaders(res);
+  cors(res);
 
   if (req.method === "OPTIONS") {
     return res.status(204).end();
@@ -61,29 +61,38 @@ module.exports = async function handler(req, res) {
 
     const page = await browser.newPage();
 
-    const fullHtml = `
+    const documentHtml = `
 <!doctype html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="utf-8">
+
+  <link
+    rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;500;700;900&display=block"
+  >
 
   <style>
     ${css}
 
+    #riskPrintLayer,
+    #riskPrintLayer * {
+      font-family: "Noto Sans Arabic", Arial, Tahoma, sans-serif !important;
+      font-synthesis: none !important;
+    }
+
     html,
     body {
+      font-family: "Noto Sans Arabic", Arial, Tahoma, sans-serif !important;
+      direction: rtl;
       margin: 0;
       padding: 0;
       background: #ffffff;
-      direction: rtl;
-      font-family: Arial, Tahoma, sans-serif;
-      -webkit-print-color-adjust: exact !important;
-      print-color-adjust: exact !important;
     }
 
-    *,
-    *::before,
-    *::after {
+    html,
+    body,
+    * {
       -webkit-print-color-adjust: exact !important;
       print-color-adjust: exact !important;
     }
@@ -104,7 +113,7 @@ module.exports = async function handler(req, res) {
 </html>
 `;
 
-    await page.setContent(fullHtml, {
+    await page.setContent(documentHtml, {
       waitUntil: "networkidle0",
     });
 
@@ -140,9 +149,9 @@ module.exports = async function handler(req, res) {
     res.setHeader("Content-Length", String(pdf.length));
 
     /*
-     * مهم جدًا:
-     * Buffer.from(pdf) يمنع تحويل الملف إلى JSON
-     * ويجعل الناتج ملف PDF ثنائيًا صالحًا للفتح.
+     * مهم:
+     * تحويل الناتج إلى Buffer يمنع Vercel
+     * من إرساله على شكل JSON غير صالح كملف PDF.
      */
     return res.status(200).send(Buffer.from(pdf));
   } catch (error) {
