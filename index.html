@@ -1802,6 +1802,15 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
 }
 </style>
 <style id="due-report-print-white-background">@media print{body.printing-risk-report{background:#fff!important;color:#000!important}}</style>
+<style id="risk-screen-table-white-bold-final">
+@media screen{
+ #risk .risk-installments-table,#risk .risk-installments-table tbody,#risk .risk-installments-table tbody td{background:#fff!important;color:#000!important;text-shadow:none!important}
+ #risk .risk-installments-table thead th{background:#e5e7eb!important;color:#000!important;text-shadow:none!important;font-weight:900!important}
+ #risk .risk-installments-table tbody td{font-weight:900!important}
+ #risk .risk-installments-table .risk-column-totals-row td{background:#f1f3f5!important;color:#000!important;font-weight:900!important;text-shadow:none!important;border-top:2px solid #9ca3af!important;border-bottom:2px solid #9ca3af!important;white-space:nowrap!important}
+}
+@media print{#risk .risk-installments-table .risk-column-totals-row{display:none!important}}
+</style>
 <style id="due-column-totals-row-style">
 #dueInstallments .risk-installments-table .due-column-totals-row td{background:#dbeafe!important;color:#0f172a!important;font-weight:900!important;text-align:center!important;white-space:nowrap!important;border-top:2px solid #64748b!important;border-bottom:2px solid #64748b!important;padding:8px 4px!important}
 #dueInstallments .risk-installments-table .due-column-totals-row td:first-child{text-align:right!important}
@@ -2482,7 +2491,7 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
   </div>
 </div>
 <div class="toolbar no-print"><button class="light" onclick="clearSectionFilter('risk')">مسح البحث</button></div>
-<div class="risk-table-scroll-top" aria-label="شريط التمرير الأفقي العلوي"><div></div></div><div class="wrap risk-installments-wrap"><table class="risk-installments-table"><thead><tr>
+<div class="risk-table-scroll-top" aria-label="شريط التمرير الأفقي العلوي"><div></div></div><div class="wrap risk-installments-wrap"><table class="risk-installments-table"><thead><tr class="risk-column-totals-row"><td colspan="8">إجمالي الصفوف الظاهرة</td><td id="riskColumnTotalDue">0</td><td id="riskColumnTotalPaid">0</td><td></td><td id="riskColumnTotalRemaining">0</td><td id="riskColumnTotalLateCount">0</td><td id="riskColumnTotalArrears">0</td><td id="riskColumnTotalDelayDays">0</td><td colspan="4"></td></tr><tr>
 <th>م</th><th>الاسم</th><th>الرقم القومي</th><th>مبلغ القرض</th><th>مدة القرض</th><th>الهاتف</th><th>رقم القسط</th><th>تاريخ الاستحقاق</th><th>قيمة القسط</th><th>المسدد</th><th>تاريخ السداد</th><th>المتبقي من القسط</th><th>عدد الأقساط المتأخرة</th><th>إجمالي المتأخرات</th><th>أيام التأخير</th><th>العنوان</th><th>الضامن الأول</th><th>الضامن الثاني</th><th>الضامن الثالث</th>
 </tr></thead><tbody id="rt"></tbody></table></div>
 </section>
@@ -3323,8 +3332,23 @@ function isClosed(g){
  return s.includes("مغلق") || s.includes("منتهي") || s.includes("مسدد") || s.includes("مكتمل") || s.includes("closed");
 }
 function isExcludedLoanStatus(g,r){
- const s=normFast(String(clientLoanStatusFromRow(g,r)||g?.status||""));
+ const s=normFast(String(clientLoanStatusFromRow(r)||g?.status||""));
  return /اعدام|معدوم|متعثر|متوفى|متوفي|وفاه|وفاة|هالك/.test(s);
+}
+function riskLoanStatusText(g,r){return String(clientLoanStatusFromRow(r)||g?.status||"").trim()}
+function riskStatusMatches(g,r,filter){
+ if(filter==="all")return true;
+ if(filter==="open")return clientLoanIsExplicitlyCurrent(g,r)&&!isExcludedLoanStatus(g,r);
+ if(filter==="closed")return clientLoanIsExplicitlyClosed(g,r)&&!isExcludedLoanStatus(g,r);
+ if(String(filter||"").startsWith("status:"))return normFast(riskLoanStatusText(g,r))===normFast(String(filter).slice(7));
+ return false;
+}
+function riskCardsIncludeLoanStatus(g,r){
+ const s=normFast(String(clientLoanStatusFromRow(r)||g?.status||""));
+ const hasDeath=/متوفى|متوفي|وفاه|وفاة/.test(s);
+ if(/معدوم|متعثر/.test(s))return false;
+ if(/اعدام/.test(s))return hasDeath;
+ return true;
 }
 function isOpen(g){return !isClosed(g)}
 function statusMatch(g,filter){return filter==="all" || (filter==="open" ? !g.closed : g.closed)}
@@ -3438,7 +3462,7 @@ function dashboardOutstandingPrincipal(groups){
 }
 function dashboardActiveSpecialistRecords(){
  const names=specialistDirectoryNames();
- const specialists=names.map(name=>({name,groups:specialistGroupsByName(name),user:specialistUser(name),manualStatus:manualSpecialistStatus(name)}));
+ const specialists=names.map(name=>({name,groups:specialistGroupsByName(name).filter(g=>!isExcludedLoanStatus(g,g.r)),user:specialistUser(name),manualStatus:manualSpecialistStatus(name)}));
  specialists.forEach(x=>{x.resigned=specialistIsResigned(x.name,x.groups)||specialistResignedText(x.user?.name)||specialistResignedText(x.user?.officerName);x.regular=specialistIsRegular(x.name,x.groups);});
  return specialists.filter(specialistIsActiveRecord);
 }
@@ -3470,7 +3494,7 @@ function dashboardOverdueAmount(groups){
 }
 function renderDash(){
  // لوحة التحكم المالية والتشغيلية تعتمد على القروض القائمة فقط.
- const allDashboardGroups=visibleGroups();
+ const allDashboardGroups=visibleGroups().filter(g=>!isExcludedLoanStatus(g,g.r));
  const dashboardGroups=allDashboardGroups.filter(isOpen);
  const dashboardRows=dashboardGroups.flatMap(g=>g.items||[g.r]);
  const totalLoanValue=dashboardGroups.reduce((a,g)=>a+(Number(g.approval)||Number(g.total)||0),0);
@@ -3700,10 +3724,21 @@ function installmentIsOverdue(r){
 function riskInstallmentRows(){
  const result=[];
  visibleGroups().forEach(g=>{
-    const items=(g.items||[g.r]).filter(r=>!isExcludedLoanStatus(g,r)&&installmentIsOverdue(r));
+    const items=(g.items||[g.r]).filter(installmentIsOverdue);
     items.forEach(r=>result.push({g,r}));
  });
   return result;
+}
+function riskArrearsUntilRegular(rows){
+ const end=new Date();end.setHours(23,59,59,999);let total=0,seenUnpaid=false;
+ const ordered=(rows||[]).slice().sort((a,b)=>num(get(a,"installment"))-num(get(b,"installment")));
+ for(const row of ordered){
+  const due=parseExcelDate(riskDueDateValue(row));if(!due||due>end)continue;
+  const unpaid=Math.max(0,installmentUnpaid(row));
+  if(unpaid>0){seenUnpaid=true;total+=unpaid}
+  else if(seenUnpaid)break;
+ }
+ return total;
 }
 function riskDueDateValue(r){return getAny(r,["تاريخ الاستحقاق","تاريخ استحقاق القسط","تاريخ القسط","تاريخ القسط المستحق",H.date])||get(r,"date")}
 function riskDateInRange(r,from,to){
@@ -3712,6 +3747,13 @@ function riskDateInRange(r,from,to){
   return (!from || d>=from) && (!to || d<=to);
 }
 function updateRiskFilterLists(){
+  const statusSelect=document.getElementById("riskStatus");
+  if(statusSelect){
+    const current=statusSelect.value||"open",statuses=new Map();
+    visibleGroups().forEach(g=>(g.items||[g.r]).forEach(r=>{const value=riskLoanStatusText(g,r);if(value)statuses.set(normFast(value),value)}));
+    statusSelect.innerHTML='<option value="open">قرض قائم</option><option value="closed">القروض المغلقة</option><option value="all">كل الحالات</option>'+[...statuses.values()].sort((a,b)=>a.localeCompare(b,"ar")).filter(value=>normFast(value)!==normFast("قرض قائم")).map(value=>`<option value="${escAttr("status:"+value)}">${esc(value)}</option>`).join("");
+    statusSelect.value=[...statusSelect.options].some(option=>option.value===current)?current:"open";
+  }
   const officerInput=document.getElementById("riskOfficer");
   const clientInput=document.getElementById("riskClient");
   const officer=norm(officerInput?.value||"");
@@ -3721,9 +3763,10 @@ function updateRiskFilterLists(){
     const name=String(get(g.r,"officer")||"").trim();
     if(name)officerMap.set(norm(name),name);
   });
-  const officers=[...new Map(specialistDirectoryNames().map(name=>[officerKey(name)||norm(name),String(name).trim()])).values()].sort((a,b)=>a.localeCompare(b,"ar"));
+  const state=appSpecialistFilterState();
+  const officers=[...new Map(specialistDirectoryNames().filter(name=>specialistMatchesState(name,state)).map(name=>[officerKey(name)||norm(name),String(name).trim()])).values()].sort((a,b)=>a.localeCompare(b,"ar"));
   const ol=document.getElementById("riskOfficerList");
-  if(ol)ol.innerHTML=`<option value="جميع الأخصائيين">جميع الأخصائيين — الإجمالي: ${officers.length}</option>`+officers.map(x=>`<option value="${esc(x)}"></option>`).join("");
+  if(ol)ol.innerHTML=`<option value="جميع الأخصائيين">جميع الأخصائيين</option>`+officers.map(x=>`<option value="${esc(x)}"></option>`).join("");
   const clientMap=new Map();
   visibleGroups().filter(g=>specialistStatusAllows(get(g.r,"officer"))).forEach(g=>{
     const gOfficer=norm(get(g.r,"officer"));
@@ -3785,12 +3828,12 @@ function renderRisk(){
  let from=fromVal?parseExcelDate(fromVal):null;
  let to=toVal?parseExcelDate(toVal):null;
  let filter=document.getElementById("riskStatus").value;
- let out="",i=0,totalDue=0,totalPaid=0,totalUnpaid=0,totalDueAllMatching=0,totalPaidAllMatching=0;
+ let out="",i=0,totalDue=0,totalPaid=0,totalUnpaid=0,totalLateCount=0,totalArrears=0,totalDelayDays=0,totalDueAllMatching=0,totalPaidAllMatching=0;
  const standardRiskRows=riskInstallmentRows().filter(x=>{
    const g=x.g,r=x.r;
    const gOfficer=norm(get(r,"officer")||get(g.r,"officer"));
    const rClient=norm(get(r,"client")||get(g.r,"client"));
-   return statusMatch(g,filter)
+   return riskStatusMatches(g,r,filter)
      && specialistStatusAllows(gOfficer)
      && (!officer || gOfficer.includes(officer))
      && (!client || rClient.includes(client))
@@ -3803,9 +3846,9 @@ function renderRisk(){
  const allRiskRowsForDueTotal=[];
  visibleGroups().forEach(g=>(g.items||[g.r]).forEach(r=>{
    const gOfficer=norm(get(r,"officer")||get(g.r,"officer"));
-  if(!isExcludedLoanStatus(g,r)&&(!officer||gOfficer.includes(officer))&&riskDateInRange(r,from,to)){allRiskRowsForDueTotal.push(r);totalPaidAllMatching+=rowPaidAmount(r)}
+  if(riskCardsIncludeLoanStatus(g,r)&&(!officer||gOfficer.includes(officer))&&riskDateInRange(r,from,to)){allRiskRowsForDueTotal.push(r);totalPaidAllMatching+=rowPaidAmount(r)}
  }));
- totalDueAllMatching=allRiskRowsForDueTotal.reduce((sum,r)=>sum+num(get(r,"value")),0);
+ totalDueAllMatching=allRiskRowsForDueTotal.reduce((sum,r)=>sum+num(getAny(r,[H.value,"قيمة القسط","قيمة القسط الشهري","قيمة القسط من الشيت"])||get(r,"value")),0);
  renderRiskAgingSummary(standardRiskRows);
  const filteredRiskRows=riskAgingFilterRows(standardRiskRows);
  // شاشة المتأخرات: صف واحد لكل اسم عميل مع تجميع أقساطه المتأخرة.
@@ -3824,9 +3867,8 @@ function renderRisk(){
    const unpaid=rowsForClient.reduce((sum,row)=>sum+installmentUnpaid(row),0);
    let delay=0;const installmentNumbers=rowsForClient.map(row=>num(get(row,"installment"))).filter(v=>v>0);const minimumInstallmentNumber=installmentNumbers.length?Math.min(...installmentNumbers):String(get(r,"installment")??"").trim();
    const loanRows=uniqueProfileInstallments(g.items||[g.r]);const loanAmountValue=profileLoanExcelValueFromRows(loanRows,[H.loanAmount,"مبلغ القرض","قيمة القرض","قيمة التمويل","قيمة الموافقة"],q=>q.includes("مبلغ")&&q.includes("قرض"));const loanTermValue=profileLoanExcelValueFromRows(loanRows,[H.term,"مدة القرض","مده القرض","مدة التمويل","عدد الأقساط","عدد الاقساط"],q=>q.includes("مدة")||q.includes("مده"));const loanAmountDisplay=String(loanAmountValue??"").trim()!==""?num(loanAmountValue).toLocaleString("en-US",{maximumFractionDigits:2}):"—";
-   const clientKey=norm(get(r,"client")||get(g.r,"client"));const allClientRows=[];visibleGroups().forEach(group=>uniqueProfileInstallments(group.items||[group.r]).forEach(row=>{if(norm(get(row,"client")||get(group.r,"client"))===clientKey)allClientRows.push(row)}));
-   const asOfEnd=new Date();asOfEnd.setHours(23,59,59,999);
-   const totalArrears=allClientRows.reduce((sum,row)=>{const due=parseExcelDate(riskDueDateValue(row));return due&&due<=asOfEnd?sum+Math.max(0,installmentUnpaid(row)):sum;},0);
+   const clientKey=norm(get(r,"client")||get(g.r,"client"));const allClientRows=[];visibleGroups().forEach(group=>uniqueProfileInstallments(group.items||[group.r]).forEach(row=>{if(norm(get(row,"client")||get(group.r,"client"))===clientKey&&riskStatusMatches(group,row,filter))allClientRows.push(row)}));
+   const clientArrears=riskArrearsUntilRegular(allClientRows);
    // أول قسط لم يُسدد بالكامل؛ المتبقي الجزئي (>0) يجعله القسط الأدنى المستحق.
    const clientInstallmentRows=riskAgingRange?rowsForClient:allClientRows;
    const openInstallments=clientInstallmentRows.map(row=>({row,number:num(get(row,"installment"))})).filter(x=>x.number>0&&installmentUnpaid(x.row)>0).sort((a,b)=>a.number-b.number);
@@ -3845,11 +3887,13 @@ function renderRisk(){
    const installmentPaid=installmentPaidRaw!==""?num(installmentPaidRaw):0;
    const paymentDateValue=rowPaymentDate(displayInstallmentRow);
    const excelOverdueCounts=allClientRows.map(row=>getAny(row,[H.late,"عدد الأقساط المتأخرة","عدد الاقساط المتاخرة","عدد الأقساط المتاخرة"])).filter(v=>String(v??"").trim()!=="").map(num).filter(v=>v>=0);const overdueCount=excelOverdueCounts.length?Math.max(...excelOverdueCounts):rowsForClient.length;
-   totalDue+=value;totalPaid+=paid;totalUnpaid+=unpaid;i++;
+   totalDue+=value;totalPaid+=paid;totalUnpaid+=unpaid;totalLateCount+=overdueCount;totalArrears+=clientArrears;totalDelayDays+=num(delay);i++;
    out+=`<tr class="${unpaid>0?"risk-unpaid":"risk-paid"}">
-    <td>${i}</td><td><b>${esc(get(r,"client")||get(g.r,"client"))}</b></td><td>${esc(get(r,"nid")||get(g.r,"nid"))}</td><td>${esc(loanAmountDisplay)}</td><td>${esc(loanTermValue||"—")}</td><td>${esc(clientPhones(r)||get(r,"phone"))}</td><td>${esc(firstLateInstallment)}</td><td>${esc(riskDisplayDate(riskDueDateValue(displayInstallmentRow))||"—")}</td><td>${esc(installmentValue===null?"—":installmentValue.toLocaleString("en-US",{maximumFractionDigits:2}))}</td><td>${esc(installmentPaid.toLocaleString("en-US",{maximumFractionDigits:2}))}</td><td>${esc(riskDisplayDate(paymentDateValue)||"—")}</td><td>${esc(installmentRemaining===null?"—":installmentRemaining.toLocaleString("en-US",{maximumFractionDigits:2}))}</td><td>${esc(overdueCount.toLocaleString("en-US"))}</td><td>${esc(totalArrears.toLocaleString("en-US",{maximumFractionDigits:2}))}</td><td>${esc(delay)}</td><td>${esc(rowAddress(r)||get(g.r,"address"))}</td><td>${esc(guarantorText(r,1))}</td><td>${esc(guarantorText(r,2))}</td><td>${esc(guarantorText(r,3))}</td>
+    <td>${i}</td><td><b>${esc(get(r,"client")||get(g.r,"client"))}</b></td><td>${esc(get(r,"nid")||get(g.r,"nid"))}</td><td>${esc(loanAmountDisplay)}</td><td>${esc(loanTermValue||"—")}</td><td>${esc(clientPhones(r)||get(r,"phone"))}</td><td>${esc(firstLateInstallment)}</td><td>${esc(riskDisplayDate(riskDueDateValue(displayInstallmentRow))||"—")}</td><td>${esc(installmentValue===null?"—":installmentValue.toLocaleString("en-US",{maximumFractionDigits:2}))}</td><td>${esc(installmentPaid.toLocaleString("en-US",{maximumFractionDigits:2}))}</td><td>${esc(riskDisplayDate(paymentDateValue)||"—")}</td><td>${esc(installmentRemaining===null?"—":installmentRemaining.toLocaleString("en-US",{maximumFractionDigits:2}))}</td><td>${esc(overdueCount.toLocaleString("en-US"))}</td><td>${esc(clientArrears.toLocaleString("en-US",{maximumFractionDigits:2}))}</td><td>${esc(delay)}</td><td>${esc(rowAddress(r)||get(g.r,"address"))}</td><td>${esc(guarantorText(r,1))}</td><td>${esc(guarantorText(r,2))}</td><td>${esc(guarantorText(r,3))}</td>
    </tr>`;
  }); out=riskEnglishDigits(out); document.getElementById("rt").innerHTML=out||'<tr><td colspan="19">لا توجد أقساط متأخرة</td></tr>';
+ const setRiskTotal=(id,value)=>{const el=document.getElementById(id);if(el)el.textContent=typeof value==='number'?value.toLocaleString('en-US',{maximumFractionDigits:2}):value};
+ setRiskTotal('riskColumnTotalDue',totalDue);setRiskTotal('riskColumnTotalPaid',totalPaid);setRiskTotal('riskColumnTotalRemaining',totalUnpaid);setRiskTotal('riskColumnTotalLateCount',totalLateCount);setRiskTotal('riskColumnTotalArrears',totalArrears);setRiskTotal('riskColumnTotalDelayDays',totalDelayDays);
  document.getElementById("riskTotalUnpaid").textContent=totalUnpaid.toLocaleString("en-US",{maximumFractionDigits:2});
  document.getElementById("riskTotalDue").textContent=totalDueAllMatching.toLocaleString("en-US",{maximumFractionDigits:2});
  document.getElementById("riskTotalPaid").textContent=totalPaidAllMatching.toLocaleString("en-US",{maximumFractionDigits:2});
