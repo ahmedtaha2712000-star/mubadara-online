@@ -8829,16 +8829,21 @@ async function prepareDueWhatsAppPDF(event){
   if(dueWhatsappPdfBusy||Date.now()<duePrintActionBusyUntil)return false;
   dueWhatsappPdfBusy=true;duePrintActionBusyUntil=Date.now()+120000;
   const button=document.getElementById("dueWhatsappPdfButton"),oldTitle=button?.title;
-  if(button){button.disabled=true;button.title="جاري إنشاء تقرير PDF..."}
+  if(button){button.disabled=true;button.title="جاري إنشاء تقرير PDF من Vercel..."}
+  let layer=null;
   try{
-    if(typeof window.html2pdf!=="function"){alert("تعذر تشغيل تحميل PDF. تأكد من اتصال الإنترنت ثم أعد المحاولة.");return false}
-    const layer=buildDuePrintLayer(true);if(!layer){alert("لا توجد أقساط مستحقة لمشاركتها في التقرير الحالي.");return false}
+    layer=buildDuePrintLayer(false);if(!layer){alert("لا توجد أقساط مستحقة لمشاركتها في التقرير الحالي.");return false}
+    const summaryRows=[...layer.querySelectorAll(".due-print-specialist-heading,.due-print-specialist-subtotal")].map(row=>{const marker=document.createComment("due-whatsapp-pdf-summary-row");row.parentNode.insertBefore(marker,row);row.remove();return{row,marker}});
+    applyArrearsPrintFormat(layer);summaryRows.forEach(({row,marker})=>{if(marker.parentNode)marker.parentNode.insertBefore(row,marker);marker.remove()});
+    layer.style.setProperty("font-weight","700","important");layer.querySelectorAll("*").forEach(node=>{if(!node.closest(".due-print-guide-page"))node.style.setProperty("font-weight","700","important")});
+    const css=[...document.querySelectorAll("style")].map(style=>style.textContent||"").join("\n");
     const fileName=dueExportFileName("pdf");
-    const blob=await downloadReportLayerPDF(layer,fileName,"printing-due-pdf",true);
-    if(!(blob instanceof Blob)||blob.size<100)return false;
+    const response=await fetch("/api/generate-pdf",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({html:layer.outerHTML,css,filename:fileName,reportType:"due-installments"})});
+    if(!response.ok)throw new Error(`Vercel PDF API ${response.status}: ${await response.text()}`);
+    const blob=await response.blob();if(!(blob instanceof Blob)||blob.size<100)throw new Error("خادم Vercel لم يُرجع PDF صالحًا.");
     showDueWhatsAppShareModal(new File([blob],fileName,{type:"application/pdf"}));return false;
-  }catch(error){console.error("إنشاء PDF للمشاركة:",error);alert("تعذر تجهيز تقرير PDF للمشاركة. حاول مرة أخرى.");return false}
-  finally{dueWhatsappPdfBusy=false;duePrintActionBusyUntil=0;if(button){button.disabled=false;button.title=oldTitle||"إنشاء تقرير PDF ثم مشاركته عبر واتساب"}}
+  }catch(error){console.error("إنشاء PDF للمشاركة عبر Vercel:",error);alert("تعذر تجهيز تقرير PDF للمشاركة عبر Vercel. تأكد من اكتمال النشر ثم حاول مرة أخرى.");return false}
+  finally{if(layer)layer.remove();dueWhatsappPdfBusy=false;duePrintActionBusyUntil=0;if(button){button.disabled=false;button.title=oldTitle||"إنشاء تقرير PDF ثم مشاركته عبر واتساب"}}
 }
 </script>
 <script id="due-whatsapp-button-binding-final">document.getElementById("dueWhatsappPdfButton")?.addEventListener("click",prepareDueWhatsAppPDF);</script>
