@@ -5532,8 +5532,22 @@ function printDueReport(event){
 }
 async function downloadDuePDF(event){
  if(event?.preventDefault)event.preventDefault();if(event?.stopImmediatePropagation)event.stopImmediatePropagation();const now=Date.now();if(now<duePrintActionBusyUntil)return false;duePrintActionBusyUntil=now+1400;
- const layer=buildDuePrintLayer(true);if(!layer){alert("لا توجد أقساط مستحقة لتحميلها PDF.");return}
- await downloadReportLayerPDF(layer,dueExportFileName("pdf"),"printing-due-pdf");
+ const layer=buildDuePrintLayer(false);if(!layer){alert("لا توجد أقساط مستحقة لتحميلها PDF.");return false}
+ const button=document.querySelector('#dueInstallments .pdf-btn'),oldText=button?.querySelector('.action-label')?.textContent;
+ try{
+  if(button){button.disabled=true;const label=button.querySelector('.action-label');if(label)label.textContent="جاري الإنشاء...";button.setAttribute("aria-busy","true")}
+  const summaryRows=[...layer.querySelectorAll(".due-print-specialist-heading,.due-print-specialist-subtotal")].map(row=>{const marker=document.createComment("due-pdf-summary-row");row.parentNode.insertBefore(marker,row);row.remove();return{row,marker}});
+  applyArrearsPrintFormat(layer);summaryRows.forEach(({row,marker})=>{if(marker.parentNode)marker.parentNode.insertBefore(row,marker);marker.remove()});
+  layer.style.setProperty("font-weight","700","important");layer.querySelectorAll("*").forEach(node=>{if(!node.closest(".due-print-guide-page"))node.style.setProperty("font-weight","700","important")});
+  const css=[...document.querySelectorAll("style")].map(style=>style.textContent||"").join("\n");
+  const response=await fetch("/api/generate-pdf",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({html:layer.outerHTML,css,filename:dueExportFileName("pdf"),reportType:"due-installments"})});
+  if(!response.ok){let detail="";try{detail=await response.text()}catch(e){}throw new Error(`Vercel PDF API ${response.status}: ${detail}`)}
+  const blob=await response.blob();if(blob.size<100)throw new Error("لم يُرجع خادم Vercel ملف PDF صالحًا.");
+  const url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=dueExportFileName("pdf");document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);
+  if(typeof showMsg==="function")showMsg("تم إنشاء ملف PDF من خادم Vercel بنجاح.","ok");
+ }catch(error){console.error("Vercel PDF API:",error);alert("تعذر إنشاء PDF من خادم Vercel. تأكد من نشر تحديث المشروع ثم أعد المحاولة.")}
+ finally{layer.remove();if(button){button.disabled=false;const label=button.querySelector('.action-label');if(label)label.textContent=oldText||"PDF";button.removeAttribute("aria-busy")}duePrintActionBusyUntil=0}
+ return false;
 }
 // إتاحة الدوال صراحةً لمعالجات أزرار الهاتف.
 window.printDueReport=printDueReport;
