@@ -1,26 +1,57 @@
 const chromium = require("@sparticuz/chromium");
 const puppeteer = require("puppeteer-core");
 
-function cors(res) {
+function setCorsHeaders(res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  res.setHeader(
+    "Access-Control-Allow-Headers",
+    "Content-Type, Authorization"
+  );
 }
 
 module.exports = async function handler(req, res) {
-  cors(res);
-  if (req.method === "OPTIONS") return res.status(204).end();
-  if (req.method !== "POST") return res.status(405).json({ error: "POST method required" });
+  setCorsHeaders(res);
 
-  let browser;
+  if (req.method === "OPTIONS") {
+    return res.status(204).end();
+  }
+
+  if (req.method !== "POST") {
+    return res.status(405).json({
+      error: "POST method required",
+    });
+  }
+
+  let browser = null;
+
   try {
-    const { html, css = "", filename = "due-installments.pdf" } = req.body || {};
-    if (!html) return res.status(400).json({ error: "html is required" });
-    if (String(html).length > 4 * 1024 * 1024 || String(css).length > 4 * 1024 * 1024) {
-      return res.status(413).json({ error: "report payload is too large" });
+    const {
+      html,
+      css = "",
+      filename = "due-installments.pdf",
+    } = req.body || {};
+
+    if (!html) {
+      return res.status(400).json({
+        error: "html is required",
+      });
     }
 
-    const safeFilename = String(filename).replace(/[\\/:*?"<>|\r\n]/g, "_");
+    if (
+      String(html).length > 4 * 1024 * 1024 ||
+      String(css).length > 4 * 1024 * 1024
+    ) {
+      return res.status(413).json({
+        error: "report payload is too large",
+      });
+    }
+
+    const safeFilename = String(filename).replace(
+      /[\\/:*?"<>|\r\n]/g,
+      "_"
+    );
+
     browser = await puppeteer.launch({
       args: chromium.args,
       defaultViewport: chromium.defaultViewport,
@@ -29,25 +60,101 @@ module.exports = async function handler(req, res) {
     });
 
     const page = await browser.newPage();
-    await page.setContent(`<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><style>${css}</style></head><body class="printing-risk-report printing-due-installments-report" dir="rtl">${html}</body></html>`, { waitUntil: "networkidle0" });
+
+    const fullHtml = `
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+
+  <style>
+    ${css}
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      background: #ffffff;
+      direction: rtl;
+      font-family: Arial, Tahoma, sans-serif;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+
+    *,
+    *::before,
+    *::after {
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+
+    @page {
+      size: A4 landscape;
+      margin: 0;
+    }
+  </style>
+</head>
+
+<body
+  dir="rtl"
+  class="printing-risk-report printing-due-installments-report"
+>
+  ${html}
+</body>
+</html>
+`;
+
+    await page.setContent(fullHtml, {
+      waitUntil: "networkidle0",
+    });
+
     await page.emulateMediaType("print");
-    await page.evaluate(() => document.fonts?.ready);
+
+    await page.evaluate(async () => {
+      if (document.fonts && document.fonts.ready) {
+        await document.fonts.ready;
+      }
+    });
+
     const pdf = await page.pdf({
       format: "A4",
       landscape: true,
       printBackground: true,
       preferCSSPageSize: true,
-      margin: { top: "0mm", right: "0mm", bottom: "0mm", left: "0mm" },
+      margin: {
+        top: "0mm",
+        right: "0mm",
+        bottom: "0mm",
+        left: "0mm",
+      },
     });
 
     res.setHeader("Content-Type", "application/pdf");
-    res.setHeader("Content-Disposition", `attachment; filename="${encodeURIComponent(safeFilename)}"`);
+
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="${encodeURIComponent(safeFilename)}"`
+    );
+
     res.setHeader("Cache-Control", "no-store");
-    return res.status(200).send(pdf);
+    res.setHeader("Content-Length", String(pdf.length));
+
+    /*
+     * مهم جدًا:
+     * Buffer.from(pdf) يمنع تحويل الملف إلى JSON
+     * ويجعل الناتج ملف PDF ثنائيًا صالحًا للفتح.
+     */
+    return res.status(200).send(Buffer.from(pdf));
   } catch (error) {
     console.error("PDF generation failed:", error);
-    return res.status(500).json({ error: "PDF generation failed" });
+
+    return res.status(500).json({
+      error: "PDF generation failed",
+      message: error?.message || "Unknown error",
+    });
   } finally {
-    if (browser) await browser.close().catch(() => {});
+    if (browser) {
+      await browser.close().catch(() => {});
+    }
   }
 };
