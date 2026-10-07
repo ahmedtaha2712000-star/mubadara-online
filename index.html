@@ -2077,6 +2077,81 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
  #risk .risk-aging-card:hover{transform:none!important;box-shadow:none!important}
 }
 </style>
+<style id="search-customer-card-style">
+#search .search-autocomplete-field{position:relative;z-index:90}
+#search #results.search-suggestions{position:absolute;top:calc(100% + 6px);right:0;left:0;z-index:10030;display:none;max-height:min(55vh,440px);overflow:auto;margin:0;padding:6px;background:#fff;border:1px solid #b8d8d1;border-radius:14px;box-shadow:0 18px 42px #0f344026}
+#search .search-suggestion{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;margin:0;padding:11px 12px;border:0;border-bottom:1px solid #edf3f2;border-radius:9px;background:#fff;color:#173e4c;text-align:right;cursor:pointer}
+#search .search-suggestion:last-child{border-bottom:0}
+#search .search-suggestion:hover,#search .search-suggestion[aria-selected="true"]{background:#eaf6f1}
+#search .search-suggestion-main{display:grid;gap:4px;min-width:0}
+#search .search-suggestion-main strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:14px}
+#search .search-suggestion-meta{color:#617780;font-size:11px;line-height:1.6;white-space:normal}
+#search .search-open-chip{flex:0 0 auto;padding:5px 9px;border-radius:999px;background:#e6f2ff;color:#245f91;font-size:11px;font-weight:800}
+#search .search-suggestions-empty{padding:14px;text-align:center;color:#687d84;font-size:13px}
+#search #profile.search-customer-card{display:block!important;margin:16px 0;padding:16px;border:1px solid #cddfdb;border-radius:18px;background:linear-gradient(180deg,#fff,#f8fcfb);box-shadow:0 12px 28px #123b4b14}
+#search .search-card-header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding-bottom:12px;margin-bottom:12px;border-bottom:1px solid #e1eeeb}
+#search .search-card-header h3{margin:0 0 4px;color:#123e4c;font-size:19px}
+#search .search-card-header p{margin:0;color:#617780;font-size:12px}
+#search .search-card-close{flex:0 0 auto;padding:7px 11px;border:1px solid #d5e5e1;border-radius:9px;background:#fff;color:#3c5963;font-weight:800;cursor:pointer}
+#search .search-card-summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:9px;margin:10px 0 18px}
+#search .search-card-field{display:flex;align-items:center;justify-content:space-between;gap:10px;min-width:0;padding:10px 11px;border:1px solid #e3eeeb;border-radius:12px;background:#fff}
+#search .search-card-field-copy{display:grid;gap:4px;min-width:0}
+#search .search-card-field-copy small{color:#637a82;font-size:11px}
+#search .search-card-field-copy strong{overflow-wrap:anywhere;color:#173e4c;font-size:13px;direction:auto}
+#search .search-copy-button{flex:0 0 auto;padding:5px 9px;border:1px solid #cbded9;border-radius:8px;background:#f6fbf9;color:#176b56;font-size:11px;font-weight:800;cursor:pointer}
+#search .search-copy-button:hover{background:#e8f6f1}
+#search .search-loan-section{margin-top:16px}
+#search .search-loan-section h4{margin:0 0 9px;color:#1b4b59;font-size:15px}
+#search .search-loan-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:10px}
+#search .search-loan-card{padding:12px;border:1px solid #deebe7;border-radius:14px;background:#fff}
+#search .search-loan-card h5{margin:0 0 9px;color:#235363;font-size:13px}
+#search .search-loan-fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:7px}
+#search .search-loan-card .search-card-field{padding:8px}
+#search .search-loan-empty{padding:11px;border-radius:10px;background:#f7faf9;color:#687d84;font-size:12px}
+@media(max-width:640px){#search .search-card-header{align-items:flex-start}#search .search-loan-grid{grid-template-columns:1fr}#search #results.search-suggestions{max-height:45vh}}
+</style>
+<style id="search-full-client-profile-style">
+#search #profile.search-profile-host{display:none;margin-top:16px;padding:14px;border:1px solid #ccdfda;border-radius:18px;background:#f8fcfb;box-shadow:0 12px 30px #123b4b12}
+#search .search-profile-summary{margin-bottom:12px;padding:12px;border:1px solid #deebe7;border-radius:14px;background:#fff}
+#search .search-profile-summary h3{margin:0 0 8px;color:#153f4c;font-size:18px}
+#search .search-profile-counts{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:8px}
+#search .search-profile-loans{margin-top:14px;padding:13px;border:1px solid #deebe7;border-radius:14px;background:#fff}
+#search .search-profile-loans h3{margin:0 0 10px;color:#194655;font-size:16px}
+#search .search-profile-loans h4{margin:12px 0 8px;color:#275b68;font-size:14px}
+#search .search-profile-loan-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:9px}
+#search .search-profile-loan-item{padding:11px;border:1px solid #e2ece9;border-radius:12px;background:#fbfdfc}
+#search .search-profile-loan-item h5{margin:0 0 8px;color:#244d59;font-size:13px}
+#search .search-profile-loan-item .search-card-summary{display:grid;grid-template-columns:1fr;gap:6px;margin:0 0 8px}
+#search .search-profile-open-loan{width:100%;padding:8px 10px;border:1px solid #b9d9d0;border-radius:9px;background:#edf8f4;color:#17674f;font-weight:800;cursor:pointer}
+#search #clientProfile{margin-top:12px;max-width:100%;box-sizing:border-box}
+#search #clientProfile .field{position:relative;padding-bottom:38px}
+#search #clientProfile .field>.search-copy-button{position:absolute;bottom:6px;left:7px}
+#search #clientProfile .action-close{cursor:pointer}
+@media(max-width:640px){#search .search-profile-loan-grid{grid-template-columns:1fr}#search #profile.search-profile-host{padding:9px}}
+</style>
+<style id="search-keep-both-client-cards">
+#search .search-customer-summary-card{padding:13px;border:1px solid #d8e8e3;border-radius:15px;background:#fff}
+#search .search-customer-summary-card h3{margin:0 0 10px;color:#153f4c;font-size:18px}
+#search .search-customer-summary-card .search-card-summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px;margin:0}
+#search .search-full-profile-label{margin:16px 0 8px;padding:11px 13px;border-radius:12px;background:#eaf5f1;color:#194955}
+#search .search-full-profile-label h3{margin:0 0 4px;font-size:16px}
+#search .search-full-profile-label p{margin:0;font-size:12px;color:#526d75}
+</style>
+<style id="search-profile-loan-navigation-style">
+#search #clientProfile .search-profile-loan-nav{display:grid;gap:9px;margin:0 0 12px;padding:12px;border:1px solid #c9dfd8;border-radius:14px;background:#f3faf7}
+#search #clientProfile .search-profile-loan-nav-title{margin:0;color:#174958;font-size:14px;font-weight:900}
+#search #clientProfile .search-profile-loan-tabs{display:flex;flex-wrap:wrap;gap:7px}
+#search #clientProfile .search-profile-loan-tabs button{padding:7px 10px;border:1px solid #cbded8;border-radius:999px;background:#fff;color:#315660;font-size:12px;font-weight:800;cursor:pointer}
+#search #clientProfile .search-profile-loan-tabs button[aria-pressed="true"]{border-color:#2f806d;background:#e4f5ef;color:#14634f}
+#search #clientProfile .search-profile-loan-controls{display:grid;grid-template-columns:minmax(180px,1fr) auto auto auto;align-items:center;gap:7px}
+#search #clientProfile .search-profile-loan-select{min-width:0;width:100%;padding:8px;border:1px solid #cfdfda;border-radius:9px;background:#fff;color:#193f4a}
+#search #clientProfile .search-profile-loan-controls button{padding:8px 10px;border:1px solid #cfdfda;border-radius:9px;background:#fff;color:#285460;font-weight:800;cursor:pointer}
+#search #clientProfile .search-profile-loan-position{color:#60777e;font-size:12px;text-align:center;white-space:nowrap}
+@media(max-width:640px){#search #clientProfile .search-profile-loan-controls{grid-template-columns:1fr 1fr}#search #clientProfile .search-profile-loan-select{grid-column:1/-1}#search #clientProfile .search-profile-loan-position{grid-column:1/-1;grid-row:2}}
+</style>
+<style id="search-profile-loan-navigation-mobile">
+@media(max-width:640px){#search #clientProfile .search-profile-loan-controls{display:flex;flex-wrap:wrap}#search #clientProfile .search-profile-loan-select{flex:1 1 100%;order:0}#search #clientProfile .search-profile-loan-controls [data-loan-step]{flex:1 1 calc(50% - 8px);order:1}#search #clientProfile .search-profile-loan-position{flex:1 1 100%;order:2}}
+</style>
 </head>
 
 <body>
@@ -2318,15 +2393,16 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
 <section id="search" class="card no-print screen">
 <h2>🔍 البحث السريع في القروض</h2>
 <div class="filter-row">
-  <div>
-    <span class="filter-label">بحث بالاسم / الرقم القومي / الهاتف / رقم القرض</span>
-    <input id="q" placeholder="اكتب بيانات العميل أو رقم القرض...">
-  </div>
+  <div class="search-autocomplete-field">
+     <span class="filter-label">بحث بالاسم / الرقم القومي / الهاتف / كود القرض</span>
+     <input id="q" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="results" placeholder="اكتب الاسم أو الهاتف أو الرقم القومي أو كود القرض...">
+     <div id="results" class="results search-suggestions" role="listbox" aria-label="اقتراحات العملاء" style="display:none"></div>
+   </div>
   <div>
     <span class="filter-label">حالة القرض</span>
     <select id="searchStatus">
-      <option value="open" selected>القروض القائمة (الرئيسية)</option>
-      <option value="all">كل القروض</option>
+      <option value="open">القروض القائمة (الرئيسية)</option>
+      <option value="all" selected>جميع القروض</option>
       <option value="closed">القروض المغلقة</option>
     </select>
   </div>
@@ -2338,8 +2414,8 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
   <div><span class="filter-label">الحد الأدنى لغير المسدد</span><input id="searchUnpaidMin" type="number" min="0" placeholder="مثال: 1000"></div>
   <div><span class="filter-label">مسح الفلاتر</span><button class="light" style="width:100%;margin-top:6px" onclick="clearSearchFilters()">مسح</button></div>
 </div>
-<div id="results" class="results"></div>
-<div id="profile" class="profile" style="display:none"></div>
+
+<div id="profile" class="profile search-profile-host" style="display:none"><div id="searchProfileSummary" class="search-profile-summary"></div></div>
 </section>
 
 <section id="dash" class="card screen" data-owner-only>
@@ -4025,25 +4101,33 @@ function refreshDueSpecialistFilter(){
  if(document.getElementById('dueInstallments')?.classList.contains('active'))renderDueInstallments();
 }
 function updateDueFilterLists(baseRows){
- const officerInput=document.getElementById('dueOfficer'),clientInput=document.getElementById('dueClient'),officerValue=norm(officerInput?.value||''),officer=officerValue===norm(DUE_ALL_SPECIALISTS_LABEL)?'':officerValue,state=dueSpecialistFilterState();
- const sourceRows=baseRows||dueInstallmentRows(),cacheKey=dueFilterListsKey();
- if(cacheKey!==dueFilterListsCacheKey||sourceRows!==dueFilterListsSourceRows){
-  // تتغير هذه القوائم مع البيانات أو حالة الأخصائيين، لا مع كل حرف في خانة البحث.
+  const officerInput=document.getElementById('dueOfficer'),clientInput=document.getElementById('dueClient'),officerValue=norm(officerInput?.value||''),officer=officerValue===norm(DUE_ALL_SPECIALISTS_LABEL)?'':officerValue,state=dueSpecialistFilterState();
+  const sourceRows=baseRows||dueInstallmentRows(),cacheKey=dueFilterListsKey();
+  // نبني قائمة الأخصائيين المتوقعة في كل استدعاء (دليل صغير)، كي نكتشف أي قائمة DOM قديمة حتى لو بدا مفتاح التخزين المؤقت صالحًا.
   const directory=new Map();specialistDirectoryNames().forEach(name=>{const key=officerKey(name)||norm(name);if(key&&!directory.has(key))directory.set(key,String(name).trim())});
   const officers=new Map();directory.forEach(name=>{if(specialistMatchesState(name,state))officers.set(norm(name),name)});
-  const clients=new Map(),addresses=new Map();sourceRows.forEach(x=>{
-   const cn=String(get(x.r,'client')||get(x.g.r,'client')||'').trim(),an=String(rowAddress(x.r)||rowAddress(x.g.r)||'').trim();
-   if(cn)clients.set(norm(cn),cn);if(an)addresses.set(norm(an),an);
-  });
   const ol=document.getElementById('dueOfficerList'),cl=document.getElementById('dueClientList'),al=document.getElementById('dueAddressList');
   const officerHTML=`<option value="${esc(DUE_ALL_SPECIALISTS_LABEL)}">${esc(DUE_ALL_SPECIALISTS_LABEL+' — الإجمالي: '+directory.size)}</option>`+[...officers.values()].sort((a,b)=>a.localeCompare(b,'ar')).map(x=>`<option value="${esc(x)}"></option>`).join('');
-  const clientHTML=[...clients.values()].sort((a,b)=>a.localeCompare(b,'ar')).map(x=>`<option value="${esc(x)}"></option>`).join(''),addressHTML=[...addresses.values()].sort((a,b)=>a.localeCompare(b,'ar')).map(x=>`<option value="${esc(x)}"></option>`).join('');
-  if(ol&&ol.innerHTML!==officerHTML)ol.innerHTML=officerHTML;if(cl&&cl.innerHTML!==clientHTML)cl.innerHTML=clientHTML;if(al&&al.innerHTML!==addressHTML)al.innerHTML=addressHTML;
-  dueFilterAllowedOfficers=new Set(officers.keys());dueFilterListsCacheKey=cacheKey;dueFilterListsSourceRows=sourceRows;
- }
- if(officer&&dueFilterAllowedOfficers&&!dueFilterAllowedOfficers.has(officer)&&officerInput)officerInput.value='';
-}
-function dueWhole(v){return Math.round(num(v)||0).toLocaleString('en-US')}
+  const cacheChanged=cacheKey!==dueFilterListsCacheKey||sourceRows!==dueFilterListsSourceRows;
+  if(cacheChanged){
+    const clients=new Map(),addresses=new Map();sourceRows.forEach(x=>{
+      const cn=String(get(x.r,'client')||get(x.g.r,'client')||'').trim(),an=String(rowAddress(x.r)||rowAddress(x.g.r)||'').trim();
+      if(cn)clients.set(norm(cn),cn);if(an)addresses.set(norm(an),an);
+    });
+    const clientHTML=[...clients.values()].sort((a,b)=>a.localeCompare(b,'ar')).map(x=>`<option value="${esc(x)}"></option>`).join(''),addressHTML=[...addresses.values()].sort((a,b)=>a.localeCompare(b,'ar')).map(x=>`<option value="${esc(x)}"></option>`).join('');
+    if(cl&&cl.innerHTML!==clientHTML)cl.innerHTML=clientHTML;if(al&&al.innerHTML!==addressHTML)al.innerHTML=addressHTML;
+    dueFilterListsCacheKey=cacheKey;dueFilterListsSourceRows=sourceRows;
+  }
+  // إصلاح التباعد المرصود: لا نثق بمفتاح التخزين وحده إذا كان DOM يحتوي خيارات ناقصة.
+  if(ol&&ol.innerHTML!==officerHTML){
+    ol.innerHTML=officerHTML;
+    window.smartSelectSync?.();
+    const widget=officerInput?.closest('.smart-select'),search=widget?.querySelector('.smart-select-search');
+    if(widget?.classList.contains('open')&&search)search.dispatchEvent(new Event('input',{bubbles:true}));
+  }
+  dueFilterAllowedOfficers=new Set(officers.keys());
+  if(officer&&dueFilterAllowedOfficers&&!dueFilterAllowedOfficers.has(officer)&&officerInput){officerInput.value='';window.smartSelectSync?.()}
+}function dueWhole(v){return Math.round(num(v)||0).toLocaleString('en-US')}
 function dueLoanAmount(r,g){const value=getAny(r,[H.approval]);return String(value??'').trim()!==''?value:''}
 function openDueClientProfile(index){
  const group=window.dueProfileGroups?.[Number(index)],profile=document.getElementById('clientProfile');if(!group||!profile)return;
@@ -4080,7 +4164,7 @@ function renderDueSpecialistGrouping(matchesDueSpecialistState=specialistMatches
  const isGrouped=dueAllSpecialistsEnabled();
  body.querySelectorAll('.due-specialist-group-row,.due-specialist-subtotal-row,.due-specialist-screen-header-row').forEach(row=>row.remove());
  const dataRows=[...body.querySelectorAll('tr[data-due-data-row="1"]')];
- if(!isGrouped||!dataRows.length){if(mainHeader&&headSection&&mainHeader.parentElement!==headSection)headSection.appendChild(mainHeader);if(mainHeader)mainHeader.classList.remove('due-specialist-screen-header-row');if(!isGrouped)dataRows.sort((a,b)=>Number(a.dataset.rowIndex||0)-Number(b.dataset.rowIndex||0)).forEach(row=>body.appendChild(row));if(summary)summary.style.display='none';return}
+ if(!isGrouped||!dataRows.length){if(mainHeader&&headSection&&mainHeader.parentElement!==headSection)headSection.appendChild(mainHeader);if(mainHeader)mainHeader.classList.remove('due-specialist-screen-header-row');if(!isGrouped)dataRows.sort((a,b)=>Number(a.dataset.rowIndex||0)-Number(b.dataset.rowIndex||0)).forEach(row=>{const serialCell=row.cells?.[0];if(serialCell)serialCell.textContent=String(Number(row.dataset.rowIndex||0)+1);body.appendChild(row)});if(summary)summary.style.display='none';return}
  const grouped=new Map();dataRows.forEach(row=>{const key=row.dataset.officerKey||'غير محدد';if(!grouped.has(key))grouped.set(key,{name:row.dataset.officerName||'غير محدد',rows:[]});grouped.get(key).rows.push(row)});
  const moneyAt=(row,index)=>num(row.cells[index]?.textContent||0);
  const clientCount=rows=>new Set(rows.map(row=>norm(row.cells[1]?.textContent||''))).size;
@@ -4091,7 +4175,7 @@ function renderDueSpecialistGrouping(matchesDueSpecialistState=specialistMatches
  [...grouped.values()].sort((a,b)=>a.name.localeCompare(b.name,'ar')).forEach(group=>{
   const head=document.createElement('tr');head.className='due-specialist-group-row';const hd=document.createElement('td');hd.colSpan=19;const active=matchesDueSpecialistState(group.name,'active');const status=active?'نشط':'غير نشط';hd.textContent=`الأخصائي: ${group.name} — الحالة: ${status}`;head.appendChild(hd);fragment.appendChild(head);
   const s=total(group.rows),sub=document.createElement('tr');sub.className='due-specialist-subtotal-row';const sd=document.createElement('td');sd.colSpan=19;sd.textContent=`المجموع الفرعي — عدد العملاء: ${s.clients.toLocaleString('en-US')} | الأقساط المستحقة: ${money(s.due)} | المسدد: ${money(s.paid)} | المتبقي: ${money(s.remaining)} | المتأخرات: ${money(s.arrears)}`;sub.appendChild(sd);fragment.appendChild(sub);
-  const screenHead=mainHeader&&!originalHeaderUsed?mainHeader:(mainHeader?mainHeader.cloneNode(true):document.createElement('tr'));if(screenHead!==mainHeader)screenHead.removeAttribute('id');originalHeaderUsed=true;screenHead.className='due-specialist-screen-header-row';fragment.appendChild(screenHead);group.rows.forEach(row=>fragment.appendChild(row));
+  const screenHead=mainHeader&&!originalHeaderUsed?mainHeader:(mainHeader?mainHeader.cloneNode(true):document.createElement('tr'));if(screenHead!==mainHeader)screenHead.removeAttribute('id');originalHeaderUsed=true;screenHead.className='due-specialist-screen-header-row';fragment.appendChild(screenHead);group.rows.forEach((row,index)=>{const serialCell=row.cells?.[0];if(serialCell)serialCell.textContent=String(index+1);fragment.appendChild(row)});
  });
  body.replaceChildren(fragment);
 }
@@ -4525,32 +4609,75 @@ function prioritizeOpenGroups(list){
     return String(get(a.r,"client")||"").localeCompare(String(get(b.r,"client")||""),"ar");
   });
 }
+function searchDigits(value){return String(value??'').replace(/[٠-٩]/g,d=>String('٠١٢٣٤٥٦٧٨٩'.indexOf(d))).replace(/[۰-۹]/g,d=>String('۰۱۲۳۴۵۶۷۸۹'.indexOf(d)))}
+function searchCompactDigits(value){return searchDigits(value).replace(/[^0-9]/g,'')}
+function searchLoanCodeValue(row){return getAny(row||{},[H.loanCode,'كود القرض','رقم كود القرض'])||get(row||{},'loan')}
+function searchCustomerKey(group){const row=group?.r||{},nid=String(get(row,'nid')||'').trim(),name=String(get(row,'client')||'').trim();if(nid)return 'nid:'+normFast(searchDigits(nid));if(name)return 'name:'+normFast(name);const code=String(searchLoanCodeValue(row)||'').trim();return code?'loan:'+normFast(searchDigits(code)):'group:'+String(groups.indexOf(group))}
+function searchLoanFields(group){const row=group?.r||{};return [get(row,'client'),getAny(row,[H.phone,'رقم الهاتف','رقم الموبيل','الموبايل','الهاتف']),getAny(row,[H.phone2,'رقم الموبايل الثاني','رقم الهاتف الثاني','موبيل 2','هاتف 2']),getAny(row,[H.phone3,'رقم الموبايل الثالث','رقم الهاتف الثالث','موبيل 3','هاتف 3']),get(row,'nid'),searchLoanCodeValue(row)]}
+function searchMatchesQuery(group,query){const q=normFast(searchDigits(query));if(!q)return true;const qDigits=searchCompactDigits(query);return searchLoanFields(group).some(value=>{const raw=String(value??'');return normFast(searchDigits(raw)).includes(q)||(qDigits.length>0&&searchCompactDigits(raw).includes(qDigits))})}
+function searchQueryScore(group,query){const q=normFast(searchDigits(query));const qDigits=searchCompactDigits(query);const values=searchLoanFields(group).map(value=>({text:normFast(searchDigits(value)),digits:searchCompactDigits(value)}));if(values.some(v=>v.text===q||(qDigits&&v.digits===qDigits)))return 0;if(values.some(v=>v.text.startsWith(q)||(qDigits&&v.digits.startsWith(qDigits))))return 1;return 2}
+function searchLoanKind(group){const row=group?.r||{};if(clientLoanIsExplicitlyClosed(group,row)||group?.closed||isClosed(group))return 'closed';return 'open'}
+function searchLoanStatusLabel(group){const row=group?.r||{},status=String(clientLoanStatusFromRow(row)||group?.status||'').trim();return status|| (searchLoanKind(group)==='closed'?'مغلق':'قائم')}
+function searchLoanAmountValue(group){const row=group?.r||{};return getAny(row,[H.loanAmount,'مبلغ القرض','قيمة القرض','قيمة التمويل','قيمة الموافقة'])||group?.approval||group?.total||get(row,'approval')||get(row,'total')}
+function searchPhoneValue(row){const phones=[getAny(row,[H.phone,'رقم الهاتف','رقم الموبيل','الموبايل','الهاتف']),getAny(row,[H.phone2,'رقم الموبايل الثاني','رقم الهاتف الثاني','موبيل 2','هاتف 2']),getAny(row,[H.phone3,'رقم الموبايل الثالث','رقم الهاتف الثالث','موبيل 3','هاتف 3'])].map(x=>String(x||'').trim()).filter(Boolean);return [...new Set(phones)].join(' / ')}
+function searchCardField(label,value){const text=String(value??'').trim()||'—';return `<div class="search-card-field"><div class="search-card-field-copy"><small>${esc(label)}</small><strong dir="auto">${esc(text)}</strong></div><button type="button" class="search-copy-button" data-search-copy="1" data-copy-value="${escAttr(text)}" aria-label="نسخ ${escAttr(label)}">نسخ</button></div>`}
+function closeSearchSuggestions(){const box=document.getElementById('results'),input=document.getElementById('q');if(box)box.style.display='none';if(input)input.setAttribute('aria-expanded','false');window.searchSuggestionIndex=-1}
+function closeSearchCustomerCard(){
+ const host=document.getElementById('profile'),fullProfile=document.getElementById('clientProfile');
+ if(host&&fullProfile&&host._searchProfilePlaceholder){
+   const parent=host._searchProfileParent,placeholder=host._searchProfilePlaceholder,oldStyle=host._searchProfilePreviousStyle,oldStatus=host._searchPreviousStatus,oldGroup=host._searchPreviousCurrentProfileGroup;
+   if(parent&&placeholder.parentNode===parent)parent.insertBefore(fullProfile,placeholder);
+   placeholder.remove();
+   if(oldStyle===null)fullProfile.removeAttribute('style');else if(oldStyle!==undefined)fullProfile.setAttribute('style',oldStyle);
+   const status=document.getElementById('clientsStatus');if(status&&oldStatus!==undefined)status.value=oldStatus;window.currentClientProfileGroup=oldGroup;
+   delete host._searchProfileParent;delete host._searchProfilePlaceholder;delete host._searchProfilePreviousStyle;delete host._searchPreviousStatus;delete host._searchPreviousCurrentProfileGroup;
+ }
+ if(host){host.style.display='none';host.classList.remove('search-customer-card');host.classList.add('search-profile-host');host.innerHTML='<div id="searchProfileSummary" class="search-profile-summary"></div>'}
+ window.currentSearchCustomerGroup=null;window.searchProfileLoanGroups=[];window.searchProfileCurrentLoanIndex=-1;window.searchProfileNavType='all';
+}
+function searchCustomerLoanGroups(selected){const key=searchCustomerKey(selected);if(key.startsWith('group:'))return [selected];const list=visibleGroups().filter(group=>searchCustomerKey(group)===key),seen=new Set();return list.filter(group=>{if(seen.has(group))return false;seen.add(group);return true})}
+async function copySearchCardValue(button){const value=button?.dataset.copyValue||'';let copied=false;try{if(navigator.clipboard&&window.isSecureContext){await navigator.clipboard.writeText(value);copied=true}}catch(e){}if(!copied){const area=document.createElement('textarea');area.value=value;area.setAttribute('readonly','');area.style.position='fixed';area.style.opacity='0';document.body.appendChild(area);area.select();try{copied=document.execCommand('copy')}catch(e){}area.remove()}const old=button.textContent;button.textContent=copied?'تم النسخ':'تعذر النسخ';button.disabled=true;setTimeout(()=>{if(button.isConnected){button.textContent=old;button.disabled=false}},1300)}
+function bindSearchCopyButtons(root){root?.querySelectorAll('[data-search-copy]').forEach(button=>{if(button.dataset.copyBound)return;button.dataset.copyBound='1';button.addEventListener('click',()=>copySearchCardValue(button))})}
+function addSearchCopyButtonsToFullProfile(fullProfile){
+ if(!fullProfile)return;
+ fullProfile.querySelectorAll('.field').forEach(field=>{const label=field.querySelector('small')?.textContent?.trim(),value=field.querySelector('b');if(!label||!value||field.querySelector('[data-search-copy]'))return;const text=String(value.textContent||'').trim();if(!text)return;const button=document.createElement('button');button.type='button';button.className='search-copy-button';button.dataset.searchCopy='1';button.dataset.copyValue=text;button.setAttribute('aria-label',`نسخ ${label}`);button.textContent='نسخ';field.appendChild(button)});
+ bindSearchCopyButtons(fullProfile);
+ const closeButton=fullProfile.querySelector('.action-close');if(closeButton){closeButton.removeAttribute('onclick');closeButton.addEventListener('click',closeSearchCustomerCard)}
+}
+function renderSearchProfileSummary(selected,loans){const host=document.getElementById('profile'),summary=host?.querySelector('#searchProfileSummary');if(!summary)return;const row=selected?.r||{},name=String(get(row,'client')||'').trim()||'—',nid=get(row,'nid'),phone=searchPhoneValue(row)||'—',code=searchLoanCodeValue(row)||'—',officer=get(row,'officer')||'—',amount=searchLoanAmountValue(selected),amountText=String(amount??'').trim()===''?'—':money(amount),status=searchLoanStatusLabel(selected),openCount=loans.filter(g=>searchLoanKind(g)==='open').length,closedCount=loans.filter(g=>searchLoanKind(g)==='closed').length;summary.innerHTML=`<div class="search-customer-summary-card"><h3>بطاقة العميل</h3><div class="search-card-summary">${searchCardField('الاسم',name)}${searchCardField('الرقم القومي',nid)}${searchCardField('رقم الهاتف',phone)}${searchCardField('كود القرض',code)}${searchCardField('اسم الأخصائي',officer)}${searchCardField('مبلغ القرض',amountText)}${searchCardField('حالة القرض',status)}${searchCardField('عدد القروض القائمة',openCount)}${searchCardField('عدد القروض المغلقة',closedCount)}</div></div>`;bindSearchCopyButtons(summary)}
+function renderSearchProfileLoanPicker(loans){const host=document.getElementById('profile');let picker=host?.querySelector('#searchProfileLoanPicker');if(!host)return;if(!picker){picker=document.createElement('div');picker.id='searchProfileLoanPicker';host.appendChild(picker)}picker.className='search-profile-loans';
+ const renderItems=(items,kind,title)=>items.length?`<h4>${title} (${items.length})</h4><div class="search-profile-loan-grid">${items.map(group=>{const index=loans.indexOf(group),row=group.r||{},code=searchLoanCodeValue(row)||'—',officer=get(row,'officer')||'—',amount=searchLoanAmountValue(group),amountText=String(amount??'').trim()===''?'—':money(amount),status=searchLoanStatusLabel(group);return `<article class="search-profile-loan-item"><h5>${esc(String(kind==='open'?'قرض قائم':'قرض مغلق'))} — ${esc(code)}</h5><div class="search-card-summary">${searchCardField('كود القرض',code)}${searchCardField('اسم الأخصائي',officer)}${searchCardField('مبلغ القرض',amountText)}${searchCardField('حالة القرض',status)}</div><button type="button" class="search-profile-open-loan" data-search-loan-index="${index}">عرض ملف هذا القرض</button></article>`}).join('')}</div>`:'';
+ const open=loans.filter(g=>searchLoanKind(g)==='open'),closed=loans.filter(g=>searchLoanKind(g)==='closed');picker.innerHTML=`<h3>قروض العميل</h3>${renderItems(open,'open','القروض القائمة')||'<p class="search-loan-empty">لا توجد قروض قائمة.</p>'}${closed.length?renderItems(closed,'closed','القروض المغلقة'):''}`;
+ bindSearchCopyButtons(picker);picker.querySelectorAll('[data-search-loan-index]').forEach(button=>button.addEventListener('click',()=>renderSearchProfileLoan(Number(button.dataset.searchLoanIndex),true,true)));
+}
+function searchProfileLoanIndices(type){const loans=window.searchProfileLoanGroups||[];return loans.map((_,index)=>index).filter(index=>type==='all'||searchLoanKind(loans[index])===type)}
+function attachSearchProfileLoanNavigator(fullProfile,index){const loans=window.searchProfileLoanGroups||[];if(!fullProfile||!loans.length)return;const openCount=loans.filter(g=>searchLoanKind(g)==='open').length,closedCount=loans.filter(g=>searchLoanKind(g)==='closed').length;let type=window.searchProfileNavType||'all';if(type==='closed'&&!closedCount)type='all';let indices=searchProfileLoanIndices(type);if(!indices.includes(index)){type='all';window.searchProfileNavType='all';indices=searchProfileLoanIndices('all')}const position=indices.indexOf(index),group=loans[index],nav=document.createElement('div');nav.className='search-profile-loan-nav no-print';const tab=(value,label,count)=>`<button type="button" data-loan-view="${value}" aria-pressed="${type===value}">${label} (${count})</button>`;const codeFor=i=>String(searchLoanCodeValue(loans[i]?.r||{})||`قرض ${i+1}`);const options=indices.map(i=>`<option value="${i}" ${i===index?'selected':''}>${esc(codeFor(i))} — ${esc(searchLoanStatusLabel(loans[i]))}</option>`).join('');nav.innerHTML=`<h4 class="search-profile-loan-nav-title">التنقل بين قروض العميل</h4><div class="search-profile-loan-tabs">${tab('all','جميع القروض',loans.length)}${tab('open','القروض القائمة',openCount)}${closedCount?tab('closed','القروض المغلقة',closedCount):''}</div><div class="search-profile-loan-controls"><select class="search-profile-loan-select" aria-label="اختيار قرض العميل">${options}</select><button type="button" data-loan-step="-1" aria-label="القرض السابق" ${indices.length<2?'disabled':''}>السابق</button><span class="search-profile-loan-position">القرض ${position+1} من ${indices.length}</span><button type="button" data-loan-step="1" aria-label="القرض التالي" ${indices.length<2?'disabled':''}>التالي</button></div>`;fullProfile.prepend(nav);nav.querySelectorAll('[data-loan-view]').forEach(button=>button.addEventListener('click',()=>{const nextType=button.dataset.loanView,nextIndices=searchProfileLoanIndices(nextType);if(!nextIndices.length)return;window.searchProfileNavType=nextType;const current=Number(window.searchProfileCurrentLoanIndex);renderSearchProfileLoan(nextIndices.includes(current)?current:nextIndices[0],false,false)}));nav.querySelector('.search-profile-loan-select')?.addEventListener('change',event=>renderSearchProfileLoan(Number(event.target.value),false,false));nav.querySelectorAll('[data-loan-step]').forEach(button=>button.addEventListener('click',()=>{const currentIndices=searchProfileLoanIndices(window.searchProfileNavType||'all'),current=currentIndices.indexOf(Number(window.searchProfileCurrentLoanIndex)),step=Number(button.dataset.loanStep),next=currentIndices[(current+step+currentIndices.length)%currentIndices.length];if(next!==undefined)renderSearchProfileLoan(next,false,false)}))}
+function renderSearchProfileLoan(index,scrollToProfile,resetType){const loans=window.searchProfileLoanGroups||[],group=loans[Number(index)],fullProfile=document.getElementById('clientProfile');if(!group||!fullProfile)return;if(resetType)window.searchProfileNavType='all';const status=document.getElementById('clientsStatus');if(status)status.value='all';showClientProfile(group);window.searchProfileCurrentLoanIndex=Number(index);addSearchCopyButtonsToFullProfile(fullProfile);attachSearchProfileLoanNavigator(fullProfile,Number(index));window.currentSearchCustomerGroup=group;if(scrollToProfile)fullProfile.scrollIntoView({behavior:'smooth',block:'start'})}
+function openSearchCustomerCard(selected){
+ if(!selected)return;const host=document.getElementById('profile'),fullProfile=document.getElementById('clientProfile');if(!host||!fullProfile)return;
+ closeSearchCustomerCard();if(document.getElementById('dueClientProfileModal')&&typeof closeDueClientProfileModal==='function')closeDueClientProfileModal();
+ const parent=fullProfile.parentNode,placeholder=document.createComment('search-client-profile-return-point'),oldStyle=fullProfile.getAttribute('style'),status=document.getElementById('clientsStatus'),oldStatus=status?.value;parent.insertBefore(placeholder,fullProfile);
+ host._searchProfileParent=parent;host._searchProfilePlaceholder=placeholder;host._searchProfilePreviousStyle=oldStyle;host._searchPreviousStatus=oldStatus;host._searchPreviousCurrentProfileGroup=window.currentClientProfileGroup;host.classList.add('search-profile-host');host.innerHTML='<div id="searchProfileSummary" class="search-profile-summary"></div>';host.style.display='block';
+ const loans=searchCustomerLoanGroups(selected);window.searchProfileLoanGroups=loans;window.searchProfileCurrentLoanIndex=-1;window.searchProfileNavType='all';window.currentSearchCustomerGroup=selected;renderSearchProfileSummary(selected,loans);const picker=document.createElement('div');picker.id='searchProfileLoanPicker';host.appendChild(picker);renderSearchProfileLoanPicker(loans);const fullLabel=document.createElement('div');fullLabel.className='search-full-profile-label';fullLabel.innerHTML='<h3>بطاقة ملف العميل التفصيلية</h3><p>الملف الكامل للقرض المحدد، دون مغادرة شاشة البحث.</p>';host.appendChild(fullLabel);host.appendChild(fullProfile);
+ const selectedIndex=Math.max(0,loans.indexOf(selected));renderSearchProfileLoan(selectedIndex,false,true);closeSearchSuggestions();fullProfile.scrollIntoView({behavior:'smooth',block:'start'});
+}
+function handleSearchSuggestionKeydown(event){const box=document.getElementById('results'),input=document.getElementById('q'),items=[...(box?.querySelectorAll('.search-suggestion')||[])];if(event.key==='ArrowDown'&&items.length){event.preventDefault();window.searchSuggestionIndex=Math.min((window.searchSuggestionIndex??-1)+1,items.length-1)}else if(event.key==='ArrowUp'&&items.length){event.preventDefault();window.searchSuggestionIndex=Math.max((window.searchSuggestionIndex??0)-1,0)}else if(event.key==='Enter'&&items.length){event.preventDefault();const index=window.searchSuggestionIndex>=0?window.searchSuggestionIndex:0;items[index]?.click();return}else if(event.key==='Escape'){closeSearchSuggestions();return}else if(event.key==='Enter'){renderSearch();return}else return;items.forEach((item,index)=>{const active=index===window.searchSuggestionIndex;item.setAttribute('aria-selected',String(active));if(active)item.scrollIntoView({block:'nearest'})});if(input)input.setAttribute('aria-expanded','true')}
 function renderSearch(){
- let q=normFast(document.getElementById("q").value);
- let client=normFast(document.getElementById("searchClient").value);
- let officer=normFast(document.getElementById("searchOfficer").value);
- let lateMin=num(document.getElementById("searchLateMin").value);
- let unpaidMin=num(document.getElementById("searchUnpaidMin").value);
- let filter=document.getElementById("searchStatus").value || "open";
- let box=document.getElementById("results");
- // The open-loan list is the default view; users can still narrow it with any filter.
- let found=visibleGroups().filter(g=>{
-   const clientName=normFast(get(g.r,"client"));
-   return statusMatch(g,filter)
-     && matches(g,q)
-     && (!client || clientName.includes(client))
-     && officerMatch(g,officer)
-     && g.late>=lateMin
-     && g.unpaid>=unpaidMin;
- }).slice(0,100);
- box.innerHTML=found.map((g,i)=>`<div class="result" data-i="${i}"><b>${esc(get(g.r,"client"))}</b><br><small>الأخصائي: ${esc(get(g.r,"officer"))} | القرض: ${esc(get(g.r,"loan"))} | القومي: ${esc(get(g.r,"nid"))} | الهاتف: ${esc(get(g.r,"phone"))}</small></div>`).join("")||'<div class="result">لا توجد نتائج مطابقة</div>';
- box.style.display="block";
- box.querySelectorAll(".result[data-i]").forEach((el,i)=>el.onclick=()=>showProfile(found[i]));
+  const qRaw=String(document.getElementById('q')?.value||''),q=normFast(searchDigits(qRaw)),client=normFast(document.getElementById('searchClient')?.value||''),officer=normFast(document.getElementById('searchOfficer')?.value||''),lateMin=num(document.getElementById('searchLateMin')?.value),unpaidMin=num(document.getElementById('searchUnpaidMin')?.value),filter=document.getElementById('searchStatus')?.value||'all',box=document.getElementById('results'),input=document.getElementById('q');
+  if(!box)return;
+  const matched=visibleGroups().filter(g=>{const clientName=normFast(get(g.r,'client'));return statusMatch(g,filter)&&searchMatchesQuery(g,qRaw)&&(!client||clientName.includes(client))&&officerMatch(g,officer)&&g.late>=lateMin&&g.unpaid>=unpaidMin});
+  matched.sort((a,b)=>searchQueryScore(a,qRaw)-searchQueryScore(b,qRaw));
+  const uniqueClients=new Map();matched.forEach(g=>{const key=searchCustomerKey(g);if(!uniqueClients.has(key))uniqueClients.set(key,g)});
+  const found=[...uniqueClients.values()].slice(0,60),hasFilter=Boolean(qRaw.trim()||client||officer||lateMin||unpaidMin||filter!=='open');
+  if(!hasFilter){box.innerHTML='';closeSearchSuggestions();return}
+  box.innerHTML=found.map((g,i)=>{const name=String(get(g.r||{},'client')||'').trim()||'—';return `<button type="button" class="result search-suggestion" role="option" aria-selected="false" data-i="${i}"><span class="search-suggestion-main"><strong>${esc(name)}</strong></span></button>`}).join('')||'<div class="search-suggestions-empty">لا توجد نتائج مطابقة</div>';
+  box.style.display='block';input?.setAttribute('aria-expanded','true');window.searchSuggestionIndex=-1;
+  box.querySelectorAll('.search-suggestion[data-i]').forEach((button,index)=>button.addEventListener('click',()=>openSearchCustomerCard(found[index])));
 }
 const debouncedRenderSearch=debounce(renderSearch,180);
 ["q","searchClient","searchOfficer","searchLateMin","searchUnpaidMin"].forEach(id=>document.getElementById(id).addEventListener("input",debouncedRenderSearch));
 document.getElementById("searchStatus").addEventListener("change",renderSearch);
-document.getElementById("q").addEventListener("keydown",e=>{if(e.key==="Enter")renderSearch()});
+document.getElementById("q").addEventListener("keydown",handleSearchSuggestionKeydown);
 document.getElementById("searchClient").addEventListener("keydown",e=>{if(e.key==="Enter")renderSearch()});
 const debouncedRenderClients=debounce(renderClients,180);
 ["clientsOfficer","clientsClient","clientsStatus","clientsFrom","clientsTo"].forEach(id=>{
@@ -4581,7 +4708,7 @@ document.getElementById("clientsClient")?.addEventListener("change",openClientPr
 document.getElementById("clientsClient")?.addEventListener("keydown",e=>{if(e.key==="Enter")openClientProfileFromFilter()});
 function clearSearchFilters(){
   ["q","searchClient","searchOfficer","searchLateMin","searchUnpaidMin"].forEach(id=>document.getElementById(id).value="");
-  document.getElementById("searchStatus").value="open";
+  document.getElementById("searchStatus").value="all";
   document.getElementById("results").style.display="none";
   document.getElementById("profile").style.display="none";
 }
@@ -9287,5 +9414,46 @@ body.printing-current-screen #dropoutPrintLayer .dropout-risk-print-table .dropo
 <style id="due-print-no-page-numbering-final">
 @media print{@page dueInstallmentsReport{@bottom-center{content:""!important;font-size:0!important;}}}
 </style>
+<script id="due-row-derived-cache-fix">
+(function(){
+  const functionNames=['getAny','riskDueDateValue','rowPaidAmount','dueRemainingForScreen','dueDayType'];
+  const originals={};
+  for(const name of functionNames){if(typeof window[name]!=='function')return;originals[name]=window[name]}
+  let activeVersion=null,activeDay='',caches=Object.create(null);
+  function resetIfNeeded(){
+    const version=typeof screenDataVersion==='number'?screenDataVersion:0,d=new Date(),day=`${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
+    if(version!==activeVersion||day!==activeDay){
+      activeVersion=version;activeDay=day;caches=Object.create(null);
+      functionNames.forEach(name=>caches[name]=new WeakMap());
+    }
+  }
+  function rowMemo(name,row,key,compute){
+    resetIfNeeded();
+    if(!row||typeof row!=='object')return compute();
+    let values=caches[name].get(row);if(!values){values=new Map();caches[name].set(row,values)}
+    if(values.has(key))return values.get(key);
+    const value=compute();values.set(key,value);return value;
+  }
+  window.getAny=function(row,names){
+    const key=Array.isArray(names)?JSON.stringify(names):String(names??'');
+    return rowMemo('getAny',row,key,()=>originals.getAny.apply(this,arguments));
+  };
+  for(const name of functionNames.slice(1)){
+    const original=originals[name];
+    window[name]=function(row,...args){return rowMemo(name,row,'row',()=>original.call(this,row,...args))};
+  }
+})();
+</script>
+<script id="search-customer-card-bindings">
+(function(){
+  const input=document.getElementById('q'),box=document.getElementById('results');if(!input||!box)return;
+  box.addEventListener('mousedown',event=>{if(event.target.closest('.search-suggestion'))event.preventDefault()});
+  input.addEventListener('input',closeSearchCustomerCard);
+  input.addEventListener('blur',()=>setTimeout(()=>{if(!box.contains(document.activeElement))closeSearchSuggestions()},160));
+  document.addEventListener('click',event=>{if(!event.target.closest('.search-autocomplete-field'))closeSearchSuggestions()});
+  const oldClear=window.clearSearchFilters;
+  if(typeof oldClear==='function')window.clearSearchFilters=function(){oldClear();closeSearchSuggestions();closeSearchCustomerCard()};
+})();
+</script>
 </body>
 </html>
