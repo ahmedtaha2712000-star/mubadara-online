@@ -3931,7 +3931,15 @@ function renderRisk(){
  document.getElementById("riskPaymentRate").textContent=`${riskPaymentRate.toLocaleString("en-US",{maximumFractionDigits:2})}%`;
 }
 function dueRemainingForScreen(r){const raw=getAny(r,[H.unpaid,'المتبقي','المبلغ المتبقي','الرصيد المتبقي','المبلغ الغير مسدد']),valueCell=String(get(r,'value')??'').trim(),value=valueCell===''?num(get(r,'total')):num(valueCell),paid=rowPaidAmount(r);if(value>0&&paid>=value-0.01)return 0;if(value>0&&paid>0&&paid<value)return Math.max(0,value-paid);if(String(raw??'').trim()!==''){const explicit=num(raw);if(explicit>0)return explicit;if(explicit===0&&paid<=0&&value>0)return value;return 0}return Math.max(0,value-paid)}
-function dueInstallmentRows(){const result=[];visibleGroups().forEach(g=>(g.items||[g.r]).filter(r=>!isExcludedLoanStatus(g,r)&&parseExcelDate(riskDueDateValue(r))).forEach(r=>result.push({g,r})));return result}
+let dueInstallmentRowsCacheVersion=-1,dueInstallmentRowsCacheScope=null,dueInstallmentRowsCache=[];
+function dueInstallmentRows(){
+ const version=typeof screenDataVersion==='number'?screenDataVersion:0;
+ const scope=!session||isOwnerRole(session.role)?'owner':normFast(currentUserRecord()?.officerName||session.officerName||session.name||'');
+ if(version===dueInstallmentRowsCacheVersion&&scope===dueInstallmentRowsCacheScope)return dueInstallmentRowsCache;
+ const result=[];visibleGroups().forEach(g=>(g.items||[g.r]).filter(r=>!isExcludedLoanStatus(g,r)&&parseExcelDate(riskDueDateValue(r))).forEach(r=>result.push({g,r})));
+ dueInstallmentRowsCacheVersion=version;dueInstallmentRowsCacheScope=scope;dueInstallmentRowsCache=result;
+ return dueInstallmentRowsCache;
+}
 function dueDateInRange(r,from,to){const d=parseExcelDate(riskDueDateValue(r));return d&&(!from||d>=from)&&(!to||d<=to)}
 function dueMonthDateRange(monthValue,yearValue){const month=Number(String(monthValue||'').trim()),year=Number(String(yearValue||'').trim());if(!Number.isInteger(month)||month<1||month>12||!Number.isInteger(year)||year<1900||year>2100)return null;return{from:new Date(year,month-1,1,0,0,0,0),to:new Date(year,month,0,23,59,59,999)}}
 function dueSelectedMonthLabel(monthValue,yearValue){const names=['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'],month=Number(monthValue),year=String(yearValue||'').trim();return month>=1&&month<=12&&/^\d{4}$/.test(year)?`${names[month-1]} ${year}`:''}
