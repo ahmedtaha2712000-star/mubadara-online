@@ -3988,6 +3988,9 @@ function dueCustomerArrears(clientKey){rebuildDueArrearsIndex();return dueArrear
 function dueGuarantorHTML(r,n){const name=get(r,'g'+n)||getAny(r,[n===1?H.g1:n===2?H.g2:H.g3,`اسم الضامن ${n}`]),phone=get(r,'g'+n+'p')||getAny(r,[n===1?H.g1p:n===2?H.g2p:H.g3p,`هاتف الضامن ${n}`]);if(!name&&!phone)return'—';const link=phone?`<a class="due-phone-link" href="tel:${escAttr(String(phone).replace(/[^\d+]/g,''))}" title="اتصال بالضامن">${esc(phone)}</a>`:'';return `${esc(name||'—')}${link?' — '+link:''}`}
 function appSpecialistFilterState(){const state=window.__appSpecialistFilterState;return ["active","inactive","all"].includes(state)?state:"active"}
 function specialistStatusAllows(name){const clean=String(name??"").trim();return !clean||specialistMatchesState(clean,appSpecialistFilterState())}
+let dueFilterListsCacheKey=null,dueFilterListsSourceRows=null,dueFilterAllowedOfficers=null;
+function invalidateDueFilterLists(){dueFilterListsCacheKey=null;dueFilterListsSourceRows=null;dueFilterAllowedOfficers=null}
+function dueFilterListsKey(){const version=typeof screenDataVersion==='number'?screenDataVersion:0,scope=!session||isOwnerRole(session.role)?'owner':normFast(currentUserRecord()?.officerName||session.officerName||session.name||''),state=appSpecialistFilterState(),userStamp=Array.isArray(users)?users.filter(u=>u.role==='officer').map(u=>[officerKey(u.officerName||u.name),u.active!==false?1:0,u.blocked?1:0,u.linked!==false?1:0].join(':')).join(';'):'';return JSON.stringify([version,scope,state,userStamp])}
 function refreshAppSpecialistFilterLists(){
  const state=appSpecialistFilterState(),names=specialistDirectoryNames().filter(name=>specialistMatchesState(name,state)).sort((a,b)=>a.localeCompare(b,"ar"));
  const allNames=[...new Map(specialistDirectoryNames().map(name=>[officerKey(name)||norm(name),String(name).trim()])).values()].sort((a,b)=>a.localeCompare(b,"ar"));
@@ -3999,6 +4002,7 @@ function refreshAppSpecialistFilterLists(){
 }
 function setAppSpecialistStatus(state){
  state=["active","inactive","all"].includes(state)?state:"active";window.__appSpecialistFilterState=state;
+ invalidateDueFilterLists();
  document.querySelectorAll("[data-app-specialist-state-control]").forEach(input=>{input.checked=input.value===state});
  const directoryStatus=document.getElementById("specialistStatus");if(directoryStatus)directoryStatus.value=state;document.querySelectorAll("[data-specialist-view]").forEach(button=>button.classList.toggle("active",button.dataset.specialistView===state));
  refreshAppSpecialistFilterLists();
@@ -4016,23 +4020,28 @@ function onDueSpecialistStateChange(){setAppSpecialistStatus(document.querySelec
 function refreshDueSpecialistFilter(){
  const input=document.getElementById('dueOfficer'),state=dueSpecialistFilterState();
  if(input?.value&&norm(input.value)!==norm(DUE_ALL_SPECIALISTS_LABEL)&&!specialistMatchesState(input.value,state))input.value='';
+ invalidateDueFilterLists();
  updateDueFilterLists();
  if(document.getElementById('dueInstallments')?.classList.contains('active'))renderDueInstallments();
 }
 function updateDueFilterLists(baseRows){
  const officerInput=document.getElementById('dueOfficer'),clientInput=document.getElementById('dueClient'),officerValue=norm(officerInput?.value||''),officer=officerValue===norm(DUE_ALL_SPECIALISTS_LABEL)?'':officerValue,state=dueSpecialistFilterState();
- // تعرض الاقتراحات الأخصائيين المطابقين للحالة المحددة، مع إبقاء خيار جميع الأخصائيين للاختيار اليدوي.
- const directory=new Map();specialistDirectoryNames().forEach(name=>{const key=officerKey(name)||norm(name);if(key&&!directory.has(key))directory.set(key,String(name).trim())});
- const officers=new Map();directory.forEach(name=>{if(specialistMatchesState(name,state))officers.set(norm(name),name)});
- const clients=new Map(),addresses=new Map();(baseRows||dueInstallmentRows()).forEach(x=>{
-  const cn=String(get(x.r,'client')||get(x.g.r,'client')||'').trim(),an=String(rowAddress(x.r)||rowAddress(x.g.r)||'').trim();
-  if(cn)clients.set(norm(cn),cn);if(an)addresses.set(norm(an),an);
- });
- const ol=document.getElementById('dueOfficerList'),cl=document.getElementById('dueClientList'),al=document.getElementById('dueAddressList');
- if(ol)ol.innerHTML=`<option value="${esc(DUE_ALL_SPECIALISTS_LABEL)}">${esc(DUE_ALL_SPECIALISTS_LABEL+' — الإجمالي: '+directory.size)}</option>`+[...officers.values()].sort((a,b)=>a.localeCompare(b,'ar')).map(x=>`<option value="${esc(x)}"></option>`).join('');
- if(cl)cl.innerHTML=[...clients.values()].sort((a,b)=>a.localeCompare(b,'ar')).map(x=>`<option value="${esc(x)}"></option>`).join('');
- if(al)al.innerHTML=[...addresses.values()].sort((a,b)=>a.localeCompare(b,'ar')).map(x=>`<option value="${esc(x)}"></option>`).join('');
- if(officer&&!officers.has(officer)&&officerInput)officerInput.value='';
+ const sourceRows=baseRows||dueInstallmentRows(),cacheKey=dueFilterListsKey();
+ if(cacheKey!==dueFilterListsCacheKey||sourceRows!==dueFilterListsSourceRows){
+  // تتغير هذه القوائم مع البيانات أو حالة الأخصائيين، لا مع كل حرف في خانة البحث.
+  const directory=new Map();specialistDirectoryNames().forEach(name=>{const key=officerKey(name)||norm(name);if(key&&!directory.has(key))directory.set(key,String(name).trim())});
+  const officers=new Map();directory.forEach(name=>{if(specialistMatchesState(name,state))officers.set(norm(name),name)});
+  const clients=new Map(),addresses=new Map();sourceRows.forEach(x=>{
+   const cn=String(get(x.r,'client')||get(x.g.r,'client')||'').trim(),an=String(rowAddress(x.r)||rowAddress(x.g.r)||'').trim();
+   if(cn)clients.set(norm(cn),cn);if(an)addresses.set(norm(an),an);
+  });
+  const ol=document.getElementById('dueOfficerList'),cl=document.getElementById('dueClientList'),al=document.getElementById('dueAddressList');
+  const officerHTML=`<option value="${esc(DUE_ALL_SPECIALISTS_LABEL)}">${esc(DUE_ALL_SPECIALISTS_LABEL+' — الإجمالي: '+directory.size)}</option>`+[...officers.values()].sort((a,b)=>a.localeCompare(b,'ar')).map(x=>`<option value="${esc(x)}"></option>`).join('');
+  const clientHTML=[...clients.values()].sort((a,b)=>a.localeCompare(b,'ar')).map(x=>`<option value="${esc(x)}"></option>`).join(''),addressHTML=[...addresses.values()].sort((a,b)=>a.localeCompare(b,'ar')).map(x=>`<option value="${esc(x)}"></option>`).join('');
+  if(ol&&ol.innerHTML!==officerHTML)ol.innerHTML=officerHTML;if(cl&&cl.innerHTML!==clientHTML)cl.innerHTML=clientHTML;if(al&&al.innerHTML!==addressHTML)al.innerHTML=addressHTML;
+  dueFilterAllowedOfficers=new Set(officers.keys());dueFilterListsCacheKey=cacheKey;dueFilterListsSourceRows=sourceRows;
+ }
+ if(officer&&dueFilterAllowedOfficers&&!dueFilterAllowedOfficers.has(officer)&&officerInput)officerInput.value='';
 }
 function dueWhole(v){return Math.round(num(v)||0).toLocaleString('en-US')}
 function dueLoanAmount(r,g){const value=getAny(r,[H.approval]);return String(value??'').trim()!==''?value:''}
@@ -4091,9 +4100,9 @@ function dueColumnHeaderRow(table){return table?.querySelector('thead tr:not(.du
 const DUE_ALL_SPECIALISTS_LABEL='جميع الأخصائيين';
 function handleDueOfficerChoice(){
  const input=document.getElementById('dueOfficer'),box=document.getElementById('dueAllSpecialists');if(!input||!box)return;
- if(norm(input.value)===norm(DUE_ALL_SPECIALISTS_LABEL)){box.checked=true;renderDueInstallments();return}
+ if(norm(input.value)===norm(DUE_ALL_SPECIALISTS_LABEL)){box.checked=true;debouncedRenderDue();return}
  box.checked=!input.value.trim();
- renderDueInstallments();
+ debouncedRenderDue();
 }
 function dueAgingEligibleRows(base,filter,specialistState,officer,client,address){
  const result=[],seenGroups=new Set();
@@ -6854,9 +6863,12 @@ document.addEventListener('DOMContentLoaded', function () {
     select.addEventListener("change",()=>syncWidget(widget));
     syncWidget(widget);renderOptions(widget);
   }
+  const smartDatalistOptionCache=new WeakMap(),smartDatalistOptionObservers=new WeakMap();
   function datalistOptions(input){
-    const listId=input.getAttribute("list"), list=listId&&document.getElementById(listId);
-    return list?[...list.options].map(o=>({value:o.value,text:o.textContent.trim()||o.value})):[];
+    const listId=input.getAttribute("list"), list=listId&&document.getElementById(listId);if(!list)return[];
+    if(typeof MutationObserver==="function"&&!smartDatalistOptionObservers.has(list)){const observer=new MutationObserver(()=>smartDatalistOptionCache.delete(list));observer.observe(list,{childList:true,subtree:true,characterData:true,attributes:true});smartDatalistOptionObservers.set(list,observer)}
+    if(typeof MutationObserver!=="function")return[...list.options].map(o=>{const text=o.textContent.trim()||o.value;return{value:o.value,text,normalized:textNorm(text)}});
+    let cached=smartDatalistOptionCache.get(list);if(!cached){cached=[...list.options].map(o=>{const text=o.textContent.trim()||o.value;return{value:o.value,text,normalized:textNorm(text)}});smartDatalistOptionCache.set(list,cached)}return cached;
   }
   function makeDatalistWidget(input){
     if(!input||input.dataset.smartDatalist==="1"||input.closest("#loginScreen"))return;
@@ -6869,10 +6881,10 @@ document.addEventListener('DOMContentLoaded', function () {
     const clear=document.createElement("button");clear.type="button";clear.className="smart-select-clear";clear.title="مسح الاختيار";clear.setAttribute("aria-label","مسح الاختيار");clear.textContent="×";widget.appendChild(clear);
     const menu=document.createElement("div");menu.className="smart-select-menu";menu.setAttribute("role","listbox");widget.appendChild(menu);
     function sync(){if(document.activeElement!==search)search.value=input.value||"";search.dataset.selectedValue=input.value||"";}
+    menu.addEventListener("click",event=>{const btn=event.target.closest?.(".smart-select-option");if(!btn||!menu.contains(btn))return;input.value=btn.dataset.value;input.dispatchEvent(new Event("input",{bubbles:true}));input.dispatchEvent(new Event("change",{bubbles:true}));widget.classList.remove("open");sync();search.blur()});
     function render(query=""){
-      const q=textNorm(query), allOptions=datalistOptions(input), pinnedAllValue=(input.id==="riskOfficer"||input.id==="dueOfficer")?allOptions[0]?.value:null, options=allOptions.filter(o=>!q||textNorm(o.text).includes(q)||o.value===pinnedAllValue);
+      const q=textNorm(query), allOptions=datalistOptions(input), pinnedAllValue=(input.id==="riskOfficer"||input.id==="dueOfficer")?allOptions[0]?.value:null, options=allOptions.filter(o=>!q||o.normalized.includes(q)||o.value===pinnedAllValue);
       menu.innerHTML=options.length?options.map(o=>`<button type="button" class="smart-select-option${o.value===input.value?" active":""}" data-value="${escAttr(o.value)}">${esc(o.text)}</button>`).join(""):'<div class="smart-select-empty">لا توجد نتائج مطابقة</div>';
-      menu.querySelectorAll(".smart-select-option").forEach(btn=>btn.addEventListener("click",()=>{input.value=btn.dataset.value;input.dispatchEvent(new Event("input",{bubbles:true}));input.dispatchEvent(new Event("change",{bubbles:true}));widget.classList.remove("open");sync();search.blur()}));
     }
     function open(){closeAll(widget);widget.classList.add("open");search.setSelectionRange(search.value.length,search.value.length);render(search.value===input.value?"":search.value)}
     search.addEventListener("focus",open);search.addEventListener("click",open);search.addEventListener("input",()=>{closeAll(widget);widget.classList.add("open");render(search.value)});
