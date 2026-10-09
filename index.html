@@ -10071,3 +10071,207 @@ body.printing-current-screen #dropoutPrintLayer .dropout-risk-print-table .dropo
  });
 })();
 </script>
+
+<style id="phonebridge-followup-style">
+@media screen{
+ #paymentFollowup #phoneBridgePanel{margin:10px 0 14px;padding:12px 14px;border:1px solid #cbd8e5;border-right:4px solid #157a70;border-radius:12px;background:#f8fbfd;color:#172033;direction:rtl}
+ #paymentFollowup #phoneBridgePanel *{box-sizing:border-box}
+ #paymentFollowup .pb-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px}
+ #paymentFollowup .pb-head strong{font-size:14px;color:#18324f}
+ #paymentFollowup .pb-hint{margin:0 0 10px;color:#64748b;font-size:11px;line-height:1.6}
+ #paymentFollowup .pb-tools{display:flex;align-items:end;gap:8px;flex-wrap:wrap}
+ #paymentFollowup .pb-field{display:grid;gap:4px;min-width:150px;color:#526175;font-size:10px;font-weight:700}
+ #paymentFollowup .pb-field select,#paymentFollowup .pb-field input,#paymentFollowup .pb-add input{min-height:34px;border:1px solid #cbd5e1;border-radius:8px;background:#fff;padding:6px 8px;color:#172033;font:inherit;font-size:12px}
+ #paymentFollowup .pb-btn{min-height:34px;border:1px solid #bfd0df;border-radius:8px;background:#fff;color:#173b63;padding:6px 10px;font:inherit;font-size:11px;font-weight:800;cursor:pointer}
+ #paymentFollowup .pb-btn:hover{background:#eef5fa}
+ #paymentFollowup .pb-add{display:flex;gap:6px;flex-wrap:wrap;align-items:end;padding:8px 0 0}
+ #paymentFollowup .pb-add details{width:100%}
+ #paymentFollowup .pb-add summary{font-size:11px;font-weight:800;color:#275b70;cursor:pointer}
+ #paymentFollowup .pb-message{min-height:18px;margin:8px 0 4px;font-size:11px;font-weight:700;color:#23634d}
+ #paymentFollowup .pb-message.warn{color:#9b2c2c}
+ #paymentFollowup .pb-queue{display:grid;gap:6px;margin-top:5px}
+ #paymentFollowup .pb-item{display:grid;grid-template-columns:minmax(150px,1.2fr) minmax(130px,1fr) minmax(150px,1fr) auto;align-items:center;gap:8px;padding:8px 9px;border:1px solid #e1e8ef;border-radius:9px;background:#fff;font-size:11px}
+ #paymentFollowup .pb-item strong{display:block;color:#223b57}
+ #paymentFollowup .pb-item small{display:block;margin-top:2px;color:#64748b;font-size:10px}
+ #paymentFollowup .pb-status{font-weight:800;color:#245782}
+ #paymentFollowup .pb-status[data-state="failed"],#paymentFollowup .pb-status[data-state="not_answered"]{color:#a33131}
+ #paymentFollowup .pb-status[data-state="calling"],#paymentFollowup .pb-status[data-state="sending"]{color:#9a6b12}
+ #paymentFollowup .pb-actions{display:flex;gap:5px;justify-content:flex-end}
+ #paymentFollowup .pb-empty{padding:8px 4px;color:#64748b;font-size:11px}
+ #paymentFollowup .pb-reminder-title{display:block;margin:8px 0 2px;color:#173b63;font-size:12px}
+ @media(max-width:760px){#paymentFollowup .pb-item{grid-template-columns:1fr 1fr}#paymentFollowup .pb-tools{align-items:stretch}#paymentFollowup .pb-field{flex:1 1 150px}#paymentFollowup .pb-actions{grid-column:1/-1;justify-content:flex-start}}
+}
+</style>
+<script id="phonebridge-followup-feature">
+(function(){
+  "use strict";
+  const QUEUE_KEY="mubadara.phonebridge.queue.v1";
+  const DEVICES_KEY="mubadara.phonebridge.devices.v1";
+  const SELECTED_DEVICE_KEY="mubadara.phonebridge.selected-device.v1";
+  const TERMINAL=new Set(["answered","not_answered","failed","completed","cancelled"]);
+  const ACTIVE_LOCAL=new Set(["queued","sending","pending","calling"]);
+  const LABELS={queued:"في قائمة الانتظار المحلية",sending:"جارٍ الإرسال",pending:"أُرسل — بانتظار الهاتف",calling:"الهاتف بدأ الاتصال",answered:"تم الرد",not_answered:"لم يرد — يمكن إعادة الاتصال",failed:"تعذّر الاتصال — يمكن إعادة المحاولة",completed:"اكتملت المتابعة",cancelled:"أُلغي الطلب",duplicate:"طلب مماثل قيد التنفيذ"};
+  let panel=null,queue=[],devices=[],busy=new Set(),reporting=new Set(),timer=null;
+  const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
+  const cleanPhone=v=>String(v||"").replace(/[٠-٩]/g,d=>String(d.charCodeAt(0)-1632)).replace(/[۰-۹]/g,d=>String(d.charCodeAt(0)-1776)).replace(/[^0-9+#*]/g,"");
+  const phoneKey=v=>cleanPhone(v).replace(/[^0-9]/g,"").replace(/^20(?=1[0125])/ ,"");
+  const uuid=()=>{try{return crypto.randomUUID()}catch(e){return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g,c=>{const r=Math.random()*16|0;return(c==="x"?r:(r&3|8)).toString(16)})}};
+  function readJSON(key,fallback){try{const v=JSON.parse(localStorage.getItem(key)||"null");return v??fallback}catch(e){return fallback}}
+  function saveQueue(){queue=queue.slice(-100);try{localStorage.setItem(QUEUE_KEY,JSON.stringify(queue))}catch(e){setMessage("تعذر حفظ قائمة الانتظار على هذا الجهاز.",true)}renderQueue()}
+  function setMessage(text,warn){const el=panel?.querySelector("#pbMessage");if(el){el.textContent=text||"";el.classList.toggle("warn",!!warn)}}
+  function getDevices(){let list=readJSON(DEVICES_KEY,null);if(!Array.isArray(list)||!list.length)list=[{id:"primary",label:"هاتف التحصيل 1"}];return list.filter(x=>x&&String(x.id||"").trim()).map(x=>({id:String(x.id).trim(),label:String(x.label||x.id).trim()}))}
+  function selectedDevice(){const id=panel?.querySelector("#pbDeviceSelect")?.value||localStorage.getItem(SELECTED_DEVICE_KEY)||"primary";return devices.find(x=>x.id===id)||devices[0]||{id:"primary",label:"هاتف التحصيل 1"}}
+  function saveDevices(){try{localStorage.setItem(DEVICES_KEY,JSON.stringify(devices))}catch(e){}}
+  function ensurePanel(){
+    if(panel&&panel.isConnected)return panel;
+    const feedback=document.getElementById("paymentFollowupFeedback");if(!feedback)return null;
+    panel=document.createElement("section");panel.id="phoneBridgePanel";panel.className="no-print";panel.setAttribute("aria-label","طلبات الاتصال للهاتف");
+    panel.innerHTML='<div class="pb-head"><strong>جسر الاتصال بالهاتف</strong><span id="pbOnlineState" class="pb-status"></span></div><p class="pb-hint">الطلبات تُحفظ محليًا عند انقطاع الإنترنت، ثم تُرسل عند عودته. اختر معرّف الهاتف المطابق لإعداد PhoneBridge.</p><div class="pb-tools"><label class="pb-field">هاتف الاتصال<select id="pbDeviceSelect"></select></label><button type="button" class="pb-btn" id="pbRefresh">تحديث الحالة</button><div class="pb-add"><details><summary>إضافة معرّف هاتف</summary><div class="pb-add"><label class="pb-field">اسم الهاتف<input id="pbDeviceLabel" maxlength="50" placeholder="مثال: هاتف التحصيل 2"></label><label class="pb-field">معرّف الجهاز<input id="pbDeviceId" maxlength="80" placeholder="مثال: collection-2"></label><button type="button" class="pb-btn" id="pbAddDevice">إضافة</button></div></details></div></div><div id="pbMessage" class="pb-message" role="status" aria-live="polite"></div><div id="pbQueue" class="pb-queue"></div><div id="pbReminders" class="pb-queue" aria-live="polite"></div>';
+    feedback.insertAdjacentElement("afterend",panel);
+    panel.querySelector("#pbDeviceSelect").addEventListener("change",()=>{try{localStorage.setItem(SELECTED_DEVICE_KEY,panel.querySelector("#pbDeviceSelect").value)}catch(e){}renderQueue()});
+    panel.querySelector("#pbRefresh").addEventListener("click",()=>{flushQueue();refreshStatuses(true)});
+    panel.querySelector("#pbAddDevice").addEventListener("click",addDevice);
+    panel.querySelector("#pbQueue").addEventListener("click",queueAction);
+    panel.querySelector("#pbReminders").addEventListener("click",reminderAction);
+    renderDevices();renderQueue();renderReminders();return panel;
+  }
+  function renderDevices(){
+    if(!ensurePanel())return;devices=getDevices();const select=panel.querySelector("#pbDeviceSelect"),previous=localStorage.getItem(SELECTED_DEVICE_KEY)||"primary";
+    select.innerHTML=devices.map(d=>`<option value="${esc(d.id)}">${esc(d.label)} — ${esc(d.id)}</option>`).join("");
+    select.value=devices.some(d=>d.id===previous)?previous:devices[0].id;
+  }
+  function addDevice(){
+    const label=String(panel.querySelector("#pbDeviceLabel").value||"").trim(),id=String(panel.querySelector("#pbDeviceId").value||"").trim();
+    if(!label||!id){setMessage("أدخل اسم الهاتف ومعرّفه.",true);return}
+    if(!/^[A-Za-z0-9._-]{1,80}$/.test(id)){setMessage("معرّف الهاتف يقبل الأحرف الإنجليزية والأرقام والنقطة والشرطة فقط.",true);return}
+    if(devices.some(d=>d.id===id)){setMessage("معرّف الجهاز موجود بالفعل.",true);return}
+    devices.push({id,label});saveDevices();localStorage.setItem(SELECTED_DEVICE_KEY,id);panel.querySelector("#pbDeviceLabel").value="";panel.querySelector("#pbDeviceId").value="";renderDevices();setMessage("أُضيف الهاتف لهذا المتصفح. أدخل معرّف الجهاز نفسه في تطبيق PhoneBridge.",false);
+  }
+  function renderQueue(){
+    if(!ensurePanel())return;
+    const online=navigator.onLine;panel.querySelector("#pbOnlineState").textContent=online?"الإنترنت متاح":"غير متصل";panel.querySelector("#pbOnlineState").style.color=online?"#23634d":"#9b2c2c";
+    const host=panel.querySelector("#pbQueue");if(!queue.length){host.innerHTML='<div class="pb-empty">لا توجد طلبات اتصال محفوظة.</div>';return}
+    host.innerHTML=queue.slice().reverse().slice(0,25).map(item=>`<article class="pb-item"><div><strong>${esc(item.customer)}</strong><small>${esc(item.phone)} · ${esc(item.device_label||item.device_id||"primary")}</small></div><div class="pb-status" data-state="${esc(item.state)}">${esc(LABELS[item.state]||item.state||"—")}</div><div><small>وقت الطلب: ${esc(new Date(item.created_at||Date.now()).toLocaleString("ar-EG"))}</small>${item.error?`<small>${esc(item.error)}</small>`:""}</div><div class="pb-actions">${["failed","not_answered"].includes(item.state)?`<button type="button" class="pb-btn" data-action="retry" data-id="${esc(item.id)}">إعادة الاتصال</button>`:""}<button type="button" class="pb-btn" data-action="remove" data-id="${esc(item.id)}" title="إزالة من القائمة">إزالة</button></div></article>`).join("");
+  }
+  function queueAction(event){const b=event.target.closest("button[data-action]");if(!b)return;const item=queue.find(x=>x.id===b.dataset.id);if(!item)return;if(b.dataset.action==="remove"){queue=queue.filter(x=>x.id!==item.id);saveQueue();return}if(b.dataset.action==="retry"){const again={...item,id:uuid(),state:"queued",attempts:0,error:"",created_at:new Date().toISOString(),request_id:null};queue.push(again);saveQueue();setMessage("أُضيفت محاولة اتصال جديدة إلى الطابور.",false);flushQueue()}}
+  function renderReminders(){
+    const host=panel?.querySelector("#pbReminders");if(!host)return;
+    if(typeof readClientContactLog!=="function"){host.innerHTML="";return}
+    const latest=new Map();for(const entry of readClientContactLog()){if(entry?.field!=="__PAYMENT_FOLLOWUP_V1__")continue;let meta={};try{meta=JSON.parse(entry.oldValue||"{}")}catch(e){}if(!meta.caseKey||!meta.next)continue;const old=latest.get(String(meta.caseKey));if(!old||new Date(entry.time||0)>new Date(old.entry.time||0))latest.set(String(meta.caseKey),{entry,meta})}
+    const today=new Date();today.setHours(0,0,0,0);const due=[...latest.values()].filter(x=>x.meta.status==="طلب إعادة الاتصال"&&new Date(String(x.meta.next)+"T00:00:00")<=new Date(today.getTime()+7*86400000)).sort((a,b)=>String(a.meta.next).localeCompare(String(b.meta.next))).slice(0,10);
+    host.innerHTML=due.length?'<strong class="pb-reminder-title">تذكيرات إعادة الاتصال (الأسبوع القادم)</strong>'+due.map(x=>{const overdue=new Date(String(x.meta.next)+"T00:00:00")<today;return `<article class="pb-item"><div><strong>${esc(x.meta.client||x.entry.client||"العميل")}</strong><small>موعد المتابعة: ${esc(x.meta.next)}${overdue?" — مستحق":""}</small></div><div class="pb-status">${esc(x.meta.status)}</div><div><small>${esc(x.meta.note||"")}</small></div><div class="pb-actions"><button type="button" class="pb-btn" data-reminder-customer="${esc(x.meta.client||x.entry.client||"")}">إعادة الاتصال الآن</button></div></article>`}).join("") : "";
+  }
+  function reminderAction(event){const button=event.target.closest("button[data-reminder-customer]");if(!button)return;const customer=button.dataset.reminderCustomer;const link=Array.from(document.querySelectorAll("#paymentFollowup .pf-call-link")).find(x=>x.dataset.customer===customer);if(!link){setMessage("لا يظهر رقم هذا العميل في النتائج الحالية؛ أزل المرشحات ثم أعد المحاولة.",true);return}handleCallClick({target:link,preventDefault(){},stopImmediatePropagation(){}})}
+  function liveDuplicate(item){return queue.some(x=>x.id!==item.id&&phoneKey(x.phone)===phoneKey(item.phone)&&x.device_id===item.device_id&&ACTIVE_LOCAL.has(x.state))}
+  function apiBase(){if(typeof SUPABASE_URL==="undefined"||typeof SUPABASE_PUBLISHABLE_KEY==="undefined")throw new Error("إعداد الاتصال السحابي غير متاح");return String(SUPABASE_URL).replace(/\/+$/ ,"")}
+  function apiHeaders(extra){return Object.assign({apikey:SUPABASE_PUBLISHABLE_KEY,Authorization:"Bearer "+SUPABASE_PUBLISHABLE_KEY,"Content-Type":"application/json"},extra||{})}
+  async function getTableRows(table,params){const response=await fetch(apiBase()+"/rest/v1/"+encodeURIComponent(table)+"?"+new URLSearchParams(params),{headers:apiHeaders()});if(!response.ok)throw new Error("HTTP "+response.status);return response.json()}
+  async function getRows(params){return getTableRows("call_requests",params)}
+  async function findActiveDuplicate(item){const rows=await getRows({select:"id,status,created_at",phone:"eq."+item.phone,device_id:"eq."+item.device_id,status:"in.(pending,calling)",order:"created_at.desc",limit:"1"});return rows[0]||null}
+  async function latestForItem(item){const rows=await getRows({select:"id,status,created_at",phone:"eq."+item.phone,device_id:"eq."+item.device_id,requested_by:"eq."+item.requested_by,status:"in.(pending,calling,completed,failed,cancelled)",order:"created_at.desc",limit:"1"});return rows[0]||null}
+  async function sendEntry(item){
+    if(busy.has(item.id)||!navigator.onLine||liveDuplicate(item))return;
+    busy.add(item.id);item.state="sending";item.error="";saveQueue();
+    try{
+      const duplicate=await findActiveDuplicate(item);
+      if(duplicate){item.state=duplicate.status||"pending";item.request_id=duplicate.id;item.server_status=duplicate.status;item.error="يوجد طلب نشط مماثل لهذا الرقم والهاتف؛ لم يُنشأ طلب مكرر.";setMessage(item.error,true);saveQueue();return}
+      const payload={customer_name:item.customer,phone:item.phone,requested_by:item.requested_by,device_id:item.device_id,source_screen:"paymentFollowup",status:"pending"};
+      const response=await fetch(apiBase()+"/rest/v1/call_requests",{method:"POST",headers:apiHeaders({Prefer:"return=minimal"}),body:JSON.stringify(payload)});
+      if(!response.ok){const maybe=await findActiveDuplicate(item).catch(()=>null);if(!maybe)throw new Error("تعذر إرسال الطلب (HTTP "+response.status+")");item.request_id=maybe.id;item.state=maybe.status||"pending"}
+      if(response.ok){const created=await latestForItem(item).catch(()=>null);item.request_id=created?.id||null;item.state=created?.status||"pending"}
+      item.sent_at=new Date().toISOString();item.error="";setMessage("أُرسل طلب الاتصال إلى هاتف "+item.device_label+".",false);
+    }catch(error){
+      const verified=await findActiveDuplicate(item).catch(()=>null);
+      if(verified){item.state=verified.status||"pending";item.request_id=verified.id;item.error=""}
+      else{item.attempts=(item.attempts||0)+1;item.state=(item.attempts>=4&&navigator.onLine)?"failed":"queued";item.error=error.message||"تعذر الإرسال";item.retry_after=Date.now()+Math.min(600,20*Math.pow(2,item.attempts))*1000;setMessage(item.state==="failed"?"تعذر إرسال الطلب بعد عدة محاولات؛ يمكنك إعادة المحاولة يدويًا.":"سيعاد الإرسال تلقائيًا عند استقرار الاتصال.",item.state==="failed")}
+    }finally{busy.delete(item.id);saveQueue()}
+  }
+  async function flushQueue(){if(!navigator.onLine)return;queue.filter(x=>x.state==="queued"&&(!x.retry_after||x.retry_after<=Date.now())).forEach(x=>sendEntry(x));}
+  async function refreshStatuses(manual){
+    if(!navigator.onLine)return;
+    const active=queue.filter(x=>["pending","calling","duplicate"].includes(x.state));
+    for(const item of active){try{const row=await latestForItem(item);if(row&&row.status){item.request_id=row.id;item.server_status=row.status;if(row.status==="pending")item.state="pending";else if(row.status==="calling")item.state="calling";else if(TERMINAL.has(row.status))item.state=item.outcome_state||row.status}}catch(error){if(manual)setMessage("تعذر تحديث الحالات من الخادم؛ ستبقى الطلبات المحلية محفوظة.",true)}}
+    saveQueue();
+  }
+  async function syncOutcome(form){
+    let requestId="";
+    try{
+      let row=form.closest("tr");if(!row){let node=form.parentElement;while(node&&node.id!=="paymentFollowup"){if(node.querySelector?.(".pf-call-link")){row=node;break}node=node.parentElement}}
+      const links=Array.from(row?.querySelectorAll?.(".pf-call-link")||[]);if(!links.length)return;
+      const data=new FormData(form),party=String(data.get("callParty")||"");const link=links.find(x=>party.includes(x.dataset.contact||""))||links[0];
+      const phone=cleanPhone(link.dataset.phone||""),customer=String(link.dataset.customer||"");if(!phone)return;
+      const localCall=queue.find(x=>phoneKey(x.phone)===phoneKey(phone)&&x.customer===customer&&x.state==="calling");
+      const filters={select:"id,status,created_at,phone",customer_name:"eq."+customer,status:"eq.calling",order:"created_at.desc",limit:"1"};if(localCall)filters.device_id="eq."+localCall.device_id;
+      const rows=await getRows(filters);if(!rows.length)return;
+      const request=rows[0];requestId=String(request.id);if(reporting.has(requestId))return;reporting.add(requestId);
+      const submittedStatus=String(data.get("status")||""),callStatus=submittedStatus==="لم يرد"?"not_answered":"answered";
+      const durationMinutes=Number(data.get("durationMinutes")||0),durationSeconds=Number.isFinite(durationMinutes)?Math.max(0,Math.round(durationMinutes*60)):0;
+      const existingReports=await getTableRows("call_reports",{select:"id",request_id:"eq."+request.id,limit:"1"});
+      if(!existingReports.length){
+        const report={request_id:request.id,phone:request.phone||phone,requested_at:request.created_at||new Date().toISOString(),ended_at:new Date().toISOString(),duration_seconds:durationSeconds,call_status:callStatus};
+        const reportResponse=await fetch(apiBase()+"/rest/v1/call_reports",{method:"POST",headers:apiHeaders({Prefer:"return=minimal"}),body:JSON.stringify(report)});
+        if(!reportResponse.ok)throw new Error("تعذر حفظ تقرير المكالمة (HTTP "+reportResponse.status+")");
+      }
+      const patchResponse=await fetch(apiBase()+"/rest/v1/call_requests?id=eq."+encodeURIComponent(request.id)+"&status=eq.calling",{method:"PATCH",headers:apiHeaders({Prefer:"return=minimal"}),body:JSON.stringify({status:"completed",called_at:new Date().toISOString()})});
+      if(!patchResponse.ok)throw new Error("تعذر إغلاق طلب الاتصال (HTTP "+patchResponse.status+")");
+      const outcomeState=callStatus==="not_answered"?"not_answered":(submittedStatus==="تم السداد"?"completed":"answered");
+      const local=queue.find(x=>x.request_id===request.id||(phoneKey(x.phone)===phoneKey(phone)&&x.customer===customer&&(!localCall||x.device_id===localCall.device_id)));
+      if(local){local.state=outcomeState;local.outcome_state=outcomeState;local.server_status="completed";local.request_id=request.id}
+      saveQueue();setMessage("تم حفظ نتيجة المكالمة ومدتها في سجل المكالمات.",false);
+    }catch(error){console.warn("PhoneBridge call report sync:",error);setMessage("تم حفظ متابعة العميل، لكن تعذرت مزامنة تقرير المكالمة مع الخادم. تحقق من الاتصال ثم حدّث الحالة.",true)}
+    finally{if(requestId)reporting.delete(requestId)}
+  }
+  function handleCallClick(event){
+    const link=event.target.closest?.("#paymentFollowup .pf-call-link");if(!link)return;
+    event.preventDefault();event.stopImmediatePropagation();
+    const phone=cleanPhone(link.dataset.phone||"");const customer=String(link.dataset.customer||"العميل").trim();if(!phone){setMessage("رقم الهاتف غير صالح.",true);return}
+    const device=selectedDevice();const entry={id:uuid(),customer,phone,requested_by:(typeof session!=="undefined"?(session?.name||session?.user):"غير محدد")||"غير محدد",device_id:device.id,device_label:device.label,state:"queued",created_at:new Date().toISOString(),attempts:0,error:""};
+    if(liveDuplicate(entry)){setMessage("يوجد بالفعل طلب اتصال لهذا الرقم على الهاتف المختار؛ لن نكرر الطلب.",true);return}
+    queue.push(entry);saveQueue();setMessage(navigator.onLine?"جارٍ إرسال طلب الاتصال…":"أُضيف الطلب إلى قائمة الانتظار؛ سيُرسل عند عودة الإنترنت.",false);flushQueue();
+  }
+  function bootstrap(){
+    queue=readJSON(QUEUE_KEY,[]);if(!Array.isArray(queue))queue=[];devices=getDevices();ensurePanel();renderDevices();renderQueue();renderReminders();
+    document.addEventListener("click",handleCallClick,true);
+    document.addEventListener("submit",event=>{const form=event.target;if(form?.matches?.("#paymentFollowup .pf-form"))setTimeout(()=>syncOutcome(form),0)},true);
+    window.addEventListener("online",()=>{renderQueue();setMessage("عاد الاتصال بالإنترنت؛ جارٍ إرسال الطلبات المنتظرة.",false);flushQueue();refreshStatuses(true)});
+    window.addEventListener("offline",renderQueue);
+    if(timer)clearInterval(timer);timer=setInterval(()=>{if(!panel?.isConnected)ensurePanel();flushQueue();refreshStatuses(false);renderReminders()},7000);
+    flushQueue();refreshStatuses(false);
+  }
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",bootstrap,{once:true});else bootstrap();
+})();
+</script>
+
+<style id="phonebridge-duration-style">
+@media screen{#paymentFollowup .pb-duration-label{display:grid;gap:4px;color:#64748b;font-size:10px;font-weight:700}#paymentFollowup .pb-duration-label input{width:100%;min-width:0;border:1px solid #cbd5e1;border-radius:8px;background:#fff;padding:7px;color:#172033;font:inherit;font-size:12px}}
+</style>
+<script id="phonebridge-duration-feature">
+(function(){
+  "use strict";
+  const durationByCase=new Map();
+  function enhanceForms(root){
+    (root||document).querySelectorAll?.("#paymentFollowup .pf-form").forEach(form=>{
+      if(form.querySelector('[name="durationMinutes"]'))return;
+      const status=form.querySelector('[name="status"]')?.closest("label");if(!status)return;
+      const label=document.createElement("label");label.className="pb-duration-label";label.innerHTML='مدة المكالمة (دقيقة، اختياري)<input name="durationMinutes" type="number" min="0" max="600" step="1" inputmode="numeric" placeholder="إن عُرفت">';
+      status.insertAdjacentElement("afterend",label);
+    });
+  }
+  function installLogWrapper(){
+    const original=window.addClientContactLog;if(typeof original!=="function"||original.__phoneBridgeDurationWrapped)return;
+    const wrapped=function(entry){
+      if(entry&&entry.field==="__PAYMENT_FOLLOWUP_V1__"){
+        try{const meta=JSON.parse(entry.oldValue||"{}");const minutes=durationByCase.get(String(meta.caseKey||""));if(minutes){meta.durationMinutes=minutes;entry={...entry,oldValue:JSON.stringify(meta),newValue:String(entry.newValue||"")+"\nمدة المكالمة: "+minutes+" دقيقة"};durationByCase.delete(String(meta.caseKey||""))}}catch(e){}
+      }
+      return original.call(this,entry);
+    };
+    wrapped.__phoneBridgeDurationWrapped=true;window.addClientContactLog=wrapped;
+  }
+  function boot(){
+    enhanceForms(document);installLogWrapper();
+    const screen=document.getElementById("paymentFollowup");if(screen)new MutationObserver(records=>{for(const record of records)for(const node of record.addedNodes)if(node.nodeType===1)enhanceForms(node)}).observe(screen,{childList:true,subtree:true});
+    document.addEventListener("submit",event=>{const form=event.target;if(!form?.matches?.("#paymentFollowup .pf-form"))return;const key=decodeURIComponent(form.dataset.caseKey||"");const minutes=String(new FormData(form).get("durationMinutes")||"").trim();if(key&&minutes)durationByCase.set(key,minutes)},true);
+  }
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot,{once:true});else boot();
+})();
+</script>
