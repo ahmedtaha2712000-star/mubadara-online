@@ -2177,6 +2177,22 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
 <style id="search-profile-loan-navigation-mobile">
 @media(max-width:640px){#search #clientProfile .search-profile-loan-controls{display:flex;flex-wrap:wrap}#search #clientProfile .search-profile-loan-select{flex:1 1 100%;order:0}#search #clientProfile .search-profile-loan-controls [data-loan-step]{flex:1 1 calc(50% - 8px);order:1}#search #clientProfile .search-profile-loan-position{flex:1 1 100%;order:2}}
 </style>
+<style id="payment-followup-archive-scrollbars-visibility">
+/* These two visible horizontal tracks belong exclusively to the archive table. */
+#paymentFollowupArchive #paymentFollowupArchiveScrollTop,#paymentFollowupArchive #paymentFollowupArchiveScrollBottom{display:block!important;visibility:visible!important;position:relative;z-index:3;flex:0 0 auto;width:100%;max-width:100%;height:24px;min-height:24px;margin:6px 0;box-sizing:border-box;overflow-x:scroll!important;overflow-y:hidden!important;border:1px solid #8da0b5;border-radius:8px;background:#e8eef5;touch-action:pan-x!important;-webkit-overflow-scrolling:touch;scrollbar-width:auto;overscroll-behavior-x:contain}
+#paymentFollowupArchive #paymentFollowupArchiveScrollTop>i,#paymentFollowupArchive #paymentFollowupArchiveScrollBottom>i{display:block!important;height:1px;min-width:1px;max-width:none!important}
+#paymentFollowupArchive #paymentFollowupArchiveScrollTop::-webkit-scrollbar,#paymentFollowupArchive #paymentFollowupArchiveScrollBottom::-webkit-scrollbar{height:14px}
+#paymentFollowupArchive #paymentFollowupArchiveScrollTop::-webkit-scrollbar-track,#paymentFollowupArchive #paymentFollowupArchiveScrollBottom::-webkit-scrollbar-track{background:#e8eef5;border-radius:8px}
+#paymentFollowupArchive #paymentFollowupArchiveScrollTop::-webkit-scrollbar-thumb,#paymentFollowupArchive #paymentFollowupArchiveScrollBottom::-webkit-scrollbar-thumb{background:#74879c;border:2px solid #e8eef5;border-radius:8px}
+@media(max-width:760px){#paymentFollowupArchive #paymentFollowupArchiveScrollTop,#paymentFollowupArchive #paymentFollowupArchiveScrollBottom{display:block!important;max-width:calc(100vw - 24px)}}
+</style>
+
+<style id="payment-followup-archive-scroll-coordinates">
+/* Keep the archive scroll container and tracks in the same LTR coordinate space. */
+#paymentFollowupArchive #paymentFollowupArchiveTableWrap{direction:ltr!important;overflow-x:hidden!important;overflow-y:visible!important;scrollbar-width:none}
+#paymentFollowupArchive #paymentFollowupArchiveTableWrap>.pfa-table{direction:rtl!important}
+#paymentFollowupArchive #paymentFollowupArchiveScrollTop,#paymentFollowupArchive #paymentFollowupArchiveScrollBottom{direction:rtl!important}
+</style>
 </head>
 
 <body>
@@ -2875,7 +2891,7 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
     <div id="paymentFollowupFeedback" class="pf-feedback" role="status" aria-live="polite"></div>
     <div class="pf-summary"><div class="pf-summary-card pf-summary-card-blue"><span>حالات المتابعة</span><b id="paymentFollowupCount">0</b></div><div class="pf-summary-card"><span>عملاء مختلفون</span><b id="paymentFollowupClientsCount">0</b></div><div class="pf-summary-card pf-summary-card-gold"><span>إجمالي متأخرات العملاء الظاهرين</span><b id="paymentFollowupTotalArrears">0</b></div><div class="pf-summary-card pf-summary-card-period"><span>الفترة</span><b id="paymentFollowupPeriod">حتى اليوم</b></div></div>
     <div id="paymentFollowupMobileCases" class="pf-mobile-cases" aria-live="polite"></div>
-    <div class="pf-table-wrap"><table id="paymentFollowupTable" class="pf-table"><thead><tr><th>العميل / الأخصائي</th><th>تاريخ الاستحقاق</th><th>القسط</th><th>المسدد / تاريخ السداد</th><th>المتبقي من القسط</th><th>إجمالي متأخرات العميل</th><th>أيام التأخير</th><th>العميل والضامنون</th><th>آخر مكالمة</th><th>القائم بالمتابعة</th><th class="no-print">الإجراء / السجل</th></tr></thead><tbody id="paymentFollowupTableBody"></tbody></table></div><div class="pfa-scrollbar no-print" id="paymentFollowupArchiveScrollBottom" aria-label="التمرير الأفقي أسفل الجدول"><i></i></div>
+    <div class="pf-table-scrollbar no-print" id="paymentFollowupTableScrollTop" aria-label="التمرير الأفقي أعلى جدول متابعة السداد"><i></i></div><div class="pf-table-wrap"><table id="paymentFollowupTable" class="pf-table"><thead><tr><th>العميل / الأخصائي</th><th>مبلغ القرض</th><th>مدة القرض</th><th>قيمة القسط</th><th>المسدد</th><th>تاريخ السداد</th><th>المتبقي من القسط</th><th>عدد الأقساط المتأخرة</th><th>إجمالي متأخرات العميل</th><th>العميل والضامنون</th><th>آخر مكالمة</th><th>القائم بالمتابعة</th><th class="no-print">الإجراء / السجل</th></tr></thead><tbody id="paymentFollowupTableBody"></tbody></table></div><div class="pf-table-scrollbar no-print" id="paymentFollowupTableScrollBottom" aria-label="التمرير الأفقي أسفل جدول متابعة السداد"><i></i></div>
   </div>
 </section>
 
@@ -2884,7 +2900,7 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
     <div class="pfa-topbar"><div><h2 class="pfa-title">أرشيف متابعة السداد</h2><p class="pfa-subtitle" id="paymentFollowupArchiveSubtitle">السجل الزمني للاتصالات والاتفاقات مع العميل والضامنين.</p></div><div class="pfa-actions no-print"><button type="button" onclick="showScreen('paymentFollowup')">← العودة إلى متابعة السداد</button></div></div>
     <div class="pfa-summary"><div class="pfa-card"><span>العميل</span><b id="paymentFollowupArchiveClient">—</b></div><div class="pfa-card"><span>القرض / الحالة</span><b id="paymentFollowupArchiveLoan">—</b></div><div class="pfa-card"><span>عدد المتابعات</span><b id="paymentFollowupArchiveCount">0</b></div><div class="pfa-card"><span>آخر متابعة</span><b id="paymentFollowupArchiveLatest">—</b></div></div>
     <div class="pfa-filter no-print" aria-label="فلاتر أرشيف المتابعة"><label class="pfa-filter-wide">اسم العميل<input id="paymentFollowupArchiveClientSearch" list="paymentFollowupArchiveClientList" type="search" autocomplete="off" placeholder="اكتب اسم العميل..."><datalist id="paymentFollowupArchiveClientList"></datalist></label><label>اسم الأخصائي<input id="paymentFollowupArchiveOfficerSearch" list="paymentFollowupArchiveOfficerList" type="search" autocomplete="off" placeholder="اختر الأخصائي..."><datalist id="paymentFollowupArchiveOfficerList"></datalist></label><label>تم التواصل مع<input id="paymentFollowupArchiveParty" list="paymentFollowupArchivePartyList" type="search" autocomplete="off" placeholder="العميل أو الضامن..."><datalist id="paymentFollowupArchivePartyList"></datalist></label><label>نتيجة المتابعة<input id="paymentFollowupArchiveStatus" list="paymentFollowupArchiveStatusList" type="search" autocomplete="off" placeholder="اختر النتيجة..."><datalist id="paymentFollowupArchiveStatusList"></datalist></label><label>من تاريخ<input id="paymentFollowupArchiveFrom" type="date"></label><label>إلى تاريخ<input id="paymentFollowupArchiveTo" type="date"></label><label class="pfa-filter-wide">بحث في الملاحظات<input id="paymentFollowupArchiveSearch" type="search" placeholder="كلمة داخل الاتفاق أو الملاحظات..."></label><button id="paymentFollowupArchiveClear" class="pfa-clear" type="button">مسح كل الفلاتر</button></div>
-    <div class="pfa-scrollbar no-print" id="paymentFollowupArchiveScrollTop" aria-label="التمرير الأفقي أعلى الجدول"><i></i></div><div class="pfa-table-wrap" id="paymentFollowupArchiveTableWrap"><table class="pfa-table" aria-label="جدول أرشيف متابعة السداد"><thead><tr><th>اسم العميل</th><th>الأخصائي</th><th>التاريخ والوقت</th><th>تم التواصل مع</th><th>نتيجة المتابعة</th><th>المتابعة القادمة</th><th>تفاصيل الاتفاق / الملاحظات</th><th>القائم بالمتابعة</th></tr></thead><tbody id="paymentFollowupArchiveTimeline" aria-live="polite"></tbody></table></div>
+    <div class="pfa-scrollbar no-print" id="paymentFollowupArchiveScrollTop" aria-label="التمرير الأفقي أعلى الجدول"><i></i></div><div class="pfa-table-wrap" id="paymentFollowupArchiveTableWrap"><table class="pfa-table" aria-label="جدول أرشيف متابعة السداد"><thead><tr><th>اسم العميل</th><th>تم التواصل مع</th><th>نتيجة المتابعة</th><th>تفاصيل الاتفاق / الملاحظات</th><th>المتابعة القادمة</th><th>القائم بالمتابعة</th><th>التاريخ والوقت</th><th>مبلغ القرض</th><th>مدة القرض</th><th>قيمة القسط</th><th>المسدد</th><th>تاريخ السداد</th><th>المتبقي من القسط</th><th>عدد الأقساط المتأخرة</th><th>إجمالي متأخرات العميل</th><th>اسم الأخصائي</th></tr></thead><tbody id="paymentFollowupArchiveTimeline" aria-live="polite"></tbody></table></div><div class="pfa-scrollbar no-print" id="paymentFollowupArchiveScrollBottom" aria-label="التمرير الأفقي أسفل جدول الأرشيف"><i></i></div>
   </div>
 </section>
 
@@ -7620,9 +7636,10 @@ document.addEventListener('DOMContentLoaded', function () {
       const loanLabel=loanCode||loanNo||"غير محدد";
       const key=pfCaseKey(client,loanCode,loanNo,nid);
       const loanAmount=pfLoanAmount(rows);
+      const loanTerm=pfValueFromRows(rows,[H.term,"مدة القرض","مده القرض","مدة التمويل","عدد الأقساط","عدد الاقساط"],q=>q.includes("مدة")||q.includes("مده"))||rows.length;
       const due=riskDueDateValue(row);
       const contacts=pfContacts(rows,client);
-      cases.push({key,group,rows,lateRows,row,client,loanCode,loanNo,loanLabel,loanAmount,contacts,
+      cases.push({key,group,rows,lateRows,row,client,loanCode,loanNo,loanLabel,loanAmount,loanTerm,overdueCount:lateRows.length,contacts,
         officer:String(get(group.r,"officer")||"").trim(),installment:String(get(row,"installment")??"").trim(),
         due,installmentValue:num(get(row,"value")),paid:rowPaidAmount(row),paymentDate:rowPaymentDate(row),remaining:installmentUnpaid(row),
         customerArrears:customerArrears.get(pfKeyPart(client))||0,delay:pfDelayDays(due),loanStatus:String(get(group.r,"status")||group.status||"").trim()});
@@ -7745,7 +7762,7 @@ document.addEventListener('DOMContentLoaded', function () {
   function pfLastStatus(item){return item.logs?.[0]?.status||"لم يتم الاتصال";}
   function pfLatestNote(item){const l=item.logs?.[0];return l?String(l.note||""):"—";}
   function pfDesktopRow(item){
-    return `<tr><td><span class="pf-main-name">${esc(item.client||"—")}</span><span class="pf-secondary">${esc(item.officer||"بدون أخصائي")}</span></td><td>${esc(pfTextDate(item.due))}</td><td><span class="pf-main-name">قسط ${esc(item.installment||"—")}</span><span class="pf-secondary">القيمة: ${esc(money(item.installmentValue))}</span></td><td><span class="pf-amount">${esc(money(item.paid))}</span><span class="pf-secondary">تاريخ السداد: ${esc(pfTextDate(item.paymentDate))}</span></td><td><span class="pf-arrears">${esc(money(item.remaining))}</span></td><td><span class="pf-arrears">${esc(money(item.customerArrears))}</span></td><td><span class="pf-delay">${esc(item.delay)} يوم</span></td><td>${pfContactsHTML(item)}</td><td>${pfLatestHTML(item)}</td><td>${pfActorHTML(item)}</td><td class="no-print"><button type="button" class="pf-archive-btn" data-pf-archive-key="${escAttr(item.key)}">📚 فتح الأرشيف</button>${pfFormHTML(item)}${pfHistoryHTML(item)}</td></tr>`;
+    return `<tr data-pf-row-key="${escAttr(item.key)}"><td><span class="pf-main-name">${esc(item.client||"—")}</span><span class="pf-secondary">${esc(item.officer||"بدون أخصائي")}</span></td><td><span class="pf-nowrap-value">${esc(item.loanAmount!==""&&item.loanAmount!=null?money(item.loanAmount):"—")}</span></td><td><span class="pf-nowrap-value">${esc(item.loanTerm||"—")}</span></td><td><span class="pf-nowrap-value">${esc(money(item.installmentValue))}</span></td><td><span class="pf-nowrap-value"><span class="pf-amount">${esc(money(item.paid))}</span></span></td><td><span class="pf-nowrap-value">${esc(pfTextDate(item.paymentDate))}</span></td><td><span class="pf-nowrap-value"><span class="pf-arrears">${esc(money(item.remaining))}</span></span></td><td><span class="pf-nowrap-value">${esc(item.overdueCount)}</span></td><td><span class="pf-nowrap-value"><span class="pf-arrears">${esc(money(item.customerArrears))}</span></span></td><td>${pfContactsHTML(item)}</td><td>${pfLatestHTML(item)}</td><td>${pfActorHTML(item)}</td><td class="no-print"><button type="button" class="pf-archive-btn" data-pf-archive-key="${escAttr(item.key)}">📚 فتح الأرشيف</button>${pfFormHTML(item)}${pfHistoryHTML(item)}</td></tr>`;
   }
   function pfMobileCard(item){
     const loan=item.loanAmount!==""&&item.loanAmount!=null?money(item.loanAmount):"—";
@@ -7773,7 +7790,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const mobile=window.matchMedia&&window.matchMedia("(max-width: 760px)").matches;
     const tbody=document.getElementById("paymentFollowupTableBody"),cards=document.getElementById("paymentFollowupMobileCases");
     if(mobile){if(tbody)tbody.innerHTML="";if(cards)cards.innerHTML=filtered.length?filtered.map(pfMobileCard).join(""):'<div class="pf-empty">لا توجد حالات متأخرة مطابقة لعوامل البحث.</div>';}
-    else {if(cards)cards.innerHTML="";if(tbody)tbody.innerHTML=filtered.length?filtered.map(pfDesktopRow).join(""):'<tr><td colspan="11" class="pf-empty">لا توجد حالات متأخرة مطابقة لعوامل البحث.</td></tr>';}
+    else {if(cards)cards.innerHTML="";if(tbody)tbody.innerHTML=filtered.length?filtered.map(pfDesktopRow).join(""):'<tr><td colspan="13" class="pf-empty">لا توجد حالات متأخرة مطابقة لعوامل البحث.</td></tr>';}
     const uniqueClients=new Map();filtered.forEach(x=>{const key=pfKeyPart(x.client);if(key&&!uniqueClients.has(key))uniqueClients.set(key,x.customerArrears)});
     const count=document.getElementById("paymentFollowupCount"),clients=document.getElementById("paymentFollowupClientsCount"),amount=document.getElementById("paymentFollowupTotalArrears"),feedback=document.getElementById("paymentFollowupFeedback");
     if(count)count.textContent=filtered.length.toLocaleString("en-US");
@@ -7794,7 +7811,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if(!currentCases.length)currentCases=pfBuildCases();
     const selected=currentCases.find(x=>x.key===archiveCaseKey)||currentCases[0];
     const client=document.getElementById("paymentFollowupArchiveClient"),loan=document.getElementById("paymentFollowupArchiveLoan"),count=document.getElementById("paymentFollowupArchiveCount"),latest=document.getElementById("paymentFollowupArchiveLatest"),subtitle=document.getElementById("paymentFollowupArchiveSubtitle");
-    if(!selected){if(client)client.textContent="لا توجد حالة محددة";if(loan)loan.textContent="—";if(count)count.textContent="0";if(latest)latest.textContent="—";box.innerHTML='<tr><td colspan="8" class="pfa-empty">لا توجد بيانات لعرضها.</td></tr>';return;}
+    if(!selected){if(client)client.textContent="لا توجد حالة محددة";if(loan)loan.textContent="—";if(count)count.textContent="0";if(latest)latest.textContent="—";box.innerHTML='<tr><td colspan="16" class="pfa-empty">لا توجد بيانات لعرضها.</td></tr>';return;}
     const allLogs=pfReadLogs(),clientQ=norm(document.getElementById("paymentFollowupArchiveClientSearch")?.value||""),officerQ=norm(document.getElementById("paymentFollowupArchiveOfficerSearch")?.value||""),partyQ=norm(document.getElementById("paymentFollowupArchiveParty")?.value||""),statusQ=norm(document.getElementById("paymentFollowupArchiveStatus")?.value||""),noteQ=norm(document.getElementById("paymentFollowupArchiveSearch")?.value||""),from=document.getElementById("paymentFollowupArchiveFrom")?.value||"",to=document.getElementById("paymentFollowupArchiveTo")?.value||"";
     const hasGlobalFilter=!!(clientQ||officerQ||partyQ||statusQ||noteQ||from||to);
     const source=hasGlobalFilter?currentCases:currentCases.filter(x=>x.key===selected.key);
@@ -7805,7 +7822,14 @@ document.addEventListener('DOMContentLoaded', function () {
     const uniq=(values)=>[...new Set(values.map(x=>String(x||"").trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,"ar"));
     const clientList=document.getElementById("paymentFollowupArchiveClientList"),officerList=document.getElementById("paymentFollowupArchiveOfficerList"),partyList=document.getElementById("paymentFollowupArchivePartyList"),statusList=document.getElementById("paymentFollowupArchiveStatusList");
     if(clientList)clientList.innerHTML=uniq(currentCases.map(x=>x.client)).map(x=>`<option value="${escAttr(x)}"></option>`).join("");if(officerList)officerList.innerHTML=uniq(currentCases.map(x=>x.officer)).map(x=>`<option value="${escAttr(x)}"></option>`).join("");if(partyList)partyList.innerHTML=uniq(allLogs.map(x=>x.callParty)).map(x=>`<option value="${escAttr(x)}"></option>`).join("");if(statusList)statusList.innerHTML=uniq(allLogs.map(x=>x.status)).map(x=>`<option value="${escAttr(x)}"></option>`).join("");
-    box.innerHTML=filtered.length?filtered.map(({item,log})=>`<tr><td class="pfa-party">${esc(item.client||"—")}</td><td class="pfa-user">${esc(item.officer||"بدون أخصائي")}</td><td class="pfa-date">${esc(pfDateTime(log.createdAt))}</td><td class="pfa-party">${esc(log.callParty||"غير محدد")}</td><td><span class="pfa-status">${esc(log.status||"متابعة مسجلة")}</span></td><td class="pfa-next">${log.next?esc(pfTextDate(log.next)):"—"}</td><td class="pfa-note">${esc(log.note||"—")}</td><td class="pfa-user">${esc(log.user||"غير محدد")}</td></tr>`).join(""):'<tr><td colspan="8" class="pfa-empty">لا توجد سجلات مطابقة للفلاتر الحالية.</td></tr>';
+    const archiveDayKey=value=>{const d=new Date(value||"");return !isNaN(d)?`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`:String(value||"").slice(0,10)};
+    box.innerHTML=filtered.length?filtered.map(({item,log})=>`<tr data-pfa-row-key="${escAttr(item.key+"|"+String(log.cloudId||log.createdAt||"")+"|"+String(log.status||"")+"|"+String(log.callParty||""))}" data-pfa-group-key="${escAttr(norm(item.client||"")+"|"+archiveDayKey(log.createdAt))}"><td class="pfa-party">${esc(item.client||"—")}</td><td class="pfa-party">${esc(log.callParty||"غير محدد")}</td><td><span class="pfa-status">${esc(log.status||"متابعة مسجلة")}</span></td><td class="pfa-note">${esc(log.note||"—")}</td><td class="pfa-next">${log.next?esc(pfTextDate(log.next)):"—"}</td><td class="pfa-user">${esc(log.user||"غير محدد")}</td><td class="pfa-date">${esc(pfDateTime(log.createdAt))}</td><td class="pfa-num"><span class="pfa-nowrap-value">${esc(item.loanAmount!==""&&item.loanAmount!=null?money(item.loanAmount):"—")}</span></td><td class="pfa-num"><span class="pfa-nowrap-value">${esc(item.loanTerm||"—")}</span></td><td class="pfa-num"><span class="pfa-nowrap-value">${esc(money(item.installmentValue))}</span></td><td class="pfa-num"><span class="pfa-nowrap-value">${esc(money(item.paid))}</span></td><td class="pfa-date"><span class="pfa-nowrap-value">${esc(pfTextDate(item.paymentDate)||"—")}</span></td><td class="pfa-num"><span class="pfa-nowrap-value">${esc(money(item.remaining))}</span></td><td class="pfa-num"><span class="pfa-nowrap-value">${esc(item.overdueCount)}</span></td><td class="pfa-num"><span class="pfa-nowrap-value">${esc(money(item.customerArrears))}</span></td><td class="pfa-user">${esc(item.officer||"بدون أخصائي")}</td></tr>`).join(""):'<tr><td colspan="8" class="pfa-empty">لا توجد سجلات مطابقة للفلاتر الحالية.</td></tr>';
+
+    const archiveRenderedRows=[...box.querySelectorAll("tr[data-pfa-row-key]")],archiveGroups=new Map();
+    archiveRenderedRows.forEach(row=>{[...row.cells].forEach((cell,index)=>cell.dataset.pfaColumn=String(index));const key=row.dataset.pfaGroupKey||row.dataset.pfaRowKey;if(!archiveGroups.has(key))archiveGroups.set(key,[]);archiveGroups.get(key).push(row);});
+    const archiveOrderedRows=[];
+    archiveGroups.forEach(group=>{const first=group[0],nameCell=first.querySelector('td[data-pfa-column="0"]');if(nameCell&&group.length>1)nameCell.rowSpan=group.length;group.slice(1).forEach(row=>row.querySelector('td[data-pfa-column="0"]')?.remove());archiveOrderedRows.push(...group);});
+    archiveOrderedRows.forEach(row=>box.appendChild(row));
   }
   document.addEventListener("app-specialist-status-change",()=>{if(document.getElementById(SCREEN_ID)?.classList.contains("active"))renderPaymentFollowup()});
   function pfSelectedCases(){return pfFilteredCases();}
@@ -10104,21 +10128,221 @@ body.printing-current-screen #dropoutPrintLayer .dropout-risk-print-table .dropo
   window.printCollectionStandalone=printCollectionWithDueStyle;
 })();
 </script>
-<script>
+<script id="payment-followup-archive-only-scrollbars">
 (function(){
   function bindArchiveScroll(){
-    const top=document.getElementById('paymentFollowupArchiveScrollTop'), wrap=document.getElementById('paymentFollowupArchiveTableWrap'), bottom=document.getElementById('paymentFollowupArchiveScrollBottom');
-    if(!top||!wrap||!bottom)return;
-    const table=wrap.querySelector('table'), width=Math.max(1100,table?table.scrollWidth:1100);
-    [top,bottom].forEach(x=>{const bar=x.querySelector('i');if(bar)bar.style.width=width+'px'});
-    if(top.dataset.ready)return; top.dataset.ready='1'; let busy=false;
-    const sync=(source)=>{if(busy)return;busy=true;[top,wrap,bottom].forEach(x=>{if(x!==source)x.scrollLeft=source.scrollLeft});requestAnimationFrame(()=>busy=false)};
-    top.addEventListener('scroll',()=>sync(top),{passive:true}); wrap.addEventListener('scroll',()=>sync(wrap),{passive:true}); bottom.addEventListener('scroll',()=>sync(bottom),{passive:true});
+    const section=document.getElementById("paymentFollowupArchive");if(!section)return;
+    const top=section.querySelector("#paymentFollowupArchiveScrollTop"),wrap=section.querySelector("#paymentFollowupArchiveTableWrap"),bottom=section.querySelector("#paymentFollowupArchiveScrollBottom"),table=wrap?.querySelector(".pfa-table");
+    if(!top||!wrap||!bottom||!table)return;
+    const bars=[top,bottom];
+    function update(){
+      wrap.style.setProperty("overflow-x","hidden","important");wrap.style.setProperty("overflow-y","visible","important");wrap.style.setProperty("direction","ltr","important");
+      table.style.setProperty("direction","rtl","important");table.style.setProperty("position","relative","important");table.style.setProperty("left","0","important");table.style.setProperty("will-change","transform","important");
+      const viewport=wrap.clientWidth||section.clientWidth||1;
+      const content=Math.max(table.scrollWidth,table.offsetWidth,viewport);
+      bars.forEach(bar=>{bar.style.setProperty("display","block","important");bar.style.setProperty("visibility","visible","important");bar.style.setProperty("direction","rtl","important");bar.style.setProperty("overflow-x","scroll","important");bar.style.setProperty("overflow-y","hidden","important");const spacer=bar.firstElementChild;if(spacer)spacer.style.width=content+"px";});
+      const max=Math.max(0,content-viewport),trackMax=Math.max(0,top.scrollWidth-top.clientWidth);
+      const ratio=trackMax?Math.max(0,Math.min(1,-top.scrollLeft/trackMax)):0;
+      /* At track start show the RTL table's rightmost columns; scrolling the track moves toward its left side. */
+      const shift=-max*(1-ratio);table.style.setProperty("transform",`translate3d(${shift}px,0,0)`,"important");
+    }
+    if(!section.dataset.archiveDirectScrollReady){
+      section.dataset.archiveDirectScrollReady="1";
+      bars.forEach(source=>source.addEventListener("scroll",()=>{
+        const maxSource=Math.max(0,source.scrollWidth-source.clientWidth),ratio=maxSource?Math.max(0,Math.min(1,-source.scrollLeft/maxSource)):0;
+        bars.forEach(target=>{if(target===source)return;const maxTarget=Math.max(0,target.scrollWidth-target.clientWidth),desired=ratio*maxTarget;if(Math.abs(target.scrollLeft-desired)>1)target.scrollLeft=-desired;});
+        update();
+      },{passive:true}));
+      if(window.ResizeObserver){const ro=new ResizeObserver(()=>requestAnimationFrame(update));ro.observe(wrap);ro.observe(table);}
+      const body=table.tBodies[0];if(body&&window.MutationObserver)new MutationObserver(()=>requestAnimationFrame(update)).observe(body,{childList:true,subtree:true,characterData:true});
+      if(window.MutationObserver)new MutationObserver(()=>setTimeout(update,100)).observe(section,{attributes:true,attributeFilter:["class"]});
+      window.addEventListener("resize",()=>requestAnimationFrame(update),{passive:true});
+    }
+    requestAnimationFrame(update);setTimeout(update,180);
   }
-  document.addEventListener('DOMContentLoaded',()=>setTimeout(bindArchiveScroll,300));
-  window.addEventListener('resize',bindArchiveScroll);
-  document.addEventListener('click',e=>{if(e.target.closest&&e.target.closest('[data-pf-archive-key]'))setTimeout(bindArchiveScroll,100)});
+  document.addEventListener("DOMContentLoaded",()=>setTimeout(bindArchiveScroll,100));
+  if(document.readyState!=="loading")setTimeout(bindArchiveScroll,0);
+  document.addEventListener("click",event=>{if(event.target.closest&&event.target.closest("[data-pf-archive-key]"))setTimeout(bindArchiveScroll,160);});
   window.bindArchiveScroll=bindArchiveScroll;
+})();
+</script>
+
+<style id="payment-followup-table-readable-columns">
+/* تنسيق مخصص لجدول متابعة السداد فقط: التفاف العناوين بين الكلمات، وعرض يعتمد على البيانات. */
+#paymentFollowup .pf-table{table-layout:auto!important;width:max-content!important;min-width:1550px!important}
+#paymentFollowup .pf-table thead th{white-space:normal!important;word-break:normal!important;overflow-wrap:normal!important;hyphens:none!important;vertical-align:middle;text-align:center;line-height:1.35;min-width:76px;max-width:145px}
+#paymentFollowup .pf-table thead th:nth-child(1){width:155px;min-width:135px;max-width:180px}
+#paymentFollowup .pf-table thead th:nth-child(2){width:100px;min-width:90px;max-width:115px}
+#paymentFollowup .pf-table thead th:nth-child(3){width:90px;min-width:78px;max-width:105px}
+#paymentFollowup .pf-table thead th:nth-child(4),#paymentFollowup .pf-table thead th:nth-child(5){width:100px;min-width:88px;max-width:118px}
+#paymentFollowup .pf-table thead th:nth-child(6){width:108px;min-width:98px;max-width:125px}
+#paymentFollowup .pf-table thead th:nth-child(7){width:112px;min-width:100px;max-width:132px}
+#paymentFollowup .pf-table thead th:nth-child(8){width:120px;min-width:108px;max-width:140px}
+#paymentFollowup .pf-table thead th:nth-child(9){width:132px;min-width:118px;max-width:155px}
+#paymentFollowup .pf-table thead th:nth-child(10){width:220px;min-width:185px;max-width:265px}
+#paymentFollowup .pf-table thead th:nth-child(11){width:270px;min-width:225px;max-width:330px}
+#paymentFollowup .pf-table thead th:nth-child(12){width:140px;min-width:120px;max-width:165px}
+#paymentFollowup .pf-table thead th:nth-child(13){width:215px;min-width:190px;max-width:260px}
+/* Keep figures, dates, and amounts in their own cells without line breaks. */
+#paymentFollowup .pf-table tbody td:nth-child(2),#paymentFollowup .pf-table tbody td:nth-child(3),#paymentFollowup .pf-table tbody td:nth-child(4),#paymentFollowup .pf-table tbody td:nth-child(5),#paymentFollowup .pf-table tbody td:nth-child(6),#paymentFollowup .pf-table tbody td:nth-child(7),#paymentFollowup .pf-table tbody td:nth-child(8),#paymentFollowup .pf-table tbody td:nth-child(9){white-space:nowrap;overflow-wrap:normal;word-break:normal;font-variant-numeric:tabular-nums}
+/* Make all table data black and bold; preserve button styling in the action column. */
+#paymentFollowup .pf-table tbody td,#paymentFollowup .pf-table tbody td :not(button):not(svg):not(path){color:#000!important;font-weight:800!important}
+
+/* Matched horizontal scrollbars for the payment-follow-up table. */
+#paymentFollowup .pf-table-scrollbar{display:block;width:100%;height:20px;margin:5px 0;overflow-x:scroll;overflow-y:hidden;box-sizing:border-box;border:1px solid #b7c4d3;border-radius:8px;background:#eef3f8;direction:rtl;-webkit-overflow-scrolling:touch;touch-action:pan-x;overscroll-behavior-x:contain;scrollbar-width:auto}
+#paymentFollowup .pf-table-scrollbar>i{display:block;height:1px;width:1550px}
+#paymentFollowup .pf-table-wrap{overflow-x:scroll!important;overflow-y:hidden!important;overscroll-behavior-x:contain;scrollbar-width:auto}
+@media(max-width:760px){#paymentFollowup .pf-table-scrollbar{display:none!important}}
+
+/* Let saved colgroup widths, rather than long headers, control actual column size. */
+#paymentFollowup .pf-table thead th{width:auto!important;max-width:none!important}
+/* Local Excel-like column resizing for the payment-follow-up table. */
+#paymentFollowup .pf-column-resize-handle{position:absolute;left:-4px;top:0;width:9px;height:100%;min-height:28px;cursor:col-resize;touch-action:none;user-select:none;z-index:4}
+#paymentFollowup .pf-column-resize-handle:after{content:"";position:absolute;left:4px;top:20%;height:60%;width:2px;border-radius:2px;background:transparent}
+#paymentFollowup .pf-column-resize-handle:hover:after,#paymentFollowup .pf-column-resize-handle:focus:after{background:#67d7c4;box-shadow:0 0 0 1px #0b6456}
+#paymentFollowup .pf-table thead th{position:sticky}
+body.pf-resizing-columns,body.pf-resizing-columns *{cursor:col-resize!important;user-select:none!important}
+@media(max-width:760px){#paymentFollowup .pf-column-resize-handle{display:none}}
+
+/* Allow every column to shrink; prose wraps and rows grow as needed. */
+#paymentFollowup .pf-table{table-layout:fixed!important;min-width:0!important}
+#paymentFollowup .pf-table thead th{min-width:0!important;max-width:none!important;overflow-wrap:normal!important;word-break:normal!important}
+#paymentFollowup .pf-table tbody td{white-space:normal!important;overflow-wrap:anywhere!important;word-break:normal!important;vertical-align:top}
+#paymentFollowup .pf-table tbody td:nth-child(2),#paymentFollowup .pf-table tbody td:nth-child(3),#paymentFollowup .pf-table tbody td:nth-child(4),#paymentFollowup .pf-table tbody td:nth-child(5),#paymentFollowup .pf-table tbody td:nth-child(6),#paymentFollowup .pf-table tbody td:nth-child(7),#paymentFollowup .pf-table tbody td:nth-child(8),#paymentFollowup .pf-table tbody td:nth-child(9){white-space:normal!important;overflow-wrap:anywhere!important}
+#paymentFollowup .pf-nowrap-value{display:block;max-width:100%;overflow-x:auto;overflow-y:hidden;white-space:nowrap!important;overflow-wrap:normal!important;word-break:normal!important;scrollbar-width:thin;font-variant-numeric:tabular-nums}
+#paymentFollowup .pf-table tbody td{position:relative;padding-bottom:12px}
+#paymentFollowup .pf-row-resize-handle{position:absolute;left:0;right:0;bottom:-2px;height:8px;cursor:row-resize;touch-action:none;user-select:none;z-index:5;opacity:0;background:transparent}
+#paymentFollowup .pf-table tbody tr:hover .pf-row-resize-handle{opacity:.28}
+#paymentFollowup .pf-row-resize-handle:hover,#paymentFollowup .pf-row-resize-handle:focus{opacity:1!important;background:#0f766e55;outline:1px solid #0f766e}
+#paymentFollowup .pf-table tbody tr.pf-row-resizing td{background:#ecfdf5!important}
+@media(max-width:760px){#paymentFollowup .pf-row-resize-handle{display:none}}
+
+/* Archive table matching behavior: RTL-synced bars, unrestricted narrow notes, and dark bold data. */
+#paymentFollowupArchive .pfa-scrollbar{direction:rtl!important}
+#paymentFollowupArchive .pfa-table .pfa-note{min-width:0!important;max-width:none!important}
+#paymentFollowupArchive .pfa-table tbody td,#paymentFollowupArchive .pfa-table tbody td :not(button):not(svg):not(path){color:#000!important;font-weight:800!important}
+
+#paymentFollowupArchive .pfa-table .pfa-num .pfa-nowrap-value,#paymentFollowupArchive .pfa-table .pfa-date .pfa-nowrap-value{display:block;max-width:100%;overflow-x:auto;overflow-y:hidden;white-space:nowrap!important;overflow-wrap:normal!important;word-break:normal!important;scrollbar-width:thin;font-variant-numeric:tabular-nums}
+#paymentFollowupArchive .pfa-table .pfa-num,#paymentFollowupArchive .pfa-table .pfa-date{white-space:normal!important}
+/* Resizable, locally persisted archive table. */
+#paymentFollowupArchive .pfa-table-wrap .pfa-table{table-layout:fixed!important;min-width:0!important;width:880px!important}
+#paymentFollowupArchive .pfa-table thead th{position:sticky;white-space:normal!important;word-break:normal!important;overflow-wrap:normal!important;hyphens:none!important;min-width:0!important;max-width:none!important;vertical-align:middle}
+#paymentFollowupArchive .pfa-table tbody td{white-space:normal!important;overflow-wrap:anywhere!important;word-break:normal!important;position:relative}
+#paymentFollowupArchive .pfa-column-resize-handle{position:absolute;left:-4px;top:0;width:9px;height:100%;min-height:28px;cursor:col-resize;touch-action:none;user-select:none;z-index:4}
+#paymentFollowupArchive .pfa-column-resize-handle:after{content:"";position:absolute;left:4px;top:20%;height:60%;width:2px;border-radius:2px;background:transparent}
+#paymentFollowupArchive .pfa-column-resize-handle:hover:after,#paymentFollowupArchive .pfa-column-resize-handle:focus:after{background:#67d7c4;box-shadow:0 0 0 1px #0b6456}
+#paymentFollowupArchive .pfa-row-resize-handle{position:absolute;left:0;right:0;bottom:-2px;height:8px;cursor:row-resize;touch-action:none;user-select:none;z-index:5;opacity:0;background:transparent}
+#paymentFollowupArchive .pfa-table tbody tr:hover .pfa-row-resize-handle{opacity:.28}
+#paymentFollowupArchive .pfa-row-resize-handle:hover,#paymentFollowupArchive .pfa-row-resize-handle:focus{opacity:1!important;background:#0f766e55;outline:1px solid #0f766e}
+#paymentFollowupArchive .pfa-table tbody tr.pfa-row-resizing td{background:#ecfdf5!important}
+body.pfa-resizing-columns,body.pfa-resizing-columns *{cursor:col-resize!important;user-select:none!important}
+body.pfa-resizing-rows,body.pfa-resizing-rows *{cursor:row-resize!important;user-select:none!important}
+</style>
+<script id="payment-followup-synced-scrollbars">
+(function(){
+  function initPaymentFollowupScrollbars(){
+    const section=document.getElementById("paymentFollowup");
+    const top=document.getElementById("paymentFollowupTableScrollTop");
+    const bottom=document.getElementById("paymentFollowupTableScrollBottom");
+    const wrap=section?.querySelector(".pf-table-wrap");
+    const table=wrap?.querySelector(".pf-table");
+    if(!section||!top||!bottom||!wrap||!table)return;
+    const bars=[top,bottom,wrap];
+    function syncWidths(){
+      const width=Math.max(table.scrollWidth,wrap.clientWidth,1550);
+      [top,bottom].forEach(bar=>{if(bar.firstElementChild)bar.firstElementChild.style.width=width+"px";});
+      bars.forEach(el=>{if(Math.abs(el.scrollLeft-wrap.scrollLeft)>1)el.scrollLeft=wrap.scrollLeft;});
+    }
+    if(!top.dataset.scrollSyncReady){
+      top.dataset.scrollSyncReady="1";
+      let pending=null,scheduled=false;
+      bars.forEach(source=>source.addEventListener("scroll",()=>{
+        pending=source;if(scheduled)return;scheduled=true;
+        requestAnimationFrame(()=>{scheduled=false;const current=pending;pending=null;if(!current)return;const value=current.scrollLeft;bars.forEach(target=>{if(target!==current&&Math.abs(target.scrollLeft-value)>1)target.scrollLeft=value;});});
+      },{passive:true}));
+      window.addEventListener("resize",syncWidths,{passive:true});
+      if(window.ResizeObserver){const ro=new ResizeObserver(syncWidths);ro.observe(wrap);ro.observe(table);}
+      if(window.MutationObserver){new MutationObserver(()=>requestAnimationFrame(syncWidths)).observe(table.tBodies[0]||table,{childList:true,subtree:true,characterData:true});new MutationObserver(()=>requestAnimationFrame(syncWidths)).observe(section,{attributes:true,attributeFilter:["class"]});}
+    }
+    requestAnimationFrame(syncWidths);
+  }
+  document.addEventListener("DOMContentLoaded",initPaymentFollowupScrollbars);
+  if(document.readyState!=="loading")initPaymentFollowupScrollbars();
+  setTimeout(initPaymentFollowupScrollbars,0);
+})();
+</script>
+<script id="payment-followup-local-table-resize">
+(function(){
+  const COLUMN_KEY="paymentFollowupTableColumnWidths_v1",ROW_KEY="paymentFollowupTableRowHeights_v1";
+  const DEFAULT_WIDTHS=[155,100,90,100,100,108,112,120,132,220,270,140,215],MIN_WIDTH=24,MAX_WIDTH=3000,MIN_HEIGHT=24,MAX_HEIGHT=1200;
+  function read(key,fallback){try{return JSON.parse(localStorage.getItem(key)||"null")||fallback}catch(e){return fallback}}
+  function save(key,value){try{localStorage.setItem(key,JSON.stringify(value))}catch(e){}}
+  function setup(){
+    const table=document.getElementById("paymentFollowupTable");if(!table)return;
+    const headers=[...table.querySelectorAll("thead th")];if(!headers.length)return;
+    let group=table.querySelector("colgroup[data-pf-resizable]");if(!group){group=document.createElement("colgroup");group.dataset.pfResizable="1";table.insertBefore(group,table.querySelector("thead"));}
+    while(group.children.length<headers.length)group.appendChild(document.createElement("col"));while(group.children.length>headers.length)group.lastElementChild.remove();
+    const cols=[...group.children],stored=read(COLUMN_KEY,[]);
+    function applyTableWidth(){const total=cols.reduce((sum,col)=>sum+(parseFloat(col.style.width)||MIN_WIDTH),0);table.style.setProperty("table-layout","fixed","important");table.style.setProperty("min-width","0","important");table.style.setProperty("width",Math.max(MIN_WIDTH*cols.length,total)+"px","important");}
+    function saveColumns(){save(COLUMN_KEY,cols.map(col=>Math.max(MIN_WIDTH,Math.round(parseFloat(col.style.width)||MIN_WIDTH))));}
+    headers.forEach((th,index)=>{
+      const col=cols[index];
+      if(!col.dataset.pfWidthReady){const initial=Number(stored[index])||Math.round(th.getBoundingClientRect().width)||DEFAULT_WIDTHS[index]||100;col.style.width=Math.max(MIN_WIDTH,Math.min(MAX_WIDTH,initial))+"px";col.dataset.pfWidthReady="1";}
+      th.style.position="sticky";
+      let handle=th.querySelector(":scope > .pf-column-resize-handle");
+      if(!handle){handle=document.createElement("span");handle.className="pf-column-resize-handle";handle.tabIndex=0;handle.setAttribute("role","separator");handle.setAttribute("aria-orientation","vertical");th.appendChild(handle);}
+      handle.setAttribute("aria-label","تغيير عرض عمود "+(th.textContent||"").trim());handle.title="اسحب لتغيير العرض — انقر مرتين لملاءمة البيانات";
+      if(handle.dataset.pfResizeReady)return;handle.dataset.pfResizeReady="1";
+      handle.addEventListener("pointerdown",event=>{if(event.button!==undefined&&event.button!==0)return;event.preventDefault();event.stopPropagation();const startX=event.clientX,startWidth=parseFloat(col.style.width)||100;document.body.classList.add("pf-resizing-columns");const move=e=>{const width=Math.max(MIN_WIDTH,Math.min(MAX_WIDTH,startWidth+(startX-e.clientX)));col.style.width=Math.round(width)+"px";applyTableWidth();};const done=()=>{document.removeEventListener("pointermove",move);document.removeEventListener("pointerup",done);document.removeEventListener("pointercancel",done);document.body.classList.remove("pf-resizing-columns");saveColumns();};document.addEventListener("pointermove",move,{passive:false});document.addEventListener("pointerup",done,{once:true});document.addEventListener("pointercancel",done,{once:true});});
+      handle.addEventListener("dblclick",event=>{event.preventDefault();event.stopPropagation();const canvas=document.createElement("canvas"),ctx=canvas.getContext("2d");let width=MIN_WIDTH;[...table.querySelectorAll("tbody tr[data-pf-row-key]")].forEach(row=>{const cell=row.cells[index];if(!cell)return;const style=getComputedStyle(cell);ctx.font=style.font||`${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;(cell.innerText||cell.textContent||"").trim().split(String.fromCharCode(10)).forEach(line=>{width=Math.max(width,Math.ceil(ctx.measureText(line).width)+22);});});col.style.width=Math.min(MAX_WIDTH,Math.max(MIN_WIDTH,width))+"px";applyTableWidth();saveColumns();});
+      handle.addEventListener("keydown",event=>{if(event.key!=="ArrowLeft"&&event.key!=="ArrowRight")return;event.preventDefault();const delta=event.key==="ArrowLeft"?10:-10;col.style.width=Math.max(MIN_WIDTH,Math.min(MAX_WIDTH,(parseFloat(col.style.width)||100)+delta))+"px";applyTableWidth();saveColumns();});
+    });
+    applyTableWidth();
+    const body=table.tBodies[0];if(body&&!body.dataset.pfRowsResizable){body.dataset.pfRowsResizable="1";const attachRows=()=>{
+      const heights=read(ROW_KEY,{});
+      [...body.rows].forEach(row=>{const key=row.dataset.pfRowKey;if(!key)return;if(!row.dataset.pfHeightReady){const h=Number(heights[key]);if(h)row.style.height=Math.max(MIN_HEIGHT,Math.min(MAX_HEIGHT,h))+"px";row.dataset.pfHeightReady="1";}
+        [...row.cells].forEach(cell=>{let grip=cell.querySelector(":scope > .pf-row-resize-handle");if(!grip){grip=document.createElement("span");grip.className="pf-row-resize-handle";grip.tabIndex=0;grip.setAttribute("role","separator");grip.setAttribute("aria-orientation","horizontal");grip.setAttribute("aria-label","تغيير ارتفاع الصف");grip.title="اسحب لتغيير ارتفاع الصف — انقر مرتين للعودة للارتفاع التلقائي";cell.appendChild(grip);}if(grip.dataset.pfRowResizeReady)return;grip.dataset.pfRowResizeReady="1";
+          grip.addEventListener("pointerdown",event=>{if(event.button!==undefined&&event.button!==0)return;event.preventDefault();event.stopPropagation();const startY=event.clientY,startHeight=row.getBoundingClientRect().height;row.classList.add("pf-row-resizing");const move=e=>{row.style.height=Math.max(MIN_HEIGHT,Math.min(MAX_HEIGHT,startHeight+e.clientY-startY))+"px";};const done=()=>{document.removeEventListener("pointermove",move);document.removeEventListener("pointerup",done);document.removeEventListener("pointercancel",done);row.classList.remove("pf-row-resizing");const current=read(ROW_KEY,{});current[key]=Math.round(row.getBoundingClientRect().height);save(ROW_KEY,current);};document.addEventListener("pointermove",move,{passive:false});document.addEventListener("pointerup",done,{once:true});document.addEventListener("pointercancel",done,{once:true});});
+          grip.addEventListener("dblclick",event=>{event.preventDefault();event.stopPropagation();row.style.removeProperty("height");row.dataset.pfHeightReady="1";const current=read(ROW_KEY,{});delete current[key];save(ROW_KEY,current);});
+          grip.addEventListener("keydown",event=>{if(event.key!=="ArrowUp"&&event.key!=="ArrowDown")return;event.preventDefault();const delta=event.key==="ArrowDown"?10:-10;row.style.height=Math.max(MIN_HEIGHT,Math.min(MAX_HEIGHT,row.getBoundingClientRect().height+delta))+"px";const current=read(ROW_KEY,{});current[key]=Math.round(row.getBoundingClientRect().height);save(ROW_KEY,current);});
+        });
+      });
+    };attachRows();if(window.MutationObserver)new MutationObserver(()=>requestAnimationFrame(attachRows)).observe(body,{childList:true,subtree:true});}
+  }
+  document.addEventListener("DOMContentLoaded",setup);if(document.readyState!=="loading")setup();setTimeout(setup,0);
+})();
+</script>
+<script id="payment-followup-archive-local-resize">
+(function(){
+  const COL_KEY="paymentFollowupArchiveTableColumnWidths_v2",ROW_KEY="paymentFollowupArchiveTableRowHeights_v1";
+  const DEFAULTS=[160,155,165,320,155,155,170,140,105,115,110,145,145,150,170,155],MIN=24,MAX=3000,MIN_H=24,MAX_H=1200;
+  function read(key,fallback){try{return JSON.parse(localStorage.getItem(key)||"null")||fallback}catch(e){return fallback}}
+  function save(key,value){try{localStorage.setItem(key,JSON.stringify(value))}catch(e){}}
+  function init(){
+    const table=document.querySelector("#paymentFollowupArchiveTableWrap .pfa-table"),wrap=document.getElementById("paymentFollowupArchiveTableWrap");if(!table||!wrap)return;
+    const headers=[...table.querySelectorAll("thead th")];if(!headers.length)return;
+    let group=table.querySelector("colgroup[data-pfa-resizable]");if(!group){group=document.createElement("colgroup");group.dataset.pfaResizable="1";table.insertBefore(group,table.querySelector("thead"));}
+    while(group.children.length<headers.length)group.appendChild(document.createElement("col"));while(group.children.length>headers.length)group.lastElementChild.remove();
+    const cols=[...group.children],stored=read(COL_KEY,[]),top=document.getElementById("paymentFollowupArchiveScrollTop"),bottom=document.getElementById("paymentFollowupArchiveScrollBottom");
+    function updateWidth(){const total=cols.reduce((sum,col)=>sum+(parseFloat(col.style.width)||MIN),0);table.style.setProperty("table-layout","fixed","important");table.style.setProperty("min-width","0","important");table.style.setProperty("width",Math.max(MIN*cols.length,total)+"px","important");const width=Math.max(table.scrollWidth,wrap.clientWidth);[top,bottom].forEach(bar=>{const spacer=bar?.querySelector("i");if(spacer)spacer.style.width=width+"px";});}
+    function saveCols(){save(COL_KEY,cols.map(col=>Math.max(MIN,Math.round(parseFloat(col.style.width)||MIN))));}
+    headers.forEach((th,index)=>{const col=cols[index];if(!col.dataset.pfaWidthReady){col.style.width=Math.max(MIN,Math.min(MAX,Number(stored[index])||Math.round(th.getBoundingClientRect().width)||DEFAULTS[index]||120))+"px";col.dataset.pfaWidthReady="1";}
+      let handle=th.querySelector(":scope > .pfa-column-resize-handle");if(!handle){handle=document.createElement("span");handle.className="pfa-column-resize-handle no-print";handle.tabIndex=0;handle.setAttribute("role","separator");handle.setAttribute("aria-orientation","vertical");th.appendChild(handle);}handle.setAttribute("aria-label","تغيير عرض عمود "+(th.textContent||"").trim());handle.title="اسحب لتغيير العرض — انقر مرتين لملاءمة البيانات";if(handle.dataset.ready)return;handle.dataset.ready="1";
+      handle.addEventListener("pointerdown",event=>{if(event.button!==undefined&&event.button!==0)return;event.preventDefault();event.stopPropagation();const startX=event.clientX,startWidth=parseFloat(col.style.width)||120;document.body.classList.add("pfa-resizing-columns");const move=e=>{col.style.width=Math.max(MIN,Math.min(MAX,startWidth+startX-e.clientX))+"px";updateWidth();};const done=()=>{document.removeEventListener("pointermove",move);document.removeEventListener("pointerup",done);document.removeEventListener("pointercancel",done);document.body.classList.remove("pfa-resizing-columns");saveCols();};document.addEventListener("pointermove",move,{passive:false});document.addEventListener("pointerup",done,{once:true});document.addEventListener("pointercancel",done,{once:true});});
+      handle.addEventListener("dblclick",event=>{event.preventDefault();event.stopPropagation();const ctx=document.createElement("canvas").getContext("2d");let width=MIN;[...table.querySelectorAll("tbody tr[data-pfa-row-key]")].forEach(row=>{const cell=row.querySelector(`td[data-pfa-column="${index}"]`);if(!cell)return;const st=getComputedStyle(cell);ctx.font=st.font||`${st.fontWeight} ${st.fontSize} ${st.fontFamily}`;(cell.innerText||cell.textContent||"").trim().split(String.fromCharCode(10)).forEach(line=>width=Math.max(width,Math.ceil(ctx.measureText(line).width)+22));});col.style.width=Math.min(MAX,Math.max(MIN,width))+"px";updateWidth();saveCols();});
+      handle.addEventListener("keydown",event=>{if(!["ArrowLeft","ArrowRight"].includes(event.key))return;event.preventDefault();col.style.width=Math.max(MIN,Math.min(MAX,(parseFloat(col.style.width)||120)+(event.key==="ArrowLeft"?10:-10)))+"px";updateWidth();saveCols();});
+    });
+    updateWidth();
+    const body=table.tBodies[0];if(body&&!body.dataset.pfaRowsReady){body.dataset.pfaRowsReady="1";const attachRows=()=>{const heights=read(ROW_KEY,{});[...body.rows].forEach(row=>{const key=row.dataset.pfaRowKey;if(!key)return;if(!row.dataset.pfaHeightReady){const h=Number(heights[key]);if(h)row.style.height=Math.max(MIN_H,Math.min(MAX_H,h))+"px";row.dataset.pfaHeightReady="1";}
+        [...row.cells].forEach(cell=>{if(cell.rowSpan>1)return;let grip=cell.querySelector(":scope > .pfa-row-resize-handle");if(!grip){grip=document.createElement("span");grip.className="pfa-row-resize-handle no-print";grip.tabIndex=0;grip.setAttribute("role","separator");grip.setAttribute("aria-orientation","horizontal");grip.setAttribute("aria-label","تغيير ارتفاع صف الأرشيف");grip.title="اسحب لتغيير ارتفاع الصف — انقر مرتين للارتفاع التلقائي";cell.appendChild(grip);}if(grip.dataset.ready)return;grip.dataset.ready="1";
+          grip.addEventListener("pointerdown",event=>{if(event.button!==undefined&&event.button!==0)return;event.preventDefault();event.stopPropagation();const startY=event.clientY,startHeight=row.getBoundingClientRect().height;document.body.classList.add("pfa-resizing-rows");const move=e=>row.style.height=Math.max(MIN_H,Math.min(MAX_H,startHeight+e.clientY-startY))+"px";const done=()=>{document.removeEventListener("pointermove",move);document.removeEventListener("pointerup",done);document.removeEventListener("pointercancel",done);document.body.classList.remove("pfa-resizing-rows");const current=read(ROW_KEY,{});current[key]=Math.round(row.getBoundingClientRect().height);save(ROW_KEY,current);};document.addEventListener("pointermove",move,{passive:false});document.addEventListener("pointerup",done,{once:true});document.addEventListener("pointercancel",done,{once:true});});
+          grip.addEventListener("dblclick",event=>{event.preventDefault();event.stopPropagation();row.style.removeProperty("height");const current=read(ROW_KEY,{});delete current[key];save(ROW_KEY,current);});
+          grip.addEventListener("keydown",event=>{if(event.key!=="ArrowUp"&&event.key!=="ArrowDown")return;event.preventDefault();row.style.height=Math.max(MIN_H,Math.min(MAX_H,row.getBoundingClientRect().height+(event.key==="ArrowDown"?10:-10)))+"px";const current=read(ROW_KEY,{});current[key]=Math.round(row.getBoundingClientRect().height);save(ROW_KEY,current);});
+        });
+      });};attachRows();if(window.MutationObserver)new MutationObserver(()=>requestAnimationFrame(attachRows)).observe(body,{childList:true,subtree:true});}
+    if(window.ResizeObserver){const observer=new ResizeObserver(updateWidth);observer.observe(table);observer.observe(wrap);}
+  }
+  document.addEventListener("DOMContentLoaded",init);if(document.readyState!=="loading")init();setTimeout(init,300);
 })();
 </script>
 </body>
