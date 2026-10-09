@@ -2177,6 +2177,7 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
 <style id="search-profile-loan-navigation-mobile">
 @media(max-width:640px){#search #clientProfile .search-profile-loan-controls{display:flex;flex-wrap:wrap}#search #clientProfile .search-profile-loan-select{flex:1 1 100%;order:0}#search #clientProfile .search-profile-loan-controls [data-loan-step]{flex:1 1 calc(50% - 8px);order:1}#search #clientProfile .search-profile-loan-position{flex:1 1 100%;order:2}}
 </style>
+<link rel="stylesheet" href="/phonebridge-dashboard.css">
 </head>
 
 <body>
@@ -2227,6 +2228,7 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
 <nav class="no-print" aria-label="التنقل الرئيسي">
 <div class="nav-section-title">التشغيل اليومي</div>
 <a href="#dash" data-screen="dash" data-manager-only><span class="nav-icon nav-icon-dashboard" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 13h6V4H4v9Zm0 7h6v-4H4v4Zm10 0h6v-9h-6v9Zm0-16v4h6V4h-6Z"/></svg></span><span class="nav-label">لوحة التحكم</span><small>ملخص سريع</small></a>
+<a href="#phoneBridgeDashboard" data-screen="phoneBridgeDashboard" data-owner-only><span class="nav-icon nav-icon-call" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 3.5h3l2 4.7-2.1 1.8a13 13 0 0 0 4.1 4.1l1.8-2.1 4.7 2v3a2 2 0 0 1-2.1 2A15.5 15.5 0 0 1 5 5.6a2 2 0 0 1 2-2.1Z"/><path d="M16.5 3.5a4 4 0 0 1 4 4m-4-1a1 1 0 0 1 1 1"/></svg></span><span class="nav-label">متابعة الاتصالات</span><small>الأجهزة والطلبات</small></a>
 <a href="#clients" data-screen="clients"><span class="nav-icon nav-icon-clients" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M16 20v-1.5a4.5 4.5 0 0 0-4.5-4.5h-3A4.5 4.5 0 0 0 4 18.5V20m6-10a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Zm5.5 1a3 3 0 1 0 0-6m1.5 10h3v-1.2a3.8 3.8 0 0 0-2.8-3.7"/></svg></span><span class="nav-label">العملاء</span><small>عرض ومتابعة</small></a>
 <a href="#collection" data-screen="collection"><span class="nav-icon nav-icon-collection" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 3v3m10-3v3M4 9h16M6 5h12a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Zm2 8h3m2 0h3m-8 4h3m2 0h3"/></svg></span><span class="nav-label">التحصيل</span><small>الأقساط المستحقة</small></a>
 <a href="#search" data-screen="search"><span class="nav-icon nav-icon-search" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 5 5"/></svg></span><span class="nav-label">البحث السريع</span><small>الوصول لأي سجل</small></a>
@@ -2919,6 +2921,25 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
  <div class="settings-footer"><button type="button" class="green" onclick="saveProgramSettings()">حفظ الإعدادات</button><button type="button" class="light" onclick="resetProgramSettings()">إعادة الإعدادات الافتراضية</button><span id="settingsSaveMessage" class="settings-save-message"></span></div>
 </section>
 
+
+<section id="phoneBridgeDashboard" class="card screen" data-owner-only aria-labelledby="phonebridgeTitle">
+  <div class="phonebridge-heading">
+    <div><span class="phonebridge-eyebrow">تشغيل الهاتف</span><h2 id="phonebridgeTitle">متابعة وكلاء الاتصال</h2><p>حالة الأجهزة وآخر ظهور وعدادات الطلبات المجمعة.</p></div>
+    <button id="phonebridgeRefresh" class="phonebridge-refresh" type="button">تحديث المؤشرات</button>
+  </div>
+  <p class="phonebridge-privacy">تعرض هذه الشاشة بيانات تشغيلية غير تعريفية فقط؛ لا تظهر أسماء العملاء أو أرقام هواتفهم. تسجيل الدخول الحالي يحكم ظهور الشاشة في الواجهة، لكنه ليس مصادقة خادمية.</p>
+  <div id="phonebridgeStatus" class="phonebridge-status" role="status" aria-live="polite">بانتظار أول تحديث…</div>
+  <div id="phonebridgeKpis" class="phonebridge-kpis">
+    <article class="phonebridge-kpi"><span>أجهزة متصلة</span><b>—</b><small>نبضات حديثة</small></article>
+    <article class="phonebridge-kpi"><span>مكالمة جارية</span><b>—</b><small>حالة تشغيلية</small></article>
+    <article class="phonebridge-kpi"><span>طلبات معلقة</span><b>—</b><small>بانتظار الهاتف</small></article>
+    <article class="phonebridge-kpi"><span>مكتملة</span><b>—</b><small>طلبات انتهت</small></article>
+    <article class="phonebridge-kpi"><span>فاشلة</span><b>—</b><small>تعذر بدء الاتصال</small></article>
+  </div>
+  <div class="phonebridge-devices-wrap"><table class="phonebridge-devices" aria-label="حالة أجهزة الاتصال"><thead><tr><th>معرّف الجهاز</th><th>الاتصال</th><th>الخدمة</th><th>حالة المكالمة</th><th>آخر ظهور</th></tr></thead><tbody id="phonebridgeDevices"><tr><td colspan="5" class="phonebridge-empty">جارٍ انتظار نبضات الأجهزة.</td></tr></tbody></table></div>
+  <p class="phonebridge-footnote">يُعد الجهاز متصلًا إذا وصلت نبضة خلال آخر 90 ثانية. قد تتأخر الحالة عند انقطاع الإنترنت أو إيقاف النظام للخدمة.</p>
+</section>
+
 </main></div>
 
 <script>
@@ -2968,12 +2989,12 @@ programSettings=readProgramSettings();
 window.addEventListener("storage",e=>{if(e.key===PROGRAM_SETTINGS_KEY){programSettings=readProgramSettings();applyProgramSettings()}});
 if(settingsChannel)settingsChannel.onmessage=()=>{programSettings=readProgramSettings();applyProgramSettings()};
 window.addEventListener("resize",()=>{if(programSettings.orientation==="auto")applyProgramSettings()});
-const SCREEN_IDS=["clients","search","dash","collection","risk","dueInstallments","paymentFollowup","portfolio","issuedLoans","dropoutClients","print","users","specialists","audit","import","settings"];
+const SCREEN_IDS=["clients","search","dash","collection","risk","dueInstallments","paymentFollowup","portfolio","issuedLoans","dropoutClients","print","users","specialists","audit","import","settings","phoneBridgeDashboard"];
 let screenDataVersion=0;const screenRenderVersion=Object.create(null);
 function showScreen(id){
   if(!enforceSession()) return;
   if(!SCREEN_IDS.includes(id)) id="import";
-  if((id==="users"||id==="specialists"||id==="audit"||id==="dash") && !isOwnerRole(session.role)) id="search";
+  if((id==="users"||id==="specialists"||id==="audit"||id==="dash"||id==="phoneBridgeDashboard") && !isOwnerRole(session.role)) id="search";
   const screens=showScreen._screens||(showScreen._screens=[...document.querySelectorAll(".screen")]);
   screens.forEach(s=>{s.classList.remove("active");s.setAttribute("aria-hidden","true")});
   const target=document.getElementById(id);if(target){target.classList.add("active");target.setAttribute("aria-hidden","false")}if(id==='dueInstallments'&&typeof ensureDueDefaultSpecialistOption==='function')ensureDueDefaultSpecialistOption();if(typeof renderLastImportNotices==="function")renderLastImportNotices();if(typeof syncSharedLastImportNotice==="function")syncSharedLastImportNotice();
@@ -5112,7 +5133,7 @@ function currentScreenId(){
   return active ? active.id : (location.hash.replace("#","")||"import");
 }
 function screenTitle(id){
-  const titles={clients:"سداد العملاء",import:"رفع Excel",search:"البحث في القروض",dash:"لوحة التحكم",collection:"التحصيل",risk:"المتأخرات والمخاطر",dueInstallments:"الأقساط المستحقة",paymentFollowup:"متابعة السداد",portfolio:"المحفظة",print:"الأقساط والضامنين"};
+  const titles={clients:"سداد العملاء",import:"رفع Excel",search:"البحث في القروض",dash:"لوحة التحكم",phoneBridgeDashboard:"متابعة الاتصالات",collection:"التحصيل",risk:"المتأخرات والمخاطر",dueInstallments:"الأقساط المستحقة",paymentFollowup:"متابعة السداد",portfolio:"المحفظة",print:"الأقساط والضامنين"};
   return titles[id]||"جمعية المبادرة";
 }
 function makeExportTable(){
@@ -10028,6 +10049,7 @@ body.printing-current-screen #dropoutPrintLayer .dropout-risk-print-table .dropo
   window.printCollectionStandalone=printCollectionWithDueStyle;
 })();
 </script>
+<script src="/phonebridge-dashboard.js"></script>
 </body>
 </html>
 
