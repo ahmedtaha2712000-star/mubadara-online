@@ -7647,8 +7647,14 @@ document.addEventListener('DOMContentLoaded', function () {
   }
   function pfContactsHTML(item){return `<div class="pf-contacts">${item.contacts.map(contact=>pfPhoneLine(contact,item)).join("")}</div>`;}
   async function pfRequestPhoneCall(event,link){
+    const phone=String(link.dataset.phone||"").trim();
+    if(/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)){
+      event.preventDefault();
+      if(phone) window.location.href=`tel:${phone.replace(/[^0-9+#*]/g,"")}`;
+      return;
+    }
     event.preventDefault();
-    const phone=String(link.dataset.phone||"").trim(),customer=String(link.dataset.customer||"العميل").trim();
+    const customer=String(link.dataset.customer||"العميل").trim();
     if(!phone)return;
     link.setAttribute("aria-busy","true");
     const payload={customer_name:customer,phone,requested_by:session?.name||session?.user||"غير محدد",device_id:"primary",source_screen:"paymentFollowup",status:"pending"};
