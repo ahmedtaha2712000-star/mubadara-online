@@ -2539,7 +2539,7 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
 <section id="collectionDifferencesPanel" class="collection-differences-panel no-print" aria-label="ملخص مبالغ التحصيل الجديدة">
   <div class="collection-differences-head">
     <div><h3>التحصيلات الجديدة منذ آخر تحديث</h3><p id="collectionDifferencesIntro">بعد رفع الشيت الجديد، ستظهر هنا المبالغ التي زادت لكل عميل بحسب تاريخ السداد.</p></div>
-    <div class="collection-differences-actions"><button type="button" class="light" id="collectionDifferencesToggle">عرض ملخص التحصيل الجديد</button><button type="button" class="light collection-diff-export" id="collectionDifferencesPrint" hidden>طباعة</button><button type="button" class="light collection-diff-export" id="collectionDifferencesPdf" hidden>PDF</button><button type="button" class="light collection-diff-export" id="collectionDifferencesExcel" hidden>Excel</button><button type="button" class="light" id="collectionDifferencesClose" hidden>إخفاء</button></div>
+    <div class="collection-differences-actions"><button type="button" class="light" id="collectionDifferencesToggle">عرض ملخص التحصيل الجديد</button><button type="button" class="light collection-diff-export" id="collectionDifferencesPrint" hidden>طباعة</button><button type="button" class="light collection-diff-export" id="collectionDifferencesPdf" hidden>تنزيل PDF</button><div class="collection-diff-share-wrap"><button type="button" class="light collection-diff-export" id="collectionDifferencesShareToggle" hidden aria-haspopup="true" aria-expanded="false">PDF / واتساب</button><div id="collectionDifferencesShareMenu" class="collection-diff-share-menu" hidden role="menu"><button type="button" class="light" data-diff-pdf-action="open" role="menuitem">فتح PDF</button><button type="button" class="light" data-diff-pdf-action="download" role="menuitem">تنزيل PDF</button><button type="button" class="light" data-diff-pdf-action="whatsapp" role="menuitem">مشاركة عبر واتساب</button></div></div><button type="button" class="light collection-diff-export" id="collectionDifferencesExcel" hidden>Excel</button><button type="button" class="light" id="collectionDifferencesClose" hidden>إخفاء</button></div>
   </div>
   <div id="collectionDifferencesBody" hidden>
     <div class="collection-difference-metrics" id="collectionDifferenceMetrics"></div>
@@ -10708,7 +10708,7 @@ body.pfa-resizing-rows,body.pfa-resizing-rows *{cursor:row-resize!important;user
  }
  function printCollectionDifferences(){
    const layer=buildCollectionDifferencesReportLayer();if(!layer)return;
-   const style=document.createElement("style");style.id="collectionDifferencesPrintRuntimeStyle";style.textContent="@media print{@page{size:A4 landscape;margin:8mm}body.printing-collection-differences>:not(#collectionDifferencesPrintLayer){display:none!important}body.printing-collection-differences #collectionDifferencesPrintLayer{display:block!important;position:static!important;left:auto!important;top:auto!important;width:100%!important}}";
+   const style=document.createElement("style");style.id="collectionDifferencesPrintRuntimeStyle";style.textContent="@media print{@page{size:A4 landscape;margin:8mm}body.printing-collection-differences>:not(#collectionDifferencesPrintLayer){display:none!important}body.printing-collection-differences #collectionDifferencesPrintLayer{display:block!important;position:static!important;left:auto!important;top:auto!important;width:100%!important;visibility:visible!important;opacity:1!important}body.printing-collection-differences #collectionDifferencesPrintLayer,body.printing-collection-differences #collectionDifferencesPrintLayer *{visibility:visible!important;opacity:1!important}}";
    document.head.appendChild(style);document.body.appendChild(layer);document.body.classList.add("printing-collection-differences");
    let cleaned=false;const cleanup=()=>{if(cleaned)return;cleaned=true;document.body.classList.remove("printing-collection-differences");layer.remove();style.remove();window.removeEventListener("afterprint",cleanup)};
    window.addEventListener("afterprint",cleanup,{once:true});requestAnimationFrame(()=>requestAnimationFrame(()=>setTimeout(()=>{try{window.print()}catch(e){cleanup();alert("تعذرت طباعة ملخص التحصيلات الجديدة.")}},150)));setTimeout(cleanup,60000);
@@ -10716,6 +10716,47 @@ body.pfa-resizing-rows,body.pfa-resizing-rows *{cursor:row-resize!important;user
  async function exportCollectionDifferencesPDF(){
    const layer=buildCollectionDifferencesReportLayer();if(!layer)return;
    await downloadReportLayerPDF(layer,`التحصيلات_الجديدة_${new Date().toISOString().slice(0,10)}.pdf`,`collection-differences-pdf`);
+ }
+ function collectionDifferencesPdfFilename(){return `التحصيلات_الجديدة_${new Date().toISOString().slice(0,10)}.pdf`}
+ function downloadCollectionDifferencesBlob(blob,filename){
+   const url=URL.createObjectURL(blob),link=document.createElement("a");link.href=url;link.download=filename;link.style.display="none";document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),120000);
+ }
+ async function makeCollectionDifferencesPdfBlob(){
+   const layer=buildCollectionDifferencesReportLayer();if(!layer)return null;
+   return await downloadReportLayerPDF(layer,collectionDifferencesPdfFilename(),"collection-differences-share",true);
+ }
+ async function runCollectionDifferencesPdfAction(action){
+   const menu=document.getElementById("collectionDifferencesShareMenu");if(menu)menu.hidden=true;document.getElementById("collectionDifferencesShareToggle")?.setAttribute("aria-expanded","false");
+   let pendingWindow=null;
+   if(action==="open"||action==="whatsapp"){
+     try{pendingWindow=window.open("about:blank","_blank");if(pendingWindow)pendingWindow.opener=null}catch(e){}
+   }
+   try{
+     const blob=await makeCollectionDifferencesPdfBlob();if(!blob){pendingWindow?.close();return}
+     const filename=collectionDifferencesPdfFilename();
+     if(action==="download"){downloadCollectionDifferencesBlob(blob,filename);return}
+     const url=URL.createObjectURL(blob);
+     if(action==="open"){
+       if(pendingWindow){pendingWindow.location.href=url;setTimeout(()=>URL.revokeObjectURL(url),10*60*1000)}
+       else{downloadCollectionDifferencesBlob(blob,filename);alert("تعذر فتح نافذة PDF؛ تم تنزيل الملف بدلًا منها.")}
+       return;
+     }
+     if(action==="whatsapp"){
+       let file=null,canShareFile=false;
+       try{if(typeof File!=="undefined"){file=new File([blob],filename,{type:"application/pdf"});canShareFile=typeof navigator!=="undefined"&&typeof navigator.share==="function"&&typeof navigator.canShare==="function"&&navigator.canShare({files:[file]})}}catch(e){}
+       if(canShareFile){
+         try{await navigator.share({files:[file],title:"ملخص التحصيلات الجديدة",text:`ملخص التحصيلات الجديدة — ${collectionPaymentRangeLabel()}`});pendingWindow?.close();return}
+         catch(e){if(e?.name==="AbortError"){pendingWindow?.close();return}}
+       }
+       downloadCollectionDifferencesBlob(blob,filename);
+       const text=`تم تجهيز ملف PDF لملخص التحصيلات الجديدة (${collectionPaymentRangeLabel()}). أرفق الملف الذي تم تنزيله قبل الإرسال.`;
+       const waUrl=`https://wa.me/?text=${encodeURIComponent(text)}`;
+       let waOpened=!!pendingWindow;
+       if(pendingWindow){pendingWindow.location.href=waUrl}
+       else{try{waOpened=!!window.open(waUrl,"_blank","noopener")}catch(e){waOpened=false}}
+       alert(waOpened?"تم تنزيل ملف PDF وفتح واتساب برسالة جاهزة. أرفق ملف PDF يدويًا في واتساب قبل الإرسال.":"تم تنزيل ملف PDF. افتح واتساب وأرفق الملف يدويًا قبل الإرسال.");
+     }
+   }catch(e){pendingWindow?.close();console.error("Collection PDF action failed",e);alert("تعذر تجهيز ملف PDF. حاول مرة أخرى.")}
  }
  function renderCollectionDifferences(filter="all"){
    const panel=document.getElementById("collectionDifferencesPanel"),body=document.getElementById("collectionDifferencesBody"),metrics=document.getElementById("collectionDifferenceMetrics"),tbody=document.getElementById("collectionDifferencesBodyRows"),intro=document.getElementById("collectionDifferencesIntro");if(!panel||!metrics||!tbody)return;
@@ -10736,8 +10777,21 @@ body.pfa-resizing-rows,body.pfa-resizing-rows *{cursor:row-resize!important;user
    loadCollectionDifferences();renderCollectionDifferences();
    ["collectionFrom","collectionTo"].forEach(id=>{const input=document.getElementById(id);if(input)["input","change"].forEach(eventName=>input.addEventListener(eventName,()=>renderCollectionDifferences(activeDifferenceFilter())))});
    const panel=document.getElementById("collectionDifferencesPanel"),body=document.getElementById("collectionDifferencesBody"),toggle=document.getElementById("collectionDifferencesToggle"),close=document.getElementById("collectionDifferencesClose");
-   toggle?.addEventListener("click",()=>{body.hidden=false;body.dataset.open='1';toggle.hidden=true;if(close)close.hidden=false;document.getElementById("collectionDifferencesPrint")?.removeAttribute("hidden");document.getElementById("collectionDifferencesExcel")?.removeAttribute("hidden");document.getElementById("collectionDifferencesPdf")?.removeAttribute("hidden");renderCollectionDifferences(document.querySelector("#collectionDifferencesPanel [data-diff-filter].is-active")?.dataset.diffFilter||"all")});close?.addEventListener("click",()=>{body.hidden=true;body.dataset.open='0';close.hidden=true;toggle.hidden=false;document.getElementById("collectionDifferencesPrint")?.setAttribute("hidden","");document.getElementById("collectionDifferencesExcel")?.setAttribute("hidden","");document.getElementById("collectionDifferencesPdf")?.setAttribute("hidden","")});document.getElementById("collectionDifferencesPrint")?.addEventListener("click",printCollectionDifferences);document.getElementById("collectionDifferencesExcel")?.addEventListener("click",exportCollectionDifferencesExcel);document.getElementById("collectionDifferencesPdf")?.addEventListener("click",exportCollectionDifferencesPDF);
+   toggle?.addEventListener("click",()=>{body.hidden=false;body.dataset.open='1';toggle.hidden=true;if(close)close.hidden=false;document.getElementById("collectionDifferencesPrint")?.removeAttribute("hidden");document.getElementById("collectionDifferencesShareToggle")?.removeAttribute("hidden");document.getElementById("collectionDifferencesExcel")?.removeAttribute("hidden");document.getElementById("collectionDifferencesPdf")?.removeAttribute("hidden");renderCollectionDifferences(document.querySelector("#collectionDifferencesPanel [data-diff-filter].is-active")?.dataset.diffFilter||"all")});close?.addEventListener("click",()=>{body.hidden=true;body.dataset.open='0';close.hidden=true;toggle.hidden=false;document.getElementById("collectionDifferencesPrint")?.setAttribute("hidden","");document.getElementById("collectionDifferencesShareToggle")?.setAttribute("hidden","");document.getElementById("collectionDifferencesShareMenu")&&(document.getElementById("collectionDifferencesShareMenu").hidden=true);document.getElementById("collectionDifferencesShareToggle")?.setAttribute("aria-expanded","false");document.getElementById("collectionDifferencesExcel")?.setAttribute("hidden","");document.getElementById("collectionDifferencesPdf")?.setAttribute("hidden","")});document.getElementById("collectionDifferencesPrint")?.addEventListener("click",printCollectionDifferences);document.getElementById("collectionDifferencesExcel")?.addEventListener("click",exportCollectionDifferencesExcel);document.getElementById("collectionDifferencesPdf")?.addEventListener("click",exportCollectionDifferencesPDF);
+   const shareToggle=document.getElementById("collectionDifferencesShareToggle"),shareMenu=document.getElementById("collectionDifferencesShareMenu"),shareWrap=shareToggle?.parentElement;
+   shareToggle?.addEventListener("click",event=>{event.stopPropagation();if(!shareMenu)return;shareMenu.hidden=!shareMenu.hidden;shareToggle.setAttribute("aria-expanded",String(!shareMenu.hidden))});
+   shareMenu?.querySelectorAll("[data-diff-pdf-action]").forEach(button=>button.addEventListener("click",()=>runCollectionDifferencesPdfAction(button.dataset.diffPdfAction)));
+   document.addEventListener("click",event=>{if(shareWrap&&!shareWrap.contains(event.target)&&shareMenu){shareMenu.hidden=true;shareToggle?.setAttribute("aria-expanded","false")}});
+   document.addEventListener("keydown",event=>{if(event.key==="Escape"&&shareMenu){shareMenu.hidden=true;shareToggle?.setAttribute("aria-expanded","false")}});
    panel?.querySelectorAll("[data-diff-filter]").forEach(b=>b.addEventListener("click",()=>renderCollectionDifferences(b.dataset.diffFilter)));
  });
 })();
 </script>
+
+<style id="collection-diff-share-style">
+.collection-diff-share-wrap{position:relative;display:inline-flex;align-items:center}
+.collection-diff-share-menu[hidden]{display:none!important}
+.collection-diff-share-menu{position:absolute;z-index:14000;top:calc(100% + 5px);right:0;min-width:190px;padding:6px;display:flex;flex-direction:column;gap:5px;background:#fff;border:1px solid #cbd5e1;border-radius:10px;box-shadow:0 10px 24px rgba(15,23,42,.18)}
+.collection-diff-share-menu button{width:100%;min-width:0!important;text-align:right;white-space:nowrap}
+@media(max-width:600px){.collection-diff-share-menu{position:fixed;top:auto;right:12px;left:12px;bottom:14px;min-width:0}}
+</style>
