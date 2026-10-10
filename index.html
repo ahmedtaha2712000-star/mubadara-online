@@ -2898,9 +2898,10 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
       <div class="pf-actions no-print"><button type="button" onclick="openPaymentFollowupArchive()" title="فتح سجل المتابعة">سجل المتابعة</button><button type="button" onclick="printPaymentFollowupReport()" title="طباعة التقرير">طباعة</button><button type="button" class="pf-pdf" onclick="downloadPaymentFollowupPDF()" title="تحميل PDF">PDF</button><button type="button" class="pf-excel" onclick="exportPaymentFollowupExcel()" title="تصدير Excel">Excel</button></div>
     </div>
     <div class="pf-filterbar no-print">
-      <div class="pf-filter-field"><label for="paymentFollowupSearch">اسم العميل</label><input id="paymentFollowupSearch" list="paymentFollowupClientList" autocomplete="off" placeholder="اكتب أي حرف من اسم العميل..."><datalist id="paymentFollowupClientList"></datalist></div>
+      <div class="pf-filter-field"><label for="paymentFollowupSearch">العميل / رقم القرض</label><input id="paymentFollowupSearch" list="paymentFollowupClientList" autocomplete="off" placeholder="ابحث باسم العميل أو رقم القرض..."><datalist id="paymentFollowupClientList"></datalist></div>
       <div class="pf-filter-field"><div class="due-specialist-status-control app-shared-specialist-status-control no-print" role="radiogroup" aria-label="حالة الأخصائي"><span class="due-specialist-status-title">حالة الأخصائي</span><label><input type="radio" style="width:14px!important;height:14px!important;min-width:14px!important;max-width:14px!important;display:inline-block!important;flex:0 0 14px!important;margin:0!important;"  name="appSpecialistStatus_followup" value="active" checked data-app-specialist-state-control onchange="setAppSpecialistStatus(this.value)">الأخصائيون النشطون</label><label><input type="radio" style="width:14px!important;height:14px!important;min-width:14px!important;max-width:14px!important;display:inline-block!important;flex:0 0 14px!important;margin:0!important;"  name="appSpecialistStatus_followup" value="inactive" data-app-specialist-state-control onchange="setAppSpecialistStatus(this.value)">أخصائي مستقيل</label><label><input type="radio" style="width:14px!important;height:14px!important;min-width:14px!important;max-width:14px!important;display:inline-block!important;flex:0 0 14px!important;margin:0!important;"  name="appSpecialistStatus_followup" value="all" data-app-specialist-state-control onchange="setAppSpecialistStatus(this.value)">جميع الأخصائيين</label></div><label for="paymentFollowupOfficer">اسم الأخصائي</label><input id="paymentFollowupOfficer" list="paymentFollowupOfficerList" autocomplete="off" placeholder="اكتب أي حرف من اسم الأخصائي..."><datalist id="paymentFollowupOfficerList"></datalist></div>
       <div class="pf-filter-field"><label for="paymentFollowupStatus">حالة الاتصال</label><select id="paymentFollowupStatus"><option value="all">كل الحالات</option><option value="not-called">لم يتم الاتصال</option><option value="called">تم الاتصال</option><option value="تم التواصل — وعد بالسداد">وعد بالسداد</option><option value="لم يرد">لم يرد</option><option value="طلب إعادة الاتصال">طلب إعادة الاتصال</option><option value="تم السداد">تم السداد</option><option value="تعذر الاتفاق">تعذر الاتفاق</option><option value="أخرى">أخرى</option></select></div>
+      <div class="pf-filter-field"><label for="paymentFollowupLoanStatus">حالة القرض</label><select id="paymentFollowupLoanStatus"><option value="open" selected>القروض القائمة</option><option value="closed">القروض المغلقة</option><option value="all">كل القروض</option></select></div>
       <div class="pf-filter-field pf-period-field"><label for="paymentFollowupFrom">الفترة — من تاريخ</label><input id="paymentFollowupFrom" type="date"></div>
       <div class="pf-filter-field pf-period-field"><label for="paymentFollowupTo">الفترة — إلى تاريخ</label><input id="paymentFollowupTo" type="date"></div>
       <div class="pf-period-actions"><button type="button" class="pf-period-btn" onclick="pfSetToday()">📍 تاريخ اليوم</button><button type="button" class="pf-period-btn" onclick="pfSetPreviousMonth()">◀️ الشهر السابق</button><button type="button" id="paymentFollowupClear" class="pf-period-btn pf-clear">مسح الفلتر</button></div>
@@ -2912,17 +2913,17 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
   </div>
 </section>
 
-<section id="paymentFollowupArchive" class="card screen" aria-label="أرشيف متابعة السداد">
+<section id="paymentFollowupArchive" class="card screen" aria-label="سجل متابعة السداد">
   <div class="pfa-shell">
-    <div class="pfa-topbar"><div><h2 class="pfa-title">أرشيف متابعة السداد</h2><p class="pfa-subtitle" id="paymentFollowupArchiveSubtitle">السجل الزمني للاتصالات والاتفاقات مع العميل والضامنين.</p></div><div class="pfa-actions no-print">
-      <button type="button" class="print-btn icon-action pfa-export-action" aria-label="طباعة أرشيف المتابعة" title="طباعة أرشيف المتابعة" onclick="return printPaymentFollowupArchive(event)"><span class="action-glyph glyph-print" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M7 8V3.5h10V8M6 17H4a2 2 0 0 1-2-2v-3.5A3.5 3.5 0 0 1 5.5 8h13A3.5 3.5 0 0 1 22 11.5V15a2 2 0 0 1-2 2h-2" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M6 13h12v8H6zM7.5 16h9" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><circle cx="18" cy="11.5" r=".8" fill="currentColor"/></svg></span><span class="action-label">طباعة</span></button>
-      <button type="button" class="pdf-btn icon-action pfa-export-action" aria-label="تحميل أرشيف المتابعة PDF" title="تحميل أرشيف المتابعة PDF" onclick="return downloadPaymentFollowupArchivePDF(event)"><span class="action-glyph glyph-pdf" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M6 2.5h8l4 4V21H6z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M14 2.5V7h4M8 12h8M8 15h6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M8 18h8" stroke="currentColor" stroke-width="2"/></svg></span><span class="action-label">PDF</span></button>
-      <button type="button" class="excel-btn icon-action pfa-export-action" aria-label="تحميل أرشيف المتابعة Excel" title="تحميل أرشيف المتابعة Excel" onclick="return exportPaymentFollowupArchiveExcel(event)"><span class="action-glyph glyph-excel" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M7 2.75h7l4 4v14.5H7z" fill="#fff" stroke="#168045" stroke-width="1.15"/><path d="M14 2.75v4h4" fill="#d8f2e2" stroke="#168045" stroke-width="1.05"/><path d="M12.4 10.1h3.8m-3.8 2.7h3.8m-3.8 2.7h3.8m-3.8 2.7h3.8" fill="none" stroke="#72b48c" stroke-width=".8" stroke-linecap="round"/><path d="M3.15 8.7h9.7v10.1h-9.7z" fill="#107c41" stroke="#075e2f" stroke-width="1.1"/><path d="m5.65 11.1 4.7 5.3m-4.7 0 4.7-5.3" fill="none" stroke="#fff" stroke-width="1.45" stroke-linecap="round"/></svg></span><span class="action-label">Excel</span></button>
-      <button type="button" onclick="showScreen('paymentFollowup')">← العودة إلى متابعة السداد</button>
+    <div class="pfa-topbar"><div><h2 class="pfa-title">سجل متابعة السداد</h2><p class="pfa-subtitle" id="paymentFollowupArchiveSubtitle">سجل متابعة السداد.</p></div><div class="pfa-actions no-print">
+      <button type="button" class="print-btn icon-action pfa-export-action" aria-label="طباعة سجل متابعة السداد" title="طباعة سجل متابعة السداد" onclick="return printPaymentFollowupArchive(event)"><span class="action-glyph glyph-print" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M7 8V3.5h10V8M6 17H4a2 2 0 0 1-2-2v-3.5A3.5 3.5 0 0 1 5.5 8h13A3.5 3.5 0 0 1 22 11.5V15a2 2 0 0 1-2 2h-2" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M6 13h12v8H6zM7.5 16h9" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><circle cx="18" cy="11.5" r=".8" fill="currentColor"/></svg></span><span class="action-label">طباعة</span></button>
+      <button type="button" class="pdf-btn icon-action pfa-export-action" aria-label="تحميل سجل متابعة السداد PDF" title="تحميل سجل متابعة السداد PDF" onclick="return downloadPaymentFollowupArchivePDF(event)"><span class="action-glyph glyph-pdf" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M6 2.5h8l4 4V21H6z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M14 2.5V7h4M8 12h8M8 15h6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M8 18h8" stroke="currentColor" stroke-width="2"/></svg></span><span class="action-label">PDF</span></button>
+      <button type="button" class="excel-btn icon-action pfa-export-action" aria-label="تحميل سجل متابعة السداد Excel" title="تحميل سجل متابعة السداد Excel" onclick="return exportPaymentFollowupArchiveExcel(event)"><span class="action-glyph glyph-excel" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M7 2.75h7l4 4v14.5H7z" fill="#fff" stroke="#168045" stroke-width="1.15"/><path d="M14 2.75v4h4" fill="#d8f2e2" stroke="#168045" stroke-width="1.05"/><path d="M12.4 10.1h3.8m-3.8 2.7h3.8m-3.8 2.7h3.8m-3.8 2.7h3.8" fill="none" stroke="#72b48c" stroke-width=".8" stroke-linecap="round"/><path d="M3.15 8.7h9.7v10.1h-9.7z" fill="#107c41" stroke="#075e2f" stroke-width="1.1"/><path d="m5.65 11.1 4.7 5.3m-4.7 0 4.7-5.3" fill="none" stroke="#fff" stroke-width="1.45" stroke-linecap="round"/></svg></span><span class="action-label">Excel</span></button>
+      <button type="button" class="pfa-back-action" onclick="showScreen('paymentFollowup')">← العودة إلى متابعة السداد</button>
     </div></div>
-    <div class="pfa-summary"><div class="pfa-card"><span>العميل</span><b id="paymentFollowupArchiveClient">—</b></div><div class="pfa-card"><span>القرض / الحالة</span><b id="paymentFollowupArchiveLoan">—</b></div><div class="pfa-card"><span>عدد المتابعات</span><b id="paymentFollowupArchiveCount">0</b></div><div class="pfa-card"><span>آخر متابعة</span><b id="paymentFollowupArchiveLatest">—</b></div></div>
-    <div class="pfa-filter no-print" aria-label="فلاتر أرشيف المتابعة"><label class="pfa-filter-wide">اسم العميل<input id="paymentFollowupArchiveClientSearch" list="paymentFollowupArchiveClientList" type="search" autocomplete="off" placeholder="اكتب اسم العميل..."><datalist id="paymentFollowupArchiveClientList"></datalist></label><label>اسم الأخصائي<input id="paymentFollowupArchiveOfficerSearch" list="paymentFollowupArchiveOfficerList" type="search" autocomplete="off" placeholder="اختر الأخصائي..."><datalist id="paymentFollowupArchiveOfficerList"></datalist></label><label>تم التواصل مع<input id="paymentFollowupArchiveParty" list="paymentFollowupArchivePartyList" type="search" autocomplete="off" placeholder="العميل أو الضامن..."><datalist id="paymentFollowupArchivePartyList"></datalist></label><label>نتيجة المتابعة<input id="paymentFollowupArchiveStatus" list="paymentFollowupArchiveStatusList" type="search" autocomplete="off" placeholder="اختر النتيجة..."><datalist id="paymentFollowupArchiveStatusList"></datalist></label><label>من تاريخ<input id="paymentFollowupArchiveFrom" type="date"></label><label>إلى تاريخ<input id="paymentFollowupArchiveTo" type="date"></label><label class="pfa-filter-wide">بحث في الملاحظات<input id="paymentFollowupArchiveSearch" type="search" placeholder="كلمة داخل الاتفاق أو الملاحظات..."></label><button id="paymentFollowupArchiveClear" class="pfa-clear" type="button">مسح كل الفلاتر</button></div>
-    <div class="pfa-scrollbar no-print" id="paymentFollowupArchiveScrollTop" aria-label="التمرير الأفقي أعلى الجدول"><i></i></div><div class="pfa-table-wrap" id="paymentFollowupArchiveTableWrap"><table class="pfa-table" aria-label="جدول أرشيف متابعة السداد"><thead><tr><th>اسم العميل</th><th>تم التواصل مع</th><th>نتيجة المتابعة</th><th>تفاصيل الاتفاق / الملاحظات</th><th>المتابعة القادمة</th><th>القائم بالمتابعة</th><th>التاريخ والوقت</th><th>مبلغ القرض</th><th>مدة القرض</th><th>قيمة القسط</th><th>المسدد</th><th>تاريخ السداد</th><th>المتبقي من القسط</th><th>عدد الأقساط المتأخرة</th><th>إجمالي متأخرات العميل</th><th>اسم الأخصائي</th></tr></thead><tbody id="paymentFollowupArchiveTimeline" aria-live="polite"></tbody></table></div><div class="pfa-scrollbar no-print" id="paymentFollowupArchiveScrollBottom" aria-label="التمرير الأفقي أسفل جدول الأرشيف"><i></i></div>
+    <div class="pfa-summary" aria-hidden="true" style="display:none!important"><div class="pfa-card"><span>العميل</span><b id="paymentFollowupArchiveClient">—</b></div><div class="pfa-card"><span>القرض / الحالة</span><b id="paymentFollowupArchiveLoan">—</b></div><div class="pfa-card"><span>عدد المتابعات</span><b id="paymentFollowupArchiveCount">0</b></div><div class="pfa-card"><span>آخر متابعة</span><b id="paymentFollowupArchiveLatest">—</b></div></div>
+    <div class="pfa-filter no-print" aria-label="فلاتر أرشيف المتابعة"><label class="pfa-filter-wide">اسم العميل<input id="paymentFollowupArchiveClientSearch" list="paymentFollowupArchiveClientList" type="search" autocomplete="off" placeholder="اكتب اسم العميل..."><datalist id="paymentFollowupArchiveClientList"></datalist></label><label>اسم الأخصائي<input id="paymentFollowupArchiveOfficerSearch" list="paymentFollowupArchiveOfficerList" type="search" autocomplete="off" placeholder="اختر الأخصائي..."><datalist id="paymentFollowupArchiveOfficerList"></datalist></label><label>تم التواصل مع<input id="paymentFollowupArchiveParty" list="paymentFollowupArchivePartyList" type="search" autocomplete="off" placeholder="العميل أو الضامن..."><datalist id="paymentFollowupArchivePartyList"></datalist></label><label>نتيجة المتابعة<input id="paymentFollowupArchiveStatus" list="paymentFollowupArchiveStatusList" type="search" autocomplete="off" placeholder="اختر النتيجة..."><datalist id="paymentFollowupArchiveStatusList"></datalist></label><div class="pfa-date-range-group" aria-label="تصفية حسب تاريخ الاتصال المسجل من المستخدم"><div class="pfa-date-fields"><label>من تاريخ<input id="paymentFollowupArchiveFrom" type="date"></label><label>إلى تاريخ<input id="paymentFollowupArchiveTo" type="date"></label></div><div class="pfa-date-presets" role="group" aria-label="اختصارات نطاق التاريخ"><button type="button" data-pfa-range="today">تاريخ اليوم</button><button type="button" data-pfa-range="yesterday">اليوم السابق</button><button type="button" data-pfa-range="month">الشهر الحالي</button><button type="button" data-pfa-range="previous-month">الشهر السابق</button></div></div><label class="pfa-filter-wide">بحث في الملاحظات<input id="paymentFollowupArchiveSearch" type="search" placeholder="كلمة داخل الاتفاق أو الملاحظات..."></label><button id="paymentFollowupArchiveClear" class="pfa-clear" type="button">مسح كل الفلاتر</button></div>
+    <div class="pfa-scrollbar no-print" id="paymentFollowupArchiveScrollTop" aria-label="التمرير الأفقي أعلى الجدول"><i></i></div><div class="pfa-table-wrap" id="paymentFollowupArchiveTableWrap"><table class="pfa-table" aria-label="جدول سجل متابعة السداد"><thead><tr><th>اسم العميل</th><th>تم التواصل مع</th><th>نتيجة المتابعة</th><th>تفاصيل الاتفاق / الملاحظات</th><th>المتابعة القادمة</th><th>القائم بالمتابعة</th><th>التاريخ والوقت</th><th>مبلغ القرض</th><th>مدة القرض</th><th>قيمة القسط</th><th>المسدد</th><th>تاريخ السداد</th><th>المتبقي من القسط</th><th>عدد الأقساط المتأخرة</th><th>إجمالي متأخرات العميل</th><th>اسم الأخصائي</th></tr></thead><tbody id="paymentFollowupArchiveTimeline" aria-live="polite"></tbody></table></div><div class="pfa-scrollbar no-print" id="paymentFollowupArchiveScrollBottom" aria-label="التمرير الأفقي أسفل جدول الأرشيف"><i></i></div>
   </div>
 </section>
 
@@ -6280,6 +6281,29 @@ function printClientProfile(){
 #paymentFollowup .pf-archive-btn{border:1px solid #87681f;border-radius:8px;padding:6px 9px;background:#fff8df;color:#765817;font:inherit;font-size:11px;font-weight:900;cursor:pointer;white-space:nowrap}
 #paymentFollowup .pf-archive-btn:hover{background:#f3df9e}
 @media(max-width:760px){#paymentFollowupArchive{padding:10px;overflow:visible}#paymentFollowupArchive .pfa-summary{display:flex;overflow:auto}#paymentFollowupArchive .pfa-card{min-width:145px}#paymentFollowupArchive .pfa-topbar{padding:12px}#paymentFollowupArchive .pfa-title{font-size:18px}#paymentFollowupArchive .pfa-filter{grid-template-columns:1fr 1fr}#paymentFollowupArchive .pfa-filter .pfa-filter-wide{grid-column:1/-1}#paymentFollowupArchive .pfa-table-wrap{display:block;overflow-x:scroll;max-width:calc(100vw - 20px);padding-bottom:6px}#paymentFollowupArchive .pfa-table{min-width:1100px}}
+/* Screen-only archive layout: concise header, actions, filters, then the unchanged table. */
+@media screen{
+  #paymentFollowupArchive .pfa-subtitle{display:none!important}
+  #paymentFollowupArchive .pfa-summary{display:none!important}
+  #paymentFollowupArchive .pfa-shell{gap:12px}
+  #paymentFollowupArchive .pfa-topbar{padding:15px 18px}
+  #paymentFollowupArchive .pfa-actions{align-items:center;justify-content:flex-start}
+  #paymentFollowupArchive .pfa-actions .pfa-back-action{background:#f4d36e;color:#17263c;border-color:#f4d36e}
+  #paymentFollowupArchive .pfa-filter{box-shadow:0 4px 14px rgba(15,23,42,.05)}
+  #paymentFollowupArchive .pfa-date-range-group{grid-column:span 2;display:grid;gap:8px;min-width:0}
+  #paymentFollowupArchive .pfa-date-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  #paymentFollowupArchive .pfa-date-presets{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+  #paymentFollowupArchive .pfa-date-presets button{min-height:32px;padding:5px 10px;border:1px solid #cbd5e1;border-radius:8px;background:#f7f9fc;color:#29445f;font:inherit;font-size:11px;font-weight:800;cursor:pointer}
+  #paymentFollowupArchive .pfa-date-presets button:hover{background:#eaf1f8;border-color:#9fb0c2}
+  #paymentFollowupArchive .pfa-table-wrap{-webkit-overflow-scrolling:touch;touch-action:pan-x!important;overscroll-behavior-x:contain}
+  @media(max-width:760px){
+    #paymentFollowupArchive .pfa-date-range-group{grid-column:1/-1}
+    #paymentFollowupArchive .pfa-date-fields{grid-template-columns:repeat(2,minmax(0,1fr))}
+    #paymentFollowupArchive .pfa-date-presets{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+    #paymentFollowupArchive .pfa-date-presets button{width:100%;min-height:38px}
+    #paymentFollowupArchive .pfa-table-wrap{overflow-x:auto!important;overflow-y:hidden!important;-webkit-overflow-scrolling:touch;touch-action:pan-x!important;overscroll-behavior-x:contain}
+  }
+}
 /* Professional payment-follow-up print report */
 @page{size:A4 landscape;margin:9mm}
 @media print{
@@ -7677,9 +7701,10 @@ document.addEventListener('DOMContentLoaded', function () {
   }
   function pfCaseLogs(caseKey,allLogs){return allLogs.filter(x=>String(x.caseKey)===String(caseKey)).sort((a,b)=>new Date(b.createdAt||0)-new Date(a.createdAt||0));}
   function pfEnsureDefaultPeriod(){
-    const from=document.getElementById("paymentFollowupFrom"),to=document.getElementById("paymentFollowupTo");
+    const from=document.getElementById("paymentFollowupFrom"),to=document.getElementById("paymentFollowupTo"),loanStatus=document.getElementById("paymentFollowupLoanStatus");
     if(from&&!from.value)from.value="2021-01-01";
     if(to&&!to.value)to.value="2030-12-31";
+    if(loanStatus&&!loanStatus.value)loanStatus.value="open";
   }
   function pfSetToday(){
     const d=isoDate(new Date()),from=document.getElementById("paymentFollowupFrom"),to=document.getElementById("paymentFollowupTo");
@@ -7694,6 +7719,7 @@ document.addEventListener('DOMContentLoaded', function () {
   function pfClearFilters(){
     ["paymentFollowupSearch","paymentFollowupOfficer"].forEach(id=>{const el=document.getElementById(id);if(el)el.value=""});
     const st=document.getElementById("paymentFollowupStatus");if(st)st.value="all";
+    const loanStatus=document.getElementById("paymentFollowupLoanStatus");if(loanStatus)loanStatus.value="open";
     const from=document.getElementById("paymentFollowupFrom"),to=document.getElementById("paymentFollowupTo");
     if(from)from.value="2021-01-01";if(to)to.value="2030-12-31";window.smartSelectSync?.();renderPaymentFollowup();
   }
@@ -7713,12 +7739,14 @@ document.addEventListener('DOMContentLoaded', function () {
     const query=norm(document.getElementById("paymentFollowupSearch")?.value||"");
     const officer=norm(document.getElementById("paymentFollowupOfficer")?.value||"");
     const status=document.getElementById("paymentFollowupStatus")?.value||"all";
+    const loanState=document.getElementById("paymentFollowupLoanStatus")?.value||"open";
     const period=pfPeriodValues(),logs=pfReadLogs();
     return currentCases.filter(item=>{
       const due=parseExcelDate(item.due);
       if(period.from&&(!due||due<period.from))return false;
       if(period.to&&(!due||due>period.to))return false;
       if(!specialistStatusAllows(item.officer))return false;
+      if(loanState!=="all"&&!clientLoanMatchesStatusFilter(item.group,item.group?.r||item.row,loanState))return false;
       if(officer&&norm(item.officer)!==officer)return false;
       if(query&&!norm([item.client,item.loanCode,item.loanNo,...item.contacts.flatMap(c=>[c.name,...c.phones.map(p=>p.phone)])].join(" ")).includes(query))return false;
       const latest=pfCaseLogs(item.key,logs)[0];
@@ -7800,7 +7828,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }
   function pfUpdateClientOptions(){
     const list=document.getElementById("paymentFollowupClientList");if(!list)return;
-    const map=new Map();currentCases.forEach(item=>{const name=String(item.client||"").trim();if(name&&!map.has(norm(name)))map.set(norm(name),name)});
+    const map=new Map();currentCases.forEach(item=>[item.client,item.loanCode,item.loanNo,item.loanLabel].forEach(raw=>{const value=String(raw||"").trim();if(value&&!map.has(norm(value)))map.set(norm(value),value)}));
     list.innerHTML=[...map.values()].sort((a,b)=>a.localeCompare(b,"ar")).map(x=>`<option value="${esc(x)}"></option>`).join("");
   }
   function renderPaymentFollowup(){
@@ -7821,10 +7849,28 @@ document.addEventListener('DOMContentLoaded', function () {
     if(feedback){feedback.textContent=feedbackText;feedback.className="pf-feedback"+(feedbackText?` show ${feedbackKind}`:"");}
     lastRenderedMobile=mobile;
   }
+  function pfaSetArchiveDateRange(preset,render=true){
+    const from=document.getElementById("paymentFollowupArchiveFrom"),to=document.getElementById("paymentFollowupArchiveTo");
+    if(!from||!to)return;
+    const now=new Date(),today=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+    let start=today,end=today;
+    if(preset==="yesterday"){start=new Date(today);start.setDate(start.getDate()-1);end=new Date(start);}
+    else if(preset==="month"){start=new Date(now.getFullYear(),now.getMonth(),1);end=new Date(now.getFullYear(),now.getMonth()+1,0);}
+    else if(preset==="previous-month"){start=new Date(now.getFullYear(),now.getMonth()-1,1);end=new Date(now.getFullYear(),now.getMonth(),0);}
+    from.value=isoDate(start);to.value=isoDate(end);
+    if(render)renderPaymentFollowupArchive();
+  }
+  function pfaEnsureArchiveDateRange(){
+    const from=document.getElementById("paymentFollowupArchiveFrom"),to=document.getElementById("paymentFollowupArchiveTo");
+    if(!from||!to||from.dataset.pfaInitialized==="1")return;
+    from.dataset.pfaInitialized="1";to.dataset.pfaInitialized="1";
+    if(!from.value&&!to.value)pfaSetArchiveDateRange("month",false);
+  }
   let archiveCaseKey="";
   function openPaymentFollowupArchive(caseKey=""){
-    if(!currentCases.length) currentCases=pfBuildCases();
+    currentCases=pfBuildCases();
     archiveCaseKey=String(caseKey||currentCases[0]?.key||"");
+    pfaEnsureArchiveDateRange();
     if(typeof showScreen==="function")showScreen("paymentFollowupArchive");
     renderPaymentFollowupArchive();
   }
@@ -7835,12 +7881,12 @@ document.addEventListener('DOMContentLoaded', function () {
     const client=document.getElementById("paymentFollowupArchiveClient"),loan=document.getElementById("paymentFollowupArchiveLoan"),count=document.getElementById("paymentFollowupArchiveCount"),latest=document.getElementById("paymentFollowupArchiveLatest"),subtitle=document.getElementById("paymentFollowupArchiveSubtitle");
     if(!selected){if(client)client.textContent="لا توجد حالة محددة";if(loan)loan.textContent="—";if(count)count.textContent="0";if(latest)latest.textContent="—";box.innerHTML='<tr><td colspan="16" class="pfa-empty">لا توجد بيانات لعرضها.</td></tr>';return;}
     const allLogs=pfReadLogs(),clientQ=norm(document.getElementById("paymentFollowupArchiveClientSearch")?.value||""),officerQ=norm(document.getElementById("paymentFollowupArchiveOfficerSearch")?.value||""),partyQ=norm(document.getElementById("paymentFollowupArchiveParty")?.value||""),statusQ=norm(document.getElementById("paymentFollowupArchiveStatus")?.value||""),noteQ=norm(document.getElementById("paymentFollowupArchiveSearch")?.value||""),from=document.getElementById("paymentFollowupArchiveFrom")?.value||"",to=document.getElementById("paymentFollowupArchiveTo")?.value||"";
-    const hasGlobalFilter=!!(clientQ||officerQ||partyQ||statusQ||noteQ||from||to);
-    const source=hasGlobalFilter?currentCases:currentCases.filter(x=>x.key===selected.key);
+    // Build the archive from every case in the payment-follow-up source; the controls below filter the resulting rows.
+    const source=currentCases;
     const rows=[];
     source.forEach(item=>pfCaseLogs(item.key,allLogs).forEach(log=>rows.push({item,log})));
-    const filtered=rows.filter(({item,log})=>{const p=String(log.callParty||"");const created=String(log.createdAt||"").slice(0,10);if(clientQ&&!norm(item.client).includes(clientQ))return false;if(officerQ&&!norm(item.officer).includes(officerQ))return false;if(partyQ&&!norm(p).includes(partyQ))return false;if(statusQ&&!norm(log.status||"").includes(statusQ))return false;if(noteQ&&!norm([log.note,log.status,p,log.user].join(" ")).includes(noteQ))return false;if(from&&(!created||created<from))return false;if(to&&(!created||created>to))return false;return true}).sort((a,b)=>new Date(b.log.createdAt||0)-new Date(a.log.createdAt||0));
-    if(client)client.textContent=selected.client||"—";if(loan)loan.textContent=`${selected.loanLabel||"—"} · ${selected.officer||"بدون أخصائي"}`;if(count)count.textContent=filtered.length.toLocaleString("en-US");if(latest)latest.textContent=filtered[0]?pfDateTime(filtered[0].log.createdAt):"لا توجد متابعة";if(subtitle)subtitle.textContent=hasGlobalFilter?"نتائج البحث في أرشيف المتابعات حسب الحقول المحددة.":`السجل الزمني للعميل ${selected.client||"—"} — يشمل التواصل مع العميل والضامنين والاتفاقات السابقة.`;
+    const filtered=rows.filter(({item,log})=>{const p=String(log.callParty||""),contactDate=log.createdAt?new Date(log.createdAt):null,followupDate=contactDate&&!Number.isNaN(contactDate.getTime())?`${contactDate.getFullYear()}-${String(contactDate.getMonth()+1).padStart(2,"0")}-${String(contactDate.getDate()).padStart(2,"0")}`:"";if(clientQ&&!norm(item.client).includes(clientQ))return false;if(officerQ&&!norm(item.officer).includes(officerQ))return false;if(partyQ&&!norm(p).includes(partyQ))return false;if(statusQ&&!norm(log.status||"").includes(statusQ))return false;if(noteQ&&!norm([log.note,log.status,p,log.user].join(" ")).includes(noteQ))return false;if(from&&(!followupDate||followupDate<from))return false;if(to&&(!followupDate||followupDate>to))return false;return true}).sort((a,b)=>new Date(b.log.createdAt||0)-new Date(a.log.createdAt||0));
+    if(client)client.textContent=selected.client||"—";if(loan)loan.textContent=`${selected.loanLabel||"—"} · ${selected.officer||"بدون أخصائي"}`;if(count)count.textContent=filtered.length.toLocaleString("en-US");if(latest)latest.textContent=filtered[0]?pfDateTime(filtered[0].log.createdAt):"لا توجد متابعة";if(subtitle)subtitle.textContent="سجل متابعة السداد.";
     const uniq=(values)=>[...new Set(values.map(x=>String(x||"").trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,"ar"));
     const clientList=document.getElementById("paymentFollowupArchiveClientList"),officerList=document.getElementById("paymentFollowupArchiveOfficerList"),partyList=document.getElementById("paymentFollowupArchivePartyList"),statusList=document.getElementById("paymentFollowupArchiveStatusList");
     if(clientList)clientList.innerHTML=uniq(currentCases.map(x=>x.client)).map(x=>`<option value="${escAttr(x)}"></option>`).join("");if(officerList)officerList.innerHTML=uniq(currentCases.map(x=>x.officer)).map(x=>`<option value="${escAttr(x)}"></option>`).join("");if(partyList)partyList.innerHTML=uniq(allLogs.map(x=>x.callParty)).map(x=>`<option value="${escAttr(x)}"></option>`).join("");if(statusList)statusList.innerHTML=uniq(allLogs.map(x=>x.status)).map(x=>`<option value="${escAttr(x)}"></option>`).join("");
@@ -7938,11 +7984,11 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
   document.addEventListener("input",event=>{if(["paymentFollowupSearch","paymentFollowupOfficer","paymentFollowupFrom","paymentFollowupTo"].includes(event.target?.id))renderPaymentFollowup()});
-  document.addEventListener("change",event=>{if(["paymentFollowupOfficer","paymentFollowupStatus","paymentFollowupFrom","paymentFollowupTo"].includes(event.target?.id))renderPaymentFollowup()});
+  document.addEventListener("change",event=>{if(["paymentFollowupOfficer","paymentFollowupStatus","paymentFollowupLoanStatus","paymentFollowupFrom","paymentFollowupTo"].includes(event.target?.id))renderPaymentFollowup()});
   document.addEventListener("click",event=>{const archiveButton=event.target?.closest?.("[data-pf-archive-key]");if(archiveButton){openPaymentFollowupArchive(decodeURIComponent(archiveButton.dataset.pfArchiveKey||""));return}const link=event.target?.closest?.("#paymentFollowup .pf-call-link");if(link){pfRequestPhoneCall(event,link);return}if(event.target?.closest?.("#paymentFollowupClear")){feedbackText="";pfClearFilters()}});
   document.addEventListener("input",event=>{if(["paymentFollowupArchiveClientSearch","paymentFollowupArchiveOfficerSearch","paymentFollowupArchiveParty","paymentFollowupArchiveStatus","paymentFollowupArchiveSearch","paymentFollowupArchiveFrom","paymentFollowupArchiveTo"].includes(event.target?.id))renderPaymentFollowupArchive()});
   document.addEventListener("change",event=>{if(["paymentFollowupArchiveClientSearch","paymentFollowupArchiveOfficerSearch","paymentFollowupArchiveParty","paymentFollowupArchiveStatus","paymentFollowupArchiveFrom","paymentFollowupArchiveTo"].includes(event.target?.id))renderPaymentFollowupArchive()});
-  document.addEventListener("click",event=>{if(event.target?.closest?.("#paymentFollowupArchiveClear")){["paymentFollowupArchiveClientSearch","paymentFollowupArchiveOfficerSearch","paymentFollowupArchiveParty","paymentFollowupArchiveStatus","paymentFollowupArchiveSearch","paymentFollowupArchiveFrom","paymentFollowupArchiveTo"].forEach(id=>{const el=document.getElementById(id);if(el)el.value=""});renderPaymentFollowupArchive()}});
+  document.addEventListener("click",event=>{const preset=event.target?.closest?.("[data-pfa-range]");if(preset){pfaSetArchiveDateRange(preset.dataset.pfaRange);return}if(event.target?.closest?.("#paymentFollowupArchiveClear")){["paymentFollowupArchiveClientSearch","paymentFollowupArchiveOfficerSearch","paymentFollowupArchiveParty","paymentFollowupArchiveStatus","paymentFollowupArchiveSearch"].forEach(id=>{const el=document.getElementById(id);if(el)el.value=""});pfaSetArchiveDateRange("month")}});
   document.addEventListener("submit",event=>{const form=event.target;if(!form?.matches?.("#paymentFollowup .pf-form"))return;event.preventDefault();pfSaveCall(form)});
   window.addEventListener("resize",()=>{if(document.getElementById(SCREEN_ID)?.classList.contains("active")){const mobile=window.matchMedia&&window.matchMedia("(max-width: 760px)").matches;if(mobile!==lastRenderedMobile)renderPaymentFollowup()}});
   document.addEventListener("DOMContentLoaded",()=>{if(document.getElementById(SCREEN_ID)?.classList.contains("active"))renderPaymentFollowup()});
