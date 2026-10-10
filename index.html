@@ -3399,11 +3399,12 @@ async function importExcelFile(file){
   }
   if(!raw.length)throw Error("لا توجد بيانات في أول ورقة.");
   setImportProgress(48,"اكتملت قراءة الملف",`${raw.length.toLocaleString("en-US")} صفًا — جاري تجهيز البيانات والضغط.`);
+  /* خذ لقطة من البيانات الحالية قبل استبدالها، حتى تتم المقارنة مع الشيت السابق فعلًا. */
+  const previousRows=Array.isArray(rows)?rows:[];
   rows=await normalizeImportedRowsFast(raw,(percent,stage)=>setImportProgress(percent,stage,`${raw.length.toLocaleString("en-US")} صف`));
   /* Excel data is intentionally kept in memory only; no IndexedDB/localStorage persistence. */
   setImportProgress(58,"تجهيز البيانات",`${rows.length.toLocaleString("en-US")} صفًا جاهز للضغط والرفع.`);
   /* اعتماد البيانات محليًا أولًا؛ تعذر الاتصال السحابي لا يفشل الاستيراد. */
-  const previousRows=Array.isArray(rows)?rows.slice():[];
   const importedRows=rows;
   let comparison=null;
   try{
@@ -4800,7 +4801,20 @@ function renderSearch(){
   box.querySelectorAll('.search-suggestion[data-i]').forEach((button,index)=>button.addEventListener('click',()=>openSearchCustomerCard(found[index])));
 }
 function portalSearchSuggestions(box){if(box.parentNode!==document.body){const marker=document.createComment('search-suggestions-home');box.parentNode.insertBefore(marker,box);box._searchReturnMarker=marker;document.body.appendChild(box)}box.classList.add('search-suggestions-portal')}
-function positionSearchSuggestions(){const field=document.querySelector('#search .search-autocomplete-field'),box=document.getElementById('results');if(!field||!box||box.style.display==='none')return;const rect=field.getBoundingClientRect(),vh=window.innerHeight||document.documentElement.clientHeight,below=Math.max(0,vh-rect.bottom-12),above=Math.max(0,rect.top-12),maxHeight=window.matchMedia('(max-width: 640px)').matches?Math.min(360,vh*.45):Math.min(440,vh*.55),needed=Math.min(box.scrollHeight,maxHeight),placeAbove=below<needed&&above>below,space=placeAbove?above:below;box.classList.toggle('is-above',placeAbove);box.style.maxHeight=`${Math.max(100,Math.min(maxHeight,space))}px`;box.style.left=`${Math.max(8,rect.left)}px`;box.style.width=`${Math.min(rect.width,window.innerWidth-16)}px`;box.style.right='auto';if(placeAbove){box.style.top='auto';box.style.bottom=`${Math.max(8,vh-rect.top+6)}px`}else{box.style.bottom='auto';box.style.top=`${Math.min(vh-8,rect.bottom+6)}px`}}
+function positionSearchSuggestions(){
+  const field=document.querySelector('#search .search-autocomplete-field'),box=document.getElementById('results');
+  if(!field||!box||box.style.display==='none')return;
+  const rect=field.getBoundingClientRect(),vh=window.innerHeight||document.documentElement.clientHeight,vw=window.innerWidth||document.documentElement.clientWidth;
+  const margin=10,gap=6,below=Math.max(0,vh-rect.bottom-gap-margin),above=Math.max(0,rect.top-gap-margin);
+  const maxHeight=window.matchMedia('(max-width: 640px)').matches?Math.min(360,vh*.45):Math.min(440,vh*.55),needed=Math.min(box.scrollHeight||maxHeight,maxHeight);
+  const placeAbove=below<needed&&above>below,space=placeAbove?above:below;
+  const height=Math.max(0,Math.min(maxHeight,needed,space));
+  const width=Math.max(0,Math.min(rect.width,vw-16)),left=Math.min(Math.max(8,rect.left),Math.max(8,vw-width-8));
+  box.classList.toggle('is-above',placeAbove);box.style.maxHeight=`${height}px`;box.style.overflowY='auto';box.style.overscrollBehavior='contain';
+  box.style.left=`${left}px`;box.style.width=`${width}px`;box.style.right='auto';
+  if(placeAbove){box.style.top='auto';box.style.bottom=`${Math.max(0,vh-rect.top+gap)}px`}
+  else{box.style.bottom='auto';box.style.top=`${rect.bottom+gap}px`}
+}
 window.addEventListener('resize',positionSearchSuggestions,{passive:true});window.addEventListener('scroll',positionSearchSuggestions,{passive:true});
 const debouncedRenderSearch=debounce(renderSearch,180);
 ["q","searchClient","searchOfficer","searchLateMin","searchUnpaidMin"].forEach(id=>document.getElementById(id).addEventListener("input",debouncedRenderSearch));
