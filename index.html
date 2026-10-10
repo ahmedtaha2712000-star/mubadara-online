@@ -10727,37 +10727,31 @@ body.pfa-resizing-rows,body.pfa-resizing-rows *{cursor:row-resize!important;user
  }
  async function runCollectionDifferencesPdfAction(action){
    const menu=document.getElementById("collectionDifferencesShareMenu");if(menu)menu.hidden=true;document.getElementById("collectionDifferencesShareToggle")?.setAttribute("aria-expanded","false");
-   let pendingWindow=null;
-   if(action==="open"||action==="whatsapp"){
-     try{pendingWindow=window.open("about:blank","_blank");if(pendingWindow)pendingWindow.opener=null}catch(e){}
+   const filename=collectionDifferencesPdfFilename();let pendingWindow=null,waOpened=false,waUrl="";
+   if(action==="open"){
+     try{pendingWindow=window.open("about:blank","_blank")}catch(e){}
+   }else if(action==="whatsapp"){
+     const message=`ملخص التحصيلات الجديدة — ${collectionPaymentRangeLabel()} — سيتم تنزيل ملف PDF؛ أرفقه قبل إرسال الرسالة.`;
+     waUrl=`https://wa.me/?text=${encodeURIComponent(message)}`;
+     try{pendingWindow=window.open(waUrl,"_blank");waOpened=!!pendingWindow}catch(e){}
+     if(!waOpened){try{const link=document.createElement("a");link.href=waUrl;link.target="_blank";link.rel="noopener";link.style.display="none";document.body.appendChild(link);link.click();link.remove();waOpened=true}catch(e){}}
    }
    try{
      const blob=await makeCollectionDifferencesPdfBlob();if(!blob){pendingWindow?.close();return}
-     const filename=collectionDifferencesPdfFilename();
      if(action==="download"){downloadCollectionDifferencesBlob(blob,filename);return}
-     const url=URL.createObjectURL(blob);
      if(action==="open"){
+       const url=URL.createObjectURL(blob);
        if(pendingWindow){pendingWindow.location.href=url;setTimeout(()=>URL.revokeObjectURL(url),10*60*1000)}
        else{downloadCollectionDifferencesBlob(blob,filename);alert("تعذر فتح نافذة PDF؛ تم تنزيل الملف بدلًا منها.")}
        return;
      }
      if(action==="whatsapp"){
-       let file=null,canShareFile=false;
-       try{if(typeof File!=="undefined"){file=new File([blob],filename,{type:"application/pdf"});canShareFile=typeof navigator!=="undefined"&&typeof navigator.share==="function"&&typeof navigator.canShare==="function"&&navigator.canShare({files:[file]})}}catch(e){}
-       if(canShareFile){
-         try{await navigator.share({files:[file],title:"ملخص التحصيلات الجديدة",text:`ملخص التحصيلات الجديدة — ${collectionPaymentRangeLabel()}`});pendingWindow?.close();return}
-         catch(e){if(e?.name==="AbortError"){pendingWindow?.close();return}}
-       }
        downloadCollectionDifferencesBlob(blob,filename);
-       const text=`تم تجهيز ملف PDF لملخص التحصيلات الجديدة (${collectionPaymentRangeLabel()}). أرفق الملف الذي تم تنزيله قبل الإرسال.`;
-       const waUrl=`https://wa.me/?text=${encodeURIComponent(text)}`;
-       let waOpened=!!pendingWindow;
-       if(pendingWindow){pendingWindow.location.href=waUrl}
-       else{try{waOpened=!!window.open(waUrl,"_blank","noopener")}catch(e){waOpened=false}}
-       alert(waOpened?"تم تنزيل ملف PDF وفتح واتساب برسالة جاهزة. أرفق ملف PDF يدويًا في واتساب قبل الإرسال.":"تم تنزيل ملف PDF. افتح واتساب وأرفق الملف يدويًا قبل الإرسال.");
+       alert(waOpened?"تم فتح واتساب وتنزيل ملف PDF. أرفق الملف المحمّل يدويًا قبل الإرسال؛ لم يتم إرسال أي شيء تلقائيًا.":"تم تنزيل ملف PDF. افتح واتساب وأرفق الملف يدويًا قبل الإرسال.");
      }
-   }catch(e){pendingWindow?.close();console.error("Collection PDF action failed",e);alert("تعذر تجهيز ملف PDF. حاول مرة أخرى.")}
+   }catch(e){pendingWindow?.close();console.error("Collection PDF action failed",e);alert(action==="whatsapp"?"تعذر تجهيز PDF. إذا كان واتساب مفتوحًا، أعد المحاولة بعد التحقق من وجود بيانات مطابقة.":"تعذر تجهيز ملف PDF. حاول مرة أخرى.")}
  }
+
  function renderCollectionDifferences(filter="all"){
    const panel=document.getElementById("collectionDifferencesPanel"),body=document.getElementById("collectionDifferencesBody"),metrics=document.getElementById("collectionDifferenceMetrics"),tbody=document.getElementById("collectionDifferencesBodyRows"),intro=document.getElementById("collectionDifferencesIntro");if(!panel||!metrics||!tbody)return;
    const d=diffState,toggleButton=document.getElementById("collectionDifferencesToggle"),closeButton=document.getElementById("collectionDifferencesClose");panel.hidden=false;
