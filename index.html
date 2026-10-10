@@ -2539,7 +2539,7 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
 <section id="collectionDifferencesPanel" class="collection-differences-panel no-print" aria-label="ملخص مبالغ التحصيل الجديدة">
   <div class="collection-differences-head">
     <div><h3>التحصيلات الجديدة منذ آخر تحديث</h3><p id="collectionDifferencesIntro">بعد رفع الشيت الجديد، ستظهر هنا المبالغ التي زادت لكل عميل بحسب تاريخ السداد.</p></div>
-    <div class="collection-differences-actions"><button type="button" class="light" id="collectionDifferencesToggle">عرض ملخص التحصيل الجديد</button><button type="button" class="light collection-diff-export" id="collectionDifferencesExcel" hidden>تصدير Excel</button><button type="button" class="light collection-diff-export" id="collectionDifferencesPdf" hidden>تحميل PDF</button><button type="button" class="light" id="collectionDifferencesClose" hidden>إخفاء</button></div>
+    <div class="collection-differences-actions"><button type="button" class="light" id="collectionDifferencesToggle">عرض ملخص التحصيل الجديد</button><button type="button" class="light collection-diff-export" id="collectionDifferencesPrint" hidden>طباعة</button><button type="button" class="light collection-diff-export" id="collectionDifferencesPdf" hidden>PDF</button><button type="button" class="light collection-diff-export" id="collectionDifferencesExcel" hidden>Excel</button><button type="button" class="light" id="collectionDifferencesClose" hidden>إخفاء</button></div>
   </div>
   <div id="collectionDifferencesBody" hidden>
     <div class="collection-difference-metrics" id="collectionDifferenceMetrics"></div>
@@ -10668,14 +10668,54 @@ body.pfa-resizing-rows,body.pfa-resizing-rows *{cursor:row-resize!important;user
    const c=differenceSummary(items),summary=[["ملخص التحصيلات الجديدة منذ آخر تحديث"],["فترة تاريخ السداد",collectionPaymentRangeLabel()],["التصنيف",differenceLabel(filter)],["إجمالي مبالغ التحصيل الجديدة",c.totalNewAmount],["عدد العملاء",c.customerCount],["تحصيل جديد للعميل/التاريخ",c.new],["زيادة على تحصيل سابق",c.changed],["عدد الصفوف المصدرة",items.length],[],Object.keys(rows[0]),...rows.map(r=>Object.values(r))];
    const ws=XLSX.utils.aoa_to_sheet(summary),wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,"التحصيلات الجديدة");XLSX.writeFile(wb,`التحصيلات_الجديدة_${differenceLabel(filter)}_${new Date().toISOString().slice(0,10)}.xlsx`);
  }
+ function buildCollectionDifferencesReportLayer(){
+   const filter=activeDifferenceFilter(),items=filteredDifferenceItems(filter);
+   if(!items.length){alert("لا توجد مبالغ تحصيل جديدة ضمن التصنيف الحالي للطباعة أو التصدير.");return null}
+   const c=differenceSummary(items),dt=typeof reportDateTime==="function"?reportDateTime():{date:new Date().toLocaleDateString("ar-EG"),time:new Date().toLocaleTimeString("ar-EG")};
+   const brand=typeof reportLogoHTML==="function"?reportLogoHTML():"<strong>جمعية المبادرة</strong>";
+   const user=typeof reportUserName==="function"?reportUserName():"غير محدد";
+   const rows=items.map(item=>`<tr><td>${esc(item.type==="new"?"تحصيل جديد":"زيادة على تحصيل سابق")}</td><td>${esc(item.current.client||"—")}</td><td>${esc(item.current.paymentDate||"—")}</td><td>${esc(fmtMoney(item.current.paid))}</td></tr>`).join("");
+   const layer=document.createElement("div");layer.id="collectionDifferencesPrintLayer";layer.dir="rtl";
+   layer.style.cssText="display:block;position:fixed;left:-20000px;top:0;width:1120px;box-sizing:border-box;background:#fff;color:#000;font-family:Arial,Tahoma,sans-serif;direction:rtl;padding:5mm 3mm";
+   layer.innerHTML=`<style>
+     @page{size:A4 landscape;margin:8mm}
+     #collectionDifferencesPrintLayer,#collectionDifferencesPrintLayer *{box-sizing:border-box;color:#000;text-shadow:none!important;-webkit-text-stroke:0!important;filter:none!important}
+     #collectionDifferencesPrintLayer .report-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 0 7px;margin-bottom:8px;border-bottom:2px solid #111}
+     #collectionDifferencesPrintLayer .brand{display:flex;align-items:center;gap:8px;min-width:180px;font-size:14px;font-weight:900}
+     #collectionDifferencesPrintLayer .brand img{width:38px;height:38px;object-fit:contain}
+     #collectionDifferencesPrintLayer .title{flex:1;text-align:center;font-size:18px;font-weight:900}
+     #collectionDifferencesPrintLayer .generated{min-width:180px;text-align:left;font-size:8px;line-height:1.6}
+     #collectionDifferencesPrintLayer .meta{display:flex;flex-wrap:wrap;justify-content:center;gap:4px 20px;margin:0 0 7px;padding:5px;border:1px solid #555;font-size:8px;font-weight:800;text-align:center}
+     #collectionDifferencesPrintLayer .summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;margin:0 0 8px;break-inside:avoid;page-break-inside:avoid}
+     #collectionDifferencesPrintLayer .summary>div{border:1px solid #555;background:#f4f4f4;padding:5px 4px;text-align:center}
+     #collectionDifferencesPrintLayer .summary small{display:block;margin-bottom:2px;font-size:8px;font-weight:700}
+     #collectionDifferencesPrintLayer .summary b{display:block;font-size:11px;font-weight:900}
+     #collectionDifferencesPrintLayer table{width:100%;border-collapse:collapse;table-layout:fixed;direction:rtl;background:#fff;font-size:9px;font-weight:800}
+     #collectionDifferencesPrintLayer thead{display:table-header-group}
+     #collectionDifferencesPrintLayer tr{break-inside:avoid!important;page-break-inside:avoid!important}
+     #collectionDifferencesPrintLayer th,#collectionDifferencesPrintLayer td{border:1px solid #111;padding:7px 5px;text-align:center;vertical-align:middle;background:#fff;overflow-wrap:anywhere}
+     #collectionDifferencesPrintLayer th{background:#969eaa;font-size:9px;font-weight:900}
+     #collectionDifferencesPrintLayer th:nth-child(1){width:22%}#collectionDifferencesPrintLayer th:nth-child(2){width:38%}#collectionDifferencesPrintLayer th:nth-child(3){width:20%}#collectionDifferencesPrintLayer th:nth-child(4){width:20%}
+     #collectionDifferencesPrintLayer .footer{display:flex;justify-content:space-between;gap:8px;margin-top:7px;padding-top:5px;border-top:1px solid #777;font-size:8px;font-weight:700}
+     @media print{#collectionDifferencesPrintLayer{display:block!important;position:static!important;left:auto!important;top:auto!important;width:100%!important}}
+   </style>
+   <div class="report-head"><div class="brand">${brand}</div><div class="title">جمعية المبادرة — ملخص التحصيلات الجديدة</div><div class="generated">الفترة: ${esc(collectionPaymentRangeLabel())}<br>التصنيف: ${esc(differenceLabel(filter).replaceAll("_"," "))}</div></div>
+   <div class="meta"><span>عدد العملاء: ${fmt(c.customerCount)}</span><span>صفوف التحصيل الجديدة: ${fmt(items.length)}</span><span>تاريخ التقرير: ${esc(dt.date)}</span><span>الوقت: ${esc(dt.time)}</span></div>
+   <div class="summary"><div><small>إجمالي مبالغ التحصيل الجديدة</small><b>${esc(fmtMoney(c.totalNewAmount))}</b></div><div><small>عدد العملاء</small><b>${fmt(c.customerCount)}</b></div><div><small>تحصيل جديد للعميل/التاريخ</small><b>${fmt(c.new)}</b></div><div><small>زيادة على تحصيل سابق</small><b>${fmt(c.changed)}</b></div></div>
+   <table><thead><tr><th>نوع التحصيل</th><th>اسم العميل</th><th>تاريخ السداد</th><th>مبلغ التحصيل الجديد</th></tr></thead><tbody>${rows}</tbody></table>
+   <div class="footer"><span>المستخدم: ${esc(user)}</span><span>التاريخ: ${esc(dt.date)}</span><span>الوقت: ${esc(dt.time)}</span></div>`;
+   return layer;
+ }
+ function printCollectionDifferences(){
+   const layer=buildCollectionDifferencesReportLayer();if(!layer)return;
+   const style=document.createElement("style");style.id="collectionDifferencesPrintRuntimeStyle";style.textContent="@media print{@page{size:A4 landscape;margin:8mm}body.printing-collection-differences>:not(#collectionDifferencesPrintLayer){display:none!important}body.printing-collection-differences #collectionDifferencesPrintLayer{display:block!important;position:static!important;left:auto!important;top:auto!important;width:100%!important}}";
+   document.head.appendChild(style);document.body.appendChild(layer);document.body.classList.add("printing-collection-differences");
+   let cleaned=false;const cleanup=()=>{if(cleaned)return;cleaned=true;document.body.classList.remove("printing-collection-differences");layer.remove();style.remove();window.removeEventListener("afterprint",cleanup)};
+   window.addEventListener("afterprint",cleanup,{once:true});requestAnimationFrame(()=>requestAnimationFrame(()=>setTimeout(()=>{try{window.print()}catch(e){cleanup();alert("تعذرت طباعة ملخص التحصيلات الجديدة.")}},150)));setTimeout(cleanup,60000);
+ }
  async function exportCollectionDifferencesPDF(){
-   const filter=activeDifferenceFilter(),items=filteredDifferenceItems(filter);if(!items.length)return alert("لا توجد مبالغ تحصيل جديدة ضمن التصنيف الحالي للتصدير.");
-   if(typeof window.html2pdf!=="function")return alert("تعذر تشغيل تصدير PDF. تأكد من اتصال الإنترنت ثم أعد المحاولة.");
-   const c=differenceSummary(items),holder=document.createElement("div"),wrap=document.createElement("div");holder.style.cssText="position:fixed;left:-20000px;top:0;width:1100px;background:#fff;z-index:-1";wrap.dir="rtl";wrap.style.cssText="width:1100px;background:#fff;color:#172033;padding:28px;font-family:Arial,Tahoma,sans-serif";
-   const rows=items.map(item=>`<tr><td style="border:1px solid #b7c9c9;padding:8px;font-weight:800">${esc(item.type==="new"?"تحصيل جديد":"زيادة على تحصيل سابق")}</td><td style="border:1px solid #b7c9c9;padding:8px">${esc(item.current.client||"—")}</td><td style="border:1px solid #b7c9c9;padding:8px">${esc(item.current.paymentDate||"تاريخ غير محدد")}</td><td style="border:1px solid #b7c9c9;padding:8px;font-weight:800">${esc(fmtMoney(item.current.paid))}</td></tr>`).join("");
-   const metrics=[["إجمالي مبالغ التحصيل الجديدة",fmtMoney(c.totalNewAmount)], ["عدد العملاء",fmt(c.customerCount)], ["تحصيل جديد للعميل/التاريخ",fmt(c.new)], ["زيادة على تحصيل سابق",fmt(c.changed)]];
-   wrap.innerHTML=`<h1 style="margin:0 0 8px;color:#123b4b;font-size:24px">التحصيلات الجديدة منذ آخر تحديث — شاشة التحصيل</h1><p style="margin:0 0 16px;color:#607782;font-size:13px">فترة السداد: ${esc(collectionPaymentRangeLabel())} — التصنيف: ${esc(differenceLabel(filter).replaceAll("_"," "))} — تاريخ التقرير: ${esc(new Date().toLocaleDateString("ar-EG"))}</p><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px">${metrics.map(x=>`<div style="border:1px solid #d9e6e7;padding:10px;text-align:center"><small style="display:block;color:#667985">${esc(x[0])}</small><b style="font-size:18px">${esc(x[1])}</b></div>`).join("")}</div><table style="width:100%;border-collapse:collapse;font-size:12px"><thead><tr>${["نوع التحصيل","اسم العميل","تاريخ السداد","مبلغ التحصيل الجديد"].map(x=>`<th style="background:#eaf5f2;border:1px solid #9fb8b6;padding:8px">${x}</th>`).join("")}</tr></thead><tbody>${rows}</tbody></table><p style="margin-top:14px;color:#71828a;font-size:10px">المبالغ المعروضة هي الزيادة مقارنة بالشيت السابق، مجمعة حسب العميل وتاريخ السداد.</p>`;
-   holder.appendChild(wrap);document.body.appendChild(holder);try{await window.html2pdf().set({margin:8,filename:`التحصيلات_الجديدة_${differenceLabel(filter)}_${new Date().toISOString().slice(0,10)}.pdf`,image:{type:"jpeg",quality:.97},html2canvas:{scale:1.4,useCORS:true,backgroundColor:"#fff"},jsPDF:{unit:"mm",format:"a4",orientation:"landscape",compress:true},pagebreak:{mode:["css","legacy"],avoid:["tr"]}}).from(wrap).save()}catch(e){console.error(e);alert("تعذر إنشاء تقرير PDF.")}finally{holder.remove()}
+   const layer=buildCollectionDifferencesReportLayer();if(!layer)return;
+   await downloadReportLayerPDF(layer,`التحصيلات_الجديدة_${new Date().toISOString().slice(0,10)}.pdf`,`collection-differences-pdf`);
  }
  function renderCollectionDifferences(filter="all"){
    const panel=document.getElementById("collectionDifferencesPanel"),body=document.getElementById("collectionDifferencesBody"),metrics=document.getElementById("collectionDifferenceMetrics"),tbody=document.getElementById("collectionDifferencesBodyRows"),intro=document.getElementById("collectionDifferencesIntro");if(!panel||!metrics||!tbody)return;
@@ -10696,7 +10736,7 @@ body.pfa-resizing-rows,body.pfa-resizing-rows *{cursor:row-resize!important;user
    loadCollectionDifferences();renderCollectionDifferences();
    ["collectionFrom","collectionTo"].forEach(id=>{const input=document.getElementById(id);if(input)["input","change"].forEach(eventName=>input.addEventListener(eventName,()=>renderCollectionDifferences(activeDifferenceFilter())))});
    const panel=document.getElementById("collectionDifferencesPanel"),body=document.getElementById("collectionDifferencesBody"),toggle=document.getElementById("collectionDifferencesToggle"),close=document.getElementById("collectionDifferencesClose");
-   toggle?.addEventListener("click",()=>{body.hidden=false;body.dataset.open='1';toggle.hidden=true;if(close)close.hidden=false;document.getElementById("collectionDifferencesExcel")?.removeAttribute("hidden");document.getElementById("collectionDifferencesPdf")?.removeAttribute("hidden");renderCollectionDifferences(document.querySelector("#collectionDifferencesPanel [data-diff-filter].is-active")?.dataset.diffFilter||"all")});close?.addEventListener("click",()=>{body.hidden=true;body.dataset.open='0';close.hidden=true;toggle.hidden=false;document.getElementById("collectionDifferencesExcel")?.setAttribute("hidden","");document.getElementById("collectionDifferencesPdf")?.setAttribute("hidden","")});document.getElementById("collectionDifferencesExcel")?.addEventListener("click",exportCollectionDifferencesExcel);document.getElementById("collectionDifferencesPdf")?.addEventListener("click",exportCollectionDifferencesPDF);
+   toggle?.addEventListener("click",()=>{body.hidden=false;body.dataset.open='1';toggle.hidden=true;if(close)close.hidden=false;document.getElementById("collectionDifferencesPrint")?.removeAttribute("hidden");document.getElementById("collectionDifferencesExcel")?.removeAttribute("hidden");document.getElementById("collectionDifferencesPdf")?.removeAttribute("hidden");renderCollectionDifferences(document.querySelector("#collectionDifferencesPanel [data-diff-filter].is-active")?.dataset.diffFilter||"all")});close?.addEventListener("click",()=>{body.hidden=true;body.dataset.open='0';close.hidden=true;toggle.hidden=false;document.getElementById("collectionDifferencesPrint")?.setAttribute("hidden","");document.getElementById("collectionDifferencesExcel")?.setAttribute("hidden","");document.getElementById("collectionDifferencesPdf")?.setAttribute("hidden","")});document.getElementById("collectionDifferencesPrint")?.addEventListener("click",printCollectionDifferences);document.getElementById("collectionDifferencesExcel")?.addEventListener("click",exportCollectionDifferencesExcel);document.getElementById("collectionDifferencesPdf")?.addEventListener("click",exportCollectionDifferencesPDF);
    panel?.querySelectorAll("[data-diff-filter]").forEach(b=>b.addEventListener("click",()=>renderCollectionDifferences(b.dataset.diffFilter)));
  });
 })();
