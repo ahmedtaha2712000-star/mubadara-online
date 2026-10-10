@@ -10593,16 +10593,18 @@ body.pfa-resizing-rows,body.pfa-resizing-rows *{cursor:row-resize!important;user
  function text(v){return String(v??"").trim()}
  function first(r,names){for(const name of names){const k=normFast(name);if(Object.prototype.hasOwnProperty.call(r||{},k)&&text(r[k]))return r[k]}return ""}
  function paymentGroupInfo(r){
-   const client=text(first(r,[H.client,"اسم العميل","العميل"]));
+   const nameValue=typeof get==="function"?get(r,"client"):first(r,[H.client,"اسم العميل","العميل"]);
+   const nationalId=text((typeof get==="function"?get(r,"nid"):"")||first(r,[H.nid,"الرقم القومي","الرقم القومى","رقم قومي"]));
+   const client=text(nameValue)||(nationalId?`عميل بدون اسم — ${nationalId}`:"");
    if(!client)return null;
-   const nationalId=text(first(r,[H.nid,"الرقم القومي","الرقم القومى","رقم قومي"]));
-   const rawDate=first(r,[H.paymentDate,"تاريخ دفع القسط","تاريخ الدفع","تاريخ التحصيل","تاريخ تحصيل القسط","تاريخ السداد الفعلي"]);
+   const rawDate=typeof rowPaymentDate==="function"?rowPaymentDate(r):first(r,[H.paymentDate,"تاريخ دفع القسط","تاريخ الدفع","تاريخ التحصيل","تاريخ تحصيل القسط","تاريخ السداد الفعلي"]);
+   if(!text(rawDate))return null;
    const parsedDate=typeof parseExcelDate==="function"?parseExcelDate(rawDate):null;
-   const dateKey=parsedDate&&typeof isoDate==="function"?isoDate(parsedDate):(normFast(rawDate)||"__no_payment_date__");
-   const dateLabel=parsedDate?parsedDate.toLocaleDateString("ar-EG"):(text(rawDate)||"تاريخ غير محدد");
-   const amount=num(first(r,[H.paid,"المبلغ المدفوع","المبلغ المحصل","قيمة المسدد","المسدد","المدفوع"]));
+   const dateKey=parsedDate&&typeof isoDate==="function"?isoDate(parsedDate):normFast(rawDate);
+   const dateLabel=parsedDate?parsedDate.toLocaleDateString("ar-EG"):text(rawDate);
+   const amount=typeof rowPaidAmount==="function"?rowPaidAmount(r):num(first(r,[H.paid,"المبلغ المدفوع","المبلغ المحصل","قيمة المسدد","المسدد","المدفوع"]));
    if(!(amount>0))return null;
-   const clientKey=nationalId?"nid:"+normFast(nationalId):"name:"+normFast(client);
+   const clientKey=nationalId?"nid:"+normFast(nationalId):"name:"+normFast(text(nameValue)||client);
    return {key:clientKey+"|"+dateKey,clientKey,client,dateKey,dateLabel,amount};
  }
  function compareCollectionSheetRows(previous,current,onProgress){
@@ -10638,30 +10640,52 @@ body.pfa-resizing-rows,body.pfa-resizing-rows *{cursor:row-resize!important;user
  function badge(type){return type==="new"?'<span class="collection-difference-badge new">تحصيل جديد</span>':'<span class="collection-difference-badge changed">زيادة تحصيل</span>'}
  function activeDifferenceFilter(){return document.querySelector("#collectionDifferencesPanel [data-diff-filter].is-active")?.dataset.diffFilter||"all"}
  function differenceLabel(filter){return filter==="new"?"تحصيل_جديد":filter==="changed"?"زيادة_تحصيل":"كل_التحصيلات_الجديدة"}
- function filteredDifferenceItems(filter=activeDifferenceFilter()){return (diffState.items||[]).filter(x=>filter==="all"||x.type===filter)}
+ function selectedCollectionPaymentRange(){return {from:document.getElementById("collectionFrom")?.value||"",to:document.getElementById("collectionTo")?.value||""}}
+ function collectionPaymentRangeLabel(){
+   const {from,to}=selectedCollectionPaymentRange(),label=value=>{const d=typeof parseExcelDate==="function"?parseExcelDate(value):null;return d?d.toLocaleDateString("ar-EG"):value};
+   if(!from&&!to)return "جميع تواريخ السداد";
+   if(from&&to&&from===to)return `تاريخ السداد: ${label(from)}`;
+   return `${from?"من "+label(from):"من بداية التواريخ"} — ${to?"إلى "+label(to):"حتى آخر تاريخ"}`;
+ }
+ function filteredDifferenceItems(filter=activeDifferenceFilter()){
+   const {from,to}=selectedCollectionPaymentRange();
+   return (diffState.items||[]).filter(item=>{
+     if(filter!=="all"&&item.type!==filter)return false;
+     const dateKey=String(item.current?.dateKey||"");
+     if((from||to)&&!/^\d{4}-\d{2}-\d{2}$/.test(dateKey))return false;
+     if(from&&dateKey<from)return false;
+     if(to&&dateKey>to)return false;
+     return true;
+   });
+ }
+ function differenceSummary(items){
+   const newItems=items.filter(x=>x.type==="new"),increases=items.filter(x=>x.type==="changed");
+   return {totalNewAmount:Math.round((items.reduce((sum,item)=>sum+Number(item.current?.paid||0),0)+Number.EPSILON)*100)/100,customerCount:new Set(items.map(item=>item.current?.clientKey||normFast(item.current?.client||""))).size,new:newItems.length,changed:increases.length};
+ }
  function exportCollectionDifferencesExcel(){
    const filter=activeDifferenceFilter(),items=filteredDifferenceItems(filter);if(!items.length)return alert("لا توجد مبالغ تحصيل جديدة ضمن التصنيف الحالي للتصدير.");if(typeof XLSX==="undefined")return alert("مكتبة Excel غير متاحة.");
    const rows=items.map(item=>({"نوع التحصيل":item.type==="new"?"تحصيل جديد":"زيادة على تحصيل سابق","اسم العميل":item.current.client||"—","تاريخ السداد":item.current.paymentDate||"تاريخ غير محدد","مبلغ التحصيل الجديد":Number(item.current.paid||0)}));
-   const c=diffState.counts||{},summary=[["ملخص التحصيلات الجديدة منذ آخر تحديث"],["التصنيف",differenceLabel(filter)], ["إجمالي مبالغ التحصيل الجديدة",c.totalNewAmount||0],["عدد العملاء",c.customerCount||0],["تحصيل جديد للعميل/التاريخ",c.new||0],["زيادة على تحصيل سابق",c.changed||0],["عدد الصفوف المصدرة",items.length],[],Object.keys(rows[0]),...rows.map(r=>Object.values(r))];
+   const c=differenceSummary(items),summary=[["ملخص التحصيلات الجديدة منذ آخر تحديث"],["فترة تاريخ السداد",collectionPaymentRangeLabel()],["التصنيف",differenceLabel(filter)],["إجمالي مبالغ التحصيل الجديدة",c.totalNewAmount],["عدد العملاء",c.customerCount],["تحصيل جديد للعميل/التاريخ",c.new],["زيادة على تحصيل سابق",c.changed],["عدد الصفوف المصدرة",items.length],[],Object.keys(rows[0]),...rows.map(r=>Object.values(r))];
    const ws=XLSX.utils.aoa_to_sheet(summary),wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,"التحصيلات الجديدة");XLSX.writeFile(wb,`التحصيلات_الجديدة_${differenceLabel(filter)}_${new Date().toISOString().slice(0,10)}.xlsx`);
  }
  async function exportCollectionDifferencesPDF(){
    const filter=activeDifferenceFilter(),items=filteredDifferenceItems(filter);if(!items.length)return alert("لا توجد مبالغ تحصيل جديدة ضمن التصنيف الحالي للتصدير.");
    if(typeof window.html2pdf!=="function")return alert("تعذر تشغيل تصدير PDF. تأكد من اتصال الإنترنت ثم أعد المحاولة.");
-   const c=diffState.counts||{},holder=document.createElement("div"),wrap=document.createElement("div");holder.style.cssText="position:fixed;left:-20000px;top:0;width:1100px;background:#fff;z-index:-1";wrap.dir="rtl";wrap.style.cssText="width:1100px;background:#fff;color:#172033;padding:28px;font-family:Arial,Tahoma,sans-serif";
+   const c=differenceSummary(items),holder=document.createElement("div"),wrap=document.createElement("div");holder.style.cssText="position:fixed;left:-20000px;top:0;width:1100px;background:#fff;z-index:-1";wrap.dir="rtl";wrap.style.cssText="width:1100px;background:#fff;color:#172033;padding:28px;font-family:Arial,Tahoma,sans-serif";
    const rows=items.map(item=>`<tr><td style="border:1px solid #b7c9c9;padding:8px;font-weight:800">${esc(item.type==="new"?"تحصيل جديد":"زيادة على تحصيل سابق")}</td><td style="border:1px solid #b7c9c9;padding:8px">${esc(item.current.client||"—")}</td><td style="border:1px solid #b7c9c9;padding:8px">${esc(item.current.paymentDate||"تاريخ غير محدد")}</td><td style="border:1px solid #b7c9c9;padding:8px;font-weight:800">${esc(fmtMoney(item.current.paid))}</td></tr>`).join("");
    const metrics=[["إجمالي مبالغ التحصيل الجديدة",fmtMoney(c.totalNewAmount)], ["عدد العملاء",fmt(c.customerCount)], ["تحصيل جديد للعميل/التاريخ",fmt(c.new)], ["زيادة على تحصيل سابق",fmt(c.changed)]];
-   wrap.innerHTML=`<h1 style="margin:0 0 8px;color:#123b4b;font-size:24px">التحصيلات الجديدة منذ آخر تحديث — شاشة التحصيل</h1><p style="margin:0 0 16px;color:#607782;font-size:13px">التصنيف: ${esc(differenceLabel(filter).replaceAll("_"," "))} — تاريخ التقرير: ${esc(new Date().toLocaleDateString("ar-EG"))}</p><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px">${metrics.map(x=>`<div style="border:1px solid #d9e6e7;padding:10px;text-align:center"><small style="display:block;color:#667985">${esc(x[0])}</small><b style="font-size:18px">${esc(x[1])}</b></div>`).join("")}</div><table style="width:100%;border-collapse:collapse;font-size:12px"><thead><tr>${["نوع التحصيل","اسم العميل","تاريخ السداد","مبلغ التحصيل الجديد"].map(x=>`<th style="background:#eaf5f2;border:1px solid #9fb8b6;padding:8px">${x}</th>`).join("")}</tr></thead><tbody>${rows}</tbody></table><p style="margin-top:14px;color:#71828a;font-size:10px">المبالغ المعروضة هي الزيادة مقارنة بالشيت السابق، مجمعة حسب العميل وتاريخ السداد.</p>`;
+   wrap.innerHTML=`<h1 style="margin:0 0 8px;color:#123b4b;font-size:24px">التحصيلات الجديدة منذ آخر تحديث — شاشة التحصيل</h1><p style="margin:0 0 16px;color:#607782;font-size:13px">فترة السداد: ${esc(collectionPaymentRangeLabel())} — التصنيف: ${esc(differenceLabel(filter).replaceAll("_"," "))} — تاريخ التقرير: ${esc(new Date().toLocaleDateString("ar-EG"))}</p><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px">${metrics.map(x=>`<div style="border:1px solid #d9e6e7;padding:10px;text-align:center"><small style="display:block;color:#667985">${esc(x[0])}</small><b style="font-size:18px">${esc(x[1])}</b></div>`).join("")}</div><table style="width:100%;border-collapse:collapse;font-size:12px"><thead><tr>${["نوع التحصيل","اسم العميل","تاريخ السداد","مبلغ التحصيل الجديد"].map(x=>`<th style="background:#eaf5f2;border:1px solid #9fb8b6;padding:8px">${x}</th>`).join("")}</tr></thead><tbody>${rows}</tbody></table><p style="margin-top:14px;color:#71828a;font-size:10px">المبالغ المعروضة هي الزيادة مقارنة بالشيت السابق، مجمعة حسب العميل وتاريخ السداد.</p>`;
    holder.appendChild(wrap);document.body.appendChild(holder);try{await window.html2pdf().set({margin:8,filename:`التحصيلات_الجديدة_${differenceLabel(filter)}_${new Date().toISOString().slice(0,10)}.pdf`,image:{type:"jpeg",quality:.97},html2canvas:{scale:1.4,useCORS:true,backgroundColor:"#fff"},jsPDF:{unit:"mm",format:"a4",orientation:"landscape",compress:true},pagebreak:{mode:["css","legacy"],avoid:["tr"]}}).from(wrap).save()}catch(e){console.error(e);alert("تعذر إنشاء تقرير PDF.")}finally{holder.remove()}
  }
  function renderCollectionDifferences(filter="all"){
    const panel=document.getElementById("collectionDifferencesPanel"),body=document.getElementById("collectionDifferencesBody"),metrics=document.getElementById("collectionDifferenceMetrics"),tbody=document.getElementById("collectionDifferencesBodyRows"),intro=document.getElementById("collectionDifferencesIntro");if(!panel||!metrics||!tbody)return;
-   const d=diffState,c=d.counts||{},items=d.items||[],toggleButton=document.getElementById("collectionDifferencesToggle"),closeButton=document.getElementById("collectionDifferencesClose");panel.hidden=false;
-   if(!d.createdAt&&!items.length){intro.textContent="جاهزة للمقارنة. بعد رفع الشيت التالي ستظهر مبالغ التحصيل الجديدة أو الزيادات لكل عميل بحسب تاريخ السداد.";if(body){body.hidden=true;body.dataset.open="0"}if(toggleButton){toggleButton.textContent="لا توجد مقارنة بعد";toggleButton.disabled=true}if(closeButton)closeButton.hidden=true;return}
+   const d=diffState,toggleButton=document.getElementById("collectionDifferencesToggle"),closeButton=document.getElementById("collectionDifferencesClose");panel.hidden=false;
+   if(!d.createdAt&&!(d.items||[]).length){intro.textContent="جاهزة للمقارنة. بعد رفع الشيت التالي ستظهر الزيادة في مبالغ التحصيل بحسب فترة تاريخ السداد المختارة.";if(body){body.hidden=true;body.dataset.open="0"}if(toggleButton){toggleButton.textContent="لا توجد مقارنة بعد";toggleButton.disabled=true}if(closeButton)closeButton.hidden=true;return}
    if(toggleButton){toggleButton.textContent="عرض ملخص التحصيل الجديد";toggleButton.disabled=false}
-   intro.textContent=d.error?"تعذر تجهيز ملخص التحصيل، بينما تم اعتماد الشيت الجديد بأمان.":`مقارنة الشيت الجديد بالسابق: ${fmtMoney(c.totalNewAmount)} مبالغ تحصيل إضافية عبر ${fmt(c.customerCount)} عميلًا.`;
+   const periodItems=filteredDifferenceItems("all"),c=differenceSummary(periodItems),list=filteredDifferenceItems(filter);
+   intro.textContent=d.error?"تعذر تجهيز ملخص التحصيل، بينما تم اعتماد الشيت الجديد بأمان.":`فترة المقارنة: ${collectionPaymentRangeLabel()} — مبالغ التحصيل الإضافية: ${fmtMoney(c.totalNewAmount)} عبر ${fmt(c.customerCount)} عميلًا.`;
    metrics.innerHTML=[["إجمالي مبالغ التحصيل الجديدة",fmtMoney(c.totalNewAmount),"new"],["عدد العملاء",fmt(c.customerCount),""],["تحصيل جديد للعميل/التاريخ",fmt(c.new),"new"],["زيادة على تحصيل سابق",fmt(c.changed),"changed"]].map(x=>`<div class="collection-difference-metric ${x[2]}"><small>${x[0]}</small><b>${x[1]}</b></div>`).join("");
-   const list=items.filter(x=>filter==="all"||x.type===filter);tbody.innerHTML=list.length?list.map(item=>`<tr><td>${badge(item.type)}</td><td>${esc(item.current?.client||"—")}</td><td>${esc(item.current?.paymentDate||"تاريخ غير محدد")}</td><td class="collection-difference-details">${esc(fmtMoney(item.current?.paid||0))}</td></tr>`).join(""):'<tr><td colspan="4" style="text-align:center;padding:22px;color:#71828a">لا توجد مبالغ تحصيل جديدة ضمن هذا التصنيف.</td></tr>';
+   tbody.innerHTML=list.length?list.map(item=>`<tr><td>${badge(item.type)}</td><td>${esc(item.current?.client||"—")}</td><td>${esc(item.current?.paymentDate||"تاريخ غير محدد")}</td><td class="collection-difference-details">${esc(fmtMoney(item.current?.paid||0))}</td></tr>`).join(""):'<tr><td colspan="4" style="text-align:center;padding:22px;color:#71828a">لا توجد مبالغ تحصيل جديدة ضمن فترة التاريخ المختارة وهذا التصنيف.</td></tr>';
    document.querySelectorAll("#collectionDifferencesPanel [data-diff-filter]").forEach(b=>b.classList.toggle("is-active",b.dataset.diffFilter===filter));
    if(body&&body.dataset.open==="1")body.hidden=false;
  }
@@ -10670,6 +10694,7 @@ body.pfa-resizing-rows,body.pfa-resizing-rows *{cursor:row-resize!important;user
  window.storeCollectionDifferences=storeCollectionDifferences;
  document.addEventListener("DOMContentLoaded",()=>{
    loadCollectionDifferences();renderCollectionDifferences();
+   ["collectionFrom","collectionTo"].forEach(id=>{const input=document.getElementById(id);if(input)["input","change"].forEach(eventName=>input.addEventListener(eventName,()=>renderCollectionDifferences(activeDifferenceFilter())))});
    const panel=document.getElementById("collectionDifferencesPanel"),body=document.getElementById("collectionDifferencesBody"),toggle=document.getElementById("collectionDifferencesToggle"),close=document.getElementById("collectionDifferencesClose");
    toggle?.addEventListener("click",()=>{body.hidden=false;body.dataset.open='1';toggle.hidden=true;if(close)close.hidden=false;document.getElementById("collectionDifferencesExcel")?.removeAttribute("hidden");document.getElementById("collectionDifferencesPdf")?.removeAttribute("hidden");renderCollectionDifferences(document.querySelector("#collectionDifferencesPanel [data-diff-filter].is-active")?.dataset.diffFilter||"all")});close?.addEventListener("click",()=>{body.hidden=true;body.dataset.open='0';close.hidden=true;toggle.hidden=false;document.getElementById("collectionDifferencesExcel")?.setAttribute("hidden","");document.getElementById("collectionDifferencesPdf")?.setAttribute("hidden","")});document.getElementById("collectionDifferencesExcel")?.addEventListener("click",exportCollectionDifferencesExcel);document.getElementById("collectionDifferencesPdf")?.addEventListener("click",exportCollectionDifferencesPDF);
    panel?.querySelectorAll("[data-diff-filter]").forEach(b=>b.addEventListener("click",()=>renderCollectionDifferences(b.dataset.diffFilter)));
