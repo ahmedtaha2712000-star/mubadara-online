@@ -8075,28 +8075,14 @@ document.addEventListener('DOMContentLoaded', function () {
     return phones.map((item,index)=>{const label=contact.label==="العميل"&&phones.length>1?`${contact.label} ${index+1}`:contact.label;const href=contactHref("call",item.phone,contact.name);return `<div class="pf-contact"><span class="pf-contact-name">${esc(label)}${contact.name&&contact.name!==contact.label?` — ${esc(contact.name)}`:""}</span><a class="pf-call-link" data-phone="${escAttr(item.phone)}" data-customer="${escAttr(caseItem?.client||contact.name||"العميل")}" data-contact="${escAttr(contact.name||contact.label)}" href="${esc(href)}" aria-label="اتصال ${esc(label)}">${esc(item.phone)} <span aria-hidden="true">☎</span></a></div>`}).join("\n");
   }
   function pfContactsHTML(item){return `<div class="pf-contacts">${item.contacts.map(contact=>pfPhoneLine(contact,item)).join("")}</div>`;}
-  async function pfRequestPhoneCall(event,link){
-    const phone=String(link.dataset.phone||"").trim();
-    if(/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)){
-      event.preventDefault();
-      if(phone) window.location.href=`tel:${phone.replace(/[^0-9+#*]/g,"")}`;
-      return;
-    }
+  function pfRequestPhoneCall(event,link){
     event.preventDefault();
-    const customer=String(link.dataset.customer||"العميل").trim();
+    const phone=String(link.dataset.phone||"").trim();
     if(!phone)return;
-    link.setAttribute("aria-busy","true");
-    const payload={customer_name:customer,phone,requested_by:session?.name||session?.user||"غير محدد",device_id:"primary",source_screen:"paymentFollowup",status:"pending"};
-    try{
-      let error=null;
-      if(cloudReady&&supabaseClient){({error}=await supabaseClient.from("call_requests").insert(payload));}
-      else{
-        const response=await fetch(`${SUPABASE_URL}/rest/v1/call_requests`,{method:"POST",headers:{apikey:SUPABASE_PUBLISHABLE_KEY,Authorization:`Bearer ${SUPABASE_PUBLISHABLE_KEY}`,"Content-Type":"application/json",Prefer:"return=minimal"},body:JSON.stringify(payload)});
-        if(!response.ok)error=new Error(`HTTP ${response.status}`);
-      }
-      if(error)throw error;
-      feedbackText=`تم إرسال طلب الاتصال مباشرة إلى هاتف التحصيل للعميل: ${customer}`;feedbackKind="ok";renderPaymentFollowup();
-    }catch(error){console.warn("Phone bridge request:",error);feedbackText="تعذر إرسال طلب الاتصال إلى الهاتف؛ لم يتم فتح برنامج اتصال الكمبيوتر.";feedbackKind="warn";renderPaymentFollowup();}
+    const dialPhone=phone.replace(/[^0-9+#*]/g,"");
+    if(!dialPhone)return;
+    // فتح رابط الاتصال من المتصفح مباشرة، دون إرسال طلب إلى التطبيق المساعد على الهاتف.
+    window.location.href=`tel:${dialPhone}`;
   }
   function pfLogActionButtonsHTML(log){
     const token=encodeURIComponent(String(log?.logId||""));
