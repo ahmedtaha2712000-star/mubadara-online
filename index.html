@@ -1469,6 +1469,26 @@ button.icon-action .action-glyph svg{width:22px!important;height:22px!important;
 #paymentFollowup .pf-latest{max-width:245px;min-width:150px;padding:7px;border-radius:8px;background:#f7f9fc;border:1px solid #e7ebf1}
 #paymentFollowup .pf-latest strong{display:block;color:#243b57;font-size:11px}
 #paymentFollowup .pf-latest p{margin:5px 0 0;white-space:pre-wrap;overflow-wrap:anywhere;color:#475569;font-size:11px}
+#paymentFollowup .pf-log-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px}
+#paymentFollowup .pf-log-delete,#paymentFollowup .pf-log-edit{display:inline-flex;align-items:center;gap:5px;border:1px solid #d6dee8;border-radius:7px;background:#fff;padding:5px 8px;color:#8c3030;font:inherit;font-size:10px;font-weight:800;cursor:pointer}
+#paymentFollowup .pf-log-delete:hover{background:#fff1f2;border-color:#efb7bd}
+#paymentFollowup .pf-log-edit{color:#1e5b82}
+#paymentFollowup .pf-log-edit:hover{background:#eff8ff;border-color:#a8c9df}
+#paymentFollowupEditDialog{width:min(520px,calc(100vw - 24px));border:0;border-radius:14px;padding:0;box-shadow:0 18px 55px #0f172a40}
+#paymentFollowupEditDialog::backdrop{background:#0f172a80}
+#paymentFollowupEditDialog .pf-edit-inner{padding:18px;direction:rtl;font-family:Arial,Tahoma,sans-serif}
+#paymentFollowupEditDialog h3{margin:0 0 12px;color:#172b45}
+#paymentFollowupEditDialog .pf-edit-fields{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+#paymentFollowupEditDialog label{display:grid;gap:5px;color:#475569;font-size:12px;font-weight:800}
+#paymentFollowupEditDialog input,#paymentFollowupEditDialog select,#paymentFollowupEditDialog textarea{box-sizing:border-box;width:100%;border:1px solid #cbd5e1;border-radius:8px;padding:9px;font:inherit;font-size:13px}
+#paymentFollowupEditDialog textarea{min-height:90px;resize:vertical}
+#paymentFollowupEditDialog .pf-edit-wide{grid-column:1/-1}
+#paymentFollowupEditDialog .pf-edit-error{display:none;margin-top:10px;color:#991b1b;background:#fef2f2;padding:8px;border-radius:8px;font-size:12px}
+#paymentFollowupEditDialog .pf-edit-error.show{display:block}
+#paymentFollowupEditDialog .pf-edit-actions{display:flex;gap:8px;justify-content:flex-start;margin-top:14px}
+#paymentFollowupEditDialog button{border:0;border-radius:8px;padding:9px 14px;font:inherit;font-weight:800;cursor:pointer}
+#paymentFollowupEditDialog [data-pf-edit-save]{background:#166534;color:#fff}
+#paymentFollowupEditDialog [data-pf-edit-cancel]{background:#e2e8f0;color:#334155}
 #paymentFollowup .pf-editor,#paymentFollowup .pf-history{margin-top:7px;border:1px solid #e0e6ee;border-radius:9px;background:#fff}
 #paymentFollowup .pf-editor summary,#paymentFollowup .pf-history summary{padding:7px 9px;color:#243b57;font-weight:800;font-size:11px;cursor:pointer;list-style:none}
 #paymentFollowup .pf-editor summary::-webkit-details-marker,#paymentFollowup .pf-history summary::-webkit-details-marker{display:none}
@@ -2200,7 +2220,7 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
 #paymentFollowupArchivePrintLayer .pfa-print-heading{text-align:center;margin:0 0 5mm;color:#000;font-size:15px;line-height:1.35;font-weight:900}
 #paymentFollowupArchivePrintLayer .pfa-print-meta{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 12px;margin:0 0 4mm;color:#000;font-size:9px;font-weight:700}
 #paymentFollowupArchivePrintLayer .pfa-print-table{width:100%;max-width:100%;min-width:0;border-collapse:collapse;table-layout:auto;direction:rtl;color:#000;background:#fff}
-#paymentFollowupArchivePrintLayer .pfa-print-table th,#paymentFollowupArchivePrintLayer .pfa-print-table td{border:1px solid #222!important;color:#000!important;background:#fff!important;text-align:center;vertical-align:middle}
+#paymentFollowupArchivePrintLayer .pfa-print-table th,#paymentFollowupArchivePrintLayer .pfa-print-table td{overflow:hidden!important;border:1px solid #222!important;color:#000!important;background:#fff!important;text-align:center;vertical-align:middle}
 @media print{
  body.printing-pfa-archive>*:not(#paymentFollowupArchivePrintLayer){display:none!important}
  body.printing-pfa-archive #paymentFollowupArchivePrintLayer{display:block!important;position:static!important;visibility:visible!important;opacity:1!important;width:100%!important;max-width:100%!important;min-width:0!important;margin:0!important;background:#fff!important;color:#000!important;overflow:visible!important}
@@ -2209,6 +2229,42 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
  body.printing-pfa-archive #paymentFollowupArchivePrintLayer tr{break-inside:avoid!important;page-break-inside:avoid!important}
  body.printing-pfa-archive #paymentFollowupArchivePrintLayer th,body.printing-pfa-archive #paymentFollowupArchivePrintLayer td{border:1px solid #222!important;color:#000!important;background:#fff!important}
 }
+</style>
+<style id="payment-followup-call-log-management-style">
+#paymentFollowup .pf-log-tools{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:12px 14px;border:1px solid #dce4ee;border-radius:14px;background:linear-gradient(115deg,#fff,#f7f9fc);box-shadow:0 4px 14px #0f172a0a}
+#paymentFollowup .pf-log-tools-intro{display:flex;align-items:center;gap:10px;min-width:0}
+#paymentFollowup .pf-log-tools-icon{display:grid;place-items:center;width:38px;height:38px;flex:0 0 38px;border-radius:11px;background:#edf3fa;color:#294b6e;font-size:18px}
+#paymentFollowup .pf-log-tools-intro strong{display:block;color:#172b45;font-size:13px;font-weight:900}
+#paymentFollowup .pf-log-tools-intro small{display:block;margin-top:3px;color:#64748b;font-size:10px;line-height:1.45}
+#paymentFollowup .pf-log-tools-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+#paymentFollowup .pf-log-bulk{display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:38px;padding:7px 11px;border:1px solid;border-radius:10px;font:inherit;font-size:11px;font-weight:850;cursor:pointer;transition:transform .15s,box-shadow .15s,background .15s}
+#paymentFollowup .pf-log-bulk:not(:disabled):hover{transform:translateY(-1px);box-shadow:0 5px 12px #0f172a18}
+#paymentFollowup .pf-log-bulk:focus-visible,#paymentFollowup .pf-log-delete:focus-visible{outline:3px solid #c99d3d;outline-offset:2px}
+#paymentFollowup .pf-log-bulk:disabled{opacity:.48;cursor:not-allowed;filter:saturate(.55)}
+#paymentFollowup .pf-log-bulk-filtered{background:#fff7ed;color:#9a3412;border-color:#fdba74}
+#paymentFollowup .pf-log-bulk-all{background:#a92736;color:#fff;border-color:#8e1e2a}
+#paymentFollowup .pf-log-bulk b{display:grid;place-items:center;min-width:23px;height:23px;padding:0 5px;border-radius:999px;background:#ffffffc9;color:inherit;font-size:10px}
+#paymentFollowup .pf-log-delete{display:inline-flex;align-items:center;justify-content:center;gap:5px;min-height:27px;padding:4px 8px;border:1px solid #e8b9bd;border-radius:7px;background:#fff6f6;color:#9b2633;font:inherit;font-size:10px;font-weight:850;white-space:nowrap;cursor:pointer}
+#paymentFollowup .pf-log-delete:hover{background:#fde8e9;border-color:#d98890}
+#paymentFollowup .pf-latest-actions{display:flex;justify-content:flex-start;margin-top:6px}
+#paymentFollowup .pf-history-item-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
+#paymentFollowup .pf-history-item-head>b{min-width:0;overflow-wrap:anywhere}
+#paymentFollowupDeleteDialog{width:min(92vw,480px);max-width:480px;padding:0;border:1px solid #dce4ee;border-radius:18px;background:#fff;color:#172033;box-shadow:0 24px 72px #0f172a3b;direction:rtl;font-family:Arial,Tahoma,sans-serif}
+#paymentFollowupDeleteDialog::backdrop{background:#0f172a80;backdrop-filter:blur(2px)}
+#paymentFollowupDeleteDialog .pf-delete-dialog-inner{padding:22px}
+#paymentFollowupDeleteDialog .pf-delete-dialog-top{display:flex;align-items:flex-start;gap:12px}
+#paymentFollowupDeleteDialog .pf-delete-dialog-icon{display:grid;place-items:center;width:42px;height:42px;flex:0 0 42px;border-radius:13px;background:#fff0f0;color:#a92736}
+#paymentFollowupDeleteDialog .pf-delete-dialog-icon svg{width:21px;height:21px}
+#paymentFollowupDeleteDialog h3{margin:1px 0 6px;color:#172b45;font-size:17px;font-weight:900}
+#paymentFollowupDeleteDialog .pf-delete-dialog-copy{margin:0;color:#475569;font-size:12px;line-height:1.7;white-space:pre-line}
+#paymentFollowupDeleteDialog .pf-delete-dialog-scope{margin:14px 0 0;padding:10px 12px;border:1px solid #e6ebf1;border-radius:10px;background:#f8fafc;color:#334155;font-size:11px;font-weight:750;line-height:1.6}
+#paymentFollowupDeleteDialog .pf-delete-dialog-error{display:none;margin-top:10px;padding:9px 11px;border:1px solid #f2c2c2;border-radius:9px;background:#fff4f4;color:#9b2633;font-size:11px;font-weight:800;line-height:1.5}
+#paymentFollowupDeleteDialog .pf-delete-dialog-error.show{display:block}
+#paymentFollowupDeleteDialog .pf-delete-dialog-actions{display:flex;justify-content:flex-start;gap:8px;margin-top:18px;padding-top:14px;border-top:1px solid #edf0f4}
+#paymentFollowupDeleteDialog .pf-delete-dialog-actions button{min-width:94px;min-height:38px;padding:8px 13px;border:1px solid #cbd5e1;border-radius:9px;background:#fff;color:#334155;font:inherit;font-size:12px;font-weight:800;cursor:pointer}
+#paymentFollowupDeleteDialog .pf-delete-dialog-actions .pf-delete-confirm{border-color:#8e1e2a;background:#a92736;color:#fff}
+#paymentFollowupDeleteDialog .pf-delete-dialog-actions button:disabled{opacity:.55;cursor:wait}
+@media(max-width:760px){#paymentFollowup .pf-log-tools{align-items:stretch;flex-direction:column;gap:10px;padding:10px}#paymentFollowup .pf-log-tools-actions{display:grid;grid-template-columns:1fr 1fr}#paymentFollowup .pf-log-bulk{min-height:42px;padding:7px;font-size:10px}#paymentFollowupDeleteDialog .pf-delete-dialog-inner{padding:17px}}
 </style>
 </head>
 
@@ -2908,6 +2964,10 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
     </div>
     <div id="paymentFollowupFeedback" class="pf-feedback" role="status" aria-live="polite"></div>
     <div class="pf-summary"><div class="pf-summary-card pf-summary-card-blue"><span>حالات المتابعة</span><b id="paymentFollowupCount">0</b></div><div class="pf-summary-card"><span>عملاء مختلفون</span><b id="paymentFollowupClientsCount">0</b></div><div class="pf-summary-card pf-summary-card-gold"><span>إجمالي متأخرات العملاء الظاهرين</span><b id="paymentFollowupTotalArrears">0</b></div><div class="pf-summary-card pf-summary-card-period"><span>الفترة</span><b id="paymentFollowupPeriod">حتى اليوم</b></div></div>
+    <section id="paymentFollowupLogTools" class="pf-log-tools no-print" aria-label="إدارة سجلات المكالمات">
+      <div class="pf-log-tools-intro"><span class="pf-log-tools-icon" aria-hidden="true">☎</span><div><strong>إدارة سجلات المكالمات</strong><small>الأزرار متاحة هنا في شاشة متابعة السداد؛ ويقتصر الحذف على سجلات المكالمات دون سجلات تعديل بيانات العملاء.</small></div></div>
+      <div class="pf-log-tools-actions"><button type="button" id="paymentFollowupDeleteFiltered" class="pf-log-bulk pf-log-bulk-filtered" disabled><span>حذف سجلات الحالات الظاهرة</span><b id="paymentFollowupDeleteFilteredCount">0</b></button><button type="button" id="paymentFollowupDeleteAll" class="pf-log-bulk pf-log-bulk-all" disabled><span>حذف جميع سجلات المكالمات</span><b id="paymentFollowupDeleteAllCount">0</b></button></div>
+    </section>
     <div id="paymentFollowupMobileCases" class="pf-mobile-cases" aria-live="polite"></div>
     <div class="pf-table-scrollbar no-print" id="paymentFollowupTableScrollTop" aria-label="التمرير الأفقي أعلى جدول متابعة السداد"><i></i></div><div class="pf-table-wrap"><table id="paymentFollowupTable" class="pf-table"><thead><tr><th>العميل / الأخصائي</th><th>مبلغ القرض</th><th>مدة القرض</th><th>قيمة القسط</th><th>المسدد</th><th>تاريخ السداد</th><th>المتبقي من القسط</th><th>عدد الأقساط المتأخرة</th><th>إجمالي متأخرات العميل</th><th>العميل والضامنون</th><th>آخر مكالمة</th><th>القائم بالمتابعة</th><th class="no-print">الإجراء / السجل</th></tr></thead><tbody id="paymentFollowupTableBody"></tbody></table></div><div class="pf-table-scrollbar no-print" id="paymentFollowupTableScrollBottom" aria-label="التمرير الأفقي أسفل جدول متابعة السداد"><i></i></div>
   </div>
@@ -2923,7 +2983,7 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
     </div></div>
     <div class="pfa-summary" aria-hidden="true" style="display:none!important"><div class="pfa-card"><span>العميل</span><b id="paymentFollowupArchiveClient">—</b></div><div class="pfa-card"><span>القرض / الحالة</span><b id="paymentFollowupArchiveLoan">—</b></div><div class="pfa-card"><span>عدد المتابعات</span><b id="paymentFollowupArchiveCount">0</b></div><div class="pfa-card"><span>آخر متابعة</span><b id="paymentFollowupArchiveLatest">—</b></div></div>
     <div class="pfa-filter no-print" aria-label="فلاتر أرشيف المتابعة"><label class="pfa-filter-wide">اسم العميل<input id="paymentFollowupArchiveClientSearch" list="paymentFollowupArchiveClientList" type="search" autocomplete="off" placeholder="اكتب اسم العميل..."><datalist id="paymentFollowupArchiveClientList"></datalist></label><label>اسم الأخصائي<input id="paymentFollowupArchiveOfficerSearch" list="paymentFollowupArchiveOfficerList" type="search" autocomplete="off" placeholder="اختر الأخصائي..."><datalist id="paymentFollowupArchiveOfficerList"></datalist></label><label>تم التواصل مع<input id="paymentFollowupArchiveParty" list="paymentFollowupArchivePartyList" type="search" autocomplete="off" placeholder="العميل أو الضامن..."><datalist id="paymentFollowupArchivePartyList"></datalist></label><label>نتيجة المتابعة<input id="paymentFollowupArchiveStatus" list="paymentFollowupArchiveStatusList" type="search" autocomplete="off" placeholder="اختر النتيجة..."><datalist id="paymentFollowupArchiveStatusList"></datalist></label><div class="pfa-date-range-group" aria-label="تصفية حسب تاريخ الاتصال المسجل من المستخدم"><div class="pfa-date-fields"><label>من تاريخ<input id="paymentFollowupArchiveFrom" type="date"></label><label>إلى تاريخ<input id="paymentFollowupArchiveTo" type="date"></label></div><div class="pfa-date-presets" role="group" aria-label="اختصارات نطاق التاريخ"><button type="button" data-pfa-range="today">تاريخ اليوم</button><button type="button" data-pfa-range="yesterday">اليوم السابق</button><button type="button" data-pfa-range="month">الشهر الحالي</button><button type="button" data-pfa-range="previous-month">الشهر السابق</button></div></div><label class="pfa-filter-wide">بحث في الملاحظات<input id="paymentFollowupArchiveSearch" type="search" placeholder="كلمة داخل الاتفاق أو الملاحظات..."></label><button id="paymentFollowupArchiveClear" class="pfa-clear" type="button">مسح كل الفلاتر</button></div>
-    <div class="pfa-scrollbar no-print" id="paymentFollowupArchiveScrollTop" aria-label="التمرير الأفقي أعلى الجدول"><i></i></div><div class="pfa-table-wrap" id="paymentFollowupArchiveTableWrap"><table class="pfa-table" aria-label="جدول سجل متابعة السداد"><thead><tr><th>اسم العميل</th><th>تم التواصل مع</th><th>نتيجة المتابعة</th><th>تفاصيل الاتفاق / الملاحظات</th><th>المتابعة القادمة</th><th>القائم بالمتابعة</th><th>التاريخ والوقت</th><th>مبلغ القرض</th><th>مدة القرض</th><th>قيمة القسط</th><th>المسدد</th><th>تاريخ السداد</th><th>المتبقي من القسط</th><th>عدد الأقساط المتأخرة</th><th>إجمالي متأخرات العميل</th><th>اسم الأخصائي</th></tr></thead><tbody id="paymentFollowupArchiveTimeline" aria-live="polite"></tbody></table></div><div class="pfa-scrollbar no-print" id="paymentFollowupArchiveScrollBottom" aria-label="التمرير الأفقي أسفل جدول الأرشيف"><i></i></div>
+    <div class="pfa-scrollbar no-print" id="paymentFollowupArchiveScrollTop" aria-label="التمرير الأفقي أعلى الجدول"><i></i></div><div class="pfa-table-wrap" id="paymentFollowupArchiveTableWrap"><table class="pfa-table" aria-label="جدول سجل متابعة السداد"><thead><tr><th>اسم العميل</th><th>تم التواصل مع</th><th>نتيجة المتابعة</th><th>تفاصيل الاتفاق / الملاحظات</th><th>المتابعة القادمة</th><th>القائم بالمتابعة</th><th>التاريخ والوقت</th><th>مبلغ القرض</th><th>مدة القرض</th><th>تاريخ الاستحقاق</th><th>قيمة القسط</th><th>المسدد</th><th>تاريخ السداد</th><th>المتبقي من القسط</th><th>عدد الأقساط المتأخرة</th><th>إجمالي متأخرات العميل</th><th>اسم الأخصائي</th></tr></thead><tbody id="paymentFollowupArchiveTimeline" aria-live="polite"></tbody></table></div><div class="pfa-scrollbar no-print" id="paymentFollowupArchiveScrollBottom" aria-label="التمرير الأفقي أسفل جدول الأرشيف"><i></i></div>
   </div>
 </section>
 
@@ -3375,9 +3435,18 @@ function readFileBuffer(file){
   if(file&&typeof file.arrayBuffer==="function") return file.arrayBuffer();
   return new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=()=>reject(reader.error||new Error("تعذر قراءة الملف من الهاتف"));reader.readAsArrayBuffer(file)});
 }
+async function ensureXLSXLoaded(){
+  if(typeof XLSX!=="undefined"&&XLSX.read&&XLSX.utils)return;
+  const urls=["https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js","https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"];
+  for(const url of urls){
+    try{await new Promise((resolve,reject)=>{const script=document.createElement("script");script.src=url;script.async=true;script.onload=()=>resolve();script.onerror=()=>reject(new Error("تعذر الوصول إلى مكتبة Excel"));document.head.appendChild(script)});if(typeof XLSX!=="undefined"&&XLSX.read&&XLSX.utils)return}catch(e){console.warn("XLSX library fallback:",url,e)}
+  }
+  throw new Error("تعذر تحميل مكتبة قراءة Excel من مصادرها. تحقق من اتصال الإنترنت أو حظر CDN ثم أعد المحاولة.");
+}
 async function importExcelFile(file){
   if(!file)throw new Error("لم يتم اختيار ملف.");
-  if(typeof XLSX==="undefined")throw new Error("تعذر تحميل مكتبة Excel. أعد تحميل الصفحة ثم جرّب مرة أخرى.");
+  await ensureXLSXLoaded();
+  if(!/\.(xlsx|xls)$/i.test(String(file.name||"")))throw new Error("صيغة الملف غير مدعومة؛ اختر ملفًا بامتداد .xlsx أو .xls.");
   const displayFileName=safeExcelFileName(file.name);
   if(file.size> LARGE_EXCEL_BYTES)throw new Error(`حجم الملف أكبر من الحد المسموح (${Math.round(LARGE_EXCEL_BYTES/1048576)} ميجابايت).`);
   setImportProgress(5,"بدء الاستيراد",`الملف: ${displayFileName} — الحجم: ${(file.size/1048576).toFixed(2)} ميجابايت`);
@@ -3397,6 +3466,7 @@ async function importExcelFile(file){
     const ws=wb.Sheets[name];
     raw=XLSX.utils.sheet_to_json(ws,{defval:"",raw:isLarge});
   }
+  if(!name)throw Error("ملف Excel لا يحتوي على أوراق عمل قابلة للقراءة.");
   if(!raw.length)throw Error("لا توجد بيانات في أول ورقة.");
   setImportProgress(48,"اكتملت قراءة الملف",`${raw.length.toLocaleString("en-US")} صفًا — جاري تجهيز البيانات والضغط.`);
   /* خذ لقطة من البيانات الحالية قبل استبدالها، حتى تتم المقارنة مع الشيت السابق فعلًا. */
@@ -3467,6 +3537,8 @@ document.getElementById("file").addEventListener("change",async e=>{
    }
    document.getElementById("status").textContent="❌ لم يتم تحميل الملف — "+failedAt;
  }
+ /* السماح بإعادة اختيار الملف نفسه بعد نجاح الاستيراد أو فشله. */
+ e.target.value="";
 });
 
 function key(v){return normFast(v)}
@@ -7628,6 +7700,7 @@ document.addEventListener('DOMContentLoaded', function () {
   let lastRenderedMobile=null;
   let feedbackText="";
   let feedbackKind="ok";
+  let pendingDeleteAction=null;
 
   function isPaymentFollowupContactLog(entry){return String(entry?.field||"")===LOG_MARKER;}
   window.isPaymentFollowupContactLog=isPaymentFollowupContactLog;
@@ -7706,12 +7779,177 @@ document.addEventListener('DOMContentLoaded', function () {
     });
     return cases.sort((a,b)=>b.delay-a.delay||b.customerArrears-a.customerArrears||a.client.localeCompare(b.client,"ar"));
   }
+  function pfContactLogIdentity(entry){
+    if(entry?.cloudId!==undefined&&entry?.cloudId!==null&&String(entry.cloudId)!=="")return "cloud:"+String(entry.cloudId);
+    return "local:"+JSON.stringify([entry?.client,entry?.field,entry?.oldValue,entry?.newValue,entry?.time,entry?.user].map(value=>String(value??"")));
+  }
+  function pfContactLogMeta(entry){try{const meta=JSON.parse(entry?.oldValue||"{}");return meta&&typeof meta==="object"?meta:{}}catch(e){return {}}}
   function pfReadLogs(){
     if(typeof readClientContactLog!=="function")return [];
     return readClientContactLog().filter(isPaymentFollowupContactLog).map(entry=>{
-      let meta={};try{meta=JSON.parse(entry.oldValue||"{}")}catch(e){}
-      return {...meta,note:String(entry.newValue??""),createdAt:entry.time||"",user:entry.user||"غير محدد",cloudId:entry.cloudId||null};
+      const meta=pfContactLogMeta(entry);
+      return {...meta,note:String(entry.newValue??""),createdAt:entry.time||"",user:entry.user||"غير محدد",cloudId:entry.cloudId||null,logId:pfContactLogIdentity(entry)};
     }).filter(x=>x.caseKey);
+  }
+  function pfEnsureDeleteDialog(){
+    let dialog=document.getElementById("paymentFollowupDeleteDialog");if(dialog)return dialog;
+    dialog=document.createElement("dialog");dialog.id="paymentFollowupDeleteDialog";dialog.className="pf-delete-dialog no-print";dialog.setAttribute("aria-labelledby","paymentFollowupDeleteTitle");
+    dialog.innerHTML=`<div class="pf-delete-dialog-inner"><div class="pf-delete-dialog-top"><span class="pf-delete-dialog-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3m3 0-.8 13H6.8L6 7m4 4v5m4-5v5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div><h3 id="paymentFollowupDeleteTitle"></h3><p class="pf-delete-dialog-copy" id="paymentFollowupDeleteCopy"></p></div></div><div class="pf-delete-dialog-scope" id="paymentFollowupDeleteScope"></div><div class="pf-delete-dialog-error" id="paymentFollowupDeleteError" role="alert"></div><div class="pf-delete-dialog-actions"><button type="button" data-pf-delete-cancel>إلغاء</button><button type="button" class="pf-delete-confirm" data-pf-delete-confirm>حذف نهائيًا</button></div></div>`;
+    document.body.appendChild(dialog);
+    dialog.querySelector("[data-pf-delete-cancel]").addEventListener("click",()=>{pendingDeleteAction=null;dialog.close("cancel")});
+    dialog.querySelector("[data-pf-delete-confirm]").addEventListener("click",pfRunDeleteAction);
+    dialog.addEventListener("cancel",()=>{pendingDeleteAction=null});
+    dialog.addEventListener("click",event=>{if(event.target===dialog){pendingDeleteAction=null;dialog.close("cancel")}});
+    return dialog;
+  }
+  function pfOpenDeleteDialog(action){
+    const dialog=pfEnsureDeleteDialog(),title=dialog.querySelector("#paymentFollowupDeleteTitle"),copy=dialog.querySelector("#paymentFollowupDeleteCopy"),scope=dialog.querySelector("#paymentFollowupDeleteScope"),error=dialog.querySelector("#paymentFollowupDeleteError"),confirmButton=dialog.querySelector("[data-pf-delete-confirm]"),cancelButton=dialog.querySelector("[data-pf-delete-cancel]");
+    pendingDeleteAction=action;error.textContent="";error.classList.remove("show");confirmButton.disabled=false;cancelButton.disabled=false;
+    if(action.kind==="one"){
+      title.textContent="تأكيد حذف سجل المكالمة";
+      copy.textContent="سيُحذف سجل المكالمة المحدد نهائيًا، ولن تتأثر مكالمات العميل الأخرى. سيختفي السجل أيضًا من سجل المتابعة لأنه يعرض السجلات نفسها.";
+      scope.textContent=`العميل: ${action.log.client||"غير محدد"} · ${action.log.status||"متابعة مسجلة"} · ${pfDateTime(action.log.createdAt)}`;
+      confirmButton.textContent="حذف هذا السجل";
+    }else if(action.kind==="visible"){
+      title.textContent="تأكيد حذف سجلات الحالات الظاهرة";
+      copy.textContent="سيُحذف كل سجلّات المكالمات المرتبطة بالحالات الظاهرة الآن بعد تطبيق الفلاتر، بما فيها المكالمات الأقدم داخل سجل المكالمات. لن تُحذف سجلات الحالات غير الظاهرة، وستختفي السجلات المحذوفة من سجل المتابعة المرتبط.";
+      scope.textContent=`الحالات الظاهرة: ${action.caseCount.toLocaleString("en-US")} · سجلات المكالمات المتاحة: ${action.logCount.toLocaleString("en-US")}`;
+      confirmButton.textContent="حذف سجلات الحالات";
+    }else{
+      title.textContent="تأكيد حذف جميع سجلات المكالمات";
+      copy.textContent="سيُحذف جميع سجلات المكالمات لكل العملاء والحالات، سواء ظهرت في الفلاتر أم لا. هذه السجلات نفسها تظهر في سجل المتابعة، وستختفي منه بعد الحذف. لن يمس الحذف سجلات تعديل بيانات العملاء.";
+      scope.textContent=`سجلات المكالمات الموجودة محليًا: ${action.logCount.toLocaleString("en-US")}`;
+      confirmButton.textContent="حذف جميع السجلات";
+    }
+    if(typeof dialog.showModal==="function"){
+      if(!dialog.open)dialog.showModal();
+      queueMicrotask(()=>cancelButton.focus());
+    }else if(window.confirm(`${title.textContent}؟\n\n${copy.textContent}\n\n${scope.textContent}`)){
+      pfRunDeleteAction();
+    }else pendingDeleteAction=null;
+  }
+  async function pfCloudIdsForCaseKeys(caseKeys){
+    const keys=new Set(caseKeys.map(String)),ids=[];let offset=0,batchSize=500;
+    while(true){
+      const {data,error}=await supabaseClient.from(CLIENT_CONTACT_LOG_TABLE).select("id,old_value").eq("field_name",LOG_MARKER).order("edited_at",{ascending:false}).range(offset,offset+batchSize-1);
+      if(error)throw error;
+      const page=data||[];
+      page.forEach(row=>{const meta=pfContactLogMeta({oldValue:row.old_value});if(keys.has(String(meta.caseKey||""))&&row.id!==undefined&&row.id!==null)ids.push(String(row.id))});
+      if(page.length<batchSize)break;
+      offset+=batchSize;
+    }
+    return ids;
+  }
+  async function pfDeleteCloudIds(ids){
+    const done=[];
+    for(let i=0;i<ids.length;i+=100){
+      const part=ids.slice(i,i+100),{data,error}=await supabaseClient.from(CLIENT_CONTACT_LOG_TABLE).delete().in("id",part).select("id");
+      if(error){error.pfDeletedIds=done.slice();throw error}
+      const deleted=(data||[]).map(row=>String(row.id));
+      if(deleted.length!==part.length){const mismatch=new Error("لم تؤكد السحابة حذف كل السجلات المطلوبة. تحقق من صلاحيات الحذف ثم حدّث الشاشة.");mismatch.pfDeletedIds=[...done,...deleted];throw mismatch}
+      done.push(...deleted);
+    }
+    return done;
+  }
+  function pfEntryMatchesAction(entry,action){
+    if(!isPaymentFollowupContactLog(entry))return false;
+    if(action.kind==="all")return true;
+    const meta=pfContactLogMeta(entry);
+    if(action.kind==="one")return pfContactLogIdentity(entry)===action.logId;
+    return action.kind==="visible"&&action.caseKeys.includes(String(meta.caseKey||""));
+  }
+  async function pfPerformLogDeletion(action){
+    const original=readClientContactLog(),target=original.filter(entry=>pfEntryMatchesAction(entry,action));
+    if(action.kind==="one"&&target.length>1){const first=target[0];target.length=0;target.push(first)}
+    if(!target.length)throw new Error("لم يعد سجل المكالمة موجودًا؛ حدّث الشاشة ثم حاول مرة أخرى.");
+    const remoteReady=!!(cloudReady&&supabaseClient);
+    if(!remoteReady&&target.some(entry=>entry.cloudId))throw new Error("بعض السجلات مرتبطة بالسحابة. لم يُحذف شيء؛ أعد الاتصال بالسحابة ثم حاول مرة أخرى.");
+    const targetRefs=new Set(target),remaining=original.filter(entry=>!targetRefs.has(entry));
+    if(!writeClientContactLog(remaining))throw new Error("تعذر تحديث التخزين المحلي؛ لم يتم تأكيد الحذف.");
+    try{
+      if(remoteReady){
+        if(action.kind==="all"){
+          const {error}=await supabaseClient.from(CLIENT_CONTACT_LOG_TABLE).delete().eq("field_name",LOG_MARKER);
+          if(error)throw error;
+        }else if(action.kind==="visible"){
+          const ids=await pfCloudIdsForCaseKeys(action.caseKeys);
+          await pfDeleteCloudIds(ids);
+        }else if(target[0].cloudId){
+          const {data,error}=await supabaseClient.from(CLIENT_CONTACT_LOG_TABLE).delete().eq("id",target[0].cloudId).select("id").maybeSingle();
+          if(error)throw error;
+          if(!data)throw new Error("لم تؤكد السحابة حذف السجل؛ قد تكون الصلاحية غير متاحة أو أن السجل حُذف مسبقًا.");
+        }
+      }
+    }catch(error){
+      const deletedIds=Array.isArray(error?.pfDeletedIds)?error.pfDeletedIds.map(String):[];
+      if(deletedIds.length){
+        const deletedSet=new Set(deletedIds),consistent=original.filter(entry=>!deletedSet.has(String(entry.cloudId||"")));
+        writeClientContactLog(consistent);
+        try{await refreshClientContactLogCloud("")}catch(e){}
+        throw new Error(`حُذف ${deletedIds.length.toLocaleString("en-US")} سجلًا سحابيًا قبل تعذر إكمال بقية الحذف. حدّث الشاشة وراجع السجلات المتبقية قبل إعادة المحاولة.`);
+      }
+      writeClientContactLog(original);
+      throw error;
+    }
+    if(remoteReady){try{await refreshClientContactLogCloud("")}catch(e){console.warn("Refresh after payment call-log deletion:",e)}}
+    return {count:target.length,remote:remoteReady};
+  }
+  async function pfRunDeleteAction(){
+    const dialog=document.getElementById("paymentFollowupDeleteDialog"),action=pendingDeleteAction;if(!dialog||!action||dialog.dataset.processing==="1")return;
+    const confirmButton=dialog.querySelector("[data-pf-delete-confirm]"),cancelButton=dialog.querySelector("[data-pf-delete-cancel]"),errorBox=dialog.querySelector("#paymentFollowupDeleteError");
+    dialog.dataset.processing="1";confirmButton.disabled=true;cancelButton.disabled=true;confirmButton.textContent="جارٍ الحذف…";errorBox.textContent="";errorBox.classList.remove("show");
+    try{
+      const result=await pfPerformLogDeletion(action);
+      pendingDeleteAction=null;dialog.close("deleted");
+      feedbackKind=result.remote?"ok":"warn";
+      feedbackText=action.kind==="one"?"تم حذف سجل المكالمة المحدد.":action.kind==="visible"?"تم حذف سجلات المكالمات للحالات الظاهرة فقط.":"تم حذف جميع سجلات المكالمات.";
+      if(!result.remote)feedbackText+=" تم الحذف من هذا الجهاز فقط لعدم الاتصال بالسحابة.";
+      renderPaymentFollowup();
+    }catch(e){
+      console.warn("Payment follow-up call-log deletion:",e);
+      errorBox.textContent=String(e?.message||"تعذر إكمال الحذف. لم يتم اعتماد العملية.");errorBox.classList.add("show");
+      confirmButton.disabled=false;cancelButton.disabled=false;
+      confirmButton.textContent=action.kind==="one"?"حذف هذا السجل":action.kind==="visible"?"حذف سجلات الحالات":"حذف جميع السجلات";
+    }finally{delete dialog.dataset.processing}
+  }
+  function pfEnsureEditDialog(){
+    let dialog=document.getElementById("paymentFollowupEditDialog");if(dialog)return dialog;
+    dialog=document.createElement("dialog");dialog.id="paymentFollowupEditDialog";dialog.className="no-print";
+    dialog.innerHTML=`<form class="pf-edit-inner" data-pf-edit-form><h3>تعديل سجل المكالمة</h3><div class="pf-edit-fields"><label>تم الاتصال بـ<select name="callParty" required></select></label><label>نتيجة الاتصال<select name="status" required></select></label><label>المتابعة القادمة<input name="next" type="date"></label><label class="pf-edit-wide">ملاحظات المكالمة<textarea name="note" maxlength="2000" required></textarea></label></div><div class="pf-edit-error" role="alert"></div><div class="pf-edit-actions"><button type="submit" data-pf-edit-save>حفظ التعديلات</button><button type="button" data-pf-edit-cancel>إلغاء</button></div></form>`;
+    document.body.appendChild(dialog);
+    dialog.querySelector("[data-pf-edit-cancel]").addEventListener("click",()=>dialog.close("cancel"));
+    dialog.addEventListener("cancel",()=>{dialog.dataset.logId=""});
+    dialog.querySelector("[data-pf-edit-form]").addEventListener("submit",async event=>{
+      event.preventDefault();const form=event.currentTarget,error=dialog.querySelector(".pf-edit-error"),save=dialog.querySelector("[data-pf-edit-save]");
+      const values={callParty:form.elements.callParty.value,status:form.elements.status.value,next:form.elements.next.value,note:form.elements.note.value.trim()};
+      if(!values.note||!values.status){error.textContent="أدخل نتيجة الاتصال والملاحظة قبل الحفظ.";error.classList.add("show");return}
+      save.disabled=true;error.textContent="";error.classList.remove("show");
+      try{await pfUpdateCallLog(decodeURIComponent(dialog.dataset.logId||""),values);dialog.close("saved");feedbackText="تم تعديل سجل المكالمة مع الاحتفاظ بتاريخ التسجيل واسم المستخدم.";feedbackKind="ok";renderPaymentFollowup()}
+      catch(e){error.textContent=String(e?.message||"تعذر حفظ التعديل.");error.classList.add("show")}
+      finally{save.disabled=false}
+    });
+    return dialog;
+  }
+  function pfOpenEditDialog(log){
+    const dialog=pfEnsureEditDialog(),form=dialog.querySelector("[data-pf-edit-form]"),item=currentCases.find(x=>String(x.key)===String(log.caseKey));
+    const parties=[...new Set([log.callParty,...(item?.contacts||[]).map(c=>c.label+(c.name&&c.name!==c.label?` — ${c.name}`:""))].filter(Boolean))];
+    form.elements.callParty.innerHTML=parties.map(v=>`<option value="${escAttr(v)}">${esc(v)}</option>`).join("");
+    form.elements.status.innerHTML=`<option value="">اختر النتيجة</option>${CALL_RESULTS.map(x=>`<option value="${escAttr(x)}">${esc(x)}</option>`).join("")}`;
+    form.elements.callParty.value=log.callParty||parties[0]||"";form.elements.status.value=log.status||"";form.elements.next.value=log.next||"";form.elements.note.value=log.note||"";
+    dialog.dataset.logId=encodeURIComponent(String(log.logId||""));const error=dialog.querySelector(".pf-edit-error");error.textContent="";error.classList.remove("show");
+    if(typeof dialog.showModal==="function")dialog.showModal();else alert("المتصفح لا يدعم نافذة تعديل السجل.");
+  }
+  async function pfUpdateCallLog(logId,values){
+    const original=readClientContactLog(),index=original.findIndex(entry=>isPaymentFollowupContactLog(entry)&&pfContactLogIdentity(entry)===logId);
+    if(index<0)throw new Error("لم يعد سجل المكالمة متاحًا؛ حدّث الشاشة ثم حاول مرة أخرى.");
+    const prior=original[index],updated={...prior};const meta=pfContactLogMeta(prior);
+    Object.assign(meta,{version:1,callParty:values.callParty,status:values.status,next:values.next});updated.oldValue=JSON.stringify(meta);updated.newValue=values.note;
+    if(prior.cloudId&&!cloudReady)throw new Error("هذا السجل محفوظ سحابيًا. اتصل بالسحابة ثم أعد محاولة التعديل؛ لم يتم تغيير شيء.");
+    const changed=original.slice();changed[index]=updated;if(!writeClientContactLog(changed))throw new Error("تعذر حفظ التعديل محليًا؛ لم يتم تغيير السجل.");
+    try{
+      if(prior.cloudId&&cloudReady&&supabaseClient){const {data,error}=await supabaseClient.from(CLIENT_CONTACT_LOG_TABLE).update({old_value:updated.oldValue,new_value:updated.newValue}).eq("id",prior.cloudId).select("id").maybeSingle();if(error)throw error;if(!data)throw new Error("لم يُعثر على السجل في السحابة أو لا تملك صلاحية تعديله.")}
+    }catch(error){writeClientContactLog(original);throw error}
+    if(prior.cloudId&&cloudReady){try{await refreshClientContactLogCloud("")}catch(e){console.warn("Refresh after payment call-log edit:",e)}}
   }
   function pfCaseLogs(caseKey,allLogs){return allLogs.filter(x=>String(x.caseKey)===String(caseKey)).sort((a,b)=>new Date(b.createdAt||0)-new Date(a.createdAt||0));}
   function pfEnsureDefaultPeriod(){
@@ -7798,10 +8036,14 @@ document.addEventListener('DOMContentLoaded', function () {
       feedbackText=`تم إرسال طلب الاتصال مباشرة إلى هاتف التحصيل للعميل: ${customer}`;feedbackKind="ok";renderPaymentFollowup();
     }catch(error){console.warn("Phone bridge request:",error);feedbackText="تعذر إرسال طلب الاتصال إلى الهاتف؛ لم يتم فتح برنامج اتصال الكمبيوتر.";feedbackKind="warn";renderPaymentFollowup();}
   }
+  function pfLogActionButtonsHTML(log){
+    const token=encodeURIComponent(String(log?.logId||""));
+    return `<div class="pf-log-actions no-print"><button type="button" class="pf-log-edit" data-pf-edit-log="${escAttr(token)}" aria-label="تعديل سجل المكالمة" title="تعديل سجل المكالمة">✎ <span>تعديل</span></button><button type="button" class="pf-log-delete" data-pf-delete-log="${escAttr(token)}" aria-label="حذف سجل المكالمة" title="حذف سجل المكالمة"><span>حذف</span></button></div>`;
+  }
   function pfLatestHTML(item){
     const latest=item.logs?.[0];
     if(!latest)return `<div class="pf-latest"><strong>لا توجد مكالمة مسجلة</strong><p>ابدأ الاتصال وسجّل ما ذكره العميل.</p></div>`;
-    return `<div class="pf-latest"><strong>${esc(latest.status||"متابعة مسجلة")} · ${esc(pfDateTime(latest.createdAt))}</strong><span class="pf-secondary">${esc(latest.callParty||"")}${latest.next?` · المتابعة: ${esc(pfTextDate(latest.next))}`:""}</span><p>${esc(latest.note||"—")}</p></div>`;
+    return `<div class="pf-latest"><strong>${esc(latest.status||"متابعة مسجلة")} · ${esc(pfDateTime(latest.createdAt))}</strong><span class="pf-secondary">${esc(latest.callParty||"")}${latest.next?` · المتابعة: ${esc(pfTextDate(latest.next))}`:""}</span><p>${esc(latest.note||"—")}</p><div class="pf-latest-actions">${pfLogActionButtonsHTML(latest)}</div></div>`;
   }
   function pfActorHTML(item){
     const latest=item.logs?.[0];
@@ -7817,7 +8059,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }
   function pfHistoryHTML(item){
     if(!item.logs?.length)return "";
-    return `<details class="pf-history"><summary>سجل المكالمات (${item.logs.length})</summary><div class="pf-history-list">${item.logs.map(log=>`<div class="pf-history-item"><b>${esc(log.status||"متابعة")} · ${esc(pfDateTime(log.createdAt))}</b><div>${esc(log.callParty||"")}${log.next?` · المتابعة القادمة: ${esc(pfTextDate(log.next))}`:""}${log.user?` · بواسطة ${esc(log.user)}`:""}</div><p>${esc(log.note||"—")}</p></div>`).join("")}</div></details>`;
+    return `<details class="pf-history"><summary>سجل المكالمات (${item.logs.length})</summary><div class="pf-history-list">${item.logs.map((log,index)=>`<div class="pf-history-item"><div class="pf-history-item-head"><b>${esc(log.status||"متابعة")} · ${esc(pfDateTime(log.createdAt))}</b>${pfLogActionButtonsHTML(log)}</div><div>${esc(log.callParty||"")}${log.next?` · المتابعة القادمة: ${esc(pfTextDate(log.next))}`:""}${log.user?` · بواسطة ${esc(log.user)}`:""}</div><p>${esc(log.note||"—")}</p></div>`).join("")}</div></details>`;
   }
   function pfFormHTML(item){
     const options=item.contacts.map(c=>`<option value="${esc(c.label+(c.name&&c.name!==c.label?` — ${c.name}`:""))}">${esc(c.label+(c.name&&c.name!==c.label?` — ${c.name}`:""))}</option>`).join("");
@@ -7850,6 +8092,11 @@ document.addEventListener('DOMContentLoaded', function () {
     pfEnsureDefaultPeriod();
     currentCases=pfBuildCases();pfUpdateOfficerOptions();pfUpdateClientOptions();
     const filtered=pfFilteredCases();
+    const visibleCaseKeys=new Set(filtered.map(item=>String(item.key))),allCallLogs=pfReadLogs();
+    const visibleCallLogCount=allCallLogs.filter(log=>visibleCaseKeys.has(String(log.caseKey))).length;
+    const filteredDeleteButton=document.getElementById("paymentFollowupDeleteFiltered"),filteredDeleteCount=document.getElementById("paymentFollowupDeleteFilteredCount"),allDeleteButton=document.getElementById("paymentFollowupDeleteAll"),allDeleteCount=document.getElementById("paymentFollowupDeleteAllCount");
+    if(filteredDeleteCount)filteredDeleteCount.textContent=visibleCallLogCount.toLocaleString("en-US");if(filteredDeleteButton)filteredDeleteButton.disabled=visibleCallLogCount===0;
+    if(allDeleteCount)allDeleteCount.textContent=allCallLogs.length.toLocaleString("en-US");if(allDeleteButton)allDeleteButton.disabled=allCallLogs.length===0;
     const periodCard=document.getElementById("paymentFollowupPeriod");if(periodCard)periodCard.textContent=pfPeriodLabel();
     const mobile=window.matchMedia&&window.matchMedia("(max-width: 760px)").matches;
     const tbody=document.getElementById("paymentFollowupTableBody"),cards=document.getElementById("paymentFollowupMobileCases");
@@ -7905,7 +8152,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const clientList=document.getElementById("paymentFollowupArchiveClientList"),officerList=document.getElementById("paymentFollowupArchiveOfficerList"),partyList=document.getElementById("paymentFollowupArchivePartyList"),statusList=document.getElementById("paymentFollowupArchiveStatusList");
     if(clientList)clientList.innerHTML=uniq(currentCases.map(x=>x.client)).map(x=>`<option value="${escAttr(x)}"></option>`).join("");if(officerList)officerList.innerHTML=uniq(currentCases.map(x=>x.officer)).map(x=>`<option value="${escAttr(x)}"></option>`).join("");if(partyList)partyList.innerHTML=uniq(allLogs.map(x=>x.callParty)).map(x=>`<option value="${escAttr(x)}"></option>`).join("");if(statusList)statusList.innerHTML=uniq(allLogs.map(x=>x.status)).map(x=>`<option value="${escAttr(x)}"></option>`).join("");
     const archiveDayKey=value=>{const d=new Date(value||"");return !isNaN(d)?`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`:String(value||"").slice(0,10)};
-    box.innerHTML=filtered.length?filtered.map(({item,log})=>`<tr data-pfa-row-key="${escAttr(item.key+"|"+String(log.cloudId||log.createdAt||"")+"|"+String(log.status||"")+"|"+String(log.callParty||""))}" data-pfa-group-key="${escAttr(norm(item.client||"")+"|"+archiveDayKey(log.createdAt))}"><td class="pfa-party">${esc(item.client||"—")}</td><td class="pfa-party">${esc(log.callParty||"غير محدد")}</td><td><span class="pfa-status">${esc(log.status||"متابعة مسجلة")}</span></td><td class="pfa-note">${esc(log.note||"—")}</td><td class="pfa-next">${log.next?esc(pfTextDate(log.next)):"—"}</td><td class="pfa-user">${esc(log.user||"غير محدد")}</td><td class="pfa-date">${esc(pfDateTime(log.createdAt))}</td><td class="pfa-num"><span class="pfa-nowrap-value">${esc(item.loanAmount!==""&&item.loanAmount!=null?money(item.loanAmount):"—")}</span></td><td class="pfa-num"><span class="pfa-nowrap-value">${esc(item.loanTerm||"—")}</span></td><td class="pfa-num"><span class="pfa-nowrap-value">${esc(money(item.installmentValue))}</span></td><td class="pfa-num"><span class="pfa-nowrap-value">${esc(money(item.paid))}</span></td><td class="pfa-date"><span class="pfa-nowrap-value">${esc(pfTextDate(item.paymentDate)||"—")}</span></td><td class="pfa-num"><span class="pfa-nowrap-value">${esc(money(item.remaining))}</span></td><td class="pfa-num"><span class="pfa-nowrap-value">${esc(item.overdueCount)}</span></td><td class="pfa-num"><span class="pfa-nowrap-value">${esc(money(item.customerArrears))}</span></td><td class="pfa-user">${esc(item.officer||"بدون أخصائي")}</td></tr>`).join(""):'<tr><td colspan="8" class="pfa-empty">لا توجد سجلات مطابقة للفلاتر الحالية.</td></tr>';
+    box.innerHTML=filtered.length?filtered.map(({item,log})=>`<tr data-pfa-row-key="${escAttr(item.key+"|"+String(log.cloudId||log.createdAt||"")+"|"+String(log.status||"")+"|"+String(log.callParty||""))}" data-pfa-group-key="${escAttr(norm(item.client||"")+"|"+archiveDayKey(log.createdAt))}"><td class="pfa-party">${esc(item.client||"—")}</td><td class="pfa-party">${esc(log.callParty||"غير محدد")}</td><td><span class="pfa-status">${esc(log.status||"متابعة مسجلة")}</span></td><td class="pfa-note">${esc(log.note||"—")}</td><td class="pfa-next">${log.next?esc(pfTextDate(log.next)):"—"}</td><td class="pfa-user">${esc(log.user||"غير محدد")}</td><td class="pfa-date">${esc(pfDateTime(log.createdAt))}</td><td class="pfa-num"><span class="pfa-nowrap-value">${esc(item.loanAmount!==""&&item.loanAmount!=null?money(item.loanAmount):"—")}</span></td><td class="pfa-num"><span class="pfa-nowrap-value">${esc(item.loanTerm||"—")}</span></td><td class="pfa-date"><span class="pfa-nowrap-value">${esc(pfTextDate(item.due)||"—")}</span></td><td class="pfa-num"><span class="pfa-nowrap-value">${esc(money(item.installmentValue))}</span></td><td class="pfa-num"><span class="pfa-nowrap-value">${esc(money(item.paid))}</span></td><td class="pfa-date"><span class="pfa-nowrap-value">${esc(pfTextDate(item.paymentDate)||"—")}</span></td><td class="pfa-num"><span class="pfa-nowrap-value">${esc(money(item.remaining))}</span></td><td class="pfa-num"><span class="pfa-nowrap-value">${esc(item.overdueCount)}</span></td><td class="pfa-num"><span class="pfa-nowrap-value">${esc(money(item.customerArrears))}</span></td><td class="pfa-user">${esc(item.officer||"بدون أخصائي")}</td></tr>`).join(""):'<tr><td colspan="17" class="pfa-empty">لا توجد سجلات مطابقة للفلاتر الحالية.</td></tr>';
 
     const archiveRenderedRows=[...box.querySelectorAll("tr[data-pfa-row-key]")],archiveGroups=new Map();
     archiveRenderedRows.forEach(row=>{[...row.cells].forEach((cell,index)=>cell.dataset.pfaColumn=String(index));const key=row.dataset.pfaGroupKey||row.dataset.pfaRowKey;if(!archiveGroups.has(key))archiveGroups.set(key,[]);archiveGroups.get(key).push(row);});
@@ -7997,6 +8244,17 @@ document.addEventListener('DOMContentLoaded', function () {
       const feedback=document.getElementById("paymentFollowupFeedback");if(feedback){feedback.textContent=feedbackText;feedback.className="pf-feedback show warn"}
     }
   }
+  document.addEventListener("click",event=>{
+    const editButton=event.target?.closest?.("[data-pf-edit-log]");
+    if(editButton&&document.getElementById("paymentFollowup")?.contains(editButton)){event.preventDefault();let editId="";try{editId=decodeURIComponent(editButton.dataset.pfEditLog||"")}catch(e){}const log=pfReadLogs().find(x=>x.logId===editId);if(!log){feedbackText="لم يعد سجل المكالمة متاحًا؛ حدّث الشاشة.";feedbackKind="warn";renderPaymentFollowup();return}pfOpenEditDialog(log);return}
+    const one=event.target?.closest?.("[data-pf-delete-log]");
+    if(one&&document.getElementById("paymentFollowup")?.contains(one)){event.preventDefault();let logId="";try{logId=decodeURIComponent(one.dataset.pfDeleteLog||"")}catch(e){}const log=pfReadLogs().find(x=>x.logId===logId);if(!log){feedbackText="لم يعد سجل المكالمة متاحًا؛ حدّث الشاشة.";feedbackKind="warn";renderPaymentFollowup();return}pfOpenDeleteDialog({kind:"one",logId,log});return}
+    if(event.target?.closest?.("#paymentFollowupDeleteFiltered")){
+      const cases=pfFilteredCases(),caseKeys=[...new Set(cases.map(item=>String(item.key)))],keys=new Set(caseKeys),count=pfReadLogs().filter(log=>keys.has(String(log.caseKey))).length;
+      if(!count)return;pfOpenDeleteDialog({kind:"visible",caseKeys,caseCount:cases.length,logCount:count});return;
+    }
+    if(event.target?.closest?.("#paymentFollowupDeleteAll")){const count=pfReadLogs().length;if(!count)return;pfOpenDeleteDialog({kind:"all",logCount:count})}
+  });
   document.addEventListener("input",event=>{if(["paymentFollowupSearch","paymentFollowupOfficer","paymentFollowupFrom","paymentFollowupTo"].includes(event.target?.id))renderPaymentFollowup()});
   document.addEventListener("change",event=>{if(["paymentFollowupOfficer","paymentFollowupStatus","paymentFollowupLoanStatus","paymentFollowupFrom","paymentFollowupTo"].includes(event.target?.id))renderPaymentFollowup()});
   document.addEventListener("click",event=>{const archiveButton=event.target?.closest?.("[data-pf-archive-key]");if(archiveButton){openPaymentFollowupArchive(decodeURIComponent(archiveButton.dataset.pfArchiveKey||""));return}const link=event.target?.closest?.("#paymentFollowup .pf-call-link");if(link){pfRequestPhoneCall(event,link);return}if(event.target?.closest?.("#paymentFollowupClear")){feedbackText="";pfClearFilters()}});
@@ -10464,12 +10722,32 @@ body.pfa-resizing-rows,body.pfa-resizing-rows *{cursor:row-resize!important;user
     const title=document.createElement("div");title.className="pfa-print-heading";title.textContent="سجل متابعة السداد";
     if(logo){const img=document.createElement("img");img.src=logo;img.alt="شعار الجمعية";img.style.cssText="width:28px;height:28px;object-fit:contain;vertical-align:middle;margin-left:7px";title.prepend(img)}
     const metadata=document.createElement("div");metadata.className="pfa-print-meta";
-    const labels=[["العميل",document.getElementById("paymentFollowupArchiveClient")?.innerText],["القرض / الحالة",document.getElementById("paymentFollowupArchiveLoan")?.innerText],["عدد المتابعات",String(data.rows.length)],["آخر متابعة",document.getElementById("paymentFollowupArchiveLatest")?.innerText],["تاريخ الطباعة",new Date().toLocaleDateString("en-GB")]];
-    labels.forEach(([label,value])=>{const item=document.createElement("span");item.textContent=`${label}: ${String(value||"—").trim()||"—"}`;metadata.appendChild(item)});
+    const filterGrid=document.createElement("div");filterGrid.className="pfa-print-filter-grid";
+    const readFilter=id=>String(document.getElementById(id)?.value||"").trim();
+    const filterFrom=readFilter("paymentFollowupArchiveFrom"),filterTo=readFilter("paymentFollowupArchiveTo");
+    const dateLabel=value=>{if(!value)return "";const match=String(value).trim().match(/^(\d{4})-(\d{2})-(\d{2})$/);return match?`${match[1]}/${match[2]}/${match[3]}`:String(value).trim()};
+    const distinctValues=values=>[...new Set(values.map(value=>String(value||"").trim()).filter(value=>value&&value!=="—"))];
+    const clientCount=distinctValues(data.rows.map(row=>row[0])).length;
+    const operatorIndex=data.headers.findIndex(header=>header.includes("القائم بالمتابعة"));
+    const operators=operatorIndex>=0?distinctValues(data.rows.map(row=>row[operatorIndex])):[];
+    const operatorValue=operators.length?operators.join("، "):"غير محدد";
+    const now=new Date(),printDate=dateLabel(`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}-${String(now.getDate()).padStart(2,"0")}`);
+    const filterItems=[
+      ["عدد العملاء",clientCount.toLocaleString("en-US"),"count"],
+      ["العميل",readFilter("paymentFollowupArchiveClientSearch")||"جميع العملاء","client"],
+      ["التاريخ","","date"],
+      ["الأخصائي",readFilter("paymentFollowupArchiveOfficerSearch")||"جميع الأخصائيين","specialist"],
+      ["القائم بالمتابعة",operatorValue,"operator"]
+    ];
+    filterItems.forEach(([label,value,kind])=>{const item=document.createElement("div");item.className=`pfa-print-filter-item pfa-filter-${kind}`;const caption=document.createElement("span");caption.className="pfa-print-filter-label";caption.textContent=label;const content=document.createElement("b");content.className="pfa-print-filter-value";if(kind==="date"){content.dir="rtl";if(filterFrom){const fromText=document.createElement("span");fromText.textContent="من ";const fromDate=document.createElement("span");fromDate.dir="ltr";fromDate.textContent=dateLabel(filterFrom);content.append(fromText,fromDate)}if(filterTo){const toText=document.createElement("span");toText.textContent=filterFrom?" إلى ":"حتى ";const toDate=document.createElement("span");toDate.dir="ltr";toDate.textContent=dateLabel(filterTo);content.append(toText,toDate)}if(!filterFrom&&!filterTo)content.textContent="كل التواريخ"}else content.textContent=value;item.append(caption,content);filterGrid.appendChild(item)});
+    const printNote=document.createElement("small");printNote.className="pfa-print-note";printNote.textContent=`تاريخ الطباعة: ${printDate}`;
+    metadata.append(filterGrid,printNote);
     const table=document.createElement("table");table.className="risk-print-table pfa-print-table";table.dir="rtl";table.style.cssText="display:table;width:100%;border-collapse:collapse;table-layout:auto;direction:rtl;color:#000;background:#fff;";
+    const dateTimeColumn=data.headers.findIndex(header=>header.includes("التاريخ والوقت"));
+    const dateTimeParts=value=>{const raw=String(value||"").trim();if(!raw||raw==="—")return{date:raw||"—",time:""};const parsed=new Date(raw);if(!Number.isNaN(parsed.getTime())){const pad=n=>String(n).padStart(2,"0");return{date:`${parsed.getFullYear()}/${pad(parsed.getMonth()+1)}/${pad(parsed.getDate())}`,time:parsed.toLocaleTimeString("en-US",{hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:true})}}const match=raw.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})(?:,?\s+(.*))?$/);return match?{date:`${match[3]}/${String(match[1]).padStart(2,"0")}/${String(match[2]).padStart(2,"0")}`,time:match[4]||""}:{date:raw,time:""}};
     const colgroup=document.createElement("colgroup");data.headers.forEach(()=>colgroup.appendChild(document.createElement("col")));table.appendChild(colgroup);
     const thead=document.createElement("thead"),head=document.createElement("tr");data.headers.forEach(text=>{const th=document.createElement("th");th.textContent=text;head.appendChild(th)});thead.appendChild(head);table.appendChild(thead);
-    const tbody=document.createElement("tbody");data.rows.forEach((row,rowIndex)=>{const tr=document.createElement("tr");tr.dataset.pfaPrintGroupKey=data.groupKeys?.[rowIndex]||"";data.headers.forEach((_,i)=>{const td=document.createElement("td");td.textContent=row[i]||"";tr.appendChild(td)});tbody.appendChild(tr)});table.appendChild(tbody);
+    const tbody=document.createElement("tbody");data.rows.forEach((row,rowIndex)=>{const tr=document.createElement("tr");tr.dataset.pfaPrintGroupKey=data.groupKeys?.[rowIndex]||"";data.headers.forEach((_,i)=>{const td=document.createElement("td");if(i===dateTimeColumn){td.className="pfa-date-time-cell";const parts=dateTimeParts(row[i]);const dateText=document.createElement("span");dateText.className="pfa-date-time-date";dateText.textContent=parts.date;td.appendChild(dateText);if(parts.time){const timeText=document.createElement("span");timeText.className="pfa-date-time-time";timeText.textContent=parts.time;td.appendChild(timeText)}}else td.textContent=row[i]||"";tr.appendChild(td)});tbody.appendChild(tr)});table.appendChild(tbody);
     layer.append(title,metadata,table);return layer;
   }
   function mergeArchivePrintClientCells(layer){
@@ -10483,19 +10761,29 @@ body.pfa-resizing-rows,body.pfa-resizing-rows *{cursor:row-resize!important;user
     }
   }
   function formatArchiveLayer(layer){
-    /* احسب عروض الطباعة على المصفوفة الكاملة أولًا؛ بعد ذلك ادمج الاسم كما في الجدول المعروض. */
+    /* تنسيق مستقل لسجل المتابعة، مماثل لقواعد تقرير الأقساط المستحقة دون تغيير التقرير الأصلي. */
     if(typeof applyArrearsPrintFormat==="function")applyArrearsPrintFormat(layer);
     mergeArchivePrintClientCells(layer);
-    layer.style.setProperty("font-weight","700","important");layer.querySelectorAll("*").forEach(node=>node.style.setProperty("font-weight","700","important"));
-    layer.querySelectorAll(".pfa-print-table th,.pfa-print-table td").forEach(cell=>cell.style.setProperty("border","1px solid #222","important"));
-    layer.querySelectorAll(".pfa-print-table thead th").forEach(cell=>{
-      cell.style.setProperty("background-color","#e5e7eb","important");
-      cell.style.setProperty("background-image","none","important");
-      cell.style.setProperty("color","#111827","important");
-      cell.style.setProperty("border","2px solid #111827","important");cell.style.setProperty("border-left","2px solid #111827","important");cell.style.setProperty("border-right","2px solid #111827","important");
-      cell.style.setProperty("-webkit-print-color-adjust","exact","important");
-      cell.style.setProperty("print-color-adjust","exact","important");
-    });
+    layer.style.setProperty("font-family","Arial,Tahoma,sans-serif","important");
+    layer.style.setProperty("font-weight","700","important");
+    layer.style.setProperty("color","#000","important");
+    layer.style.setProperty("background","#fff","important");
+    layer.style.setProperty("direction","rtl","important");
+    layer.style.setProperty("padding","5mm 3mm","important");
+    const title=layer.querySelector(".pfa-print-heading"),meta=layer.querySelector(".pfa-print-meta"),table=layer.querySelector(".pfa-print-table");
+    if(title)title.style.cssText="display:flex;align-items:center;justify-content:center;gap:4px;margin:0 0 3mm;font:900 20px/1.3 Arial,Tahoma,sans-serif;color:#000;text-align:center";
+    if(meta)meta.style.cssText="position:relative;display:block;margin:0 0 2mm;padding:1.2mm 1.5mm 3.2mm;border:1px solid #475569;border-radius:1.5mm;background:#f8fafc;color:#000;box-sizing:border-box";
+    if(table){
+      const widths=[8,6,6,13,5,5,8,5,4,5,5,5,5,5,4,6,5];
+      table.style.setProperty("display","table","important");table.style.setProperty("width","100%","important");table.style.setProperty("max-width","100%","important");table.style.setProperty("table-layout","fixed","important");table.style.setProperty("border-collapse","collapse","important");table.style.setProperty("direction","rtl","important");table.style.setProperty("font-family","Arial,Tahoma,sans-serif","important");table.style.setProperty("font-size","7px","important");
+      [...table.querySelectorAll("colgroup col")].forEach((col,index)=>{if(widths[index])col.style.setProperty("width",widths[index]+"%","important")});
+      table.querySelectorAll("thead").forEach(node=>node.style.setProperty("display","table-header-group","important"));
+      table.querySelectorAll("tbody").forEach(node=>node.style.setProperty("display","table-row-group","important"));
+      table.querySelectorAll("th,td").forEach(cell=>{cell.style.setProperty("border","1px solid #222","important");cell.style.setProperty("box-sizing","border-box","important");cell.style.setProperty("color","#000","important");cell.style.setProperty("font-family","Arial,Tahoma,sans-serif","important");cell.style.setProperty("text-align","center","important");cell.style.setProperty("vertical-align","middle","important");cell.style.setProperty("text-shadow","none","important");cell.style.setProperty("-webkit-text-stroke","0","important");cell.style.setProperty("box-shadow","none","important");cell.style.setProperty("overflow","hidden","important");cell.style.setProperty("overflow-wrap","anywhere","important");cell.style.setProperty("word-break","normal","important")});
+      table.querySelectorAll("thead th").forEach(cell=>{cell.style.setProperty("padding","2px 2px","important");cell.style.setProperty("background-color","#f0f0f0","important");cell.style.setProperty("background-image","none","important");cell.style.setProperty("font-size","7.2px","important");cell.style.setProperty("font-weight","900","important");cell.style.setProperty("line-height","1.15","important");cell.style.setProperty("-webkit-print-color-adjust","exact","important");cell.style.setProperty("print-color-adjust","exact","important")});
+      table.querySelectorAll("tbody tr").forEach(row=>[...row.cells].forEach((cell,index)=>{cell.style.setProperty("padding","2px 2px","important");cell.style.setProperty("background-color","#fff","important");cell.style.setProperty("font-size","6.7px","important");cell.style.setProperty("font-weight","700","important");cell.style.setProperty("line-height","1.2","important");if(cell.classList.contains("pfa-date-time-cell")){cell.style.setProperty("white-space","normal","important");cell.style.setProperty("overflow-wrap","normal","important");cell.style.setProperty("word-break","keep-all","important");cell.style.setProperty("direction","ltr","important")}else if(index>=7&&index<=15){cell.style.setProperty("white-space","normal","important");cell.style.setProperty("word-break","normal","important");cell.style.setProperty("overflow-wrap","anywhere","important");cell.style.setProperty("direction","ltr","important")}else{cell.style.setProperty("white-space","normal","important");cell.style.setProperty("text-align",index===3?"right":"center","important")}}));
+      table.querySelectorAll("tr").forEach(row=>{row.style.setProperty("page-break-inside","avoid","important");row.style.setProperty("break-inside","avoid","important")});
+    }
   }
   function restorePageTitleAndText(layer,filename){
     const previousTitle=document.title;document.title=filename;
@@ -10507,38 +10795,12 @@ body.pfa-resizing-rows,body.pfa-resizing-rows *{cursor:row-resize!important;user
     event?.preventDefault?.();event?.stopImmediatePropagation?.();if(busy)return false;
     const layer=buildArchiveLayer();if(!layer){alert("لا توجد سجلات ظاهرة في الأرشيف للطباعة.");return false}
     busy=true;
-    const previousTitle=document.title;document.title=exportFileName("pdf");
-    const originalSiblings=[...document.body.children].filter(node=>node!==layer).map(node=>({node,style:node.getAttribute("style")}));
     document.body.appendChild(layer);
     formatArchiveLayer(layer);
-    /* عزل الطباعة مباشرةً بأسلوب inline مهم، حتى لا تتعارض قواعد الشاشات الأخرى أو @media print. */
-    originalSiblings.forEach(({node})=>node.style.setProperty("display","none","important"));
     document.body.classList.add("printing-pfa-archive");
-    document.body.style.setProperty("display","block","important");
-    document.body.style.setProperty("background","#fff","important");
-    layer.style.setProperty("display","block","important");
-    layer.style.setProperty("visibility","visible","important");
-    layer.style.setProperty("opacity","1","important");
-    layer.style.setProperty("position","static","important");
-    layer.style.setProperty("overflow","visible","important");
-    layer.style.setProperty("width","100%","important");
-    layer.style.setProperty("max-width","none","important");
-    layer.querySelectorAll("*").forEach(node=>{node.style.setProperty("visibility","visible","important");node.style.setProperty("opacity","1","important")});
-    layer.querySelectorAll("table.pfa-print-table").forEach(table=>{table.style.setProperty("display","table","important");table.style.setProperty("width","100%","important");table.style.setProperty("visibility","visible","important");table.style.setProperty("transform","none","important")});
-    layer.querySelectorAll(".pfa-print-table thead").forEach(node=>node.style.setProperty("display","table-header-group","important"));
-    layer.querySelectorAll(".pfa-print-table tbody").forEach(node=>node.style.setProperty("display","table-row-group","important"));
-    layer.querySelectorAll(".pfa-print-table tr").forEach(node=>node.style.setProperty("display","table-row","important"));
-    layer.querySelectorAll(".pfa-print-table th,.pfa-print-table td").forEach(node=>node.style.setProperty("display","table-cell","important"));
-    const originalBodyStyle=document.body.getAttribute("style");
     const textCleanup=restorePageTitleAndText(layer,exportFileName("pdf"));
     let cleaned=false;
-    const cleanup=()=>{
-      if(cleaned)return;cleaned=true;
-      originalSiblings.forEach(({node,style})=>{if(!node.isConnected)return;if(style===null)node.removeAttribute("style");else node.setAttribute("style",style)});
-      if(originalBodyStyle===null)document.body.removeAttribute("style");else document.body.setAttribute("style",originalBodyStyle);
-      textCleanup();document.title=previousTitle;busy=false;
-      window.removeEventListener("afterprint",cleanup);
-    };
+    const cleanup=()=>{if(cleaned)return;cleaned=true;textCleanup();busy=false;window.removeEventListener("afterprint",cleanup)};
     window.addEventListener("afterprint",cleanup,{once:true});
     void layer.offsetHeight;
     try{window.print()}catch(error){cleanup();alert("تعذر تشغيل الطباعة. حاول مرة أخرى.");return false}
@@ -10572,6 +10834,41 @@ body.pfa-resizing-rows,body.pfa-resizing-rows *{cursor:row-resize!important;user
   window.exportPaymentFollowupArchiveExcel=exportPaymentFollowupArchiveExcel;
 })();
 </script>
+<style id="payment-followup-archive-print-due-rules">
+#paymentFollowupArchivePrintLayer.pfa-archive-print-report{font-family:Arial,Tahoma,sans-serif!important;color:#000!important;background:#fff!important;padding:5mm 3mm!important;box-sizing:border-box!important;direction:rtl!important}
+#paymentFollowupArchivePrintLayer .pfa-print-heading{font-family:Arial,Tahoma,sans-serif!important;font-size:20px!important;font-weight:900!important;color:#000!important;text-align:center!important;line-height:1.3!important;margin:0 0 3mm!important}
+#paymentFollowupArchivePrintLayer .pfa-print-meta{position:relative!important;display:block!important;font-family:Arial,Tahoma,sans-serif!important;color:#000!important;margin:0 0 2mm!important;padding:1.2mm 1.5mm 3.2mm!important;border:1px solid #475569!important;border-radius:1.5mm!important;background:#f8fafc!important;box-sizing:border-box!important}
+#paymentFollowupArchivePrintLayer .pfa-print-filter-grid{display:grid!important;grid-template-columns:.7fr 1.2fr 2.1fr 1.15fr 1.65fr!important;gap:1mm!important;align-items:center!important;width:100%!important}
+#paymentFollowupArchivePrintLayer .pfa-print-filter-item{display:flex!important;flex-direction:column!important;justify-content:center!important;gap:.35mm!important;min-width:0!important;min-height:7mm!important;padding:.4mm 1mm!important;border-left:1px solid #d6dee8!important;box-sizing:border-box!important;overflow:hidden!important}
+#paymentFollowupArchivePrintLayer .pfa-print-filter-item:last-child{border-left:0!important}
+#paymentFollowupArchivePrintLayer .pfa-print-filter-label{display:block!important;color:#526175!important;font-size:6.2px!important;font-weight:700!important;line-height:1.05!important;white-space:nowrap!important}
+#paymentFollowupArchivePrintLayer .pfa-print-filter-value{display:block!important;overflow:hidden!important;color:#142235!important;font-size:7.2px!important;font-weight:900!important;line-height:1.15!important;white-space:nowrap!important;text-overflow:ellipsis!important;overflow-wrap:normal!important;word-break:normal!important}
+#paymentFollowupArchivePrintLayer .pfa-filter-date .pfa-print-filter-value{font-size:10.5px!important;font-weight:950!important;line-height:1.05!important;white-space:nowrap!important;direction:rtl!important;unicode-bidi:isolate!important;text-align:center!important;letter-spacing:.15px!important}
+#paymentFollowupArchivePrintLayer .pfa-filter-count .pfa-print-filter-value{font-size:9px!important;font-weight:950!important;text-align:center!important}
+#paymentFollowupArchivePrintLayer .pfa-print-note{position:absolute!important;left:1.5mm!important;bottom:.6mm!important;color:#64748b!important;font-size:5.7px!important;font-weight:400!important;line-height:1!important;white-space:nowrap!important}
+#paymentFollowupArchivePrintLayer .pfa-print-table{width:100%!important;max-width:100%!important;border-collapse:collapse!important;table-layout:fixed!important;direction:rtl!important;font-family:Arial,Tahoma,sans-serif!important;font-size:7px!important;line-height:1.2!important;color:#000!important;background:#fff!important}
+#paymentFollowupArchivePrintLayer .pfa-print-table thead{display:table-header-group!important}
+#paymentFollowupArchivePrintLayer .pfa-print-table th,#paymentFollowupArchivePrintLayer .pfa-print-table td{overflow:hidden!important;border:1px solid #222!important;text-align:center!important;vertical-align:middle!important;box-sizing:border-box!important;color:#000!important;font-family:Arial,Tahoma,sans-serif!important;text-shadow:none!important;-webkit-text-stroke:0!important;filter:none!important;box-shadow:none!important;overflow-wrap:anywhere!important;word-break:normal!important}
+#paymentFollowupArchivePrintLayer .pfa-print-table th{padding:2px!important;background:#f0f0f0!important;font-size:7.2px!important;font-weight:900!important;line-height:1.15!important}
+#paymentFollowupArchivePrintLayer .pfa-print-table td{padding:2px!important;background:#fff!important;font-size:6.7px!important;font-weight:700!important;line-height:1.2!important}
+#paymentFollowupArchivePrintLayer .pfa-print-table td:nth-child(4){text-align:right!important;white-space:normal!important;overflow-wrap:anywhere!important}
+#paymentFollowupArchivePrintLayer .pfa-print-table td:nth-child(n+7):nth-child(-n+16){white-space:normal!important;word-break:normal!important;overflow-wrap:anywhere!important;direction:ltr!important}
+#paymentFollowupArchivePrintLayer .pfa-print-table td.pfa-date-time-cell:nth-child(7){white-space:normal!important;overflow-wrap:normal!important;word-break:keep-all!important;direction:ltr!important;text-align:center!important}
+#paymentFollowupArchivePrintLayer .pfa-date-time-cell .pfa-date-time-date,#paymentFollowupArchivePrintLayer .pfa-date-time-cell .pfa-date-time-time{display:block!important;white-space:nowrap!important;direction:ltr!important;line-height:1.1!important}
+#paymentFollowupArchivePrintLayer .pfa-date-time-cell .pfa-date-time-date{font-size:6.8px!important;font-weight:900!important}
+#paymentFollowupArchivePrintLayer .pfa-date-time-cell .pfa-date-time-time{font-size:6px!important;font-weight:700!important;color:#334155!important}
+@media print{
+ @page pfaArchiveReport{size:A4 landscape;margin:5mm 3mm!important;}
+ body.printing-pfa-archive{page:pfaArchiveReport;margin:0!important;padding:0!important;background:#fff!important}
+ body.printing-pfa-archive>:not(#paymentFollowupArchivePrintLayer){display:none!important}
+ body.printing-pfa-archive #paymentFollowupArchivePrintLayer{display:block!important;visibility:visible!important;position:static!important;width:100%!important;max-width:none!important;overflow:visible!important}
+ body.printing-pfa-archive #paymentFollowupArchivePrintLayer *{visibility:visible!important}
+ body.printing-pfa-archive #paymentFollowupArchivePrintLayer .pfa-print-table{display:table!important;width:100%!important;transform:none!important}
+ body.printing-pfa-archive #paymentFollowupArchivePrintLayer .pfa-print-table thead{display:table-header-group!important}
+ body.printing-pfa-archive #paymentFollowupArchivePrintLayer .pfa-print-table tbody{display:table-row-group!important}
+ body.printing-pfa-archive #paymentFollowupArchivePrintLayer .pfa-print-table tr,body.printing-pfa-archive #paymentFollowupArchivePrintLayer .pfa-print-table th,body.printing-pfa-archive #paymentFollowupArchivePrintLayer .pfa-print-table td{page-break-inside:avoid!important;break-inside:avoid!important}
+}
+</style>
 </body>
 </html>
 
