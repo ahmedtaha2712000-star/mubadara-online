@@ -2740,7 +2740,6 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
   <button class="excel-btn icon-action" aria-label="تحميل Excel" title="تحميل ملف Excel" onclick="exportCurrentExcel()"><span class="action-glyph glyph-excel" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M7 2.5h7l4 4V21H7z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M14 2.5V7h4M8 12l4 4m0-4-4 4M14 12h2m-2 4h2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="action-label">Excel</span></button>
 </div>
 <h2>📅 الأقساط المستحقة</h2>
-<div class="due-all-clients-toggle no-print"><label for="dueAllSpecialistClients"><input id="dueAllSpecialistClients" type="checkbox" onchange="renderDueInstallments()"><span>عملاء الأخصائي</span></label><small>يعرض المنتظمين والمتأخرين. عند التفعيل يُتجاهل تاريخ الاستحقاق وحالة القسط، وتبقى فلاتر الأخصائي والبحث والعنوان وحالة القرض مطبقة.</small><small id="dueAllClientCount" aria-live="polite"></small></div>
 <div class="risk-summary-cards" aria-label="ملخص الأقساط المستحقة">
   <div class="risk-summary-card risk-summary-due"><span>إجمالي قيمة الأقساط</span><b id="dueTotalDue">0</b><small>إجمالي الأقساط غير المسددة</small></div>
   <div class="risk-summary-card risk-summary-paid"><span>إجمالي المسدد</span><b id="dueTotalPaid">0</b><small>المبلغ المسدد من الأقساط الظاهرة</small></div>
@@ -2963,8 +2962,9 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
       <div class="pf-filter-field pf-period-field"><label for="paymentFollowupTo">الفترة — إلى تاريخ</label><input id="paymentFollowupTo" type="date"></div>
       <div class="pf-period-actions"><button type="button" class="pf-period-btn" onclick="pfSetToday()">📍 تاريخ اليوم</button><button type="button" class="pf-period-btn" onclick="pfSetPreviousMonth()">◀️ الشهر السابق</button><button type="button" id="paymentFollowupClear" class="pf-period-btn pf-clear">مسح الفلتر</button></div>
     </div>
+    <div class="pf-all-clients-toggle no-print"><label for="paymentFollowupAllClients"><input id="paymentFollowupAllClients" type="checkbox" onchange="renderPaymentFollowup()"><span>عملاء الأخصائي</span></label><small>يعرض المنتظمين والمتأخرين. عند التفعيل يُتجاهل نطاق تاريخ الاستحقاق، وتبقى فلاتر الأخصائي والبحث وحالة الاتصال وحالة القرض مطبقة.</small><small id="paymentFollowupAllClientsCount" aria-live="polite"></small></div>
     <div id="paymentFollowupFeedback" class="pf-feedback" role="status" aria-live="polite"></div>
-    <div class="pf-summary"><div class="pf-summary-card pf-summary-card-blue"><span>حالات المتابعة</span><b id="paymentFollowupCount">0</b></div><div class="pf-summary-card"><span>عملاء مختلفون</span><b id="paymentFollowupClientsCount">0</b></div><div class="pf-summary-card pf-summary-card-gold"><span>إجمالي متأخرات العملاء الظاهرين</span><b id="paymentFollowupTotalArrears">0</b></div><div class="pf-summary-card pf-summary-card-period"><span>الفترة</span><b id="paymentFollowupPeriod">حتى اليوم</b></div></div>
+    <div class="pf-summary"><div class="pf-summary-card pf-summary-card-blue"><span id="paymentFollowupCountLabel">حالات المتابعة</span><b id="paymentFollowupCount">0</b></div><div class="pf-summary-card"><span>عملاء مختلفون</span><b id="paymentFollowupClientsCount">0</b></div><div class="pf-summary-card pf-summary-card-gold"><span>إجمالي متأخرات العملاء الظاهرين</span><b id="paymentFollowupTotalArrears">0</b></div><div class="pf-summary-card pf-summary-card-period"><span>الفترة</span><b id="paymentFollowupPeriod">حتى اليوم</b></div></div>
     <section id="paymentFollowupLogTools" class="pf-log-tools no-print" aria-label="إدارة سجلات المكالمات">
       <div class="pf-log-tools-intro"><span class="pf-log-tools-icon" aria-hidden="true">☎</span><div><strong>إدارة سجلات المكالمات</strong><small>الأزرار متاحة هنا في شاشة متابعة السداد؛ ويقتصر الحذف على سجلات المكالمات دون سجلات تعديل بيانات العملاء.</small></div></div>
       <div class="pf-log-tools-actions"><button type="button" id="paymentFollowupDeleteFiltered" class="pf-log-bulk pf-log-bulk-filtered" disabled><span>حذف سجلات الحالات الظاهرة</span><b id="paymentFollowupDeleteFilteredCount">0</b></button><button type="button" id="paymentFollowupDeleteAll" class="pf-log-bulk pf-log-bulk-all" disabled><span>حذف جميع سجلات المكالمات</span><b id="paymentFollowupDeleteAllCount">0</b></button></div>
@@ -4433,15 +4433,15 @@ function resetDueAgingRange(){
 function renderDueInstallments(baseRows){
  const fromEl=document.getElementById('dueFrom'),toEl=document.getElementById('dueTo');
  if(fromEl&&toEl&&!fromEl.value&&!toEl.value){const n=new Date();fromEl.value=isoDate(new Date(n.getFullYear(),n.getMonth(),1));toEl.value=isoDate(new Date(n.getFullYear(),n.getMonth()+1,0))}
- const officerValue=norm(document.getElementById('dueOfficer')?.value||''),officer=officerValue===norm(DUE_ALL_SPECIALISTS_LABEL)?'':officerValue,client=norm(document.getElementById('dueClient')?.value||''),address=norm(document.getElementById('dueAddress')?.value||''),fromVal=fromEl?.value||'',toVal=toEl?.value||'',from=fromVal?parseExcelDate(fromVal):null,to=toVal?parseExcelDate(toVal):null,filter=document.getElementById('dueStatus')?.value||'open',view=window.dueView||'due',allSpecialistClients=document.getElementById('dueAllSpecialistClients')?.checked===true;
+ const officerValue=norm(document.getElementById('dueOfficer')?.value||''),officer=officerValue===norm(DUE_ALL_SPECIALISTS_LABEL)?'':officerValue,client=norm(document.getElementById('dueClient')?.value||''),address=norm(document.getElementById('dueAddress')?.value||''),fromVal=fromEl?.value||'',toVal=toEl?.value||'',from=fromVal?parseExcelDate(fromVal):null,to=toVal?parseExcelDate(toVal):null,filter=document.getElementById('dueStatus')?.value||'open',view=window.dueView||'due';
  const specialistState=dueSpecialistFilterState(),excelRowMode=document.getElementById('dueExcelRowMode')?.checked===true,selectedMonth=document.getElementById('dueSpecificMonth')?.value||'',selectedYear=document.getElementById('dueSpecificYear')?.value||'',monthRange=excelRowMode&&selectedMonth?dueMonthDateRange(selectedMonth,selectedYear):null,dateFrom=monthRange?.from||from,dateTo=monthRange?.to||to;
  // فهرسة مؤقتة لكل حالة أخصائي خلال هذا الرسم؛ تجنب إعادة مسح جميع مجموعات القروض لكل قسط.
  const dueSpecialistStateCache=new Map();
  const matchesDueSpecialistState=(name,state=specialistState)=>{const key=`${state}::${String(name??'').trim()}`;if(dueSpecialistStateCache.has(key))return dueSpecialistStateCache.get(key);const matched=specialistMatchesState(name,state);dueSpecialistStateCache.set(key,matched);return matched};
  const base=baseRows||dueInstallmentRows(),stats={due:0,upcoming:0,partial:0,paid:0,overdue:0,todayAmount:0,todayCount:0};base.forEach(x=>{const t=dueDayType(x.r),paid=rowPaidAmount(x.r),remaining=dueRemainingForScreen(x.r),unpaid=remaining>0;if(t==='due'&&unpaid){stats.due++;stats.todayAmount+=num(get(x.r,'value'));stats.todayCount++}if(t==='upcoming'&&unpaid)stats.upcoming++;if(t==='overdue'&&unpaid)stats.overdue++;if(paid>0&&remaining>0)stats.partial++;if(paid>0&&remaining<=0)stats.paid++});
- renderDueAgingSummary(dueAgingEligibleRows(base,filter,specialistState,officer,client,address,matchesDueSpecialistState));const dueNav=document.querySelector('#dueInstallments .due-navigation'),agingPanel=document.getElementById('dueAgingPanel'),dueSummary=document.querySelector('#dueInstallments .risk-summary-cards'),dueParity=document.querySelector('#dueInstallments .due-risk-parity-cards');if(dueNav)dueNav.hidden=allSpecialistClients;if(agingPanel)agingPanel.hidden=allSpecialistClients;if(dueSummary)dueSummary.hidden=allSpecialistClients;if(dueParity)dueParity.hidden=allSpecialistClients;
- const rows=base.filter(x=>{const g=x.g,r=x.r,go=norm(get(r,'officer')||get(g.r,'officer')),gc=norm(get(r,'client')||get(g.r,'client')),ga=norm(rowAddress(r)||rowAddress(g.r)||''),type=dueDayType(r),paid=rowPaidAmount(r),remaining=dueRemainingForScreen(r),unpaid=remaining>0,partial=paid>0&&unpaid,paidView=paid>0&&remaining<=0;const common=statusMatch(g,filter)&&matchesDueSpecialistState(go,specialistState)&&(!officer||go.includes(officer))&&(!client||gc.includes(client))&&(!address||ga.includes(address));if(!common)return false;if(allSpecialistClients)return true;const viewOk=dueAgingRange?unpaid&&type==='overdue'&&riskAgingBandForRow(r)?.id===dueAgingRange:(view==='due'?unpaid:view==='upcoming'?unpaid&&type==='upcoming':view==='partial'?partial:view==='paid'?paidView:unpaid&&type==='overdue');return (!dueAgingRange?dueDateInRange(r,dateFrom,dateTo):true)&&viewOk}).sort((a,b)=>{const rank={overdue:0,due:1,upcoming:2};return (rank[dueDayType(a.r)]??3)-(rank[dueDayType(b.r)]??3)||((parseExcelDate(riskDueDateValue(a.r))?.getTime()||0)-(parseExcelDate(riskDueDateValue(b.r))?.getTime()||0))});
- const filteredArrearsByClient=new Map();if(allSpecialistClients){const cutoff=new Date();cutoff.setHours(23,59,59,999);const grouped=new Map();rows.forEach(x=>{if(dueArrearsExcludedStatus(x.r,x.g))return;const due=parseExcelDate(riskDueDateValue(x.r));if(!due||due>cutoff)return;const clientKey=norm(get(x.r,'client')||get(x.g.r,'client'));if(!clientKey)return;const loanKey=norm(get(x.r,'loan')||get(x.g.r,'loan'))||'loan',rawNo=String(get(x.r,'installment')??'').trim(),number=num(rawNo),installmentKey=`${loanKey}|${number>0?`n:${number}`:(rawNo?`t:${norm(rawNo)}`:`d:${isoDate(due)}`)}`;if(!grouped.has(clientKey))grouped.set(clientKey,new Map());const byInstallment=grouped.get(clientKey);if(!byInstallment.has(installmentKey))byInstallment.set(installmentKey,[]);byInstallment.get(installmentKey).push(x.r)});grouped.forEach((byInstallment,clientKey)=>{let total=0;byInstallment.forEach(installmentRows=>{const ordered=[...installmentRows].sort((a,b)=>(parseExcelDate(rowPaymentDate(b))?.getTime()||0)-(parseExcelDate(rowPaymentDate(a))?.getTime()||0)),explicit=ordered.find(row=>String(getAny(row,[H.unpaid,'المتبقي','المبلغ المتبقي','الرصيد المتبقي','المبلغ الغير مسدد'])??'').trim()!=='');if(explicit){total+=Math.max(0,dueRemainingForScreen(explicit));return}const value=Math.max(0,...installmentRows.map(row=>{const raw=String(get(row,'value')??'').trim();return raw===''?num(get(row,'total')):num(raw)})),paid=installmentRows.reduce((sum,row)=>sum+rowPaidAmount(row),0);total+=Math.max(0,value-paid)});filteredArrearsByClient.set(clientKey,total)})}let totalDue=0,totalPaid=0,totalUnpaid=0,totalLateCount=0,totalDelayDays=0,totalArrears=0;const uniqueClients=new Set();let out='';
+ renderDueAgingSummary(dueAgingEligibleRows(base,filter,specialistState,officer,client,address,matchesDueSpecialistState));
+ const rows=base.filter(x=>{const g=x.g,r=x.r,go=norm(get(r,'officer')||get(g.r,'officer')),gc=norm(get(r,'client')||get(g.r,'client')),ga=norm(rowAddress(r)||rowAddress(g.r)||''),type=dueDayType(r),paid=rowPaidAmount(r),remaining=dueRemainingForScreen(r),unpaid=remaining>0,partial=paid>0&&unpaid,paidView=paid>0&&remaining<=0;const viewOk=dueAgingRange?unpaid&&type==='overdue'&&riskAgingBandForRow(r)?.id===dueAgingRange:(view==='due'?unpaid:view==='upcoming'?unpaid&&type==='upcoming':view==='partial'?partial:view==='paid'?paidView:unpaid&&type==='overdue');return statusMatch(g,filter)&&matchesDueSpecialistState(go,specialistState)&&(!officer||go.includes(officer))&&(!client||gc.includes(client))&&(!address||ga.includes(address))&&(!dueAgingRange?dueDateInRange(r,dateFrom,dateTo):true)&&viewOk}).sort((a,b)=>{const rank={overdue:0,due:1,upcoming:2};return (rank[dueDayType(a.r)]??3)-(rank[dueDayType(b.r)]??3)||((parseExcelDate(riskDueDateValue(a.r))?.getTime()||0)-(parseExcelDate(riskDueDateValue(b.r))?.getTime()||0))});
+ let totalDue=0,totalPaid=0,totalUnpaid=0,totalLateCount=0,totalDelayDays=0,totalArrears=0;const uniqueClients=new Set();let out='';
  // الاحتفاظ بعميل واحد في الجدول حسب الصفوف المطابقة لفترة العرض.
  const clientRows=new Map();rows.forEach(x=>{const key=norm(get(x.r,'client')||get(x.g.r,'client'))||`row:${clientRows.size}`;if(!clientRows.has(key))clientRows.set(key,[]);clientRows.get(key).push(x)});
  // قراءة جميع صفوف العميل المطابقة للفلاتر غير التاريخية؛ فلتر الفترة لا يدخل في اختيار القسط أو حساب التأخير.
@@ -4450,7 +4450,7 @@ function renderDueInstallments(baseRows){
   if(!statusMatch(g,filter))return;
   (g.items||[g.r]).forEach(r=>{
    const go=norm(get(r,'officer')||get(g.r,'officer')),gc=norm(get(r,'client')||get(g.r,'client')),ga=norm(rowAddress(r)||rowAddress(g.r)||'');
-   if(matchesDueSpecialistState(go,specialistState)&&(!officer||go.includes(officer))&&(!client||gc.includes(client))&&(!address||ga.includes(address))){if(!allSpecialistClients&&dueAgingRange&&(dueDayType(r)!=='overdue'||dueRemainingForScreen(r)<=0||riskAgingBandForRow(r)?.id!==dueAgingRange))return;selectionRows.push({g,r})}
+   if(matchesDueSpecialistState(go,specialistState)&&(!officer||go.includes(officer))&&(!client||gc.includes(client))&&(!address||ga.includes(address))){if(dueAgingRange&&(dueDayType(r)!=='overdue'||dueRemainingForScreen(r)<=0||riskAgingBandForRow(r)?.id!==dueAgingRange))return;selectionRows.push({g,r})}
   });
  });
  const selectionByClient=new Map();selectionRows.forEach(x=>{const key=norm(get(x.r,'client')||get(x.g.r,'client'))||`row:${selectionByClient.size}`;if(!selectionByClient.has(key))selectionByClient.set(key,[]);selectionByClient.get(key).push(x)});
@@ -4480,7 +4480,7 @@ function renderDueInstallments(baseRows){
   const today=new Date();today.setHours(0,0,0,0);
   const calculatedInstallmentDelay=item=>{const dueDates=item.rows.map(x=>parseExcelDate(riskDueDateValue(x.r))).filter(Boolean);if(!dueDates.length)return 0;const due=new Date(Math.min(...dueDates.map(d=>d.getTime())));const value=installmentValue(item),paid=installmentPaid(item),fullyPaid=value>0?paid>=value-0.01:!incomplete(item),payments=item.rows.map(x=>parseExcelDate(rowPaymentDate(x.r))).filter(Boolean),payment=payments.length?new Date(Math.max(...payments.map(d=>d.getTime()))):null,end=fullyPaid&&payment?payment:today;if(due>=end)return 0;return Math.max(0,Math.floor((end-due)/86400000))};
   const installments=[...byInstallment.values()].sort((a,b)=>{if(a.number>0&&b.number>0&&a.number!==b.number)return a.number-b.number;if(a.number>0&&b.number<=0)return -1;if(b.number>0&&a.number<=0)return 1;return (parseExcelDate(riskDueDateValue(a.rows[0]?.r))?.getTime()||0)-(parseExcelDate(riskDueDateValue(b.rows[0]?.r))?.getTime()||0)});
-  const target=installments.find(incomplete)||(allSpecialistClients?installments[0]:null);if(!target)return null;
+  const target=installments.find(incomplete);if(!target)return null;
   const explicitSource=orderedRows(target).find(x=>String(getAny(x.r,[H.unpaid,'المتبقي','المبلغ المتبقي','الرصيد المتبقي','المبلغ الغير مسدد'])??'').trim()!=='');
   const representative=explicitSource&&num(getAny(explicitSource.r,[H.unpaid,'المتبقي','المبلغ المتبقي','الرصيد المتبقي','المبلغ الغير مسدد']))>0?explicitSource:target.rows.map((x,index)=>({x,index,remaining:dueRemainingForScreen(x.r),filled:Object.values(x.r||{}).filter(v=>String(v??'').trim()!=='').length,time:parseExcelDate(rowPaymentDate(x.r))?.getTime()||0})).sort((a,b)=>(Number(b.remaining>0)-Number(a.remaining>0))||(b.filled-a.filled)||(b.time-a.time)||b.index-a.index)[0].x;
   const targetLoanKey=norm(get(target.rows[0]?.r,'loan')||get(target.rows[0]?.g.r,'loan'))+'|'+norm(get(target.rows[0]?.r,'nid')||get(target.rows[0]?.g.r,'nid'));
@@ -4497,8 +4497,8 @@ function renderDueInstallments(baseRows){
  });
  window.dueProfileGroups=uniqueRows.map(x=>x.g);
  // إجمالي الأقساط المتأخرة للعميل مستقل عن فلتر التاريخ، ويُقرأ من عمود Excel حتى الانتظام.
- uniqueRows.forEach((x,i)=>{const g=x.g,r=x.r,installmentValueRaw=get(r,'value'),value=String(installmentValueRaw??'').trim()===''?0:num(installmentValueRaw),paid=rowPaidAmount(r),unpaid=dueRemainingForScreen(r),clientKey=norm(get(r,'client')||get(g.r,'client'));totalDue+=value;totalPaid+=paid;totalUnpaid+=unpaid;uniqueClients.add(clientKey);const phone=clientPhones(r)||'',loanAmount=dueLoanAmount(r,g),term=String(getAny(r,[H.term,'مدة القرض','مدة التمويل','عدد الأقساط'])??'').trim(),arrears=allSpecialistClients?(filteredArrearsByClient.get(clientKey)||0):dueCustomerArrears(clientKey),delayDays=Number(x._dueDelayDays)||0,overdueCount=Number(x._dueOverdueCount)||0;totalLateCount+=overdueCount;totalDelayDays+=delayDays;totalArrears+=arrears;const rowOfficer=String(get(r,'officer')||get(g.r,'officer')||'غير محدد').trim();out+=`<tr data-due-data-row="1" data-row-index="${i}" data-officer-key="${escAttr(officerKey(rowOfficer))}" data-officer-name="${escAttr(rowOfficer)}"><td>${i+1}</td><td><button type="button" class="due-client-profile-link" onclick="openDueClientProfile(${i})" title="فتح ملف العميل">${esc(get(r,'client')||'—')}</button>${allSpecialistClients?`<small class="due-client-status ${arrears>0?'is-overdue':'is-regular'}">${arrears>0?'متأخر':'منتظم'}</small>`:''}</td><td>${esc(get(r,'nid')||'—')}</td><td>${String(loanAmount??'').trim()===''?'—':dueWhole(loanAmount)}</td><td>${esc(term||'—')}</td><td>${phone?`<a class="due-phone-link" href="tel:${escAttr(String(phone).replace(/[^\d+]/g,''))}" title="اتصال بالعميل">${esc(phone)}</a>`:'—'}</td><td>${esc(get(r,'installment')||'—')}</td><td>${esc(riskDisplayDate(riskDueDateValue(r))||'—')}</td><td>${String(installmentValueRaw??'').trim()===''?'—':money(installmentValueRaw)}</td><td>${money(paid)}</td><td>${esc(riskDisplayDate(rowPaymentDate(r))||'—')}</td><td>${money(unpaid)}</td><td>${dueWhole(overdueCount)}</td><td>${dueWhole(delayDays)}</td><td>${money(arrears)}</td><td>${esc(rowAddress(r)||'—')}</td><td>${dueGuarantorHTML(r,1)}</td><td>${dueGuarantorHTML(r,2)}</td><td>${dueGuarantorHTML(r,3)}</td></tr>`});
- const body=document.getElementById('dueTableBody');if(body)body.innerHTML=out||(allSpecialistClients?'<tr><td colspan="19">لا يوجد عملاء مطابقون لفلاتر الأخصائي وحالة القرض والبحث</td></tr>':'<tr><td colspan="19">لا توجد أقساط مستحقة في الفترة المحددة</td></tr>');renderDueSpecialistGrouping(matchesDueSpecialistState);const setTotalMoney=(id,value)=>{const el=document.getElementById(id);if(el)el.textContent=money(value)},setTotalCount=(id,value)=>{const el=document.getElementById(id);if(el)el.textContent=dueWhole(value)};setTotalMoney('dueColumnTotalInstallmentValue',totalDue);setTotalMoney('dueColumnTotalPaid',totalPaid);setTotalMoney('dueColumnTotalRemaining',totalUnpaid);setTotalCount('dueColumnTotalLateCount',totalLateCount);setTotalCount('dueColumnTotalDelayDays',totalDelayDays);setTotalMoney('dueColumnTotalArrears',totalArrears);const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=typeof v==='number'?Math.round(num(v)||0).toLocaleString('en-US'):v};const allClientCount=document.getElementById('dueAllClientCount');if(allClientCount)allClientCount.textContent=allSpecialistClients?`${dueWhole(uniqueRows.length)} عميل مطابق للفلاتر — صف واحد لكل عميل`:'';set('dueTotalDue',totalDue);set('dueTotalPaid',totalPaid);set('dueTotalUnpaid',totalUnpaid);set('dueClientsCount',uniqueClients.size);set('dueInstallmentsCount',uniqueRows.length);set('dueTodayAmount',stats.todayAmount);set('dueTodayCount',`${stats.todayCount.toLocaleString('en-US')} قسط`);set('dueNavDue',stats.due);set('dueNavUpcoming',stats.upcoming);set('dueNavPartial',stats.partial);set('dueNavPaid',stats.paid);set('dueNavOverdue',stats.overdue);const quickRows=uniqueRows,quickOfficers=new Set(quickRows.map(x=>norm(get(x.r,'officer')||get(x.g.r,'officer')||'غير محدد'))),quickSet=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=typeof v==='number'?money(v):v};quickSet('dueQuickSpecialists',quickOfficers.size);quickSet('dueQuickInstallments',quickRows.length);quickSet('dueQuickDue',totalDue);quickSet('dueQuickPaid',totalPaid);quickSet('dueQuickRemaining',totalUnpaid);quickSet('dueQuickArrears',totalArrears);updateDueQuickSearchSuggestions();applyDueQuickSearch();bindDueRowSelection();
+ uniqueRows.forEach((x,i)=>{const g=x.g,r=x.r,installmentValueRaw=get(r,'value'),value=String(installmentValueRaw??'').trim()===''?0:num(installmentValueRaw),paid=rowPaidAmount(r),unpaid=dueRemainingForScreen(r),clientKey=norm(get(r,'client')||get(g.r,'client'));totalDue+=value;totalPaid+=paid;totalUnpaid+=unpaid;uniqueClients.add(clientKey);const phone=clientPhones(r)||'',loanAmount=dueLoanAmount(r,g),term=String(getAny(r,[H.term,'مدة القرض','مدة التمويل','عدد الأقساط'])??'').trim(),arrears=dueCustomerArrears(clientKey),delayDays=Number(x._dueDelayDays)||0,overdueCount=Number(x._dueOverdueCount)||0;totalLateCount+=overdueCount;totalDelayDays+=delayDays;totalArrears+=arrears;const rowOfficer=String(get(r,'officer')||get(g.r,'officer')||'غير محدد').trim();out+=`<tr data-due-data-row="1" data-row-index="${i}" data-officer-key="${escAttr(officerKey(rowOfficer))}" data-officer-name="${escAttr(rowOfficer)}"><td>${i+1}</td><td><button type="button" class="due-client-profile-link" onclick="openDueClientProfile(${i})" title="فتح ملف العميل">${esc(get(r,'client')||'—')}</button></td><td>${esc(get(r,'nid')||'—')}</td><td>${String(loanAmount??'').trim()===''?'—':dueWhole(loanAmount)}</td><td>${esc(term||'—')}</td><td>${phone?`<a class="due-phone-link" href="tel:${escAttr(String(phone).replace(/[^\d+]/g,''))}" title="اتصال بالعميل">${esc(phone)}</a>`:'—'}</td><td>${esc(get(r,'installment')||'—')}</td><td>${esc(riskDisplayDate(riskDueDateValue(r))||'—')}</td><td>${String(installmentValueRaw??'').trim()===''?'—':money(installmentValueRaw)}</td><td>${money(paid)}</td><td>${esc(riskDisplayDate(rowPaymentDate(r))||'—')}</td><td>${money(unpaid)}</td><td>${dueWhole(overdueCount)}</td><td>${dueWhole(delayDays)}</td><td>${money(arrears)}</td><td>${esc(rowAddress(r)||'—')}</td><td>${dueGuarantorHTML(r,1)}</td><td>${dueGuarantorHTML(r,2)}</td><td>${dueGuarantorHTML(r,3)}</td></tr>`});
+ const body=document.getElementById('dueTableBody');if(body)body.innerHTML=out||'<tr><td colspan="19">لا توجد أقساط مستحقة في الفترة المحددة</td></tr>';renderDueSpecialistGrouping(matchesDueSpecialistState);const setTotalMoney=(id,value)=>{const el=document.getElementById(id);if(el)el.textContent=money(value)},setTotalCount=(id,value)=>{const el=document.getElementById(id);if(el)el.textContent=dueWhole(value)};setTotalMoney('dueColumnTotalInstallmentValue',totalDue);setTotalMoney('dueColumnTotalPaid',totalPaid);setTotalMoney('dueColumnTotalRemaining',totalUnpaid);setTotalCount('dueColumnTotalLateCount',totalLateCount);setTotalCount('dueColumnTotalDelayDays',totalDelayDays);setTotalMoney('dueColumnTotalArrears',totalArrears);const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=typeof v==='number'?Math.round(num(v)||0).toLocaleString('en-US'):v};set('dueTotalDue',totalDue);set('dueTotalPaid',totalPaid);set('dueTotalUnpaid',totalUnpaid);set('dueClientsCount',uniqueClients.size);set('dueInstallmentsCount',uniqueRows.length);set('dueTodayAmount',stats.todayAmount);set('dueTodayCount',`${stats.todayCount.toLocaleString('en-US')} قسط`);set('dueNavDue',stats.due);set('dueNavUpcoming',stats.upcoming);set('dueNavPartial',stats.partial);set('dueNavPaid',stats.paid);set('dueNavOverdue',stats.overdue);const quickRows=uniqueRows,quickOfficers=new Set(quickRows.map(x=>norm(get(x.r,'officer')||get(x.g.r,'officer')||'غير محدد'))),quickSet=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=typeof v==='number'?money(v):v};quickSet('dueQuickSpecialists',quickOfficers.size);quickSet('dueQuickInstallments',quickRows.length);quickSet('dueQuickDue',totalDue);quickSet('dueQuickPaid',totalPaid);quickSet('dueQuickRemaining',totalUnpaid);quickSet('dueQuickArrears',totalArrears);updateDueQuickSearchSuggestions();applyDueQuickSearch();bindDueRowSelection();
 }
 function setDueCurrentMonth(){const n=new Date();document.getElementById("dueFrom").value=isoDate(new Date(n.getFullYear(),n.getMonth(),1));document.getElementById("dueTo").value=isoDate(new Date(n.getFullYear(),n.getMonth()+1,0));if(document.getElementById("dueExcelRowMode")?.checked){const month=document.getElementById("dueSpecificMonth"),year=document.getElementById("dueSpecificYear");if(month)month.value=String(n.getMonth()+1).padStart(2,"0");if(year)year.value=String(n.getFullYear())}renderDueInstallments()}
 function setDueNextMonth(){const n=new Date();document.getElementById("dueFrom").value=isoDate(new Date(n.getFullYear(),n.getMonth()+1,1));document.getElementById("dueTo").value=isoDate(new Date(n.getFullYear(),n.getMonth()+2,0));if(document.getElementById("dueExcelRowMode")?.checked){const month=document.getElementById("dueSpecificMonth"),year=document.getElementById("dueSpecificYear"),next=new Date(n.getFullYear(),n.getMonth()+1,1);if(month)month.value=String(next.getMonth()+1).padStart(2,"0");if(year)year.value=String(next.getFullYear())}renderDueInstallments()}
@@ -7752,7 +7752,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
     return totals;
   }
-  function pfBuildCases(){
+  function pfBuildCases(includeRegular=false){
     if(typeof visibleGroups!=="function"||typeof installmentUnpaid!=="function")return [];
     const groups=visibleGroups(),end=pfTodayEnd(),customerArrears=pfCustomerArrearsMap(groups,end),cases=[];
     groups.forEach(group=>{
@@ -7761,9 +7761,23 @@ document.addEventListener('DOMContentLoaded', function () {
         const due=parseExcelDate(riskDueDateValue(row));
         return due&&due<=end&&installmentUnpaid(row)>0;
       });
-      if(!lateRows.length)return;
-      lateRows.sort((a,b)=>num(get(a,"installment"))-num(get(b,"installment"))||((parseExcelDate(riskDueDateValue(a))||0)-(parseExcelDate(riskDueDateValue(b))||0)));
-      const row=lateRows[0];
+      if(!lateRows.length&&!includeRegular)return;
+      let row;
+      if(lateRows.length){
+        lateRows.sort((a,b)=>num(get(a,"installment"))-num(get(b,"installment"))||((parseExcelDate(riskDueDateValue(a))||0)-(parseExcelDate(riskDueDateValue(b))||0)));
+        row=lateRows[0];
+      }else{
+        const scheduled=rows.filter(item=>parseExcelDate(riskDueDateValue(item)));
+        if(!scheduled.length)return;
+        scheduled.sort((a,b)=>{
+          const da=parseExcelDate(riskDueDateValue(a)),db=parseExcelDate(riskDueDateValue(b)),ua=installmentUnpaid(a)>0,ub=installmentUnpaid(b)>0;
+          const rank=(d,unpaid)=>d>end?(unpaid?0:1):2,ra=rank(da,ua),rb=rank(db,ub);
+          if(ra!==rb)return ra-rb;
+          if(ra<2)return da-db;
+          return db-da;
+        });
+        row=scheduled[0];
+      }
       const loanCode=String(getAny(group.r,[H.loanCode,"كود القرض"])||"").trim();
       const loanNo=String(get(group.r,"loan")||"").trim();
       const nid=String(get(group.r,"nid")||"").trim();
@@ -8013,6 +8027,7 @@ document.addEventListener('DOMContentLoaded', function () {
     return {fromValue,toValue,from:fromValue?parseExcelDate(fromValue):null,to:toValue?parseExcelDate(toValue):null};
   }
   function pfPeriodLabel(){
+    if(document.getElementById("paymentFollowupAllClients")?.checked===true)return "جميع تواريخ الاستحقاق";
     const p=pfPeriodValues();
     if(!p.fromValue&&!p.toValue)return "حتى اليوم";
     const from=p.fromValue?pfTextDate(p.fromValue):"بداية البيانات";
@@ -8024,11 +8039,12 @@ document.addEventListener('DOMContentLoaded', function () {
     const officer=norm(document.getElementById("paymentFollowupOfficer")?.value||"");
     const status=document.getElementById("paymentFollowupStatus")?.value||"all";
     const loanState=document.getElementById("paymentFollowupLoanStatus")?.value||"open";
+    const allClientsMode=document.getElementById("paymentFollowupAllClients")?.checked===true;
     const period=pfPeriodValues(),logs=pfReadLogs();
-    return currentCases.filter(item=>{
+    const matched=currentCases.filter(item=>{
       const due=parseExcelDate(item.due);
-      if(period.from&&(!due||due<period.from))return false;
-      if(period.to&&(!due||due>period.to))return false;
+      if(!allClientsMode&&period.from&&(!due||due<period.from))return false;
+      if(!allClientsMode&&period.to&&(!due||due>period.to))return false;
       if(!specialistStatusAllows(item.officer))return false;
       if(loanState!=="all"&&!clientLoanMatchesStatusFilter(item.group,item.group?.r||item.row,loanState))return false;
       if(officer&&norm(item.officer)!==officer)return false;
@@ -8038,6 +8054,12 @@ document.addEventListener('DOMContentLoaded', function () {
       if(status==="called")return !!latest;
       return status==="all"||latest?.status===status;
     }).map(item=>({...item,logs:pfCaseLogs(item.key,logs)}));
+    if(!allClientsMode)return matched;
+    const byClient=new Map();matched.forEach(item=>{
+      const key=pfKeyPart(item.client)||String(item.key),prior=byClient.get(key);
+      if(!prior||Number(item.overdueCount)>Number(prior.overdueCount)||(Number(item.overdueCount)===Number(prior.overdueCount)&&(Number(item.delay)>Number(prior.delay)||Number(item.customerArrears)>Number(prior.customerArrears))))byClient.set(key,item);
+    });
+    return [...byClient.values()];
   }
   function pfPhoneLine(contact,caseItem){
     const phones=contact.phones||[];
@@ -8099,12 +8121,13 @@ document.addEventListener('DOMContentLoaded', function () {
   }
   function pfLastStatus(item){return item.logs?.[0]?.status||"لم يتم الاتصال";}
   function pfLatestNote(item){const l=item.logs?.[0];return l?String(l.note||""):"—";}
+  function pfCustomerStatusHTML(item){if(document.getElementById("paymentFollowupAllClients")?.checked!==true)return "";const late=Number(item.overdueCount)>0;return `<span class="pf-client-status ${late?"is-overdue":"is-regular"}">${late?"متأخر":"منتظم"}</span>`}
   function pfDesktopRow(item){
-    return `<tr data-pf-row-key="${escAttr(item.key)}"><td><span class="pf-main-name">${esc(item.client||"—")}</span><span class="pf-secondary">${esc(item.officer||"بدون أخصائي")}</span></td><td><span class="pf-nowrap-value">${esc(item.loanAmount!==""&&item.loanAmount!=null?money(item.loanAmount):"—")}</span></td><td><span class="pf-nowrap-value">${esc(item.loanTerm||"—")}</span></td><td><span class="pf-nowrap-value">${esc(money(item.installmentValue))}</span></td><td><span class="pf-nowrap-value"><span class="pf-amount">${esc(money(item.paid))}</span></span></td><td><span class="pf-nowrap-value">${esc(pfTextDate(item.paymentDate))}</span></td><td><span class="pf-nowrap-value"><span class="pf-arrears">${esc(money(item.remaining))}</span></span></td><td><span class="pf-nowrap-value">${esc(item.overdueCount)}</span></td><td><span class="pf-nowrap-value"><span class="pf-arrears">${esc(money(item.customerArrears))}</span></span></td><td>${pfContactsHTML(item)}</td><td>${pfLatestHTML(item)}</td><td>${pfActorHTML(item)}</td><td class="no-print"><button type="button" class="pf-archive-btn" data-pf-archive-key="${escAttr(item.key)}">📚 فتح الأرشيف</button>${pfFormHTML(item)}${pfHistoryHTML(item)}</td></tr>`;
+    return `<tr data-pf-row-key="${escAttr(item.key)}"><td><span class="pf-main-name">${esc(item.client||"—")}</span>${pfCustomerStatusHTML(item)}<span class="pf-secondary">${esc(item.officer||"بدون أخصائي")}</span></td><td><span class="pf-nowrap-value">${esc(item.loanAmount!==""&&item.loanAmount!=null?money(item.loanAmount):"—")}</span></td><td><span class="pf-nowrap-value">${esc(item.loanTerm||"—")}</span></td><td><span class="pf-nowrap-value">${esc(money(item.installmentValue))}</span></td><td><span class="pf-nowrap-value"><span class="pf-amount">${esc(money(item.paid))}</span></span></td><td><span class="pf-nowrap-value">${esc(pfTextDate(item.paymentDate))}</span></td><td><span class="pf-nowrap-value"><span class="pf-arrears">${esc(money(item.remaining))}</span></span></td><td><span class="pf-nowrap-value">${esc(item.overdueCount)}</span></td><td><span class="pf-nowrap-value"><span class="pf-arrears">${esc(money(item.customerArrears))}</span></span></td><td>${pfContactsHTML(item)}</td><td>${pfLatestHTML(item)}</td><td>${pfActorHTML(item)}</td><td class="no-print"><button type="button" class="pf-archive-btn" data-pf-archive-key="${escAttr(item.key)}">📚 فتح الأرشيف</button>${pfFormHTML(item)}${pfHistoryHTML(item)}</td></tr>`;
   }
   function pfMobileCard(item){
     const loan=item.loanAmount!==""&&item.loanAmount!=null?money(item.loanAmount):"—";
-    return `<article class="pf-case"><div class="pf-case-head"><div><div class="pf-main-name">${esc(item.client||"—")}</div><span class="pf-secondary">القرض ${esc(item.loanLabel)} · ${esc(item.officer||"بدون أخصائي")}</span></div><span class="pf-delay">${esc(item.delay)} يوم تأخير</span></div><div class="pf-card-grid"><div class="pf-card-field"><small>مبلغ القرض</small><b>${esc(loan)}</b></div><div class="pf-card-field"><small>رقم القسط / الاستحقاق</small><b>${esc(item.installment||"—")} · ${esc(pfTextDate(item.due))}</b></div><div class="pf-card-field"><small>قيمة القسط</small><b>${esc(money(item.installmentValue))}</b></div><div class="pf-card-field"><small>المسدد / تاريخ السداد</small><b>${esc(money(item.paid))} · ${esc(pfTextDate(item.paymentDate))}</b></div><div class="pf-card-field"><small>المتبقي من القسط</small><b class="pf-arrears">${esc(money(item.remaining))}</b></div><div class="pf-card-field"><small>إجمالي متأخرات العميل</small><b class="pf-arrears">${esc(money(item.customerArrears))}</b></div></div><div class="pf-card-field pf-wide" style="margin-top:8px"><small>العميل والضامنون</small>${pfContactsHTML(item)}</div>${pfLatestHTML(item)}${pfActorHTML(item)}<button type="button" class="pf-archive-btn" data-pf-archive-key="${escAttr(item.key)}">📚 فتح أرشيف العميل والضامنين</button>${pfFormHTML(item)}${pfHistoryHTML(item)}</article>`;
+    return `<article class="pf-case"><div class="pf-case-head"><div><div class="pf-main-name">${esc(item.client||"—")}</div>${pfCustomerStatusHTML(item)}<span class="pf-secondary">القرض ${esc(item.loanLabel)} · ${esc(item.officer||"بدون أخصائي")}</span></div><span class="pf-delay">${esc(item.delay)} يوم تأخير</span></div><div class="pf-card-grid"><div class="pf-card-field"><small>مبلغ القرض</small><b>${esc(loan)}</b></div><div class="pf-card-field"><small>رقم القسط / الاستحقاق</small><b>${esc(item.installment||"—")} · ${esc(pfTextDate(item.due))}</b></div><div class="pf-card-field"><small>قيمة القسط</small><b>${esc(money(item.installmentValue))}</b></div><div class="pf-card-field"><small>المسدد / تاريخ السداد</small><b>${esc(money(item.paid))} · ${esc(pfTextDate(item.paymentDate))}</b></div><div class="pf-card-field"><small>المتبقي من القسط</small><b class="pf-arrears">${esc(money(item.remaining))}</b></div><div class="pf-card-field"><small>إجمالي متأخرات العميل</small><b class="pf-arrears">${esc(money(item.customerArrears))}</b></div></div><div class="pf-card-field pf-wide" style="margin-top:8px"><small>العميل والضامنون</small>${pfContactsHTML(item)}</div>${pfLatestHTML(item)}${pfActorHTML(item)}<button type="button" class="pf-archive-btn" data-pf-archive-key="${escAttr(item.key)}">📚 فتح أرشيف العميل والضامنين</button>${pfFormHTML(item)}${pfHistoryHTML(item)}</article>`;
   }
   function pfUpdateOfficerOptions(){
     const input=document.getElementById("paymentFollowupOfficer"),list=document.getElementById("paymentFollowupOfficerList");if(!input||!list)return;
@@ -8122,22 +8145,25 @@ document.addEventListener('DOMContentLoaded', function () {
   function renderPaymentFollowup(){
     if(!document.getElementById(SCREEN_ID))return;
     pfEnsureDefaultPeriod();
-    currentCases=pfBuildCases();pfUpdateOfficerOptions();pfUpdateClientOptions();
+    currentCases=pfBuildCases(document.getElementById("paymentFollowupAllClients")?.checked===true);pfUpdateOfficerOptions();pfUpdateClientOptions();
     const filtered=pfFilteredCases();
     const visibleCaseKeys=new Set(filtered.map(item=>String(item.key))),allCallLogs=pfReadLogs();
     const visibleCallLogCount=allCallLogs.filter(log=>visibleCaseKeys.has(String(log.caseKey))).length;
     const filteredDeleteButton=document.getElementById("paymentFollowupDeleteFiltered"),filteredDeleteCount=document.getElementById("paymentFollowupDeleteFilteredCount"),allDeleteButton=document.getElementById("paymentFollowupDeleteAll"),allDeleteCount=document.getElementById("paymentFollowupDeleteAllCount");
     if(filteredDeleteCount)filteredDeleteCount.textContent=visibleCallLogCount.toLocaleString("en-US");if(filteredDeleteButton)filteredDeleteButton.disabled=visibleCallLogCount===0;
     if(allDeleteCount)allDeleteCount.textContent=allCallLogs.length.toLocaleString("en-US");if(allDeleteButton)allDeleteButton.disabled=allCallLogs.length===0;
-    const periodCard=document.getElementById("paymentFollowupPeriod");if(periodCard)periodCard.textContent=pfPeriodLabel();
+    const allClientsMode=document.getElementById("paymentFollowupAllClients")?.checked===true;
+    const periodCard=document.getElementById("paymentFollowupPeriod");if(periodCard)periodCard.textContent=allClientsMode?"جميع تواريخ الاستحقاق":pfPeriodLabel();
+    const countLabel=document.getElementById("paymentFollowupCountLabel");if(countLabel)countLabel.textContent=allClientsMode?"عملاء معروضون":"حالات المتابعة";
     const mobile=window.matchMedia&&window.matchMedia("(max-width: 760px)").matches;
     const tbody=document.getElementById("paymentFollowupTableBody"),cards=document.getElementById("paymentFollowupMobileCases");
-    if(mobile){if(tbody)tbody.innerHTML="";if(cards)cards.innerHTML=filtered.length?filtered.map(pfMobileCard).join(""):'<div class="pf-empty">لا توجد حالات متأخرة مطابقة لعوامل البحث.</div>';}
-    else {if(cards)cards.innerHTML="";if(tbody)tbody.innerHTML=filtered.length?filtered.map(pfDesktopRow).join(""):'<tr><td colspan="13" class="pf-empty">لا توجد حالات متأخرة مطابقة لعوامل البحث.</td></tr>';}
+    if(mobile){if(tbody)tbody.innerHTML="";if(cards)cards.innerHTML=filtered.length?filtered.map(pfMobileCard).join(""):(allClientsMode?'<div class="pf-empty">لا يوجد عملاء مطابقون للفلاتر الحالية.</div>':'<div class="pf-empty">لا توجد حالات متأخرة مطابقة لعوامل البحث.</div>');}
+    else {if(cards)cards.innerHTML="";if(tbody)tbody.innerHTML=filtered.length?filtered.map(pfDesktopRow).join(""):(allClientsMode?'<tr><td colspan="13" class="pf-empty">لا يوجد عملاء مطابقون للفلاتر الحالية.</td></tr>':'<tr><td colspan="13" class="pf-empty">لا توجد حالات متأخرة مطابقة لعوامل البحث.</td></tr>');}
     const uniqueClients=new Map();filtered.forEach(x=>{const key=pfKeyPart(x.client);if(key&&!uniqueClients.has(key))uniqueClients.set(key,x.customerArrears)});
     const count=document.getElementById("paymentFollowupCount"),clients=document.getElementById("paymentFollowupClientsCount"),amount=document.getElementById("paymentFollowupTotalArrears"),feedback=document.getElementById("paymentFollowupFeedback");
     if(count)count.textContent=filtered.length.toLocaleString("en-US");
     if(clients)clients.textContent=uniqueClients.size.toLocaleString("en-US");
+    const allCount=document.getElementById("paymentFollowupAllClientsCount");if(allCount)allCount.textContent=allClientsMode?`${uniqueClients.size.toLocaleString("en-US")} عميل مطابق للفلاتر — صف واحد لكل عميل`:"";
     if(amount)amount.textContent=money([...uniqueClients.values()].reduce((a,b)=>a+num(b),0));
     if(feedback){feedback.textContent=feedbackText;feedback.className="pf-feedback"+(feedbackText?` show ${feedbackKind}`:"");}
     lastRenderedMobile=mobile;
@@ -10902,14 +10928,15 @@ body.pfa-resizing-rows,body.pfa-resizing-rows *{cursor:row-resize!important;user
 </style>
 
 
-<style id="due-all-specialist-clients-style">
-#dueInstallments .due-all-clients-toggle{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:10px 0;padding:10px 12px;border:1px solid #cbd9e8;border-radius:10px;background:#f8fbff}
-#dueInstallments .due-all-clients-toggle label{display:flex;align-items:center;gap:8px;color:#173b5d;font-size:13px;font-weight:900;cursor:pointer}
-#dueInstallments .due-all-clients-toggle input{width:18px;height:18px;margin:0;accent-color:#1769aa}
-#dueInstallments .due-all-clients-toggle small{color:#64748b;font-size:11px;line-height:1.5}
-#dueInstallments .due-client-status{display:block;width:max-content;margin-top:3px;padding:2px 7px;border-radius:999px;font-size:10px;font-weight:900}
-#dueInstallments .due-client-status.is-overdue{background:#fff0ed;color:#a12f2f;border:1px solid #ffd0c9}
-#dueInstallments .due-client-status.is-regular{background:#eaf7ef;color:#17633d;border:1px solid #bce4c9}
+
+<style id="payment-followup-all-clients-style">
+#paymentFollowup .pf-all-clients-toggle{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:10px 0;padding:10px 12px;border:1px solid #cbd9e8;border-radius:10px;background:#f8fbff}
+#paymentFollowup .pf-all-clients-toggle label{display:flex;align-items:center;gap:8px;color:#173b5d;font-size:13px;font-weight:900;cursor:pointer}
+#paymentFollowup .pf-all-clients-toggle input{width:18px;height:18px;margin:0;accent-color:#1769aa}
+#paymentFollowup .pf-all-clients-toggle small{color:#64748b;font-size:11px;line-height:1.5}
+#paymentFollowup .pf-client-status{display:block;width:max-content;margin:3px 0 2px;padding:2px 7px;border-radius:999px;font-size:10px;font-weight:900}
+#paymentFollowup .pf-client-status.is-overdue{background:#fff0ed;color:#a12f2f;border:1px solid #ffd0c9}
+#paymentFollowup .pf-client-status.is-regular{background:#eaf7ef;color:#17633d;border:1px solid #bce4c9}
 </style>
 </body>
 </html>
