@@ -7870,10 +7870,14 @@ document.addEventListener('DOMContentLoaded', function () {
   async function pfDeleteCloudIds(ids){
     const done=[];
     for(let i=0;i<ids.length;i+=100){
-      const part=ids.slice(i,i+100),{data,error}=await supabaseClient.from(CLIENT_CONTACT_LOG_TABLE).delete().in("id",part).select("id");
+      const part=ids.slice(i,i+100).map(String);
+      const {error}=await supabaseClient.from(CLIENT_CONTACT_LOG_TABLE).delete().in("id",part);
       if(error){error.pfDeletedIds=done.slice();throw error}
-      const deleted=(data||[]).map(row=>String(row.id));
-      if(deleted.length!==part.length){const mismatch=new Error("لم تؤكد السحابة حذف كل السجلات المطلوبة. تحقق من صلاحيات الحذف ثم حدّث الشاشة.");mismatch.pfDeletedIds=[...done,...deleted];throw mismatch}
+      const {data:remainingRows,error:verifyError}=await supabaseClient.from(CLIENT_CONTACT_LOG_TABLE).select("id").in("id",part);
+      if(verifyError){verifyError.pfDeletedIds=done.slice();throw verifyError}
+      const remainingIds=new Set((remainingRows||[]).map(row=>String(row.id)));
+      const deleted=part.filter(id=>!remainingIds.has(id));
+      if(remainingIds.size){const mismatch=new Error("لم يتم حذف بعض السجلات من السحابة؛ ما زالت موجودة. تحقق من صلاحية DELETE وسياسة RLS لهذا المستخدم.");mismatch.pfDeletedIds=[...done,...deleted];throw mismatch}
       done.push(...deleted);
     }
     return done;
@@ -7918,9 +7922,12 @@ document.addEventListener('DOMContentLoaded', function () {
         }else{
           let cloudIds=[];
           if(target[0].cloudId){
-            const {data,error}=await supabaseClient.from(CLIENT_CONTACT_LOG_TABLE).delete().eq("id",target[0].cloudId).select("id").maybeSingle();
+            const cloudId=String(target[0].cloudId);
+            const {error}=await supabaseClient.from(CLIENT_CONTACT_LOG_TABLE).delete().eq("id",cloudId);
             if(error)throw error;
-            if(!data)throw new Error("لم تؤكد السحابة حذف السجل؛ قد تكون الصلاحية غير متاحة أو أن السجل حُذف مسبقًا.");
+            const {data:stillExists,error:verifyError}=await supabaseClient.from(CLIENT_CONTACT_LOG_TABLE).select("id").eq("id",cloudId).maybeSingle();
+            if(verifyError)throw verifyError;
+            if(stillExists)throw new Error("لم يتم حذف السجل من السحابة؛ ما زال موجودًا. يلزم السماح بحذف سجلات المكالمات لهذا المستخدم في سياسة DELETE/RLS.");
           }else{
             cloudIds=await pfCloudIdsForUnlinkedLog(target[0]);
             if(cloudIds.length)await pfDeleteCloudIds(cloudIds);
