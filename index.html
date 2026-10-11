@@ -10981,11 +10981,12 @@ function renderLocationFacts(item) {
   set("locationLastValidation", item ? locationStatusLabel(item.validation_status) : "—");
   renderLocationMap(item);
 }
+function locationEscapeHtml(value) { return String(value??"").replace(/[&<>"']/g, ch => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch] || ch)); }
 function renderLocationRows(items) {
   const tbody=document.getElementById("locationRows"), meta=document.getElementById("locationListMeta"); if(!tbody)return;
   if(meta)meta.textContent=`${items.length} موقع ظاهر`;
   if(!items.length){tbody.innerHTML='<tr><td colspan="5" class="location-empty-row">لا توجد مواقع مرسلة.</td></tr>';return;}
-  tbody.innerHTML=items.map(item=>{const url=item.maps_url||`https://www.google.com/maps/search/?api=1&query=${item.latitude},${item.longitude}`;return `<tr><td><b>${escapeHtml(locationText(item.display_name))}</b><br><small>${escapeHtml(locationText(item.username))}</small></td><td>${escapeHtml(locationDate(item.captured_at))}</td><td>${Math.round(Number(item.accuracy_m)||0)} م</td><td><span class="location-state ${locationStateClass(item.validation_status)}">${escapeHtml(locationStatusLabel(item.validation_status))}</span></td><td><a href="${escapeHtml(url)}" target="_blank" rel="noopener">فتح الخريطة</a></td></tr>`}).join("");
+  tbody.innerHTML=items.map(item=>{const url=item.maps_url||`https://www.google.com/maps/search/?api=1&query=${item.latitude},${item.longitude}`;return `<tr><td><b>${locationEscapeHtml(locationText(item.display_name))}</b><br><small>${locationEscapeHtml(locationText(item.username))}</small></td><td>${locationEscapeHtml(locationDate(item.captured_at))}</td><td>${Math.round(Number(item.accuracy_m)||0)} م</td><td><span class="location-state ${locationStateClass(item.validation_status)}">${locationEscapeHtml(locationStatusLabel(item.validation_status))}</span></td><td><a href="${locationEscapeHtml(url)}" target="_blank" rel="noopener">فتح الخريطة</a></td></tr>`}).join("");
 }
 function updateLocationOwnerView() { const card=document.getElementById("locationListCard"); const owner=!!session && typeof isOwnerRole==="function" ? isOwnerRole(session.role) : false; if(card)card.classList.toggle("location-owner-only",!owner); return owner; }
 async function refreshSharedLocations() {
