@@ -2474,7 +2474,7 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
       <input id="userEditKey" type="hidden">
       <div><label>اسم المستخدم</label><input id="userFormUsername" autocomplete="off" placeholder="مثال: ahmed أو اسم مختصر"></div>
       <div><label>الاسم الظاهر</label><input id="userFormName" placeholder="اسم الأخصائي كما يظهر في Excel"></div>
-      <div><label>كلمة المرور</label><input id="userFormPassword" type="password" autocomplete="new-password" placeholder="الافتراضية 1234 — قابلة للتغيير"></div>
+      <div><label>كلمة المرور</label><input id="userFormPassword" type="password" autocomplete="new-password" placeholder="أدخل كلمة مرور أولية (8 أحرف على الأقل)"></div>
       <div><label>الاسم من شيت Excel</label><select id="userFormOfficer"></select><small>اختر الاسم المطابق للبيانات حتى يظهر في شاشة الدخول.</small></div>
     </div>
     <div class="user-actions"><button class="green" onclick="saveOfficerUser()">💾 حفظ المستخدم</button><button class="light" onclick="clearUserForm()">مسح</button></div>
@@ -3219,43 +3219,47 @@ async function callSupabaseAccountAdmin(body){
 }
 async function resetSupabaseAccountPassword(username,newPassword){return callSupabaseAccountAdmin({action:"password_reset",username,new_password:newPassword});}
 async function updateSupabaseAccountProfile(username,changes){return callSupabaseAccountAdmin({action:"profile_update",username,...changes});}
-async function login(){
- const msg=document.getElementById("loginMsg");
- const selectedRole=document.getElementById("loginRole").value;
- const officerSelect=document.getElementById("loginOfficerUser");
- const selectedOfficerToken=(selectedRole==="officer"?officerSelect?.value||"":"").trim();
- const selectedOfficerName=(selectedRole==="officer"?officerSelect?.selectedOptions?.[0]?.dataset?.officerName||selectedOfficerToken:"").trim();
- const uname=(selectedRole==="owner"?document.getElementById("loginOwnerUser")?.value||"":selectedOfficerToken).trim();
- const pass=document.getElementById("loginPass").value;
- const localUser=users.find(x=>String(x.username).normalize("NFKC").toLocaleLowerCase("en-US")===uname.normalize("NFKC").toLocaleLowerCase("en-US"));
- const fail=text=>{if(msg){msg.textContent=text;msg.style.display="block";}};
- if(!uname||!pass||!localUser||localUser.blocked||localUser.active===false||(localUser.role==="officer"&&localUser.linked===false)||(selectedRole==="owner"?!isOwnerRole(localUser.role):localUser.role!==selectedRole)){
-  fail(localUser?.blocked?"هذا المستخدم محظور من الدخول.":(localUser?.active===false?"هذا المستخدم غير نشط.":(localUser?.linked===false?"هذا الأخصائي غير مرتبط بالبرنامج حاليًا.":"بيانات الدخول غير صحيحة.")));return;
- }
- const button=document.querySelector('#loginScreen button[onclick="login()"]');if(button)button.disabled=true;
- try{
-  const response=await fetch(`${SUPABASE_URL}/functions/v1/username-login`,{method:"POST",headers:{"apikey":SUPABASE_PUBLISHABLE_KEY,"Content-Type":"application/json"},body:JSON.stringify({username:uname,password:pass})});
-  let payload={};try{payload=await response.json()}catch(e){}
-  if(!response.ok||!payload.session||!payload.profile)throw new Error(payload.error||"بيانات الدخول غير صحيحة.");
-  const profile=payload.profile;
-  if(profile.is_active===false||profile.is_blocked===true||profile.is_linked===false)throw new Error("هذا الحساب غير نشط أو غير مسموح له بالدخول.");
-  const expected=selectedRole==="officer"?"officer":"owner";
-  if(expected==="officer"?profile.app_role!=="officer":!(["owner","manager"].includes(profile.app_role)))throw new Error("نوع الحساب لا يطابق شاشة الدخول المحددة.");
-  if(!supabaseClient)initSupabase();if(!supabaseClient)throw new Error("تعذر تهيئة اتصال Supabase.");
-  const remember=document.getElementById("rememberMe")?.checked===true;
-  if(remember)localStorage.setItem(REMEMBER_SESSION_KEY,"pending");else localStorage.removeItem(REMEMBER_SESSION_KEY);
-  const {error:sessionError}=await supabaseClient.auth.setSession({access_token:payload.session.access_token,refresh_token:payload.session.refresh_token});
-  if(sessionError)throw sessionError;
-  session={user:profile.username,name:profile.display_name||localUser.name,role:localUser.role,ownerRole:profile.owner_role||localUser.ownerRole||"",officerName:profile.officer_name||localUser.officerName||selectedOfficerName};
-  try{sessionStorage.setItem(SESSION_KEY,JSON.stringify(session));if(remember)localStorage.setItem(REMEMBER_SESSION_KEY,JSON.stringify(session));else localStorage.removeItem(REMEMBER_SESSION_KEY);}catch(e){console.warn("حفظ الجلسة:",e)}
-  if(msg){msg.textContent="";msg.style.display="none";}
-  auditLog("تسجيل الدخول",`المستخدم: ${session.name}`);applySession();
- }catch(e){
-  if(supabaseClient)try{await supabaseClient.auth.signOut()}catch(_e){}
-  fail(e?.message||"تعذر إتمام تسجيل الدخول حاليًا.");
- }finally{if(button)button.disabled=false;}
-}
-function applySession(){
+	async function login(){
+	 const msg=document.getElementById("loginMsg");
+	 const selectedRole=document.getElementById("loginRole").value;
+	 const officerSelect=document.getElementById("loginOfficerUser");
+	 const selectedOfficerToken=(selectedRole==="officer"?officerSelect?.value||"":"").trim();
+	 const selectedOfficerName=(selectedRole==="officer"?officerSelect?.selectedOptions?.[0]?.dataset?.officerName||selectedOfficerToken:"").trim();
+	 const uname=(selectedRole==="owner"?document.getElementById("loginOwnerUser")?.value||"":selectedOfficerToken).trim();
+	 const pass=document.getElementById("loginPass").value;
+	 let localUser=users.find(x=>String(x.username).normalize("NFKC").toLocaleLowerCase("en-US")===uname.normalize("NFKC").toLocaleLowerCase("en-US"));
+	 const fail=text=>{if(msg){msg.textContent=text;msg.style.display="block";}};
+	 const invalidOwner=!localUser||localUser.blocked||localUser.active===false||!isOwnerRole(localUser.role);
+	 if(!uname||!pass||(selectedRole==="owner"&&invalidOwner)||(selectedRole==="officer"&&!selectedOfficerName)){
+	  fail(localUser?.blocked?"هذا المستخدم محظور من الدخول.":(localUser?.active===false?"هذا المستخدم غير نشط.":(localUser?.linked===false?"هذا الأخصائي غير مرتبط بالبرنامج حاليًا.":"بيانات الدخول غير صحيحة.")));return;
+	 }
+	 const button=document.querySelector('#loginScreen button[onclick="login()"]');if(button)button.disabled=true;
+	 try{
+	  const response=await fetch(`${SUPABASE_URL}/functions/v1/username-login`,{method:"POST",headers:{"apikey":SUPABASE_PUBLISHABLE_KEY,"Content-Type":"application/json"},body:JSON.stringify({username:uname,password:pass,officer_name:selectedRole==="officer"?selectedOfficerName:""})});
+	  let payload={};try{payload=await response.json()}catch(e){}
+	  if(!response.ok||!payload.session||!payload.profile)throw new Error(payload.error||"بيانات الدخول غير صحيحة.");
+	  const profile=payload.profile;
+	  if(profile.is_active===false||profile.is_blocked===true||profile.is_linked===false)throw new Error("هذا الحساب غير نشط أو غير مسموح له بالدخول.");
+	  const expected=selectedRole==="officer"?"officer":"owner";
+	  if(expected==="officer"?profile.app_role!=="officer":!( ["owner","manager"].includes(profile.app_role)))throw new Error("نوع الحساب لا يطابق شاشة الدخول المحددة.");
+	  if(!supabaseClient)initSupabase();if(!supabaseClient)throw new Error("تعذر تهيئة اتصال Supabase.");
+	  localUser=users.find(x=>String(x.username).normalize("NFKC").toLocaleLowerCase("en-US")===String(profile.username||"").normalize("NFKC").toLocaleLowerCase("en-US"))||null;
+	  const localProfile={username:profile.username,name:profile.display_name||selectedOfficerName||profile.username,role:profile.app_role,ownerRole:profile.owner_role||"",officerName:profile.officer_name||selectedOfficerName||"",active:profile.is_active!==false,blocked:profile.is_blocked===true,linked:profile.is_linked!==false};
+	  if(localUser)Object.assign(localUser,localProfile);else{localUser=localProfile;users.push(localUser);}saveUsers();
+	  const remember=document.getElementById("rememberMe")?.checked===true;
+	  if(remember)localStorage.setItem(REMEMBER_SESSION_KEY,"pending");else localStorage.removeItem(REMEMBER_SESSION_KEY);
+	  const {error:sessionError}=await supabaseClient.auth.setSession({access_token:payload.session.access_token,refresh_token:payload.session.refresh_token});
+	  if(sessionError)throw sessionError;
+	  session={user:profile.username,name:profile.display_name||localUser.name,role:profile.app_role,ownerRole:profile.owner_role||localUser.ownerRole||"",officerName:profile.officer_name||localUser.officerName||selectedOfficerName};
+	  try{sessionStorage.setItem(SESSION_KEY,JSON.stringify(session));if(remember)localStorage.setItem(REMEMBER_SESSION_KEY,JSON.stringify(session));else localStorage.removeItem(REMEMBER_SESSION_KEY);}catch(e){console.warn("حفظ الجلسة:",e)}
+	  if(msg){msg.textContent="";msg.style.display="none";}
+	  auditLog("تسجيل الدخول",`المستخدم: ${session.name}`);applySession();
+	 }catch(e){
+	  if(supabaseClient)try{await supabaseClient.auth.signOut()}catch(_e){}
+	  fail(e?.message||"تعذر إتمام تسجيل الدخول حاليًا.");
+	 }finally{if(button)button.disabled=false;}
+	}
+	function applySession(){
  if(!session)return;
  if(!enforceSession())return;
  resetInactivityTimer();
@@ -7115,13 +7119,20 @@ async function saveOfficerUser(){
  if(!canManageOfficers())return alert("هذه الشاشة متاحة لمحاسب الفرع ومدير الفرع فقط.");
  const old=document.getElementById("userEditKey").value.trim().toLowerCase(),username=document.getElementById("userFormUsername").value.trim().toLowerCase(),name=document.getElementById("userFormName").value.trim(),password=document.getElementById("userFormPassword").value,officerName=document.getElementById("userFormOfficer").value;
  if(!username||!name)return alert("أكمل اسم المستخدم والاسم.");if(users.some(u=>u.username===username&&u.username!==old))return alert("اسم المستخدم مستخدم بالفعل.");
- const existing=old?users.find(u=>u.username===old):null;
- if(!existing)return alert("إنشاء حساب أخصائي جديد غير مهيّأ في Supabase Auth بعد.");
- if(password){const role=String(session?.ownerRole||"").trim();if(role!=="محاسب الفرع"&&role!=="مدير الفرع")return alert("تغيير كلمات المرور متاح لمحاسب الفرع ومدير الفرع فقط.");if(password.length<8)return alert("يجب أن تتكون كلمة المرور من 8 أحرف على الأقل.");try{await resetSupabaseAccountPassword(username,password);}catch(e){return alert(e?.message||"تعذر تغيير كلمة المرور.");}}
- const canonicalOfficer=uniqueOfficers().find(o=>officerKey(o)===officerKey(officerName||name))||officerName;
- try{await updateSupabaseAccountProfile(old,{new_username:username,display_name:name,officer_name:canonicalOfficer,is_linked:!!canonicalOfficer,is_active:true,is_blocked:false});}catch(e){return alert(e?.message||"تعذر مزامنة الحساب مع Supabase.");}
- Object.assign(existing,{username,name,officerName:canonicalOfficer,linked:!!canonicalOfficer,active:true,manualUnlink:false});
- saveUsers();clearUserForm();renderUsers();auditLog(password?"تغيير كلمة مرور مستخدم":"تعديل مستخدم",`الأخصائي: ${name}`);showMsg("تم حفظ مستخدم الأخصائي بنجاح.","ok","usersMsg");
+	 const existing=old?users.find(u=>u.username===old):null;
+	 const canonicalOfficer=uniqueOfficers().find(o=>officerKey(o)===officerKey(officerName||name))||officerName;
+	 if(!existing){
+	  const role=String(session?.ownerRole||"").trim();if(role!=="محاسب الفرع"&&role!=="مدير الفرع")return alert("إضافة حساب أخصائي متاحة لمحاسب الفرع ومدير الفرع فقط.");
+	  if(!canonicalOfficer)return alert("اختر اسم الأخصائي من قائمة شيت Excel لربط الحساب به.");
+	  if(password.length<8)return alert("أدخل كلمة مرور أولية من 8 أحرف على الأقل.");
+	  try{await callSupabaseAccountAdmin({action:"officer_create",username,password,display_name:name,officer_name:canonicalOfficer});}catch(e){return alert(e?.message||"تعذر إنشاء حساب الأخصائي في Supabase.");}
+	  users.push({username,name,role:"officer",officerName:canonicalOfficer,active:true,blocked:false,linked:true,manualUnlink:false});
+	  saveUsers();clearUserForm();renderUsers();refreshLoginUsers();auditLog("إنشاء حساب أخصائي",`الأخصائي: ${name}`);showMsg("تم إنشاء حساب الأخصائي وربطه بنجاح.","ok","usersMsg");return;
+	 }
+	 if(password){const role=String(session?.ownerRole||"").trim();if(role!=="محاسب الفرع"&&role!=="مدير الفرع")return alert("تغيير كلمات المرور متاح لمحاسب الفرع ومدير الفرع فقط.");if(password.length<8)return alert("يجب أن تتكون كلمة المرور من 8 أحرف على الأقل.");try{await resetSupabaseAccountPassword(username,password);}catch(e){return alert(e?.message||"تعذر تغيير كلمة المرور.");}}
+	 try{await updateSupabaseAccountProfile(old,{new_username:username,display_name:name,officer_name:canonicalOfficer,is_linked:!!canonicalOfficer,is_active:true,is_blocked:false});}catch(e){return alert(e?.message||"تعذر مزامنة الحساب مع Supabase.");}
+	 Object.assign(existing,{username,name,officerName:canonicalOfficer,linked:!!canonicalOfficer,active:true,manualUnlink:false});
+	 saveUsers();clearUserForm();renderUsers();auditLog(password?"تغيير كلمة مرور مستخدم":"تعديل مستخدم",`الأخصائي: ${name}`);showMsg("تم حفظ مستخدم الأخصائي بنجاح.","ok","usersMsg");
 }
 async function toggleUserBlock(username){if(!canManageOfficers())return alert("إدارة الأخصائيين متاحة لجميع الملاك النشطين.");const u=users.find(x=>x.username===username&&x.role==="officer");if(!u)return;const next=!u.blocked;if(u.linked!==false)try{await updateSupabaseAccountProfile(username,{is_blocked:next});}catch(e){return alert(e?.message||"تعذر تحديث حالة الحساب في Supabase.");}u.blocked=next;saveUsers();renderUsers();auditLog(u.blocked?"حظر أخصائي":"فك حظر أخصائي",`المستخدم: ${u.name}`);}
 async function unlinkOfficerUser(username){if(!canManageOfficers())return alert("إدارة الأخصائيين متاحة لجميع الملاك النشطين.");const u=users.find(x=>x.username===username&&x.role==="officer");if(!u)return;if(!confirm(`سيتم إلغاء ربط ${u.name} وإخراجه من البرنامج. هل تريد المتابعة؟`))return;if(u.linked!==false)try{await updateSupabaseAccountProfile(username,{is_linked:false,is_active:false});}catch(e){return alert(e?.message||"تعذر إلغاء الربط في Supabase.");}u.linked=false;u.active=false;u.manualUnlink=true;saveUsers();renderUsers();auditLog("إلغاء ربط أخصائي",`المستخدم: ${u.name}`);}
