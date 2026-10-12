@@ -3552,21 +3552,28 @@ async function importExcelFile(file){
   if(typeof renderCurrentSheetInfo==="function")renderCurrentSheetInfo();
   try{auditLog("رفع Excel",`${rows.length} صف — ورقة: ${name}`)}catch(auditErr){console.warn("audit import:",auditErr)}
   showMsg(cloudSaved
-    ? "✅ تم تحميل الملف وحفظه لجميع المستخدمين — "+rows.length.toLocaleString("en-US")+" صف من ورقة: "+name
+    ? "✅ تم حفظ الملف سحابيًا لجميع المستخدمين — "+rows.length.toLocaleString("en-US")+" صف من ورقة: "+name
     : rows.length>50000
-      ? "✅ تم تحميل الملف بنجاح — "+rows.length.toLocaleString("en-US")+" صف في جلسة التشغيل الحالية. الملف كبير جدًا للحفظ المحلي التلقائي."
+      ? "⚠️ تمت قراءة الملف، لكن لم ينجح حفظه سحابيًا؛ البيانات متاحة في هذه الجلسة فقط."
       : localSaved
-      ? "✅ تمت قراءة الملف وحفظه محليًا بنجاح — المزامنة السحابية غير متاحة حاليًا.":"✅ تمت قراءة الملف بنجاح — البيانات متاحة في جلسة التشغيل الحالية.",cloudSaved?"ok":"warn");
+        ? "⚠️ حُفظ الملف على هذا الجهاز فقط؛ لم يتم تأكيد حفظه في السحابة."
+        : "⚠️ تمت قراءة الملف في هذه الجلسة فقط؛ لم تُحفظ نسخة محلية أو سحابية.",cloudSaved?"ok":"warn");
   const importStatus=document.getElementById("importConfirmStatus");
   if(importStatus){
-    importStatus.textContent="✅ تم تأكيد تحميل الملف بنجاح — التاريخ والوقت: "+loadedAt;
-    importStatus.style.background="#ecfdf5";
-    importStatus.style.borderColor="#86efac";
-    importStatus.style.color="#166534";
+    importStatus.textContent=cloudSaved
+      ? "✅ تم تأكيد حفظ الملف ومزامنته سحابيًا — التاريخ والوقت: "+loadedAt
+      : "⚠️ تمت قراءة الملف، لكن لم يتم تأكيد حفظه في السحابة — التاريخ والوقت: "+loadedAt;
+    importStatus.style.background=cloudSaved?"#ecfdf5":"#fff7ed";
+    importStatus.style.borderColor=cloudSaved?"#86efac":"#fdba74";
+    importStatus.style.color=cloudSaved?"#166534":"#9a3412";
   }
-  document.getElementById("status").textContent=cloudSaved?"☁️ تم تحديث البيانات لجميع المستخدمين":"⚠️ تم الحفظ محليًا مؤقتًا — المزامنة معلقة";
-  finishImportProgress(true,cloudSaved?"تم ضغط البيانات ورفعها ومزامنتها مع جميع المستخدمين.":"تمت القراءة والحفظ محليًا، وسيتم رفعها عند عودة الاتصال.");
-  try{recordSuccessfulImportNotice()}catch(importNoticeErr){console.warn("تعذر حفظ ملاحظة آخر استيراد:",importNoticeErr)}
+  document.getElementById("status").textContent=cloudSaved?"☁️ تم تأكيد حفظ البيانات في السحابة":"⚠️ لم يكتمل الحفظ السحابي — النسخة محلية فقط";
+  if(cloudSaved)finishImportProgress(true,"تم ضغط البيانات ورفعها ومزامنتها مع جميع المستخدمين.");
+  else{
+    setImportProgress(100,"المزامنة السحابية غير مكتملة",localSaved?"حُفظت النسخة على هذا الجهاز فقط؛ لا تتم إعادة المحاولة تلقائيًا.":"البيانات باقية في الجلسة فقط؛ لا تتم إعادة المحاولة تلقائيًا.");
+    const progressBar=document.getElementById("importProgressBar");if(progressBar)progressBar.style.background="#f59e0b";
+  }
+  if(cloudSaved)try{recordSuccessfulImportNotice()}catch(importNoticeErr){console.warn("تعذر حفظ ملاحظة آخر استيراد:",importNoticeErr)}
 }
 document.getElementById("file").addEventListener("change",async e=>{
  const f=e.target.files[0];
