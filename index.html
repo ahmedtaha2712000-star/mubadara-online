@@ -2282,6 +2282,16 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
 #users .user-presence-muted{color:#94a3b8}
 @media(max-width:760px){#users .user-presence-time{white-space:normal;min-width:110px}}
 </style>
+
+<style id="cloud-load-indicator-style">
+#cloudLoadIndicator{box-sizing:border-box;display:flex;align-items:center;gap:10px;margin:10px 16px;padding:12px 16px;border:1px solid #bfdbfe;border-radius:12px;background:#eff6ff;color:#1e3a8a;font-size:14px;font-weight:700;box-shadow:0 2px 8px rgba(30,64,175,.08)}
+#cloudLoadIndicator[hidden]{display:none!important}
+#cloudLoadIndicator .cloud-load-spinner{width:18px;height:18px;flex:0 0 18px;border:3px solid #bfdbfe;border-top-color:#2563eb;border-radius:50%;animation:cloud-load-spin .8s linear infinite}
+#cloudLoadIndicator .cloud-load-copy{display:flex;flex-direction:column;gap:2px}
+#cloudLoadIndicator .cloud-load-detail{font-size:12px;font-weight:500;color:#475569}
+@keyframes cloud-load-spin{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){#cloudLoadIndicator .cloud-load-spinner{animation:none;border-top-color:#2563eb}}
+</style>
 </head>
 
 <body>
@@ -2328,6 +2338,10 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
   </div>
 </header>
 
+<div id="cloudLoadIndicator" role="status" aria-live="polite" aria-atomic="true" aria-busy="false" hidden>
+ <span class="cloud-load-spinner" aria-hidden="true"></span>
+ <span class="cloud-load-copy"><span id="cloudLoadIndicatorTitle">جاري جلب البيانات من Supabase...</span><span id="cloudLoadIndicatorDetail" class="cloud-load-detail">قد يستغرق التحديث بضع لحظات. اترك الصفحة مفتوحة.</span></span>
+</div>
 <div class="layout">
 <nav class="no-print" aria-label="التنقل الرئيسي">
 <div class="nav-section-title">التشغيل اليومي</div>
@@ -3260,6 +3274,7 @@ function applySession(){
  if(!enforceSession())return;
  resetInactivityTimer();
   startUserPresenceTracking();
+ if(typeof startSecureDataPolling==="function")startSecureDataPolling();
  renderAudit();
  document.getElementById("loginScreen").style.display="none";
  document.getElementById("app").style.display="block";
@@ -3268,6 +3283,7 @@ function applySession(){
  applyPermissions();
  if(session.role==="officer") showScreen("clients");
  else showScreen("dash");
+ void refreshOnOpen(true);
 }
 let INACTIVITY_LIMIT=8*60*60*1000;
 let inactivityTimer=null;
@@ -3299,28 +3315,33 @@ function showRefreshSuccessNotice(silent=false){
  if(soundAllowed)playProgramTone("success");
 }
 async function refreshDataNow(silent=false){
- const button=document.getElementById("manualRefreshButton");
- if(button?.disabled)return;
- if(button){button.disabled=true;button.textContent="…";}
- const status=document.getElementById("status"),previous=status?.textContent||"";
- try{
-   if(typeof refreshOnOpen==="function")await refreshOnOpen();
-   try{localStorage.setItem(DISPLAY_UPDATE_KEY,new Date().toISOString())}catch(e){}
-   updateLastDataUpdate();
-   updateSystemHealthStatus();
-   if(programSettings.syncNotice)flashSyncComplete();
-   if(programSettings.syncVibration&&navigator.vibrate)try{navigator.vibrate(Number(programSettings.vibrationDuration)||10)}catch(e){}
-   showRefreshSuccessNotice(silent);
-   if(status)status.textContent="✓ تم تحديث البيانات الآن";
-   if(!silent && typeof showMsg==="function")showMsg("تم جلب أحدث البيانات بنجاح.","ok");
- }catch(e){
-   console.error("Manual refresh failed:",e);
-   if(status)status.textContent=previous||"تعذر تحديث البيانات";
-   if(!silent && programSettings.errorNotice && typeof showMsg==="function")showMsg("تعذر جلب البيانات الجديدة. تحقق من الاتصال ثم حاول مرة أخرى.","warn");
- }finally{
-   if(button){button.disabled=false;button.textContent="↻";}
-   setTimeout(()=>{if(status&&status.textContent==="✓ تم تحديث البيانات الآن")status.textContent=previous||"🟢 النظام جاهز";},4000);
- }
+  const button=document.getElementById("manualRefreshButton");
+  if(button?.disabled)return;
+  if(button){button.disabled=true;button.textContent="…";}
+  const status=document.getElementById("status"),previous=status?.textContent||"";
+  try{
+    const refreshed=typeof refreshOnOpen==="function"?await refreshOnOpen():false;
+    if(!refreshed){
+      const message="تعذر تحميل البيانات من الخادم؛ لم يتم تأكيد التحديث.";
+      if(status)status.textContent=message;
+      if(!silent&&typeof showMsg==="function")showMsg(message,"warn");
+      return;
+    }
+    try{localStorage.setItem(DISPLAY_UPDATE_KEY,new Date().toISOString())}catch(e){}
+    updateLastDataUpdate();updateSystemHealthStatus();
+    if(programSettings.syncNotice)flashSyncComplete();
+    if(programSettings.syncVibration&&navigator.vibrate)try{navigator.vibrate(Number(programSettings.vibrationDuration)||10)}catch(e){}
+    showRefreshSuccessNotice(silent);
+    if(status)status.textContent="✓ تم تحديث البيانات الآن";
+    if(!silent&&typeof showMsg==="function")showMsg("تم جلب البيانات المسموح بها بنجاح.","ok");
+  }catch(e){
+    console.error("Manual refresh failed:",e);
+    if(status)status.textContent=previous||"تعذر تحديث البيانات";
+    if(!silent&&programSettings.errorNotice&&typeof showMsg==="function")showMsg("تعذر جلب البيانات الجديدة. تحقق من الاتصال ثم حاول مرة أخرى.","warn");
+  }finally{
+    if(button){button.disabled=false;button.textContent="↻";}
+    setTimeout(()=>{if(status&&status.textContent==="✓ تم تحديث البيانات الآن")status.textContent=previous||"🟢 النظام جاهز"},4000);
+  }
 }
 function flashSyncComplete(){
  const el=document.getElementById("systemHealthStatus");if(!el)return;
@@ -3329,7 +3350,7 @@ function flashSyncComplete(){
 }
 function updateSystemHealthStatus(){
  const el=document.getElementById("systemHealthStatus");if(!el)return;
- const connected=typeof cloudReady!=="undefined"&&cloudReady;
+ const connected=window.__secureDataConnected===true;
  const syncing=typeof cloudWriting!=="undefined"&&cloudWriting;
  const count=Array.isArray(window.rows)?window.rows.length:(typeof rows!=="undefined"&&Array.isArray(rows)?rows.length:0);
  const state=syncing?"جارٍ التحديث":(connected?"متصل بالخادم":"محلي");
@@ -3350,14 +3371,16 @@ function updateLastDataUpdate(){
  el.title=`آخر وقت تم فيه تحديث البيانات: ${shown}`;
 }
 function logout(silent=false){
- stopUserPresenceTracking();
- if(supabaseClient)try{supabaseClient.auth.signOut().catch(()=>{})}catch(e){}
- const old=session; session=null; if(inactivityTimer)clearTimeout(inactivityTimer); inactivityTimer=null; sessionStorage.removeItem(SESSION_KEY); localStorage.removeItem(SESSION_KEY); localStorage.removeItem("mub_session");
- if(!silent && old)auditLog("تسجيل الخروج",`المستخدم: ${old.name}`);
- document.getElementById("app").style.display="none";
- document.getElementById("loginScreen").style.display="flex";
- document.getElementById("loginPass").value="";
- refreshLoginUsers();
+  stopUserPresenceTracking();
+  if(typeof stopSecureDataPolling==="function")stopSecureDataPolling();
+  if(supabaseClient)try{supabaseClient.auth.signOut().catch(()=>{})}catch(e){}
+  const old=session;session=null;if(inactivityTimer)clearTimeout(inactivityTimer);inactivityTimer=null;
+  sessionStorage.removeItem(SESSION_KEY);localStorage.removeItem(SESSION_KEY);localStorage.removeItem("mub_session");
+  if(!silent&&old)auditLog("تسجيل الخروج",`المستخدم: ${old.name}`);
+  rows=[];groups=[];lastCloudUpdatedAt="";window.__secureDataConnected=false;
+  try{build()}catch(e){console.warn("clear user data view:",e)}
+  document.getElementById("app").style.display="none";document.getElementById("loginScreen").style.display="flex";
+  document.getElementById("loginPass").value="";refreshLoginUsers();
 }
 // تبقى الجلسة عند تحديث الصفحة داخل نفس التبويب، وتظهر شاشة الدخول عند فتح التطبيق من جديد.
 try{
@@ -6704,16 +6727,13 @@ async function saveProfileContactEdit(){
   affected.forEach(r=>{r[norm(H.phone)]=phoneValue;r[norm(H.address)]=addressValue});
   const saveBtn=document.getElementById("profileContactSaveBtn");if(saveBtn){saveBtn.disabled=true;saveBtn.textContent="⏳ جارٍ الحفظ"}
   try{
-    await saveDB(rows);
+    const saved=await saveDB(rows);if(!saved)throw new Error("لم يؤكد الخادم حفظ التعديل.");
     if(oldPhone!==phoneValue)addClientContactLog({client:clientNameForLog,field:"رقم الهاتف",oldValue:oldPhone,newValue:phoneValue});
     if(oldAddress!==addressValue)addClientContactLog({client:clientNameForLog,field:"العنوان",oldValue:oldAddress,newValue:addressValue});
-    build();
-    const key=norm(clientNameForLog);
-    const next=groups.find(g=>norm(get(g.r,"client"))===key)||groups.find(g=>norm(get(g.r,"client"))===norm(phoneValue));
-    if(next)showClientProfile(next);
-    showMsg("تم حفظ رقم الهاتف والعنوان بنجاح.","ok");
+    build();const key=norm(clientNameForLog),next=groups.find(g=>norm(get(g.r,"client"))===key)||groups.find(g=>norm(get(g.r,"client"))===norm(phoneValue));
+    if(next)showClientProfile(next);showMsg("تم حفظ رقم الهاتف والعنوان بنجاح.","ok");
     auditLog("تعديل بيانات عميل",`العميل: ${get(next?.r||affected[0],"client")||"—"}`);
-  }catch(e){console.error(e);if(status)status.textContent="تعذر الحفظ. تم الاحتفاظ بالتعديل في الذاكرة الحالية.";if(saveBtn){saveBtn.disabled=false;saveBtn.textContent="💾 حفظ"}}
+  }catch(e){console.error(e);if(status)status.textContent="تعذر الحفظ على الخادم. أعد تحميل البيانات ثم حاول مرة أخرى.";if(saveBtn){saveBtn.disabled=false;saveBtn.textContent="💾 حفظ"}}
 }
 const GUARANTOR_PHONE_FIELDS={1:{key:"g1p",label:"هاتف الضامن الأول"},2:{key:"g2p",label:"هاتف الضامن الثاني"},3:{key:"g3p",label:"هاتف الضامن الثالث"}};
 function guarantorPhoneRows(){return profileContactRows()}
@@ -6729,17 +6749,17 @@ async function saveGuarantorPhoneEdit(slot){
   const cfg=GUARANTOR_PHONE_FIELDS[slot],input=document.getElementById("guarantorPhone"+slot),status=document.getElementById("guarantorStatus"+slot);if(!cfg||!input)return;
   const newPhone=input.value.trim(),g=window.currentClientProfileGroup,r=g?.r;if(!r)return;
   const oldPhone=String(getAny(r,[H[cfg.key],cfg.label,"رقم هاتف "+cfg.label.replace("هاتف ","")])||"").trim();
-  if(!newPhone){if(status)status.textContent="يرجى إدخال رقم الهاتف أو الضغط على إلغاء.";input.focus();return}
+  if(!newPhone){if(status)status.textContent="يرجى إدخال الهاتف أو الضغط على إلغاء.";input.focus();return}
   const affected=guarantorPhoneRows();if(!affected.length){if(status)status.textContent="تعذر العثور على سجلات العميل.";return}
   affected.forEach(row=>{row[norm(H[cfg.key])]=newPhone});
   const save=document.getElementById("guarantorSave"+slot);if(save){save.disabled=true;save.textContent="⏳ جارٍ الحفظ"}
   const clientName=String(get(r,"client")||"").trim();
   try{
-    await saveDB(rows);
+    const saved=await saveDB(rows);if(!saved)throw new Error("لم يؤكد الخادم حفظ التعديل.");
     if(oldPhone!==newPhone)addClientContactLog({client:clientName,field:cfg.label,oldValue:oldPhone,newValue:newPhone});
     build();const key=norm(clientName),next=groups.find(x=>norm(get(x.r,"client"))===key);if(next)showClientProfile(next);
     showMsg("تم حفظ رقم هاتف الضامن بنجاح.","ok");auditLog("تعديل هاتف ضامن",`العميل: ${clientName} — ${cfg.label}`);
-  }catch(e){console.error(e);if(status)status.textContent="تعذر الحفظ. حاول مرة أخرى.";if(save){save.disabled=false;save.textContent="💾 حفظ"}}
+  }catch(e){console.error(e);if(status)status.textContent="تعذر الحفظ على الخادم. أعد تحميل البيانات ثم حاول مرة أخرى.";if(save){save.disabled=false;save.textContent="💾 حفظ"}}
 }
 function showClientProfileByRow(index){
  const entries=visibleRowEntries(), entry=entries.find(x=>x.index===Number(index)); const r=entry?.r; if(!r)return;
@@ -7166,16 +7186,30 @@ async function unpackCloudRows(value){
   const stream=new Blob([bytes]).stream().pipeThrough(new DecompressionStream("gzip"));
   return JSON.parse(await new Response(stream).text());
 }
+async function invokeSecureData(payload){
+  if(!cloudReady||!supabaseClient)throw new Error("تعذر تهيئة اتصال Supabase.");
+  const {data,error}=await supabaseClient.auth.getSession();
+  const token=data?.session?.access_token;
+  if(error||!token)throw new Error("انتهت الجلسة؛ سجّل الدخول مرة أخرى.");
+  const response=await fetch(`${SUPABASE_URL}/functions/v1/secure-client-data`,{
+    method:"POST",cache:"no-store",
+    headers:{"apikey":SUPABASE_PUBLISHABLE_KEY,"Authorization":`Bearer ${token}`,"Content-Type":"application/json"},
+    body:JSON.stringify(payload)
+  });
+  let result={};try{result=await response.json()}catch(e){}
+  if(!response.ok)throw new Error(result.error||`تعذر الوصول إلى البيانات (${response.status}).`);
+  return result;
+}
 async function saveCloud(data,progress){
-  if(!cloudReady || !supabaseClient) return false;
+  if(!cloudReady||!supabaseClient||!session)return false;
   cloudWriting=true;
   try{
-    const payload={id:1,rows:await packCloudRows(data,progress),updated_at:new Date().toISOString()};
-    progress?.(84,"رفع البيانات", "جاري إرسال البيانات المضغوطة إلى Supabase...");
-    const {error}=await supabaseClient.from(SUPABASE_TABLE).upsert(payload,{onConflict:"id"});
-    if(error) throw error;
-    lastCloudUpdatedAt=payload.updated_at;
-    progress?.(93,"اكتمل الرفع", "تم حفظ البيانات على الخادم بنجاح.");
+    const packed=await packCloudRows(data,progress);
+    progress?.(84,"حفظ البيانات","جاري إرسال التغييرات بأمان إلى Supabase...");
+    const result=await invokeSecureData({action:"save",rows:packed,expected_updated_at:lastCloudUpdatedAt||null});
+    lastCloudUpdatedAt=result.updated_at||lastCloudUpdatedAt;
+    window.__secureDataConnected=true;
+    progress?.(93,"اكتمل الحفظ","تم حفظ البيانات على الخادم بنجاح.");
     return true;
   }catch(e){
     console.warn("Supabase save:",e);
@@ -7184,80 +7218,114 @@ async function saveCloud(data,progress){
   }finally{cloudWriting=false}
 }
 async function loadCloud(){
-  if(!cloudReady || !supabaseClient) return null;
+  if(!cloudReady||!supabaseClient||!session)return null;
   try{
-    const {data,error}=await supabaseClient.from(SUPABASE_TABLE).select("id,rows,updated_at").eq("id",1).maybeSingle();
-    if(error) throw error;
-    if(data && (Array.isArray(data.rows)||data.rows?.__compressed)){
-      lastCloudUpdatedAt=data.updated_at||"";
-      return await unpackCloudRows(data.rows);
-    }
-  }catch(e){console.warn("Supabase load:",e)}
-  return null;
+    const result=await invokeSecureData({action:"load"});
+    if(!Array.isArray(result.rows)&&!result.rows?.__compressed)throw new Error("استجابة البيانات من الخادم غير صالحة.");
+    const loaded=await unpackCloudRows(result.rows);
+    if(!Array.isArray(loaded))throw new Error("لم يُرجع الخادم قائمة بيانات صالحة.");
+    lastCloudUpdatedAt=result.updated_at||"";
+    window.__secureDataConnected=true;
+    return loaded;
+  }catch(e){window.__secureDataConnected=false;console.warn("Supabase load:",e);throw e}
 }
 function subscribeCloud(){
-  if(!cloudReady || !supabaseClient || supabaseChannel) return;
+  if(!cloudReady||!supabaseClient||supabaseChannel)return;
   supabaseChannel=supabaseClient.channel("mubadara-data-sync")
     .on("postgres_changes",{event:"*",schema:"public",table:SUPABASE_TABLE,filter:"id=eq.2147483647"},payload=>{const meta=payload?.new?.rows?.__mub_last_import_notice_v1;if(meta&&window.applySharedLastImportNotice)window.applySharedLastImportNotice(meta)})
     .on("postgres_changes",{event:"*",schema:"public",table:SUPABASE_TABLE,filter:"id=eq.1"},async payload=>{
-      if(cloudWriting)return;
+      if(cloudWriting||!session||!isOwnerRole(session.role))return;
       const incoming=payload?.new;
-      if(!incoming || (!Array.isArray(incoming.rows)&&!incoming.rows?.__compressed))return;
-      if(incoming.updated_at && incoming.updated_at===lastCloudUpdatedAt)return;
+      if(!incoming||(!Array.isArray(incoming.rows)&&!incoming.rows?.__compressed))return;
+      if(incoming.updated_at&&incoming.updated_at===lastCloudUpdatedAt)return;
       const incomingRows=await unpackCloudRows(incoming.rows).catch(e=>{console.warn("Supabase realtime decode:",e);return null});
       if(!Array.isArray(incomingRows))return;
-      lastCloudUpdatedAt=incoming.updated_at||"";
-      rows=incomingRows;
-      safeLocalSet(LS_ROWS,JSON.stringify(rows));
-      safeLocalSet("mub_time",new Date().toLocaleString("en-US"));
-      build();
-      document.getElementById("status").textContent="☁️ تم تحديث البيانات من الخادم: "+new Date().toLocaleString("en-US");
+      lastCloudUpdatedAt=incoming.updated_at||"";rows=incomingRows;
+      safeLocalSet(LS_ROWS,JSON.stringify(rows));safeLocalSet("mub_time",new Date().toLocaleString("en-US"));
+      window.__secureDataConnected=true;build();
+      const status=document.getElementById("status");if(status)status.textContent="☁️ تم تحديث البيانات من الخادم: "+new Date().toLocaleString("en-US");
       showMsg("🔄 تم تحديث البيانات تلقائيًا من المستخدم الآخر.","ok");
     })
-    .subscribe(status=>{
-      const el=document.getElementById("status");
-      if(status==="SUBSCRIBED" && el) el.textContent="☁️ المزامنة السحابية مفعلة";
-      if(status==="CHANNEL_ERROR" || status==="TIMED_OUT") console.warn("Supabase realtime:",status);
-    });
+    .subscribe(status=>{if(status==="CHANNEL_ERROR"||status==="TIMED_OUT")console.warn("Supabase realtime:",status)});
 }
 async function saveDB(data,progress){
- let cloudSaved=false;
- try{cloudSaved=await saveCloud(data,progress)}catch(e){console.warn(e)}
- /* local backup remains useful when temporarily offline */
- let localSaved=false;
- try{
-   if(data.length<=50000){
-     progress?.(97,"حفظ نسخة محلية", "جاري حفظ نسخة احتياطية على هذا الجهاز...");
-     localSaved=safeLocalSet(LS_ROWS,JSON.stringify(data));
-   }else progress?.(97,"تجاوز النسخة المحلية", "الملف كبير؛ سيتم إبقاء البيانات في جلسة التشغيل الحالية.");
-   safeLocalSet("mub_time",new Date().toLocaleString("en-US"));
- }catch(e){console.warn("local backup:",e)}
- /* Large files may exceed browser/Supabase storage limits; they are still usable in memory. */
- return cloudSaved;
+  let cloudSaved=false;
+  try{cloudSaved=await saveCloud(data,progress)}catch(e){console.warn(e)}
+  /* Full offline copies are retained only for authorized management accounts. */
+  try{
+    if(session&&isOwnerRole(session.role)&&Array.isArray(data)&&data.length<=50000){
+      progress?.(97,"حفظ نسخة محلية","جاري حفظ نسخة احتياطية على هذا الجهاز...");
+      safeLocalSet(LS_ROWS,JSON.stringify(data));
+    }else if(Array.isArray(data)&&data.length>50000){
+      progress?.(97,"تجاوز النسخة المحلية","الملف كبير؛ سيبقى متاحًا في جلسة التشغيل الحالية.");
+    }
+    safeLocalSet("mub_time",new Date().toLocaleString("en-US"));
+  }catch(e){console.warn("local backup:",e)}
+  return cloudSaved;
 }
 document.getElementById("restoreFile")?.addEventListener("change",e=>{const f=e.target.files[0];if(!f)return;const reader=new FileReader();reader.onload=async ev=>{try{const obj=JSON.parse(ev.target.result);const data=Array.isArray(obj)?obj:obj.rows;if(!Array.isArray(data)||!data.length)throw Error("ملف النسخة الاحتياطية غير صالح.");if(!confirm(`سيتم استبدال البيانات الحالية بـ ${data.length} صف. هل تريد المتابعة؟`))return;rows=data;await saveDB(rows);build();auditLog("استعادة نسخة احتياطية",`${rows.length} صف`);showMsg("تمت استعادة النسخة الاحتياطية بنجاح.","ok")}catch(err){showMsg("تعذر استعادة النسخة: "+err.message,"err")}};reader.readAsText(f,"utf-8")});
+function setCloudLoadIndicator(active,title="جاري جلب البيانات من Supabase...",detail="قد يستغرق التحديث بضع لحظات. اترك الصفحة مفتوحة."){const box=document.getElementById("cloudLoadIndicator");if(!box)return;const titleEl=document.getElementById("cloudLoadIndicatorTitle"),detailEl=document.getElementById("cloudLoadIndicatorDetail");if(titleEl)titleEl.textContent=title;if(detailEl)detailEl.textContent=detail;box.hidden=!active;box.setAttribute("aria-busy",active?"true":"false")}
 async function loadDB(){
- let data=await loadCloud();
- if(!data){
-  try{const backup=JSON.parse(safeLocalGet(LS_ROWS)||"null");if(Array.isArray(backup))data=backup}catch(e){console.warn("local backup load:",e)}
- }
- if(Array.isArray(data)){
-  rows=data; build();
-  document.getElementById("status").textContent=cloudReady?"☁️ تم تحميل البيانات من Supabase":"🕒 بيانات محفوظة محليًا";
-  showMsg(cloudReady?"تم تحميل البيانات المشتركة من الخادم.":"تم استرجاع آخر بيانات محفوظة محليًا.","ok");
- }
+  if(!session||!enforceSession()){
+    window.__secureDataConnected=false;rows=[];groups=[];
+    return false;
+  }
+  let localData=null;
+  if(isOwnerRole(session.role)){
+    try{const backup=JSON.parse(safeLocalGet(LS_ROWS)||"null");if(Array.isArray(backup))localData=backup}catch(e){console.warn("local backup load:",e)}
+  }
+  if(Array.isArray(localData)){
+    rows=localData;build();
+    const statusEl=document.getElementById("status");if(statusEl)statusEl.textContent="🕒 تم عرض النسخة المحفوظة محليًا — جارٍ التحقق من التحديث";
+    showMsg("تم عرض النسخة المحفوظة للإدارة على هذا الجهاز، ويجري التحقق من أحدث نسخة.","ok");
+  }
+  let cloudData=null,cloudError=null;
+  try{cloudData=await loadCloud()}catch(e){cloudError=e}
+  if(Array.isArray(cloudData)){
+    rows=cloudData;build();
+    if(isOwnerRole(session.role)&&rows.length<=50000)safeLocalSet(LS_ROWS,JSON.stringify(rows));
+    const statusEl=document.getElementById("status");if(statusEl)statusEl.textContent="☁️ تم تحميل البيانات المسموح بها من Supabase";
+    showMsg("تم تحميل البيانات المسموح بها من Supabase.","ok");
+    return true;
+  }
+  if(Array.isArray(localData)){
+    const statusEl=document.getElementById("status");if(statusEl)statusEl.textContent="🕒 النسخة المحلية معروضة — تعذر تحديث Supabase";
+    showMsg("تعذر تحديث البيانات من Supabase؛ ما زالت نسخة الإدارة المحفوظة على هذا الجهاز معروضة.","warn");
+  }else{
+    const statusEl=document.getElementById("status");if(statusEl)statusEl.textContent="⚠️ تعذر تحميل البيانات";
+    const detail=cloudError?.message?` (${cloudError.message})`:"";
+    showMsg("تعذر تحميل البيانات المخصصة لهذا الحساب من Supabase"+detail,"warn");
+  }
+  return false;
 }
 let openingRefreshInProgress=false;
-async function refreshOnOpen(){
- if(openingRefreshInProgress)return;
- openingRefreshInProgress=true;
- const statusEl=document.getElementById("status");
- if(statusEl)statusEl.textContent="🔄 جاري تحديث أحدث البيانات من الخادم...";
- try{
-  if(!cloudReady)initSupabase();
-  await loadDB();
- }finally{openingRefreshInProgress=false}
+let openingRefreshNeedsAuthRetry=false;
+let secureDataPollTimer=null,secureDataPollBusy=false;
+function stopSecureDataPolling(){if(secureDataPollTimer){clearInterval(secureDataPollTimer);secureDataPollTimer=null}secureDataPollBusy=false}
+function startSecureDataPolling(){
+  stopSecureDataPolling();
+  if(!session||isOwnerRole(session.role))return;
+  secureDataPollTimer=setInterval(async()=>{
+    if(!session||isOwnerRole(session.role)||document.visibilityState!=="visible"||openingRefreshInProgress||secureDataPollBusy)return;
+    secureDataPollBusy=true;
+    try{const state=await invokeSecureData({action:"check"});if(state.updated_at&&state.updated_at!==lastCloudUpdatedAt)await refreshOnOpen(true)}
+    catch(e){console.warn("Secure data version check:",e)}
+    finally{secureDataPollBusy=false}
+  },90000);
 }
+async function refreshOnOpen(force=false){
+  if(!session)return false;
+  if(openingRefreshInProgress){if(force)openingRefreshNeedsAuthRetry=true;return false}
+  openingRefreshInProgress=true;setCloudLoadIndicator(true);
+  const statusEl=document.getElementById("status");if(statusEl)statusEl.textContent="🔄 جاري تحديث البيانات المسموح بها من الخادم...";
+  let loaded=false;
+  try{if(!cloudReady)initSupabase();loaded=await loadDB();return loaded}
+  finally{
+    setCloudLoadIndicator(false);openingRefreshInProgress=false;
+    if(openingRefreshNeedsAuthRetry){openingRefreshNeedsAuthRetry=false;if(session)setTimeout(()=>void refreshOnOpen(),0)}
+  }
+}
+
 initSupabase();
 subscribeCloud();
 // لا تُستعاد جلسة محلية قديمة ما لم يثبتها Supabase Auth والملف الشخصي النشط.
