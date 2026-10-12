@@ -2324,7 +2324,7 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
   <div class="userbox">
     <div class="header-clock"><span>اليوم</span><b id="systemDate">—</b></div>
     <div class="user-chip"><span class="user-avatar">👤</span><span id="currentUser">غير مسجل</span><span id="currentRole" class="status">—</span></div>
-    <button class="light" onclick="logout()">تسجيل الخروج</button>
+    <button class="light" type="button" onclick="openSelfPasswordDialog()">تغيير كلمة المرور</button> <button class="light" onclick="logout()">تسجيل الخروج</button>
   </div>
 </header>
 
@@ -3210,6 +3210,41 @@ function refreshLoginUsers(){
  if(passInput && role==="officer"){if(roleChanged)passInput.value="";passInput.placeholder="كلمة المرور المحددة للمستخدم (الافتراضية 1234)";}
  else if(passInput){if(roleChanged)passInput.value="";passInput.placeholder="أدخل كلمة المرور";}
  const msg=document.getElementById("loginMsg");if(msg){msg.textContent="";msg.style.display="none";}
+}
+function openSelfPasswordDialog(){
+ const dialog=document.getElementById("selfPasswordDialog");
+ if(!session||!dialog)return alert("سجّل الدخول أولًا.");
+ document.getElementById("selfPasswordForm")?.reset();
+ const message=document.getElementById("selfPasswordMessage");if(message){message.textContent="";message.style.display="none";}
+ if(typeof dialog.showModal==="function")dialog.showModal();else dialog.setAttribute("open","");
+ setTimeout(()=>document.getElementById("selfCurrentPassword")?.focus(),50);
+}
+function closeSelfPasswordDialog(){
+ const dialog=document.getElementById("selfPasswordDialog");
+ if(dialog?.open&&typeof dialog.close==="function")dialog.close();else dialog?.removeAttribute("open");
+ document.getElementById("selfPasswordForm")?.reset();
+ const message=document.getElementById("selfPasswordMessage");if(message){message.textContent="";message.style.display="none";}
+}
+async function submitSelfPasswordChange(event){
+ event.preventDefault();
+ const currentPassword=document.getElementById("selfCurrentPassword")?.value||"";
+ const newPassword=document.getElementById("selfNewPassword")?.value||"";
+ const confirmation=document.getElementById("selfConfirmPassword")?.value||"";
+ const message=document.getElementById("selfPasswordMessage");
+ const button=document.getElementById("selfPasswordSubmit");
+ const showError=text=>{if(message){message.textContent=text;message.style.color="#b91c1c";message.style.display="block";}};
+ if(!currentPassword)return showError("أدخل كلمة المرور الحالية.");
+ if(newPassword.length<6||newPassword.length>128)return showError("يجب أن تكون كلمة المرور الجديدة من 6 إلى 128 حرفًا.");
+ if(newPassword!==confirmation)return showError("تأكيد كلمة المرور غير مطابق.");
+ if(newPassword===currentPassword)return showError("اختر كلمة مرور جديدة مختلفة عن الحالية.");
+ if(button)button.disabled=true;
+ if(message){message.textContent="جارٍ التحقق والتحديث…";message.style.color="#475569";message.style.display="block";}
+ try{
+  await callSupabaseAccountAdmin({action:"self_password_change",current_password:currentPassword,new_password:newPassword});
+  document.getElementById("selfPasswordForm")?.reset();
+  if(message){message.textContent="تم تغيير كلمة المرور بنجاح.";message.style.color="#047857";message.style.display="block";}
+ }catch(error){showError(error?.message||"تعذر تغيير كلمة المرور.");}
+ finally{if(button)button.disabled=false;}
 }
 async function callSupabaseAccountAdmin(body){
  if(!supabaseClient)initSupabase();if(!supabaseClient)throw new Error("تعذر تهيئة اتصال Supabase.");
@@ -11127,6 +11162,23 @@ async function captureAndSendLocation() {
 const previousShowScreen = window.showScreen;
 window.showScreen = function(id) { const result=previousShowScreen.apply(this,arguments); if(id==="location"){ updateLocationOwnerView(); if(locationIsOwner()) { locationPollStart(); if(!locationLoadedOnce) { refreshSharedLocations(false,false); clearTimeout(locationBackgroundFullLoad); locationBackgroundFullLoad=setTimeout(()=>refreshSharedLocations(false,true),250); } } } return result; };
 </script>
+<dialog id="selfPasswordDialog" dir="rtl" style="width:min(92vw,430px);max-width:92vw;border:0;border-radius:16px;padding:22px;box-shadow:0 20px 60px #0004;color:#172033">
+ <h2 style="margin:0 0 8px;font-size:20px">تغيير كلمة المرور</h2>
+ <p style="margin:0 0 16px;color:#64748b;font-size:13px;line-height:1.7">أدخل كلمة المرور الحالية، ثم اختر كلمة مرور جديدة لا تقل عن 6 أحرف.</p>
+ <form id="selfPasswordForm" onsubmit="submitSelfPasswordChange(event)">
+  <label for="selfCurrentPassword" style="display:block;margin:10px 0 5px;font-weight:700">كلمة المرور الحالية</label>
+  <input id="selfCurrentPassword" type="password" autocomplete="current-password" required style="display:block;width:100%;padding:11px;border:1px solid #cbd5e1;border-radius:9px;box-sizing:border-box">
+  <label for="selfNewPassword" style="display:block;margin:12px 0 5px;font-weight:700">كلمة المرور الجديدة</label>
+  <input id="selfNewPassword" type="password" autocomplete="new-password" minlength="6" maxlength="128" required style="display:block;width:100%;padding:11px;border:1px solid #cbd5e1;border-radius:9px;box-sizing:border-box">
+  <label for="selfConfirmPassword" style="display:block;margin:12px 0 5px;font-weight:700">تأكيد كلمة المرور الجديدة</label>
+  <input id="selfConfirmPassword" type="password" autocomplete="new-password" minlength="6" maxlength="128" required style="display:block;width:100%;padding:11px;border:1px solid #cbd5e1;border-radius:9px;box-sizing:border-box">
+  <p id="selfPasswordMessage" role="status" aria-live="polite" style="display:none;margin:12px 0;font-size:13px"></p>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:16px">
+   <button id="selfPasswordSubmit" type="submit" class="primary">حفظ كلمة المرور</button>
+   <button type="button" class="light" onclick="closeSelfPasswordDialog()">إلغاء</button>
+  </div>
+ </form>
+</dialog>
 </body>
 </html>
 
