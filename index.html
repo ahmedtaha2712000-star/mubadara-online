@@ -2282,16 +2282,6 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
 #users .user-presence-muted{color:#94a3b8}
 @media(max-width:760px){#users .user-presence-time{white-space:normal;min-width:110px}}
 </style>
-
-<style id="cloud-load-indicator-style">
-#cloudLoadIndicator{box-sizing:border-box;display:flex;align-items:center;gap:10px;margin:10px 16px;padding:12px 16px;border:1px solid #bfdbfe;border-radius:12px;background:#eff6ff;color:#1e3a8a;font-size:14px;font-weight:700;box-shadow:0 2px 8px rgba(30,64,175,.08)}
-#cloudLoadIndicator[hidden]{display:none!important}
-#cloudLoadIndicator .cloud-load-spinner{width:18px;height:18px;flex:0 0 18px;border:3px solid #bfdbfe;border-top-color:#2563eb;border-radius:50%;animation:cloud-load-spin .8s linear infinite}
-#cloudLoadIndicator .cloud-load-copy{display:flex;flex-direction:column;gap:2px}
-#cloudLoadIndicator .cloud-load-detail{font-size:12px;font-weight:500;color:#475569}
-@keyframes cloud-load-spin{to{transform:rotate(360deg)}}
-@media(prefers-reduced-motion:reduce){#cloudLoadIndicator .cloud-load-spinner{animation:none;border-top-color:#2563eb}}
-</style>
 </head>
 
 <body>
@@ -2338,10 +2328,6 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
   </div>
 </header>
 
-<div id="cloudLoadIndicator" role="status" aria-live="polite" aria-atomic="true" aria-busy="false" hidden>
- <span class="cloud-load-spinner" aria-hidden="true"></span>
- <span class="cloud-load-copy"><span id="cloudLoadIndicatorTitle">جاري جلب البيانات من Supabase...</span><span id="cloudLoadIndicatorDetail" class="cloud-load-detail">قد يستغرق التحديث بضع لحظات. اترك الصفحة مفتوحة.</span></span>
-</div>
 <div class="layout">
 <nav class="no-print" aria-label="التنقل الرئيسي">
 <div class="nav-section-title">التشغيل اليومي</div>
@@ -3282,7 +3268,6 @@ function applySession(){
  applyPermissions();
  if(session.role==="officer") showScreen("clients");
  else showScreen("dash");
- void refreshOnOpen(true);
 }
 let INACTIVITY_LIMIT=8*60*60*1000;
 let inactivityTimer=null;
@@ -7251,45 +7236,27 @@ async function saveDB(data,progress){
  return cloudSaved;
 }
 document.getElementById("restoreFile")?.addEventListener("change",e=>{const f=e.target.files[0];if(!f)return;const reader=new FileReader();reader.onload=async ev=>{try{const obj=JSON.parse(ev.target.result);const data=Array.isArray(obj)?obj:obj.rows;if(!Array.isArray(data)||!data.length)throw Error("ملف النسخة الاحتياطية غير صالح.");if(!confirm(`سيتم استبدال البيانات الحالية بـ ${data.length} صف. هل تريد المتابعة؟`))return;rows=data;await saveDB(rows);build();auditLog("استعادة نسخة احتياطية",`${rows.length} صف`);showMsg("تمت استعادة النسخة الاحتياطية بنجاح.","ok")}catch(err){showMsg("تعذر استعادة النسخة: "+err.message,"err")}};reader.readAsText(f,"utf-8")});
-function setCloudLoadIndicator(active,title="جاري جلب البيانات من Supabase...",detail="قد يستغرق التحديث بضع لحظات. اترك الصفحة مفتوحة."){const box=document.getElementById("cloudLoadIndicator");if(!box)return;const titleEl=document.getElementById("cloudLoadIndicatorTitle"),detailEl=document.getElementById("cloudLoadIndicatorDetail");if(titleEl)titleEl.textContent=title;if(detailEl)detailEl.textContent=detail;box.hidden=!active;box.setAttribute("aria-busy",active?"true":"false")}
 async function loadDB(){
- let localData=null;
- try{const backup=JSON.parse(safeLocalGet(LS_ROWS)||"null");if(Array.isArray(backup))localData=backup}catch(e){console.warn("local backup load:",e)}
- if(Array.isArray(localData)){
-  rows=localData;build();
-  const statusEl=document.getElementById("status");if(statusEl)statusEl.textContent="🕒 تم عرض النسخة المحفوظة محليًا — جارٍ التحقق من التحديث";
-  showMsg("تم عرض البيانات المحفوظة على هذا الجهاز، ويجري جلب أحدث نسخة من Supabase في الخلفية.","ok");
+ let data=await loadCloud();
+ if(!data){
+  try{const backup=JSON.parse(safeLocalGet(LS_ROWS)||"null");if(Array.isArray(backup))data=backup}catch(e){console.warn("local backup load:",e)}
  }
- let cloudData=null;
- try{cloudData=await loadCloud()}catch(e){console.warn("Supabase refresh:",e)}
- if(Array.isArray(cloudData)){
-  rows=cloudData;build();
-  const statusEl=document.getElementById("status");if(statusEl)statusEl.textContent="☁️ تم تحميل أحدث البيانات من Supabase";
-  showMsg("تم تحديث البيانات من Supabase.","ok");
- }else if(Array.isArray(localData)){
-  const statusEl=document.getElementById("status");if(statusEl)statusEl.textContent="🕒 البيانات المحلية معروضة — تعذر تحديث Supabase";
-  showMsg("تعذر جلب تحديث Supabase الآن؛ ما زالت النسخة المحفوظة على هذا الجهاز معروضة.","warn");
- }else{
-  const statusEl=document.getElementById("status");if(statusEl)statusEl.textContent="⚠️ تعذر تحميل البيانات";
-  showMsg("لم نتمكن من جلب البيانات من Supabase، ولا توجد نسخة محلية محفوظة على هذا الجهاز.","warn");
+ if(Array.isArray(data)){
+  rows=data; build();
+  document.getElementById("status").textContent=cloudReady?"☁️ تم تحميل البيانات من Supabase":"🕒 بيانات محفوظة محليًا";
+  showMsg(cloudReady?"تم تحميل البيانات المشتركة من الخادم.":"تم استرجاع آخر بيانات محفوظة محليًا.","ok");
  }
 }
 let openingRefreshInProgress=false;
-let openingRefreshNeedsAuthRetry=false;
-async function refreshOnOpen(force=false){
- if(openingRefreshInProgress){if(force)openingRefreshNeedsAuthRetry=true;return}
+async function refreshOnOpen(){
+ if(openingRefreshInProgress)return;
  openingRefreshInProgress=true;
- if(session)setCloudLoadIndicator(true);
  const statusEl=document.getElementById("status");
  if(statusEl)statusEl.textContent="🔄 جاري تحديث أحدث البيانات من الخادم...";
  try{
   if(!cloudReady)initSupabase();
   await loadDB();
- }finally{
-  if(session)setCloudLoadIndicator(false);
-  openingRefreshInProgress=false;
-  if(openingRefreshNeedsAuthRetry){openingRefreshNeedsAuthRetry=false;if(session)setTimeout(()=>void refreshOnOpen(),0)}
- }
+ }finally{openingRefreshInProgress=false}
 }
 initSupabase();
 subscribeCloud();
