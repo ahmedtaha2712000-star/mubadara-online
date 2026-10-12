@@ -3282,7 +3282,7 @@ function applySession(){
  applyPermissions();
  if(session.role==="officer") showScreen("clients");
  else showScreen("dash");
- void refreshOnOpen();
+ void refreshOnOpen(true);
 }
 let INACTIVITY_LIMIT=8*60*60*1000;
 let inactivityTimer=null;
@@ -7276,11 +7276,9 @@ async function loadDB(){
 }
 let openingRefreshInProgress=false;
 let openingRefreshNeedsAuthRetry=false;
-let openingRefreshStartedWithSession=false;
-async function refreshOnOpen(){
- if(openingRefreshInProgress){if(session&&!openingRefreshStartedWithSession)openingRefreshNeedsAuthRetry=true;return}
+async function refreshOnOpen(force=false){
+ if(openingRefreshInProgress){if(force)openingRefreshNeedsAuthRetry=true;return}
  openingRefreshInProgress=true;
- openingRefreshStartedWithSession=!!session;
  if(session)setCloudLoadIndicator(true);
  const statusEl=document.getElementById("status");
  if(statusEl)statusEl.textContent="🔄 جاري تحديث أحدث البيانات من الخادم...";
@@ -7290,7 +7288,6 @@ async function refreshOnOpen(){
  }finally{
   if(session)setCloudLoadIndicator(false);
   openingRefreshInProgress=false;
-  openingRefreshStartedWithSession=false;
   if(openingRefreshNeedsAuthRetry){openingRefreshNeedsAuthRetry=false;if(session)setTimeout(()=>void refreshOnOpen(),0)}
  }
 }
