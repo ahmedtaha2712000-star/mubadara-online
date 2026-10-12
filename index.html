@@ -2474,7 +2474,7 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
       <input id="userEditKey" type="hidden">
       <div><label>اسم المستخدم</label><input id="userFormUsername" autocomplete="off" placeholder="مثال: ahmed أو اسم مختصر"></div>
       <div><label>الاسم الظاهر</label><input id="userFormName" placeholder="اسم الأخصائي كما يظهر في Excel"></div>
-      <div><label>كلمة المرور</label><input id="userFormPassword" type="password" autocomplete="new-password" placeholder="أدخل كلمة مرور أولية (8 أحرف على الأقل)"></div>
+      <div><label>كلمة المرور</label><input id="userFormPassword" type="password" autocomplete="new-password" placeholder="أدخل كلمة مرور أولية (6 أحرف على الأقل)"></div>
       <div><label>الاسم من شيت Excel</label><select id="userFormOfficer"></select><small>اختر الاسم المطابق للبيانات حتى يظهر في شاشة الدخول.</small></div>
     </div>
     <div class="user-actions"><button class="green" onclick="saveOfficerUser()">💾 حفظ المستخدم</button><button class="light" onclick="clearUserForm()">مسح</button></div>
@@ -6903,7 +6903,7 @@ async function saveOwnerUser(){
  if(password){
   const role=String(session?.ownerRole||"").trim();
   if(role!=="محاسب الفرع"&&role!=="مدير الفرع")return alert("تغيير كلمات المرور متاح لمحاسب الفرع ومدير الفرع فقط.");
-  if(password.length<8)return alert("يجب أن تتكون كلمة المرور من 8 أحرف على الأقل.");
+  if(password.length<6)return alert("يجب أن تتكون كلمة المرور من 6 أحرف على الأقل.");
   try{await resetSupabaseAccountPassword(username,password);}catch(e){return alert(e?.message||"تعذر تغيير كلمة المرور.");}
  }
  try{await updateSupabaseAccountProfile(old,{new_username:username,display_name:name,is_active:active,is_blocked:false,is_linked:true});}catch(e){return alert(e?.message||"تعذر مزامنة الحساب مع Supabase.");}
@@ -7124,12 +7124,12 @@ async function saveOfficerUser(){
 	 if(!existing){
 	  const role=String(session?.ownerRole||"").trim();if(role!=="محاسب الفرع"&&role!=="مدير الفرع")return alert("إضافة حساب أخصائي متاحة لمحاسب الفرع ومدير الفرع فقط.");
 	  if(!canonicalOfficer)return alert("اختر اسم الأخصائي من قائمة شيت Excel لربط الحساب به.");
-	  if(password.length<8)return alert("أدخل كلمة مرور أولية من 8 أحرف على الأقل.");
+	  if(password.length<6)return alert("أدخل كلمة مرور أولية من 6 أحرف على الأقل.");
 	  try{await callSupabaseAccountAdmin({action:"officer_create",username,password,display_name:name,officer_name:canonicalOfficer});}catch(e){return alert(e?.message||"تعذر إنشاء حساب الأخصائي في Supabase.");}
 	  users.push({username,name,role:"officer",officerName:canonicalOfficer,active:true,blocked:false,linked:true,manualUnlink:false});
 	  saveUsers();clearUserForm();renderUsers();refreshLoginUsers();auditLog("إنشاء حساب أخصائي",`الأخصائي: ${name}`);showMsg("تم إنشاء حساب الأخصائي وربطه بنجاح.","ok","usersMsg");return;
 	 }
-	 if(password){const role=String(session?.ownerRole||"").trim();if(role!=="محاسب الفرع"&&role!=="مدير الفرع")return alert("تغيير كلمات المرور متاح لمحاسب الفرع ومدير الفرع فقط.");if(password.length<8)return alert("يجب أن تتكون كلمة المرور من 8 أحرف على الأقل.");try{await resetSupabaseAccountPassword(username,password);}catch(e){return alert(e?.message||"تعذر تغيير كلمة المرور.");}}
+	 if(password){const role=String(session?.ownerRole||"").trim();if(role!=="محاسب الفرع"&&role!=="مدير الفرع")return alert("تغيير كلمات المرور متاح لمحاسب الفرع ومدير الفرع فقط.");if(password.length<6)return alert("يجب أن تتكون كلمة المرور من 6 أحرف على الأقل.");try{await resetSupabaseAccountPassword(username,password);}catch(e){return alert(e?.message||"تعذر تغيير كلمة المرور.");}}
 	 try{await updateSupabaseAccountProfile(old,{new_username:username,display_name:name,officer_name:canonicalOfficer,is_linked:!!canonicalOfficer,is_active:true,is_blocked:false});}catch(e){return alert(e?.message||"تعذر مزامنة الحساب مع Supabase.");}
 	 Object.assign(existing,{username,name,officerName:canonicalOfficer,linked:!!canonicalOfficer,active:true,manualUnlink:false});
 	 saveUsers();clearUserForm();renderUsers();auditLog(password?"تغيير كلمة مرور مستخدم":"تعديل مستخدم",`الأخصائي: ${name}`);showMsg("تم حفظ مستخدم الأخصائي بنجاح.","ok","usersMsg");
