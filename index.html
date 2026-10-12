@@ -2445,7 +2445,7 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
       <input id="ownerEditKey" type="hidden">
       <div><label>اسم المستخدم</label><input id="ownerFormUsername" placeholder="مثال: اسم المستخدم"></div>
       <div><label>اسم المالك</label><input id="ownerFormName" placeholder="اسم المالك"></div>
-      <div><label>كلمة المرور</label><input id="ownerFormPassword" type="password" autocomplete="new-password" placeholder="أنشئ أو غيّر كلمة المرور"></div>
+      <div><label>كلمة المرور</label><input id="ownerFormPassword" type="password" autocomplete="new-password" placeholder="اتركه فارغًا للإبقاء على الحالية؛ اكتب الجديدة للتغيير"></div>
       <div><label>الحالة</label><select id="ownerFormActive"><option value="1">نشط</option><option value="0">غير نشط</option></select></div>
     </div>
     <div class="user-actions"><button class="green" onclick="saveOwnerUser()">💾 حفظ المالك</button><button class="light" onclick="clearOwnerForm()">مسح النموذج</button></div>
@@ -3134,23 +3134,23 @@ const SESSION_KEY="mub_session_v2";
 const REMEMBER_SESSION_KEY="mub_remembered_session_v1";
 const DISPLAY_UPDATE_KEY="mub_last_display_update_v1";
 const DEFAULT_OWNER_USERS=[
- {username:"محاسب الفرع",password:"1234",name:"محاسب الفرع",role:"owner",ownerRole:"محاسب الفرع",active:true,blocked:false,linked:true},
- {username:"مدير الفرع",password:"1234",name:"مدير الفرع",role:"owner",ownerRole:"مدير الفرع",active:true,blocked:false,linked:true},
- {username:"المدير المالي",password:"1234",name:"المدير المالي",role:"owner",ownerRole:"المدير المالي",active:true,blocked:false,linked:true},
- {username:"مدير التشغيل",password:"1234",name:"مدير التشغيل",role:"owner",ownerRole:"مدير التشغيل",active:true,blocked:false,linked:true}
+ {username:"محاسب الفرع",name:"محاسب الفرع",role:"owner",ownerRole:"محاسب الفرع",active:true,blocked:false,linked:true},
+ {username:"مدير الفرع",name:"مدير الفرع",role:"owner",ownerRole:"مدير الفرع",active:true,blocked:false,linked:true},
+ {username:"المدير المالي",name:"المدير المالي",role:"owner",ownerRole:"المدير المالي",active:true,blocked:false,linked:true},
+ {username:"مدير التشغيل",name:"مدير التشغيل",role:"owner",ownerRole:"مدير التشغيل",active:true,blocked:false,linked:true}
 ];
 let users=[];
 function loadUsers(){
- try{const saved=JSON.parse(localStorage.getItem(USER_KEY)||localStorage.getItem("mub_users_v1")||"null");users=Array.isArray(saved)?saved:[]}catch(e){users=[]}
+ try{const saved=JSON.parse(localStorage.getItem(USER_KEY)||localStorage.getItem("mub_users_v1")||"null");users=Array.isArray(saved)?saved.map(({password,passwordIsCustom,...u})=>u):[]}catch(e){users=[]}
  // ترحيل الحسابات القديمة إلى أسماء المستخدمين العربية المطلوبة.
  const legacyMap={accountant:"محاسب الفرع",manager:"مدير الفرع",finance:"المدير المالي",operations:"مدير التشغيل"};
  Object.keys(legacyMap).forEach(old=>{const i=users.findIndex(u=>String(u.username).toLowerCase()===old);if(i>=0){const target=legacyMap[old];const exists=users.find(u=>u.username===target);if(!exists)users[i]={...users[i],username:target,name:target,ownerRole:target,role:"owner",active:true,linked:true};else users.splice(i,1);}});
  if(!users.some(u=>u.role==="owner")){users=DEFAULT_OWNER_USERS.map(o=>({...o}));}
- else DEFAULT_OWNER_USERS.forEach(o=>{const u=users.find(x=>x.username===o.username);if(u)Object.assign(u,{role:"owner",ownerRole:o.ownerRole,name:o.name});});
- if(!users.some(u=>u.role==="officer"))users.push({username:"officer",password:"1234",name:"أخصائي تمويل",role:"officer",officerName:"",active:true,blocked:false,linked:false});
+ else DEFAULT_OWNER_USERS.forEach(o=>{const u=users.find(x=>x.username===o.username);if(u)Object.assign(u,{role:"owner",ownerRole:o.ownerRole,name:o.name});else users.push({...o});});
+ if(!users.some(u=>u.role==="officer"))users.push({username:"officer",name:"أخصائي تمويل",role:"officer",officerName:"",active:true,blocked:false,linked:false});
  saveUsers();
 }
-function saveUsers(){try{localStorage.setItem(USER_KEY,JSON.stringify(users))}catch(e){}}
+function saveUsers(){users=users.map(({password,passwordIsCustom,...u})=>u);try{localStorage.setItem(USER_KEY,JSON.stringify(users))}catch(e){}}
 function isOwnerRole(role){return role==="owner" || role==="manager"}
 function canManageOwners(){return !!session && isOwnerRole(session.role) && currentUserRecord()?.active!==false && !currentUserRecord()?.blocked}
 function canManageOfficers(){return !!session && isOwnerRole(session.role) && currentUserRecord()?.active!==false && !currentUserRecord()?.blocked}
@@ -3199,40 +3199,49 @@ function refreshLoginUsers(){
  else if(passInput){if(roleChanged)passInput.value="";passInput.placeholder="أدخل كلمة المرور";}
  const msg=document.getElementById("loginMsg");if(msg){msg.textContent="";msg.style.display="none";}
 }
-function login(){
+async function callSupabaseAccountAdmin(body){
+ if(!supabaseClient)initSupabase();if(!supabaseClient)throw new Error("تعذر تهيئة اتصال Supabase.");
+ const {data,error}=await supabaseClient.auth.getSession();if(error||!data?.session?.access_token)throw new Error("انتهت الجلسة؛ سجّل الدخول مرة أخرى.");
+ const response=await fetch(`${SUPABASE_URL}/functions/v1/manage-user-password`,{method:"POST",headers:{"apikey":SUPABASE_PUBLISHABLE_KEY,"Authorization":`Bearer ${data.session.access_token}`,"Content-Type":"application/json"},body:JSON.stringify(body)});
+ let payload={};try{payload=await response.json()}catch(e){}if(!response.ok)throw new Error(payload.error||"تعذر تنفيذ عملية الحساب على الخادم.");return true;
+}
+async function resetSupabaseAccountPassword(username,newPassword){return callSupabaseAccountAdmin({action:"password_reset",username,new_password:newPassword});}
+async function updateSupabaseAccountProfile(username,changes){return callSupabaseAccountAdmin({action:"profile_update",username,...changes});}
+async function login(){
+ const msg=document.getElementById("loginMsg");
  const selectedRole=document.getElementById("loginRole").value;
  const officerSelect=document.getElementById("loginOfficerUser");
  const selectedOfficerToken=(selectedRole==="officer"?officerSelect?.value||"":"").trim();
  const selectedOfficerName=(selectedRole==="officer"?officerSelect?.selectedOptions?.[0]?.dataset?.officerName||selectedOfficerToken:"").trim();
- const uname=(selectedRole==="owner"?document.getElementById("loginOwnerUser")?.value||"":"").trim();
+ const uname=(selectedRole==="owner"?document.getElementById("loginOwnerUser")?.value||"":selectedOfficerToken).trim();
  const pass=document.getElementById("loginPass").value;
- const loginOfficerKey=value=>String(value??"").replace(/\u00a0/g," ").replace(/\s+/g," ").trim().toLowerCase();
- let user=selectedRole==="officer"
-   ? users.find(x=>x.role==="officer" && String(x.username).toLowerCase()===selectedOfficerToken.toLowerCase()) || users.find(x=>x.role==="officer" && loginOfficerKey(x.officerName||x.name)===loginOfficerKey(selectedOfficerName))
-   : users.find(x=>String(x.username).toLowerCase()===uname.toLowerCase());
- if(!user && selectedRole==="officer" && pass==="1234" && selectedOfficerName){
-   const excelNames=typeof window.getExcelOfficerNames==="function"?window.getExcelOfficerNames():[];
-   if(excelNames.some(n=>loginOfficerKey(n)===loginOfficerKey(selectedOfficerName))){
-     const generatedUsername="officer_"+Date.now().toString(36);
-     user={username:generatedUsername,name:selectedOfficerName,password:"1234",passwordIsCustom:false,role:"officer",officerName:selectedOfficerName,active:true,blocked:false,linked:true,autoCreated:true};
-     users.push(user);saveUsers();
-   }
+ const localUser=users.find(x=>String(x.username).normalize("NFKC").toLocaleLowerCase("en-US")===uname.normalize("NFKC").toLocaleLowerCase("en-US"));
+ const fail=text=>{if(msg){msg.textContent=text;msg.style.display="block";}};
+ if(!uname||!pass||!localUser||localUser.blocked||localUser.active===false||(localUser.role==="officer"&&localUser.linked===false)||(selectedRole==="owner"?!isOwnerRole(localUser.role):localUser.role!==selectedRole)){
+  fail(localUser?.blocked?"هذا المستخدم محظور من الدخول.":(localUser?.active===false?"هذا المستخدم غير نشط.":(localUser?.linked===false?"هذا الأخصائي غير مرتبط بالبرنامج حاليًا.":"بيانات الدخول غير صحيحة.")));return;
  }
- const msg=document.getElementById("loginMsg");
- const passwordIsValid=user?.password===pass || (selectedRole==="officer" && pass==="1234" && user?.passwordIsCustom!==true);
- if(!user || !passwordIsValid || user.blocked || user.active===false || (user.role==="officer" && user.linked===false) || (selectedRole==="owner" ? !isOwnerRole(user.role) : user.role!==selectedRole)){
-  msg.textContent=user?.blocked?"هذا المستخدم محظور من الدخول.":(user?.active===false?"هذا المستخدم غير نشط.":(user?.linked===false?"هذا الأخصائي غير مرتبط بالبرنامج حاليًا.":"بيانات الدخول غير صحيحة."));
-  msg.style.display="block"; return;
- }
- session={user:user.username,name:user.name,role:user.role,ownerRole:user.ownerRole||"",officerName:user.officerName||selectedOfficerName};
+ const button=document.querySelector('#loginScreen button[onclick="login()"]');if(button)button.disabled=true;
  try{
-   sessionStorage.setItem(SESSION_KEY,JSON.stringify(session));
-   const remember=document.getElementById("rememberMe")?.checked===true;
-   if(remember)localStorage.setItem(REMEMBER_SESSION_KEY,JSON.stringify(session));
-   else localStorage.removeItem(REMEMBER_SESSION_KEY);
- }catch(e){console.warn("حفظ جلسة تذكرني:",e)}
- auditLog("تسجيل الدخول",`المستخدم: ${user.name}`);
- applySession();
+  const response=await fetch(`${SUPABASE_URL}/functions/v1/username-login`,{method:"POST",headers:{"apikey":SUPABASE_PUBLISHABLE_KEY,"Content-Type":"application/json"},body:JSON.stringify({username:uname,password:pass})});
+  let payload={};try{payload=await response.json()}catch(e){}
+  if(!response.ok||!payload.session||!payload.profile)throw new Error(payload.error||"بيانات الدخول غير صحيحة.");
+  const profile=payload.profile;
+  if(profile.is_active===false||profile.is_blocked===true||profile.is_linked===false)throw new Error("هذا الحساب غير نشط أو غير مسموح له بالدخول.");
+  const expected=selectedRole==="officer"?"officer":"owner";
+  if(expected==="officer"?profile.app_role!=="officer":!(["owner","manager"].includes(profile.app_role)))throw new Error("نوع الحساب لا يطابق شاشة الدخول المحددة.");
+  if(!supabaseClient)initSupabase();if(!supabaseClient)throw new Error("تعذر تهيئة اتصال Supabase.");
+  const remember=document.getElementById("rememberMe")?.checked===true;
+  if(remember)localStorage.setItem(REMEMBER_SESSION_KEY,"pending");else localStorage.removeItem(REMEMBER_SESSION_KEY);
+  const {error:sessionError}=await supabaseClient.auth.setSession({access_token:payload.session.access_token,refresh_token:payload.session.refresh_token});
+  if(sessionError)throw sessionError;
+  session={user:profile.username,name:profile.display_name||localUser.name,role:localUser.role,ownerRole:profile.owner_role||localUser.ownerRole||"",officerName:profile.officer_name||localUser.officerName||selectedOfficerName};
+  try{sessionStorage.setItem(SESSION_KEY,JSON.stringify(session));if(remember)localStorage.setItem(REMEMBER_SESSION_KEY,JSON.stringify(session));else localStorage.removeItem(REMEMBER_SESSION_KEY);}catch(e){console.warn("حفظ الجلسة:",e)}
+  if(msg){msg.textContent="";msg.style.display="none";}
+  auditLog("تسجيل الدخول",`المستخدم: ${session.name}`);applySession();
+ }catch(e){
+  if(supabaseClient)try{await supabaseClient.auth.signOut()}catch(_e){}
+  fail(e?.message||"تعذر إتمام تسجيل الدخول حاليًا.");
+ }finally{if(button)button.disabled=false;}
 }
 function applySession(){
  if(!session)return;
@@ -3328,6 +3337,7 @@ function updateLastDataUpdate(){
  el.title=`آخر وقت تم فيه تحديث البيانات: ${shown}`;
 }
 function logout(silent=false){
+ if(supabaseClient)try{supabaseClient.auth.signOut().catch(()=>{})}catch(e){}
  const old=session; session=null; if(inactivityTimer)clearTimeout(inactivityTimer); inactivityTimer=null; sessionStorage.removeItem(SESSION_KEY); localStorage.removeItem(SESSION_KEY); localStorage.removeItem("mub_session");
  if(!silent && old)auditLog("تسجيل الخروج",`المستخدم: ${old.name}`);
  document.getElementById("app").style.display="none";
@@ -3344,8 +3354,19 @@ try{
  const rememberBox=document.getElementById("rememberMe");if(rememberBox)rememberBox.checked=!!rememberedSession;
 }catch(e){session=null}
 loadUsers();
+saveUsers();
 refreshLoginUsers();
-if(session) applySession();
+if(session){
+ initSupabase();
+ if(!supabaseClient)logout(true);
+ else supabaseClient.auth.getUser().then(async({data,error})=>{
+  if(error||!data?.user||String(data.user.user_metadata?.username||"").normalize("NFKC").toLocaleLowerCase("en-US")!==String(session?.user||"").normalize("NFKC").toLocaleLowerCase("en-US")){logout(true);return;}
+  const {data:profile,error:profileError}=await supabaseClient.from("app_user_profiles").select("username,display_name,app_role,owner_role,is_active,is_blocked,is_linked").eq("user_id",data.user.id).maybeSingle();
+  if(profileError||!profile||!profile.is_active||profile.is_blocked||!profile.is_linked){logout(true);return;}
+  session={...session,user:profile.username,name:profile.display_name||session.name,ownerRole:profile.owner_role||session.ownerRole||""};
+  applySession();
+ }).catch(()=>logout(true));
+}
 startActivityTracking();
 applyProgramSettings();
 updateLastDataUpdate();
@@ -6846,29 +6867,38 @@ function dataQualityReport(sourceRows=rows){let missingNid=0,missingPhone=0,nega
 function refreshDataQuality(){const q=dataQualityReport(),n=rows.length;const health=document.getElementById("dbHealth"),last=document.getElementById("dbLastUpdate"),count=document.getElementById("dbRowsCount");if(count)count.textContent=n.toLocaleString("en-US");if(last)last.textContent=safeLocalGet("mub_time")||"—";if(health){health.textContent=n?`جودة ${q.score.toFixed(0)}% — نقص الرقم القومي: ${q.missingNid} | نقص الهاتف: ${q.missingPhone} | تكرار محتمل: ${q.duplicates}`:(cloudReady?"لا توجد بيانات مرفوعة بعد":"لم يتم تحميل بيانات محليًا");health.className=n?(q.score>=95?"audit-ok":q.score>=80?"audit-warn":"audit-bad"):"audit-warn"}return q}
 function roleLabel(u){return isOwnerRole(u.role)?(u.ownerRole||"مالك") : "أخصائي"}
 function clearOwnerForm(){["ownerEditKey","ownerFormUsername","ownerFormName","ownerFormPassword"].forEach(id=>{const e=document.getElementById(id);if(e)e.value=""});const a=document.getElementById("ownerFormActive");if(a)a.value="1";}
-function editOwnerUser(username){if(!canManageOwners())return alert("إضافة وحذف الملاك متاحة لمحاسب الفرع فقط.");const u=users.find(x=>x.username===username&&x.role==="owner");if(!u)return;document.getElementById("ownerEditKey").value=u.username;document.getElementById("ownerFormUsername").value=u.username;document.getElementById("ownerFormName").value=u.name||"";document.getElementById("ownerFormPassword").value=u.password||"";document.getElementById("ownerFormActive").value=u.active===false?"0":"1";}
-function saveOwnerUser(){
+function editOwnerUser(username){if(!canManageOwners())return alert("إضافة وحذف الملاك متاحة لمحاسب الفرع فقط.");const u=users.find(x=>x.username===username&&x.role==="owner");if(!u)return;document.getElementById("ownerEditKey").value=u.username;document.getElementById("ownerFormUsername").value=u.username;document.getElementById("ownerFormName").value=u.name||"";document.getElementById("ownerFormPassword").value="";document.getElementById("ownerFormActive").value=u.active===false?"0":"1";}
+async function saveOwnerUser(){
  if(!canManageOwners())return alert("هذه العملية متاحة لمحاسب الفرع فقط.");
  const old=document.getElementById("ownerEditKey").value.trim();const username=document.getElementById("ownerFormUsername").value.trim();const name=document.getElementById("ownerFormName").value.trim();const password=document.getElementById("ownerFormPassword").value;const active=document.getElementById("ownerFormActive").value==="1";
- if(!username||!name||!password)return alert("أكمل اسم المستخدم واسم المالك وكلمة المرور.");
+ if(!username||!name)return alert("أكمل اسم المستخدم واسم المالك.");
  if(users.some(u=>u.username===username&&u.username!==old))return alert("اسم المستخدم مستخدم بالفعل.");
  const existing=old?users.find(u=>u.username===old&&u.role==="owner"):null;
- if(existing)Object.assign(existing,{username,name,password,ownerRole:name,active,blocked:false,linked:true});
- else users.push({username,name,password,role:"owner",ownerRole:name,active,blocked:false,linked:true});
- saveUsers();clearOwnerForm();renderUsers();auditLog(existing?"تعديل مالك":"إضافة مالك",`المالك: ${name}`);showMsg("تم حفظ بيانات المالك بنجاح.","ok","ownerMsg");refreshLoginUsers();
+ if(!existing)return alert("إنشاء حسابات جديدة غير متاح هنا؛ الحسابات الافتراضية الأربعة فقط مهيّأة في Supabase Auth.");
+ if(password){
+  const role=String(session?.ownerRole||"").trim();
+  if(role!=="محاسب الفرع"&&role!=="مدير الفرع")return alert("تغيير كلمات المرور متاح لمحاسب الفرع ومدير الفرع فقط.");
+  if(password.length<8)return alert("يجب أن تتكون كلمة المرور من 8 أحرف على الأقل.");
+  try{await resetSupabaseAccountPassword(username,password);}catch(e){return alert(e?.message||"تعذر تغيير كلمة المرور.");}
+ }
+ try{await updateSupabaseAccountProfile(old,{new_username:username,display_name:name,is_active:active,is_blocked:false,is_linked:true});}catch(e){return alert(e?.message||"تعذر مزامنة الحساب مع Supabase.");}
+ Object.assign(existing,{username,name,active,blocked:false,linked:true});
+ saveUsers();clearOwnerForm();renderUsers();auditLog(password?"تغيير كلمة مرور مستخدم":"تعديل مالك",`المالك: ${name}`);showMsg("تم حفظ بيانات المالك بنجاح.","ok","ownerMsg");refreshLoginUsers();
 }
-function deleteOwnerUser(username){
+async function deleteOwnerUser(username){
  if(!canManageOwners())return alert("حذف الملاك متاح لمحاسب الفرع فقط.");
  const u=users.find(x=>x.username===username&&x.role==="owner");if(!u)return;
  if(u.username===session.user)return alert("لا يمكن لمحاسب الفرع حذف حسابه أثناء تسجيل الدخول.");
  if(!confirm(`هل تريد حذف المالك: ${u.name}؟`))return;
+ try{await updateSupabaseAccountProfile(username,{is_active:false,is_blocked:true,is_linked:false});}catch(e){return alert(e?.message||"تعذر تعطيل الحساب في Supabase.");}
  users=users.filter(x=>x!==u);saveUsers();renderUsers();refreshLoginUsers();auditLog("حذف مالك",`المالك: ${u.name}`);
 }
-function toggleOwnerActive(username){
+async function toggleOwnerActive(username){
  if(!canManageOwners())return alert("تغيير حالة الملاك متاح لمحاسب الفرع فقط.");
  const u=users.find(x=>x.username===username&&x.role==="owner");if(!u)return;
  if(u.username===session.user&&u.active!==false)return alert("لا يمكن إيقاف الحساب المستخدم حاليًا.");
- u.active=u.active===false;saveUsers();renderUsers();refreshLoginUsers();auditLog(u.active?"تفعيل مالك":"تعطيل مالك",`المالك: ${u.name}`);
+ const next=u.active===false;try{await updateSupabaseAccountProfile(username,{is_active:next});}catch(e){return alert(e?.message||"تعذر تحديث حالة الحساب في Supabase.");}
+ u.active=next;saveUsers();renderUsers();refreshLoginUsers();auditLog(u.active?"تفعيل مالك":"تعطيل مالك",`المالك: ${u.name}`);
 }
 const SPECIALIST_META_KEY="mubadara_specialist_meta_v1";
 function readSpecialistMeta(){try{const x=JSON.parse(localStorage.getItem(SPECIALIST_META_KEY)||"{}");return x&&typeof x==="object"?x:{}}catch(e){return{}}}
@@ -7060,17 +7090,21 @@ function renderUsers(){
 }
 function clearUserForm(){["userEditKey","userFormUsername","userFormName","userFormPassword"].forEach(id=>{const e=document.getElementById(id);if(e)e.value=""});const s=document.getElementById("userFormOfficer");if(s)s.value="";}
 function editOfficerUser(username){if(!canManageOfficers())return alert("إدارة الأخصائيين متاحة لمحاسب الفرع ومدير الفرع فقط.");const u=users.find(x=>x.username===username&&x.role==="officer");if(!u)return;document.getElementById("userEditKey").value=u.username;document.getElementById("userFormUsername").value=u.username;document.getElementById("userFormName").value=u.name||"";document.getElementById("userFormPassword").value=u.password||"";renderUsers();document.getElementById("userFormOfficer").value=u.officerName||"";document.getElementById("userFormUsername").focus();}
-function saveOfficerUser(){
+async function saveOfficerUser(){
  if(!canManageOfficers())return alert("هذه الشاشة متاحة لمحاسب الفرع ومدير الفرع فقط.");
- const old=document.getElementById("userEditKey").value.trim().toLowerCase(),username=document.getElementById("userFormUsername").value.trim().toLowerCase(),name=document.getElementById("userFormName").value.trim(),password=document.getElementById("userFormPassword").value||"1234",officerName=document.getElementById("userFormOfficer").value;
+ const old=document.getElementById("userEditKey").value.trim().toLowerCase(),username=document.getElementById("userFormUsername").value.trim().toLowerCase(),name=document.getElementById("userFormName").value.trim(),password=document.getElementById("userFormPassword").value,officerName=document.getElementById("userFormOfficer").value;
  if(!username||!name)return alert("أكمل اسم المستخدم والاسم.");if(users.some(u=>u.username===username&&u.username!==old))return alert("اسم المستخدم مستخدم بالفعل.");
- const existing=old?users.find(u=>u.username===old):null;const canonicalOfficer=uniqueOfficers().find(o=>officerKey(o)===officerKey(officerName||name))||officerName;
- if(existing)Object.assign(existing,{username,name,password,passwordIsCustom:password!=="1234",officerName:canonicalOfficer,linked:!!canonicalOfficer,active:true,manualUnlink:false});else users.push({username,name,password,passwordIsCustom:password!=="1234",role:"officer",officerName:canonicalOfficer,active:true,blocked:false,linked:!!canonicalOfficer,manualUnlink:false});
- saveUsers();clearUserForm();renderUsers();auditLog(existing?"تعديل مستخدم":"إضافة مستخدم",`الأخصائي: ${name}`);showMsg("تم حفظ مستخدم الأخصائي بنجاح.","ok","usersMsg");
+ const existing=old?users.find(u=>u.username===old):null;
+ if(!existing)return alert("إنشاء حساب أخصائي جديد غير مهيّأ في Supabase Auth بعد.");
+ if(password){const role=String(session?.ownerRole||"").trim();if(role!=="محاسب الفرع"&&role!=="مدير الفرع")return alert("تغيير كلمات المرور متاح لمحاسب الفرع ومدير الفرع فقط.");if(password.length<8)return alert("يجب أن تتكون كلمة المرور من 8 أحرف على الأقل.");try{await resetSupabaseAccountPassword(username,password);}catch(e){return alert(e?.message||"تعذر تغيير كلمة المرور.");}}
+ const canonicalOfficer=uniqueOfficers().find(o=>officerKey(o)===officerKey(officerName||name))||officerName;
+ try{await updateSupabaseAccountProfile(old,{new_username:username,display_name:name,officer_name:canonicalOfficer,is_linked:!!canonicalOfficer,is_active:true,is_blocked:false});}catch(e){return alert(e?.message||"تعذر مزامنة الحساب مع Supabase.");}
+ Object.assign(existing,{username,name,officerName:canonicalOfficer,linked:!!canonicalOfficer,active:true,manualUnlink:false});
+ saveUsers();clearUserForm();renderUsers();auditLog(password?"تغيير كلمة مرور مستخدم":"تعديل مستخدم",`الأخصائي: ${name}`);showMsg("تم حفظ مستخدم الأخصائي بنجاح.","ok","usersMsg");
 }
-function toggleUserBlock(username){if(!canManageOfficers())return alert("إدارة الأخصائيين متاحة لجميع الملاك النشطين.");const u=users.find(x=>x.username===username&&x.role==="officer");if(!u)return;u.blocked=!u.blocked;saveUsers();renderUsers();auditLog(u.blocked?"حظر أخصائي":"فك حظر أخصائي",`المستخدم: ${u.name}`);}
-function unlinkOfficerUser(username){if(!canManageOfficers())return alert("إدارة الأخصائيين متاحة لجميع الملاك النشطين.");const u=users.find(x=>x.username===username&&x.role==="officer");if(!u)return;if(!confirm(`سيتم إلغاء ربط ${u.name} وإخراجه من البرنامج. هل تريد المتابعة؟`))return;u.linked=false;u.active=false;u.manualUnlink=true;saveUsers();renderUsers();auditLog("إلغاء ربط أخصائي",`المستخدم: ${u.name}`);}
-function relinkOfficerUser(username){if(!canManageOfficers())return alert("إدارة الأخصائيين متاحة لجميع الملاك النشطين.");const u=users.find(x=>x.username===username&&x.role==="officer");if(!u)return;if(!u.officerName)return alert("لا يمكن إعادة الربط قبل تحديد اسم الأخصائي.");u.linked=true;u.active=true;u.manualUnlink=false;saveUsers();renderUsers();auditLog("إعادة ربط أخصائي",`المستخدم: ${u.name}`);}
+async function toggleUserBlock(username){if(!canManageOfficers())return alert("إدارة الأخصائيين متاحة لجميع الملاك النشطين.");const u=users.find(x=>x.username===username&&x.role==="officer");if(!u)return;const next=!u.blocked;if(u.linked!==false)try{await updateSupabaseAccountProfile(username,{is_blocked:next});}catch(e){return alert(e?.message||"تعذر تحديث حالة الحساب في Supabase.");}u.blocked=next;saveUsers();renderUsers();auditLog(u.blocked?"حظر أخصائي":"فك حظر أخصائي",`المستخدم: ${u.name}`);}
+async function unlinkOfficerUser(username){if(!canManageOfficers())return alert("إدارة الأخصائيين متاحة لجميع الملاك النشطين.");const u=users.find(x=>x.username===username&&x.role==="officer");if(!u)return;if(!confirm(`سيتم إلغاء ربط ${u.name} وإخراجه من البرنامج. هل تريد المتابعة؟`))return;if(u.linked!==false)try{await updateSupabaseAccountProfile(username,{is_linked:false,is_active:false});}catch(e){return alert(e?.message||"تعذر إلغاء الربط في Supabase.");}u.linked=false;u.active=false;u.manualUnlink=true;saveUsers();renderUsers();auditLog("إلغاء ربط أخصائي",`المستخدم: ${u.name}`);}
+async function relinkOfficerUser(username){if(!canManageOfficers())return alert("إدارة الأخصائيين متاحة لجميع الملاك النشطين.");const u=users.find(x=>x.username===username&&x.role==="officer");if(!u)return;if(!u.officerName)return alert("لا يمكن إعادة الربط قبل تحديد اسم الأخصائي.");if(u.linked===false)try{await updateSupabaseAccountProfile(username,{is_linked:true,is_active:true,officer_name:u.officerName});}catch(e){return alert(e?.message||"تعذر إعادة الربط في Supabase.");}u.linked=true;u.active=true;u.manualUnlink=false;saveUsers();renderUsers();auditLog("إعادة ربط أخصائي",`المستخدم: ${u.name}`);}
 
 function downloadBackup(){const payload={version:APP_VERSION,createdAt:new Date().toISOString(),rows};const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json;charset=utf-8"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`نسخة_احتياطية_جمعية_المبادرة_${new Date().toISOString().slice(0,10)}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);auditLog("تنزيل نسخة احتياطية",`${rows.length} صف`);showMsg("تم تنزيل النسخة الاحتياطية بنجاح.","ok")}
 
@@ -7089,7 +7123,12 @@ function safeLocalSet(k,v){try{localStorage.setItem(k,v);return true}catch(e){co
 function initSupabase(){
   try{
     if(!window.supabase || !window.supabase.createClient) throw new Error("مكتبة Supabase غير متاحة");
-    supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
+    const authStorage={
+      getItem(key){try{return localStorage.getItem(REMEMBER_SESSION_KEY)?(localStorage.getItem(key)||sessionStorage.getItem(key)):sessionStorage.getItem(key)}catch(e){return null}},
+      setItem(key,value){try{sessionStorage.setItem(key,value);if(localStorage.getItem(REMEMBER_SESSION_KEY))localStorage.setItem(key,value);else localStorage.removeItem(key)}catch(e){console.warn("Supabase session storage:",e)}},
+      removeItem(key){try{sessionStorage.removeItem(key);localStorage.removeItem(key)}catch(e){}}
+    };
+    supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,{auth:{storage:authStorage,persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}});
     cloudReady=true;
     return true;
   }catch(e){console.warn("Supabase init:",e);cloudReady=false;return false}
@@ -7207,9 +7246,18 @@ async function refreshOnOpen(){
 }
 initSupabase();
 subscribeCloud();
-// الجلسة محفوظة؛ لا نعيد المستخدم إلى شاشة الدخول عند تحديث الصفحة.
-if(session) applySession();
-else {document.getElementById("app").style.display="none"; document.getElementById("loginScreen").style.display="flex"; refreshLoginUsers();}
+// لا تُستعاد جلسة محلية قديمة ما لم يثبتها Supabase Auth والملف الشخصي النشط.
+if(session){
+ if(!supabaseClient)logout(true);
+ else supabaseClient.auth.getUser().then(async({data,error})=>{
+  const savedUser=String(session?.user||"").normalize("NFKC").toLocaleLowerCase("en-US");
+  const authUser=String(data?.user?.user_metadata?.username||"").normalize("NFKC").toLocaleLowerCase("en-US");
+  if(error||!data?.user||!savedUser||savedUser!==authUser){logout(true);return;}
+  const {data:profile,error:profileError}=await supabaseClient.from("app_user_profiles").select("username,display_name,app_role,owner_role,is_active,is_blocked,is_linked").eq("user_id",data.user.id).maybeSingle();
+  if(profileError||!profile||!profile.is_active||profile.is_blocked||!profile.is_linked){logout(true);return;}
+  session={...session,user:profile.username,name:profile.display_name||session.name,ownerRole:profile.owner_role||session.ownerRole||""};applySession();
+ }).catch(()=>logout(true));
+}else {document.getElementById("app").style.display="none";document.getElementById("loginScreen").style.display="flex";refreshLoginUsers();}
 setInterval(()=>{if(session)enforceSession()},1500);
 document.getElementById("specialistOfficer")?.addEventListener("change",renderSpecialists);
 document.getElementById("specialistStatus")?.addEventListener("change",e=>{setSpecialistView(e.target.value)});
