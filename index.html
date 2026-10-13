@@ -2482,7 +2482,7 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
     <div class="user-management-grid">
       <input id="userEditKey" type="hidden">
       <div><label>اسم المستخدم</label><input id="userFormUsername" autocomplete="off" placeholder="مثال: ahmed أو اسم مختصر"></div>
-      <div><label>الاسم الظاهر</label><input id="userFormName" placeholder="اسم الأخصائي كما يظهر في Excel"></div>
+      <div class="user-display-name-field"><label for="userFormName">الاسم الظاهر</label><input id="userFormName" list="userFormNameList" autocomplete="off" aria-label="الاسم الظاهر للأخصائي" placeholder="اختر اسمًا من الاقتراحات أو اكتب الاسم الظاهر"><datalist id="userFormNameList"></datalist></div>
       <div><label>كلمة المرور</label><input id="userFormPassword" type="password" autocomplete="new-password" placeholder="أدخل كلمة مرور أولية (6 أحرف على الأقل)"></div>
       <div><label>الاسم من شيت Excel</label><select id="userFormOfficer"></select><small>اختر الاسم المطابق للبيانات حتى يظهر في شاشة الدخول.</small></div>
     </div>
@@ -7169,7 +7169,7 @@ function userPresenceNormalizeName(value){return String(value||"").normalize("NF
  const officerRows=(list)=>list.map(u=>{const unlinked=!u.linked||u.active===false&&!u.blocked;const state=u.blocked?'<span class="user-badge blocked">محظور</span>':(!u.linked||u.active===false?'<span class="user-badge unlinked">غير نشط / غير مرتبط</span>':'<span class="user-badge ok">نشط</span>');let actions=canManageOfficers()?`<button class="light" onclick="editOfficerUser('${esc(u.username)}')">تعديل</button>${u.blocked?`<button class="green" onclick="toggleUserBlock('${esc(u.username)}')">فك الحظر</button>`:`<button class="red" onclick="toggleUserBlock('${esc(u.username)}')">حظر</button>`}${u.linked?`<button class="red" onclick="unlinkOfficerUser('${esc(u.username)}')">إلغاء الربط</button>`:`<button class="green" onclick="relinkOfficerUser('${esc(u.username)}')">إعادة الربط</button>`}`:'<span class="user-badge">عرض فقط</span>';return `<tr><td><b>${esc(u.username)}</b></td><td>${esc(u.name)}</td><td>${state}</td><td>${userPresenceStatusHtml(u.username)}</td><td>${userPresenceTimeHtml(u.username,"last_seen_at")}</td><td>${userPresenceTimeHtml(u.username,"last_login_at")}</td><td>${esc(u.officerName||"—")}</td><td><div class="user-actions">${actions}</div></td></tr>`}).join("")||'<tr><td colspan="8">لا يوجد مستخدمون في هذه الحالة</td></tr>';
  const officerActive=officers.filter(u=>u.active!==false&&!u.blocked&&u.linked!==false),officerInactive=officers.filter(u=>u.active===false||u.blocked||u.linked===false);
  const activeBody=document.getElementById("usersActiveBody"),inactiveBody=document.getElementById("usersInactiveBody");if(activeBody)activeBody.innerHTML=officerRows(officerActive);if(inactiveBody)inactiveBody.innerHTML=officerRows(officerInactive);
- const sel=document.getElementById("userFormOfficer");if(sel){const current=sel.value;sel.innerHTML='<option value="">— بدون ربط —</option>'+uniqueOfficers().map(o=>`<option value="${escAttr(o)}">${esc(o)}</option>`).join("");if(current)sel.value=current;}
+ const officerNames=uniqueOfficers(),sel=document.getElementById("userFormOfficer"),displayNameList=document.getElementById("userFormNameList");if(sel){const current=sel.value;sel.innerHTML='<option value="">— بدون ربط —</option>'+officerNames.map(o=>`<option value="${escAttr(o)}">${esc(o)}</option>`).join("");if(current)sel.value=current;}if(displayNameList)displayNameList.innerHTML=officerNames.map(o=>`<option value="${escAttr(o)}"></option>`).join("");
  const ob=document.getElementById("ownerManagementBox");if(ob)ob.style.display=canManageOwners()?"block":"none";
  const fb=document.getElementById("officerManagementBox");if(fb)fb.style.display=canManageOfficers()?"block":"none"; if(!userPresenceLoading&&Date.now()-userPresenceFetchedAt>30000)void refreshUsersPresence();
 }
@@ -9868,7 +9868,7 @@ async function prepareDueWhatsAppPDF(event){
 @media print{
  @page dropoutClientsReport{size:A4 landscape;margin:5mm 3mm!important;@bottom-center{content:"صفحة " counter(page) " من " counter(pages);font:700 7pt Arial,Tahoma,sans-serif;color:#000;direction:rtl;vertical-align:bottom;}}
  body.printing-dropout-clients-report{page:dropoutClientsReport}
- #dropoutPrintLayer.dropout-print-report{display:block!important;visibility:visible!important;width:100%!important;padding:0 4mm!important;box-sizing:border-box!important;background:#fff!important;color:#000!important;direction:rtl!important;overflow:visible!important}
+ #dropoutPrintLayer.dropout-print-report{display:block!important;visibility:visible!important;position:static!important;top:auto!important;left:auto!important;right:auto!important;bottom:auto!important;float:none!important;transform:none!important;width:100%!important;height:auto!important;min-height:0!important;max-height:none!important;margin:0!important;padding:0 4mm!important;box-sizing:border-box!important;background:#fff!important;color:#000!important;direction:rtl!important;overflow:visible!important;page-break-after:auto!important;break-after:auto!important}
  #dropoutPrintLayer.dropout-print-report .dropout-risk-print-table{display:table!important;width:100%!important;max-width:100%!important;table-layout:auto!important;border-collapse:collapse!important;direction:rtl!important;page-break-inside:auto!important;break-inside:auto!important;font-family:Arial,Tahoma,sans-serif!important;font-size:8.5px!important;line-height:1.15!important}
  #dropoutPrintLayer.dropout-print-report .dropout-risk-print-table thead{display:table-header-group!important}
  #dropoutPrintLayer.dropout-print-report .dropout-risk-print-table tbody{display:table-row-group!important}
@@ -11403,3 +11403,6 @@ window.showScreen = function(id) { const result=previousShowScreen.apply(this,ar
  });
 })();
 </script>
+<style id="hide-all-submitted-locations-map-screen-only">
+@media screen{#locationAllMapCard{display:none!important}}
+</style>
