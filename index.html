@@ -7382,16 +7382,26 @@ function cachedRowsForCurrentSession(){
   return expected&&meta?.scope==="officer"&&meta?.officer_key===expected?data:null;
  }catch(e){console.warn("local cache load:",e);return null}
 }
+function refreshActiveScreenAfterDataLoad(){
+ const id=document.querySelector(".screen.active")?.id;
+ if(!id||!SCREEN_IDS.includes(id))return;
+ if(id==="risk"&&!document.getElementById("riskFrom")?.value&&!document.getElementById("riskTo")?.value&&typeof setRiskCurrentMonth==="function"){
+  setRiskCurrentMonth();screenRenderVersion[id]=screenDataVersion;return;
+ }
+ if(typeof renderScreenData==="function"){
+  renderScreenData(id);screenRenderVersion[id]=screenDataVersion;
+ }
+}
 async function loadDB(){
  if(!session||!appSessionReady)return;
  const statusEl=document.getElementById("status");
  const cached=cachedRowsForCurrentSession();
  let cachedMeta=null;try{cachedMeta=JSON.parse(safeLocalGet(LS_ROWS_META)||"null")}catch(e){}
- if(cached){rows=cached;build();if(statusEl)statusEl.textContent="🕒 عُرضت النسخة المحفوظة؛ جارٍ التحقق من أحدث البيانات…";}
+ if(cached){rows=cached;build();refreshActiveScreenAfterDataLoad();if(statusEl)statusEl.textContent="🕒 عُرضت النسخة المحفوظة؛ جارٍ التحقق من أحدث البيانات…";}
  const data=await loadCloud();
  if(Array.isArray(data)){
   const sameVersion=!!cached&&!!lastCloudUpdatedAt&&cachedMeta?.updated_at===lastCloudUpdatedAt;
-  if(!sameVersion){rows=data;build();}
+  if(!sameVersion){rows=data;build();refreshActiveScreenAfterDataLoad();}
   const officerCacheKey=lastCloudDataScope==="officer"?officerKey(currentUserRecord()?.officerName||session.officerName||""):"";
   if(data.length<=50000){
    safeLocalSet(LS_ROWS,JSON.stringify(data));
@@ -7399,8 +7409,9 @@ async function loadDB(){
   }
   safeLocalSet("mub_time",new Date().toLocaleString("en-US"));
   updateLastDataUpdate();
-  if(statusEl)statusEl.textContent=lastCloudDataScope==="officer"?"☁️ تم تحديث بيانات الأخصائي من الخادم":"☁️ تم تحديث البيانات من الخادم";
-  showMsg(lastCloudDataScope==="officer"?"تم تحديث سجلات الأخصائي المصرح بها.":"تم تحميل البيانات المشتركة من الخادم.","ok");
+  if(statusEl)statusEl.textContent=`☁️ تم تحديث البيانات من الخادم — ${data.length.toLocaleString("ar-EG")} سجل`;
+  if(lastCloudDataScope==="officer"&&data.length===0)showMsg("تم الاتصال بالخادم، لكن لا توجد سجلات مرتبطة بهذا الأخصائي. تحقق من تطابق اسم الأخصائي بين الحساب وملف البيانات.","warn");
+  else showMsg(lastCloudDataScope==="officer"?`تم تحميل ${data.length.toLocaleString("ar-EG")} سجلًا للأخصائي المصرح به.`:`تم تحميل ${data.length.toLocaleString("ar-EG")} سجلًا من الخادم.`,"ok");
   return;
  }
  if(cached){
