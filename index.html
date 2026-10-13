@@ -10680,7 +10680,7 @@ async function prepareDueWhatsAppPDF(event){
     try{window.print()}catch(error){cleanup();alert("تعذر تشغيل الطباعة. حاول مرة أخرى.");return false}
     setTimeout(cleanup,60000);return false;
   }
-  window.printCollectionStandalone=printCollectionWithDueStyle;
+  window.printCollectionDueStyleReport=printCollectionWithDueStyle;
 })();
 </script>
 <script id="payment-followup-archive-only-scrollbars">
