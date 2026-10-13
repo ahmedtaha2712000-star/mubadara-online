@@ -3192,6 +3192,21 @@ function enforceSession(){
  return true;
 }
 let lastLoginRole="";
+let publicOfficerLoginRoster=null,publicOfficerLoginRosterLoadedAt=0,publicOfficerLoginRosterRequest=null;
+async function loadPublicOfficerLoginRoster(force=false){
+ if(Array.isArray(publicOfficerLoginRoster)&&!force&&Date.now()-publicOfficerLoginRosterLoadedAt<300000)return publicOfficerLoginRoster;
+ if(publicOfficerLoginRosterRequest)return publicOfficerLoginRosterRequest;
+ if(!supabaseClient&&typeof initSupabase==="function")initSupabase();
+ if(!supabaseClient)throw new Error("اتصال القائمة العامة غير متاح.");
+ publicOfficerLoginRosterRequest=(async()=>{
+  const {data,error}=await supabaseClient.from("public_officer_login_list").select("username,display_name,officer_name").order("officer_name");
+  if(error)throw error;
+  publicOfficerLoginRoster=(Array.isArray(data)?data:[]).map(row=>({username:String(row.username||"").trim(),display_name:String(row.display_name||"").trim(),officer_name:String(row.officer_name||"").trim()})).filter(row=>row.username&&(row.officer_name||row.display_name));
+  publicOfficerLoginRosterLoadedAt=Date.now();
+  return publicOfficerLoginRoster;
+ })();
+ try{return await publicOfficerLoginRosterRequest}finally{publicOfficerLoginRosterRequest=null}
+}
 function toggleLoginPassword(){
  const input=document.getElementById("loginPass"),button=document.getElementById("toggleLoginPassword");
  if(!input)return;
@@ -3203,29 +3218,37 @@ function toggleLoginPassword(){
 function refreshLoginUsers(){
  const role=document.getElementById("loginRole")?.value||"owner";
  const roleChanged=lastLoginRole!==role;lastLoginRole=role;
- const ow=document.getElementById("loginOwnerWrap"), of=document.getElementById("loginOfficerWrap");
+ const ow=document.getElementById("loginOwnerWrap"),of=document.getElementById("loginOfficerWrap");
  if(ow)ow.style.display=role==="owner"?"block":"none";
  if(of)of.style.display=role==="officer"?"block":"none";
  const input=document.getElementById("loginOwnerUser");
- if(input && role==="owner"){
-   const owners=users.filter(u=>isOwnerRole(u.role) && u.active!==false && !u.blocked);
-   input.innerHTML=owners.length
-     ? owners.map(u=>`<option value="${esc(u.username)}">${esc(u.name||u.username)}</option>`).join("")
-     : '<option value="">لا توجد حسابات ملاك متاحة</option>';
-   input.disabled=!owners.length;
+ if(input&&role==="owner"){
+  const owners=users.filter(u=>isOwnerRole(u.role)&&u.active!==false&&!u.blocked);
+  input.innerHTML=owners.length?owners.map(u=>`<option value="${esc(u.username)}">${esc(u.name||u.username)}</option>`).join(""):'<option value="">لا توجد حسابات ملاك متاحة</option>';
+  input.disabled=!owners.length;
  }
  const officerInput=document.getElementById("loginOfficerUser");
- if(officerInput && role==="officer"){
+ if(officerInput&&role==="officer"){
+  const officerMatchKey=value=>typeof window.getOfficerKey==="function"?window.getOfficerKey(value):String(value??"").replace(/\s+/g," ").trim().toLowerCase();
+  let entries;
+  if(Array.isArray(publicOfficerLoginRoster)){
+   entries=publicOfficerLoginRoster.map(row=>({username:row.username,name:row.officer_name||row.display_name,officerName:row.officer_name||row.display_name}));
+  }else{
    const excelNames=typeof window.getExcelOfficerNames==="function"?window.getExcelOfficerNames():[];
    const names=excelNames.length?excelNames:[...new Set(users.filter(u=>u.role==="officer"&&u.active!==false&&!u.blocked&&u.linked!==false).map(u=>String(u.officerName||u.name||"").trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,"ar"));
-   const officerMatchKey=value=>typeof window.getOfficerKey==="function"?window.getOfficerKey(value):String(value??"").replace(/\s+/g," ").trim().toLowerCase();
-   officerInput.innerHTML=names.length
-     ? '<option value="">— اختر اسم الأخصائي —</option>'+names.map(n=>{const u=users.find(x=>x.role==="officer"&&officerMatchKey(x.officerName||x.name)===officerMatchKey(n));return `<option value="${esc(u?.username||n)}" data-officer-name="${esc(n)}">${esc(n)}</option>`}).join("")
-     : '<option value="">لا توجد حسابات أخصائيين متاحة</option>';
-   officerInput.disabled=!names.length;
+   entries=names.map(n=>{const u=users.find(x=>x.role==="officer"&&officerMatchKey(x.officerName||x.name)===officerMatchKey(n));return{username:u?.username||n,name:n,officerName:n}});
+  }
+  officerInput.innerHTML=entries.length?'<option value="">— اختر اسم الأخصائي —</option>'+entries.map(row=>`<option value="${escAttr(row.username)}" data-officer-name="${escAttr(row.officerName)}">${esc(row.name)}</option>`).join(""):Array.isArray(publicOfficerLoginRoster)?'<option value="">لا توجد حسابات أخصائيين نشطة</option>':'<option value="">جارٍ تحميل قائمة الأخصائيين…</option>';
+  officerInput.disabled=!entries.length;
+  if(!Array.isArray(publicOfficerLoginRoster)){
+   void loadPublicOfficerLoginRoster().then(()=>{if(document.getElementById("loginRole")?.value==="officer")refreshLoginUsers()}).catch(error=>{
+    console.warn("Public officer login roster:",error?.message||error);
+    if(document.getElementById("loginRole")?.value==="officer"&&!Array.isArray(publicOfficerLoginRoster)&&!entries.length){officerInput.innerHTML='<option value="">تعذر تحميل القائمة؛ تحقق من الاتصال ثم أعد المحاولة</option>';officerInput.disabled=true;}
+   });
+  }
  }
  const passInput=document.getElementById("loginPass");
- if(passInput && role==="officer"){if(roleChanged)passInput.value="";passInput.placeholder="كلمة المرور المحددة للمستخدم (الافتراضية 1234)";}
+ if(passInput&&role==="officer"){if(roleChanged)passInput.value="";passInput.placeholder="كلمة المرور المحددة للمستخدم (الافتراضية 1234)";}
  else if(passInput){if(roleChanged)passInput.value="";passInput.placeholder="أدخل كلمة المرور";}
  const msg=document.getElementById("loginMsg");if(msg){msg.textContent="";msg.style.display="none";}
 }
@@ -7183,66 +7206,25 @@ function userPresenceNormalizeName(value){return String(value||"").normalize("NF
  const fb=document.getElementById("officerManagementBox");if(fb)fb.style.display=canManageOfficers()?"block":"none"; if(!userPresenceLoading&&Date.now()-userPresenceFetchedAt>30000)void refreshUsersPresence();
 }
 function clearUserForm(){["userEditKey","userFormUsername","userFormName","userFormPassword"].forEach(id=>{const e=document.getElementById(id);if(e)e.value=""});const s=document.getElementById("userFormOfficer");if(s)s.value="";}
-function editOfficerUser(username){
- if(!canManageOfficers())return alert("إدارة الأخصائيين متاحة لمحاسب الفرع ومدير الفرع فقط.");
- const key=String(username||"").normalize("NFKC").trim().toLocaleLowerCase("en-US");
- const u=users.find(x=>x.role==="officer"&&String(x.username||"").normalize("NFKC").trim().toLocaleLowerCase("en-US")===key);
- if(!u)return alert("لم يتم العثور على حساب الأخصائي في قائمة المستخدمين. حدّث القائمة ثم أعد المحاولة.");
- document.getElementById("userEditKey").value=u.username;
- document.getElementById("userFormUsername").value=u.username;
- document.getElementById("userFormName").value=u.name||"";
- document.getElementById("userFormPassword").value=u.password||"";
- renderUsers();
- document.getElementById("userFormOfficer").value=u.officerName||"";
- document.getElementById("userFormUsername").focus();
-}
+function editOfficerUser(username){if(!canManageOfficers())return alert("إدارة الأخصائيين متاحة لمحاسب الفرع ومدير الفرع فقط.");const u=users.find(x=>x.username===username&&x.role==="officer");if(!u)return;document.getElementById("userEditKey").value=u.username;document.getElementById("userFormUsername").value=u.username;document.getElementById("userFormName").value=u.name||"";document.getElementById("userFormPassword").value=u.password||"";renderUsers();document.getElementById("userFormOfficer").value=u.officerName||"";document.getElementById("userFormUsername").focus();}
 async function saveOfficerUser(){
  if(!canManageOfficerAccounts())return alert("إضافة أو تعديل حساب الأخصائي متاح لمحاسب الفرع ومدير الفرع فقط.");
- const oldRaw=document.getElementById("userEditKey").value.trim();
- const normalizeUsername=value=>String(value||"").normalize("NFKC").trim().toLocaleLowerCase("en-US");
- const oldKey=normalizeUsername(oldRaw);
- const username=document.getElementById("userFormUsername").value.trim().toLocaleLowerCase("en-US");
- const usernameKey=normalizeUsername(username);
- const name=document.getElementById("userFormName").value.trim();
- const password=document.getElementById("userFormPassword").value;
- const officerName=document.getElementById("userFormOfficer").value;
- if(!username||!name)return alert("أكمل اسم المستخدم والاسم.");
- if(users.some(u=>normalizeUsername(u.username)===usernameKey&&normalizeUsername(u.username)!==oldKey))return alert("اسم المستخدم مستخدم بالفعل.");
- const existing=oldKey?users.find(u=>u.role==="officer"&&normalizeUsername(u.username)===oldKey):null;
- if(oldKey&&!existing)return alert("لم يتم العثور على حساب الأخصائي المراد تعديله. حدّث قائمة المستخدمين ثم أعد المحاولة.");
- const canonicalOfficer=uniqueOfficers().find(o=>officerKey(o)===officerKey(officerName||name))||officerName;
- if(!existing){
-  if(!canManageOfficerAccounts())return alert("إضافة حساب أخصائي متاحة لمحاسب الفرع ومدير الفرع فقط.");
-  if(!canonicalOfficer)return alert("اختر اسم الأخصائي من قائمة شيت Excel لربط الحساب به.");
-  if(password.length<6)return alert("أدخل كلمة مرور أولية من 6 أحرف على الأقل.");
-  try{await callSupabaseAccountAdmin({action:"officer_create",username,password,display_name:name,officer_name:canonicalOfficer});}catch(e){return alert(e?.message||"تعذر إنشاء حساب الأخصائي في Supabase.");}
-  users.push({username,name,role:"officer",officerName:canonicalOfficer,active:true,blocked:false,linked:true,manualUnlink:false});
-  saveUsers();clearUserForm();renderUsers();refreshLoginUsers();auditLog("إنشاء حساب أخصائي",`الأخصائي: ${name}`);showMsg("تم إنشاء حساب الأخصائي وربطه بنجاح.","ok","usersMsg");return;
- }
- const accountUsername=existing.username||oldRaw;
- if(password){
-  if(!canManageOfficerAccounts())return alert("تغيير كلمات المرور متاح لمحاسب الفرع ومدير الفرع فقط.");
-  if(password.length<6)return alert("يجب أن تتكون كلمة المرور من 6 أحرف على الأقل.");
- }
- const isMissingAccountError=error=>/account\s+not\s+found|لا\s*يوجد\s*حساب/i.test(String(error?.message||error||""));
- let accountRecreated=false;
- const recreateMissingAccount=async()=>{
-  if(password.length<6){alert("الحساب غير موجود على الخادم. أدخل كلمة مرور جديدة لا تقل عن 6 أحرف في خانة كلمة المرور ثم احفظ لإنشاء الحساب.");return false;}
-  try{
-   await callSupabaseAccountAdmin({action:"officer_create",username,password,display_name:name,officer_name:canonicalOfficer});
-   accountRecreated=true;return true;
-  }catch(createError){alert(createError?.message||"تعذر إعادة إنشاء حساب الأخصائي على الخادم.");return false;}
- };
- if(password){
-  try{await resetSupabaseAccountPassword(accountUsername,password);}
-  catch(e){if(!isMissingAccountError(e))return alert(e?.message||"تعذر تغيير كلمة المرور.");if(!await recreateMissingAccount())return;}
- }
- if(!accountRecreated){
-  try{await updateSupabaseAccountProfile(accountUsername,{new_username:username,display_name:name,officer_name:canonicalOfficer,is_linked:!!canonicalOfficer,is_active:true,is_blocked:false});}
-  catch(e){if(!isMissingAccountError(e))return alert(e?.message||"تعذر مزامنة الحساب مع Supabase.");if(!await recreateMissingAccount())return;}
- }
- Object.assign(existing,{username,name,officerName:canonicalOfficer,linked:!!canonicalOfficer,active:true,blocked:false,manualUnlink:false});
- saveUsers();clearUserForm();renderUsers();refreshLoginUsers();auditLog(accountRecreated?"إعادة إنشاء حساب أخصائي":(password?"تغيير كلمة مرور مستخدم":"تعديل مستخدم"),`الأخصائي: ${name}`);showMsg(accountRecreated?"تم إنشاء الحساب المفقود على الخادم وربطه بنجاح.":"تم حفظ مستخدم الأخصائي بنجاح.","ok","usersMsg");
+ const old=document.getElementById("userEditKey").value.trim().toLowerCase(),username=document.getElementById("userFormUsername").value.trim().toLowerCase(),name=document.getElementById("userFormName").value.trim(),password=document.getElementById("userFormPassword").value,officerName=document.getElementById("userFormOfficer").value;
+ if(!username||!name)return alert("أكمل اسم المستخدم والاسم.");if(users.some(u=>u.username===username&&u.username!==old))return alert("اسم المستخدم مستخدم بالفعل.");
+	 const existing=old?users.find(u=>u.username===old):null;
+	 const canonicalOfficer=uniqueOfficers().find(o=>officerKey(o)===officerKey(officerName||name))||officerName;
+	 if(!existing){
+	  if(!canManageOfficerAccounts())return alert("إضافة حساب أخصائي متاحة لمحاسب الفرع ومدير الفرع فقط.");
+	  if(!canonicalOfficer)return alert("اختر اسم الأخصائي من قائمة شيت Excel لربط الحساب به.");
+	  if(password.length<6)return alert("أدخل كلمة مرور أولية من 6 أحرف على الأقل.");
+	  try{await callSupabaseAccountAdmin({action:"officer_create",username,password,display_name:name,officer_name:canonicalOfficer});}catch(e){return alert(e?.message||"تعذر إنشاء حساب الأخصائي في Supabase.");}
+	  users.push({username,name,role:"officer",officerName:canonicalOfficer,active:true,blocked:false,linked:true,manualUnlink:false});
+	  saveUsers();clearUserForm();renderUsers();refreshLoginUsers();auditLog("إنشاء حساب أخصائي",`الأخصائي: ${name}`);showMsg("تم إنشاء حساب الأخصائي وربطه بنجاح.","ok","usersMsg");return;
+	 }
+	 if(password){if(!canManageOfficerAccounts())return alert("تغيير كلمات المرور متاح لمحاسب الفرع ومدير الفرع فقط.");if(password.length<6)return alert("يجب أن تتكون كلمة المرور من 6 أحرف على الأقل.");try{await resetSupabaseAccountPassword(username,password);}catch(e){return alert(e?.message||"تعذر تغيير كلمة المرور.");}}
+	 try{await updateSupabaseAccountProfile(old,{new_username:username,display_name:name,officer_name:canonicalOfficer,is_linked:!!canonicalOfficer,is_active:true,is_blocked:false});}catch(e){return alert(e?.message||"تعذر مزامنة الحساب مع Supabase.");}
+	 Object.assign(existing,{username,name,officerName:canonicalOfficer,linked:!!canonicalOfficer,active:true,manualUnlink:false});
+	 saveUsers();clearUserForm();renderUsers();auditLog(password?"تغيير كلمة مرور مستخدم":"تعديل مستخدم",`الأخصائي: ${name}`);showMsg("تم حفظ مستخدم الأخصائي بنجاح.","ok","usersMsg");
 }
 async function toggleUserBlock(username){if(!canManageOfficers())return alert("إدارة الأخصائيين متاحة لجميع الملاك النشطين.");const u=users.find(x=>x.username===username&&x.role==="officer");if(!u)return;const next=!u.blocked;if(u.linked!==false)try{await updateSupabaseAccountProfile(username,{is_blocked:next});}catch(e){return alert(e?.message||"تعذر تحديث حالة الحساب في Supabase.");}u.blocked=next;saveUsers();renderUsers();auditLog(u.blocked?"حظر أخصائي":"فك حظر أخصائي",`المستخدم: ${u.name}`);}
 async function unlinkOfficerUser(username){if(!canManageOfficers())return alert("إدارة الأخصائيين متاحة لجميع الملاك النشطين.");const u=users.find(x=>x.username===username&&x.role==="officer");if(!u)return;if(!confirm(`سيتم إلغاء ربط ${u.name} وإخراجه من البرنامج. هل تريد المتابعة؟`))return;if(u.linked!==false)try{await updateSupabaseAccountProfile(username,{is_linked:false,is_active:false});}catch(e){return alert(e?.message||"تعذر إلغاء الربط في Supabase.");}u.linked=false;u.active=false;u.manualUnlink=true;saveUsers();renderUsers();auditLog("إلغاء ربط أخصائي",`المستخدم: ${u.name}`);}
