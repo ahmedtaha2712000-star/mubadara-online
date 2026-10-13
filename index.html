@@ -7223,12 +7223,26 @@ async function saveOfficerUser(){
  if(password){
   if(!canManageOfficerAccounts())return alert("تغيير كلمات المرور متاح لمحاسب الفرع ومدير الفرع فقط.");
   if(password.length<6)return alert("يجب أن تتكون كلمة المرور من 6 أحرف على الأقل.");
-  try{await resetSupabaseAccountPassword(accountUsername,password);}catch(e){return alert(e?.message||"تعذر تغيير كلمة المرور.");}
  }
- try{await updateSupabaseAccountProfile(accountUsername,{new_username:username,display_name:name,officer_name:canonicalOfficer,is_linked:!!canonicalOfficer,is_active:true,is_blocked:false});}
- catch(e){return alert(e?.message||"تعذر مزامنة الحساب مع Supabase.");}
- Object.assign(existing,{username,name,officerName:canonicalOfficer,linked:!!canonicalOfficer,active:true,manualUnlink:false});
- saveUsers();clearUserForm();renderUsers();auditLog(password?"تغيير كلمة مرور مستخدم":"تعديل مستخدم",`الأخصائي: ${name}`);showMsg("تم حفظ مستخدم الأخصائي بنجاح.","ok","usersMsg");
+ const isMissingAccountError=error=>/account\s+not\s+found|لا\s*يوجد\s*حساب/i.test(String(error?.message||error||""));
+ let accountRecreated=false;
+ const recreateMissingAccount=async()=>{
+  if(password.length<6){alert("الحساب غير موجود على الخادم. أدخل كلمة مرور جديدة لا تقل عن 6 أحرف في خانة كلمة المرور ثم احفظ لإنشاء الحساب.");return false;}
+  try{
+   await callSupabaseAccountAdmin({action:"officer_create",username,password,display_name:name,officer_name:canonicalOfficer});
+   accountRecreated=true;return true;
+  }catch(createError){alert(createError?.message||"تعذر إعادة إنشاء حساب الأخصائي على الخادم.");return false;}
+ };
+ if(password){
+  try{await resetSupabaseAccountPassword(accountUsername,password);}
+  catch(e){if(!isMissingAccountError(e))return alert(e?.message||"تعذر تغيير كلمة المرور.");if(!await recreateMissingAccount())return;}
+ }
+ if(!accountRecreated){
+  try{await updateSupabaseAccountProfile(accountUsername,{new_username:username,display_name:name,officer_name:canonicalOfficer,is_linked:!!canonicalOfficer,is_active:true,is_blocked:false});}
+  catch(e){if(!isMissingAccountError(e))return alert(e?.message||"تعذر مزامنة الحساب مع Supabase.");if(!await recreateMissingAccount())return;}
+ }
+ Object.assign(existing,{username,name,officerName:canonicalOfficer,linked:!!canonicalOfficer,active:true,blocked:false,manualUnlink:false});
+ saveUsers();clearUserForm();renderUsers();refreshLoginUsers();auditLog(accountRecreated?"إعادة إنشاء حساب أخصائي":(password?"تغيير كلمة مرور مستخدم":"تعديل مستخدم"),`الأخصائي: ${name}`);showMsg(accountRecreated?"تم إنشاء الحساب المفقود على الخادم وربطه بنجاح.":"تم حفظ مستخدم الأخصائي بنجاح.","ok","usersMsg");
 }
 async function toggleUserBlock(username){if(!canManageOfficers())return alert("إدارة الأخصائيين متاحة لجميع الملاك النشطين.");const u=users.find(x=>x.username===username&&x.role==="officer");if(!u)return;const next=!u.blocked;if(u.linked!==false)try{await updateSupabaseAccountProfile(username,{is_blocked:next});}catch(e){return alert(e?.message||"تعذر تحديث حالة الحساب في Supabase.");}u.blocked=next;saveUsers();renderUsers();auditLog(u.blocked?"حظر أخصائي":"فك حظر أخصائي",`المستخدم: ${u.name}`);}
 async function unlinkOfficerUser(username){if(!canManageOfficers())return alert("إدارة الأخصائيين متاحة لجميع الملاك النشطين.");const u=users.find(x=>x.username===username&&x.role==="officer");if(!u)return;if(!confirm(`سيتم إلغاء ربط ${u.name} وإخراجه من البرنامج. هل تريد المتابعة؟`))return;if(u.linked!==false)try{await updateSupabaseAccountProfile(username,{is_linked:false,is_active:false});}catch(e){return alert(e?.message||"تعذر إلغاء الربط في Supabase.");}u.linked=false;u.active=false;u.manualUnlink=true;saveUsers();renderUsers();auditLog("إلغاء ربط أخصائي",`المستخدم: ${u.name}`);}
