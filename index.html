@@ -3436,7 +3436,7 @@ function updateLastDataUpdate(){
 function logout(silent=false){
  stopUserPresenceTracking();
  if(supabaseClient)try{supabaseClient.auth.signOut().catch(()=>{})}catch(e){}
- const old=session; session=null; appSessionReady=false; if(inactivityTimer)clearTimeout(inactivityTimer); inactivityTimer=null; sessionStorage.removeItem(SESSION_KEY); localStorage.removeItem(SESSION_KEY); localStorage.removeItem("mub_session");
+ const old=session; session=null; appSessionReady=false; if(inactivityTimer)clearTimeout(inactivityTimer); inactivityTimer=null; sessionStorage.removeItem(SESSION_KEY); localStorage.removeItem(SESSION_KEY); localStorage.removeItem(REMEMBER_SESSION_KEY); localStorage.removeItem("mub_session");
  if(!silent && old)auditLog("تسجيل الخروج",`المستخدم: ${old.name}`);
  document.getElementById("app").style.display="none";
  document.getElementById("loginScreen").style.display="flex";
