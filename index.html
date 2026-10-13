@@ -3161,6 +3161,7 @@ const DEFAULT_OWNER_USERS=[
  {username:"مدير التشغيل",name:"مدير التشغيل",role:"owner",ownerRole:"مدير التشغيل",active:true,blocked:false,linked:true}
 ];
 let users=[];
+let appSessionReady=false;
 function loadUsers(){
  try{const saved=JSON.parse(localStorage.getItem(USER_KEY)||localStorage.getItem("mub_users_v1")||"null");users=Array.isArray(saved)?saved.map(({password,passwordIsCustom,...u})=>u):[]}catch(e){users=[]}
  // ترحيل الحسابات القديمة إلى أسماء المستخدمين العربية المطلوبة.
@@ -3326,6 +3327,8 @@ async function updateSupabaseAccountProfile(username,changes){return callSupabas
 	  if(remember)localStorage.setItem(REMEMBER_SESSION_KEY,"pending");else localStorage.removeItem(REMEMBER_SESSION_KEY);
 	  const {error:sessionError}=await supabaseClient.auth.setSession({access_token:payload.session.access_token,refresh_token:payload.session.refresh_token});
 	  if(sessionError)throw sessionError;
+	  appSessionReady=true;
+	  rows=[];groups=[];
 	  session={user:profile.username,name:profile.display_name||localUser.name,role:profile.app_role,ownerRole:profile.owner_role||localUser.ownerRole||"",officerName:profile.officer_name||localUser.officerName||selectedOfficerName};
 	  try{sessionStorage.setItem(SESSION_KEY,JSON.stringify(session));if(remember)localStorage.setItem(REMEMBER_SESSION_KEY,JSON.stringify(session));else localStorage.removeItem(REMEMBER_SESSION_KEY);}catch(e){console.warn("حفظ الجلسة:",e)}
 	  if(msg){msg.textContent="";msg.style.display="none";}
@@ -3348,6 +3351,7 @@ async function updateSupabaseAccountProfile(username,changes){return callSupabas
  applyPermissions();
  if(session.role==="officer") showScreen("clients");
  else showScreen("dash");
+	 if(typeof refreshOnOpen==="function")void refreshOnOpen();
 }
 let INACTIVITY_LIMIT=8*60*60*1000;
 let inactivityTimer=null;
@@ -3432,7 +3436,7 @@ function updateLastDataUpdate(){
 function logout(silent=false){
  stopUserPresenceTracking();
  if(supabaseClient)try{supabaseClient.auth.signOut().catch(()=>{})}catch(e){}
- const old=session; session=null; if(inactivityTimer)clearTimeout(inactivityTimer); inactivityTimer=null; sessionStorage.removeItem(SESSION_KEY); localStorage.removeItem(SESSION_KEY); localStorage.removeItem("mub_session");
+ const old=session; session=null; appSessionReady=false; if(inactivityTimer)clearTimeout(inactivityTimer); inactivityTimer=null; sessionStorage.removeItem(SESSION_KEY); localStorage.removeItem(SESSION_KEY); localStorage.removeItem("mub_session");
  if(!silent && old)auditLog("تسجيل الخروج",`المستخدم: ${old.name}`);
  document.getElementById("app").style.display="none";
  document.getElementById("loginScreen").style.display="flex";
@@ -3457,7 +3461,7 @@ if(session){
   if(error||!data?.user||String(data.user.user_metadata?.username||"").normalize("NFKC").toLocaleLowerCase("en-US")!==String(session?.user||"").normalize("NFKC").toLocaleLowerCase("en-US")){logout(true);return;}
   const {data:profile,error:profileError}=await supabaseClient.from("app_user_profiles").select("username,display_name,app_role,owner_role,is_active,is_blocked,is_linked").eq("user_id",data.user.id).maybeSingle();
   if(profileError||!profile||!profile.is_active||profile.is_blocked||!profile.is_linked){logout(true);return;}
-  session={...session,user:profile.username,name:profile.display_name||session.name,ownerRole:profile.owner_role||session.ownerRole||""};
+  appSessionReady=true;session={...session,user:profile.username,name:profile.display_name||session.name,ownerRole:profile.owner_role||session.ownerRole||""};
   applySession();
  }).catch(()=>logout(true));
 }
@@ -7233,7 +7237,7 @@ async function relinkOfficerUser(username){if(!canManageOfficers())return alert(
 function downloadBackup(){const payload={version:APP_VERSION,createdAt:new Date().toISOString(),rows};const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json;charset=utf-8"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`نسخة_احتياطية_جمعية_المبادرة_${new Date().toISOString().slice(0,10)}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);auditLog("تنزيل نسخة احتياطية",`${rows.length} صف`);showMsg("تم تنزيل النسخة الاحتياطية بنجاح.","ok")}
 
 /* v11: cloud persistent storage with Supabase + local fallback */
-const DB_NAME="mubadara_data", DB_VERSION=1, STORE="rows", LS_ROWS="mubadara_rows_backup";
+const DB_NAME="mubadara_data", DB_VERSION=1, STORE="rows", LS_ROWS="mubadara_rows_backup", LS_ROWS_META="mub_rows_backup_meta_v1";
 const SUPABASE_URL="https://xuqserqqycvwntepqvme.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY="sb_publishable_dNTZIiukZPrxhxTjM_7rPA_iVGtsmzU";
 const SUPABASE_TABLE="mubadara_data";
@@ -7242,6 +7246,7 @@ let supabaseChannel=null;
 let cloudReady=false;
 let cloudWriting=false;
 let lastCloudUpdatedAt="";
+let lastCloudDataScope="",lastCloudLoadError="";
 function safeLocalGet(k){try{return localStorage.getItem(k)}catch(e){return null}}
 function safeLocalSet(k,v){try{localStorage.setItem(k,v);return true}catch(e){console.warn("localStorage:",e);return false}}
 function initSupabase(){
@@ -7294,16 +7299,33 @@ async function saveCloud(data,progress){
   }finally{cloudWriting=false}
 }
 async function loadCloud(){
-  if(!cloudReady || !supabaseClient) return null;
+  lastCloudLoadError="";
+  if(!cloudReady || !supabaseClient) {lastCloudLoadError="تعذر تهيئة الاتصال بالخادم.";return null;}
+  let timer=null;
   try{
-    const {data,error}=await supabaseClient.from(SUPABASE_TABLE).select("id,rows,updated_at").eq("id",1).maybeSingle();
-    if(error) throw error;
-    if(data && (Array.isArray(data.rows)||data.rows?.__compressed)){
-      lastCloudUpdatedAt=data.updated_at||"";
-      return await unpackCloudRows(data.rows);
-    }
-  }catch(e){console.warn("Supabase load:",e)}
-  return null;
+    const {data:authData,error:authError}=await supabaseClient.auth.getSession();
+    const accessToken=authData?.session?.access_token;
+    if(authError||!accessToken)throw new Error("لم يكتمل التحقق من جلسة الدخول.");
+    const controller=new AbortController();
+    timer=setTimeout(()=>controller.abort(),60000);
+    const response=await fetch(`${SUPABASE_URL}/functions/v1/secure-client-data`,{
+      method:"POST",
+      headers:{"apikey":SUPABASE_PUBLISHABLE_KEY,"Authorization":`Bearer ${accessToken}`,"Content-Type":"application/json"},
+      body:JSON.stringify({action:"load"}),signal:controller.signal
+    });
+    let payload={};try{payload=await response.json()}catch(e){}
+    if(!response.ok)throw new Error(payload.error||`تعذر جلب البيانات (HTTP ${response.status}).`);
+    if(!Array.isArray(payload.rows)&&!payload.rows?.__compressed)throw new Error("رد الخادم لا يحتوي على بيانات صالحة.");
+    lastCloudUpdatedAt=String(payload.updated_at||"");
+    lastCloudDataScope=String(payload.scope|| (isOwnerRole(session?.role)?"all":"officer"));
+    const unpacked=await unpackCloudRows(payload.rows);
+    if(!Array.isArray(unpacked))throw new Error("تنسيق البيانات المستلمة غير صالح.");
+    return unpacked;
+  }catch(e){
+    lastCloudLoadError=e?.name==="AbortError"?"انتهت مهلة الاتصال أثناء تحميل البيانات.":(e?.message||"تعذر الاتصال بالخادم.");
+    console.warn("Secure data load:",lastCloudLoadError);
+    return null;
+  }finally{if(timer)clearTimeout(timer)}
 }
 function subscribeCloud(){
   if(!cloudReady || !supabaseClient || supabaseChannel) return;
@@ -7319,6 +7341,7 @@ function subscribeCloud(){
       lastCloudUpdatedAt=incoming.updated_at||"";
       rows=incomingRows;
       safeLocalSet(LS_ROWS,JSON.stringify(rows));
+      safeLocalSet(LS_ROWS_META,JSON.stringify({scope:"all",officer_key:"",updated_at:lastCloudUpdatedAt}));
       safeLocalSet("mub_time",new Date().toLocaleString("en-US"));
       build();
       document.getElementById("status").textContent="☁️ تم تحديث البيانات من الخادم: "+new Date().toLocaleString("en-US");
@@ -7339,6 +7362,8 @@ async function saveDB(data,progress){
    if(data.length<=50000){
      progress?.(97,"حفظ نسخة محلية", "جاري حفظ نسخة احتياطية على هذا الجهاز...");
      localSaved=safeLocalSet(LS_ROWS,JSON.stringify(data));
+     const officerCacheKey=!isOwnerRole(session?.role)?officerKey(currentUserRecord()?.officerName||session?.officerName||""):"";
+     safeLocalSet(LS_ROWS_META,JSON.stringify({scope:isOwnerRole(session?.role)?"all":"officer",officer_key:officerCacheKey,updated_at:lastCloudUpdatedAt}));
    }else progress?.(97,"تجاوز النسخة المحلية", "الملف كبير؛ سيتم إبقاء البيانات في جلسة التشغيل الحالية.");
    safeLocalSet("mub_time",new Date().toLocaleString("en-US"));
  }catch(e){console.warn("local backup:",e)}
@@ -7346,26 +7371,58 @@ async function saveDB(data,progress){
  return cloudSaved;
 }
 document.getElementById("restoreFile")?.addEventListener("change",e=>{const f=e.target.files[0];if(!f)return;const reader=new FileReader();reader.onload=async ev=>{try{const obj=JSON.parse(ev.target.result);const data=Array.isArray(obj)?obj:obj.rows;if(!Array.isArray(data)||!data.length)throw Error("ملف النسخة الاحتياطية غير صالح.");if(!confirm(`سيتم استبدال البيانات الحالية بـ ${data.length} صف. هل تريد المتابعة؟`))return;rows=data;await saveDB(rows);build();auditLog("استعادة نسخة احتياطية",`${rows.length} صف`);showMsg("تمت استعادة النسخة الاحتياطية بنجاح.","ok")}catch(err){showMsg("تعذر استعادة النسخة: "+err.message,"err")}};reader.readAsText(f,"utf-8")});
+function cachedRowsForCurrentSession(){
+ if(!session||!appSessionReady)return null;
+ try{
+  const data=JSON.parse(safeLocalGet(LS_ROWS)||"null");
+  if(!Array.isArray(data))return null;
+  let meta=null;try{meta=JSON.parse(safeLocalGet(LS_ROWS_META)||"null")}catch(e){}
+  if(isOwnerRole(session.role))return meta?.scope==="officer"?null:data;
+  const expected=officerKey(currentUserRecord()?.officerName||session.officerName||"");
+  return expected&&meta?.scope==="officer"&&meta?.officer_key===expected?data:null;
+ }catch(e){console.warn("local cache load:",e);return null}
+}
 async function loadDB(){
- let data=await loadCloud();
- if(!data){
-  try{const backup=JSON.parse(safeLocalGet(LS_ROWS)||"null");if(Array.isArray(backup))data=backup}catch(e){console.warn("local backup load:",e)}
- }
+ if(!session||!appSessionReady)return;
+ const statusEl=document.getElementById("status");
+ const cached=cachedRowsForCurrentSession();
+ let cachedMeta=null;try{cachedMeta=JSON.parse(safeLocalGet(LS_ROWS_META)||"null")}catch(e){}
+ if(cached){rows=cached;build();if(statusEl)statusEl.textContent="🕒 عُرضت النسخة المحفوظة؛ جارٍ التحقق من أحدث البيانات…";}
+ const data=await loadCloud();
  if(Array.isArray(data)){
-  rows=data; build();
-  document.getElementById("status").textContent=cloudReady?"☁️ تم تحميل البيانات من Supabase":"🕒 بيانات محفوظة محليًا";
-  showMsg(cloudReady?"تم تحميل البيانات المشتركة من الخادم.":"تم استرجاع آخر بيانات محفوظة محليًا.","ok");
+  const sameVersion=!!cached&&!!lastCloudUpdatedAt&&cachedMeta?.updated_at===lastCloudUpdatedAt;
+  if(!sameVersion){rows=data;build();}
+  const officerCacheKey=lastCloudDataScope==="officer"?officerKey(currentUserRecord()?.officerName||session.officerName||""):"";
+  if(data.length<=50000){
+   safeLocalSet(LS_ROWS,JSON.stringify(data));
+   safeLocalSet(LS_ROWS_META,JSON.stringify({scope:lastCloudDataScope==="officer"?"officer":"all",officer_key:officerCacheKey,updated_at:lastCloudUpdatedAt}));
+  }
+  safeLocalSet("mub_time",new Date().toLocaleString("en-US"));
+  updateLastDataUpdate();
+  if(statusEl)statusEl.textContent=lastCloudDataScope==="officer"?"☁️ تم تحديث بيانات الأخصائي من الخادم":"☁️ تم تحديث البيانات من الخادم";
+  showMsg(lastCloudDataScope==="officer"?"تم تحديث سجلات الأخصائي المصرح بها.":"تم تحميل البيانات المشتركة من الخادم.","ok");
+  return;
+ }
+ if(cached){
+  if(statusEl)statusEl.textContent="⚠️ تعذر التحديث؛ المعروض آخر نسخة محفوظة على هذا الجهاز.";
+  showMsg("تعذر الاتصال بالخادم. تم عرض آخر نسخة محفوظة لهذا الحساب فقط.","warn");
+ }else{
+  if(statusEl)statusEl.textContent="⚠️ لم يتم تحميل البيانات؛ اضغط تحديث وحاول مرة أخرى.";
+  showMsg(lastCloudLoadError||"تعذر تحميل البيانات الآن. تحقق من الاتصال ثم حاول مرة أخرى.","warn");
  }
 }
 let openingRefreshInProgress=false;
 async function refreshOnOpen(){
- if(openingRefreshInProgress)return;
+ if(!session||!appSessionReady||openingRefreshInProgress)return;
  openingRefreshInProgress=true;
- const statusEl=document.getElementById("status");
- if(statusEl)statusEl.textContent="🔄 جاري تحديث أحدث البيانات من الخادم...";
  try{
   if(!cloudReady)initSupabase();
+  const statusEl=document.getElementById("status");
+  if(statusEl)statusEl.textContent="🔄 جاري تحميل/تحديث البيانات المصرح بها لهذا الحساب…";
   await loadDB();
+ }catch(e){
+  console.error("Refresh data failed:",e);
+  const statusEl=document.getElementById("status");if(statusEl)statusEl.textContent="⚠️ تعذر تحديث البيانات؛ حاول مرة أخرى.";
  }finally{openingRefreshInProgress=false}
 }
 initSupabase();
@@ -7379,7 +7436,7 @@ if(session){
   if(error||!data?.user||!savedUser||savedUser!==authUser){logout(true);return;}
   const {data:profile,error:profileError}=await supabaseClient.from("app_user_profiles").select("username,display_name,app_role,owner_role,is_active,is_blocked,is_linked").eq("user_id",data.user.id).maybeSingle();
   if(profileError||!profile||!profile.is_active||profile.is_blocked||!profile.is_linked){logout(true);return;}
-  session={...session,user:profile.username,name:profile.display_name||session.name,ownerRole:profile.owner_role||session.ownerRole||""};applySession();
+  appSessionReady=true;session={...session,user:profile.username,name:profile.display_name||session.name,ownerRole:profile.owner_role||session.ownerRole||""};applySession();
  }).catch(()=>logout(true));
 }else {document.getElementById("app").style.display="none";document.getElementById("loginScreen").style.display="flex";refreshLoginUsers();}
 setInterval(()=>{if(session)enforceSession()},1500);
@@ -7391,9 +7448,9 @@ document.getElementById("specialistLoanStatus")?.addEventListener("change",rende
 setCollectionCurrentMonth();
 setClientsDefaultDateRange();
 setPortfolioDefaultDateRange();
-refreshOnOpen();
-window.addEventListener("pageshow",()=>{if(session)refreshOnOpen()});
-document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"&&session)refreshOnOpen()});
+if(session&&appSessionReady)refreshOnOpen();
+window.addEventListener("pageshow",()=>{if(session&&appSessionReady)refreshOnOpen()});
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"&&session&&appSessionReady)refreshOnOpen()});
 </script>
 </div>
 <script>
