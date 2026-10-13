@@ -3459,9 +3459,13 @@ if(session){
  if(!supabaseClient)logout(true);
  else supabaseClient.auth.getUser().then(async({data,error})=>{
   if(error||!data?.user||String(data.user.user_metadata?.username||"").normalize("NFKC").toLocaleLowerCase("en-US")!==String(session?.user||"").normalize("NFKC").toLocaleLowerCase("en-US")){logout(true);return;}
-  const {data:profile,error:profileError}=await supabaseClient.from("app_user_profiles").select("username,display_name,app_role,owner_role,is_active,is_blocked,is_linked").eq("user_id",data.user.id).maybeSingle();
+  const {data:profile,error:profileError}=await supabaseClient.from("app_user_profiles").select("username,display_name,app_role,owner_role,officer_name,is_active,is_blocked,is_linked").eq("user_id",data.user.id).maybeSingle();
   if(profileError||!profile||!profile.is_active||profile.is_blocked||!profile.is_linked){logout(true);return;}
-  appSessionReady=true;session={...session,user:profile.username,name:profile.display_name||session.name,ownerRole:profile.owner_role||session.ownerRole||""};
+  const restoredUser={username:profile.username,name:profile.display_name||session.name,role:profile.app_role,ownerRole:profile.owner_role||session.ownerRole||"",officerName:profile.officer_name||session.officerName||"",active:profile.is_active!==false,blocked:profile.is_blocked===true,linked:profile.is_linked!==false};
+  const localUser=users.find(user=>String(user.username).normalize("NFKC").toLocaleLowerCase("en-US")===String(profile.username).normalize("NFKC").toLocaleLowerCase("en-US"));
+  if(localUser)Object.assign(localUser,restoredUser);else users.push(restoredUser);
+  saveUsers();
+  appSessionReady=true;session={...session,...restoredUser,user:profile.username};
   applySession();
  }).catch(()=>logout(true));
 }
@@ -11240,11 +11244,15 @@ function lookupLocationRegion(item) {
     const wait=Math.max(0,1100-(Date.now()-locationLastGeocodeAt));
     if(wait)await new Promise(resolve=>setTimeout(resolve,wait));
     locationLastGeocodeAt=Date.now();
-    const url=`https://nominatim.openstreetmap.org/reverse?format=jsonv2&addressdetails=1&zoom=18&lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}`;
+    const url=`https://nominatim.openstreetmap.org/reverse?format=jsonv2&addressdetails=1&accept-language=ar&zoom=18&lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}`;
     const response=await fetch(url,{headers:{Accept:"application/json"}});
     if(!response.ok)throw new Error("تعذر تحديد المنطقة");
     const data=await response.json(),address=data.address||{};
-    const region=address.neighbourhood||address.suburb||address.city_district||address.district||address.city||address.town||address.village||address.municipality||address.state||data.name||"لم تُحدَّد المنطقة";
+    const locality=address.neighbourhood||address.quarter||address.residential||address.suburb||address.city_district||address.district||address.city||address.town||address.village||address.municipality||address.state;
+    const hierarchy=[locality,address.city||address.town||address.village||address.municipality,address.state]
+      .filter(Boolean)
+      .filter((value,index,all)=>all.findIndex(part=>part.toLocaleLowerCase("ar")===value.toLocaleLowerCase("ar"))===index);
+    const region=hierarchy.join(" — ")||data.name||"لم تُحدَّد المنطقة";
     return String(region);
   });
   locationGeocodeQueue=request.catch(()=>{});
