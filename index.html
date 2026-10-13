@@ -3024,7 +3024,7 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
  <div id="locationFilterPanel" class="location-filter-panel location-owner-only" data-location-owner-only><div class="location-filter-head"><h3>أدوات المالك</h3><span id="locationNotificationStatus">التنبيه داخل البرنامج متوقف</span></div><div class="location-filter-fields"><label>المستخدم<select id="locationFilterUser"><option value="">كل المستخدمين</option></select></label><label>الحالة<select id="locationFilterStatus"><option value="">كل الحالات</option><option value="accepted">مقبول</option><option value="review">يحتاج مراجعة</option></select></label><label>من تاريخ<input id="locationFilterFrom" type="date"></label><label>إلى تاريخ<input id="locationFilterTo" type="date"></label><label class="location-check"><input id="locationLatestOnly" type="checkbox"> آخر موقع لكل مستخدم</label><label>مسار المستخدم<select id="locationRouteUser"><option value="">بدون مسار</option></select></label></div><div class="location-filter-actions"><button type="button" class="light" onclick="applyLocationFilters()">تطبيق التصفية</button><button type="button" class="light" onclick="clearLocationFilters()">مسح التصفية</button><button type="button" class="light" onclick="exportLocationsCsv()">تصدير CSV</button><button type="button" class="light" onclick="enableOwnerNotifications()">تفعيل التنبيه</button><button type="button" class="light" onclick="drawSelectedLocationRoute()">رسم المسار</button><button type="button" class="light" onclick="loadLocationAudit()">سجل الحذف</button></div><div class="location-geofence-box"><b>نطاق الفرع حول آخر موقع</b><input id="locationGeofenceName" type="text" placeholder="اسم الفرع"><input id="locationGeofenceRadius" type="number" min="10" max="100000" value="250" placeholder="نصف القطر بالمتر"><button type="button" class="light" onclick="saveLocationGeofence()">حفظ النطاق</button><span id="locationGeofenceStatus">—</span></div></div>
  <div class="location-grid">
   <div class="location-map-card"><div class="location-map-head"><h3>الخريطة</h3><small id="locationMapMeta">لا يوجد موقع معتمد بعد</small></div><iframe id="locationMapFrame" title="خريطة الموقع" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="about:blank"></iframe><div class="location-map-empty" id="locationMapEmpty">سيظهر الموقع المعتمد هنا بعد الإرسال.</div></div>
-  <div class="location-info-card"><h3>آخر قراءة</h3><dl class="location-facts"><div><dt>المستخدم</dt><dd id="locationLastUser">—</dd></div><div><dt>المنطقة</dt><dd id="locationLastRegion" aria-live="polite">—</dd></div><div class="location-coordinates"><div><dt>خط العرض</dt><dd><span id="locationLatitude">—</span><button type="button" class="location-copy-btn" onclick="copyLocationCoordinate('locationLatitude',this)">نسخ</button></dd></div><div><dt>خط الطول</dt><dd><span id="locationLongitude">—</span><button type="button" class="location-copy-btn" onclick="copyLocationCoordinate('locationLongitude',this)">نسخ</button></dd></div></div><div class="location-copy-both-wrap"><button type="button" class="location-copy-both-btn" onclick="copyLocationCoordinates(this)">نسخ الإحداثيات معًا لخرائط Google</button><button type="button" class="location-open-maps-btn" onclick="openCurrentLocationInGoogleMaps()">فتح مباشرة في خرائط Google</button></div><div><dt>وقت القراءة</dt><dd id="locationLastCaptured">—</dd></div><div><dt>وقت الخادم</dt><dd id="locationLastReceived">—</dd></div><div><dt>الدقة</dt><dd id="locationLastAccuracy">—</dd></div><div><dt>الحالة</dt><dd id="locationLastValidation">—</dd></div></dl><a id="locationGoogleLink" class="location-google-link" href="#" target="_blank" rel="noopener" hidden>فتح الموقع في خرائط Google</a></div>
+  <div class="location-info-card"><h3>آخر قراءة</h3><dl class="location-facts"><div><dt>المستخدم</dt><dd id="locationLastUser">—</dd></div><div><dt>المنطقة</dt><dd id="locationLastRegion" aria-live="polite">—</dd></div><div><dt>الشارع</dt><dd id="locationLastStreet" aria-live="polite">—</dd></div><div class="location-coordinates"><div><dt>خط العرض</dt><dd><span id="locationLatitude">—</span><button type="button" class="location-copy-btn" onclick="copyLocationCoordinate('locationLatitude',this)">نسخ</button></dd></div><div><dt>خط الطول</dt><dd><span id="locationLongitude">—</span><button type="button" class="location-copy-btn" onclick="copyLocationCoordinate('locationLongitude',this)">نسخ</button></dd></div></div><div class="location-copy-both-wrap"><button type="button" class="location-copy-both-btn" onclick="copyLocationCoordinates(this)">نسخ الإحداثيات معًا لخرائط Google</button><button type="button" class="location-open-maps-btn" onclick="openCurrentLocationInGoogleMaps()">فتح مباشرة في خرائط Google</button></div><div><dt>وقت القراءة</dt><dd id="locationLastCaptured">—</dd></div><div><dt>وقت الخادم</dt><dd id="locationLastReceived">—</dd></div><div><dt>الدقة</dt><dd id="locationLastAccuracy">—</dd></div><div><dt>الحالة</dt><dd id="locationLastValidation">—</dd></div></dl><a id="locationGoogleLink" class="location-google-link" href="#" target="_blank" rel="noopener" hidden>فتح الموقع في خرائط Google</a></div>
  </div>
  <div id="locationAllMapCard" class="location-all-map-card location-owner-only" data-location-owner-only><div class="location-map-head"><div><h3>خريطة جميع المواقع المرسلة</h3><small id="locationAllMapMeta">—</small></div><button type="button" class="location-fit-map-btn" onclick="fitAllLocationMap()">ملاءمة الخريطة</button></div><div id="locationAllMap" role="application" aria-label="خريطة تفاعلية لجميع المواقع"></div><p class="location-map-note">اضغط على أي دبوس لعرض تفاصيل الموقع وفتح خرائط Google.</p></div>
  <div id="locationAuditPanel" class="location-audit-panel location-owner-only" data-location-owner-only hidden><h3>سجل عمليات الحذف</h3><div id="locationAuditRows">اضغط «سجل الحذف» لعرض العمليات.</div></div>
@@ -7449,9 +7449,15 @@ if(session){
   const savedUser=String(session?.user||"").normalize("NFKC").toLocaleLowerCase("en-US");
   const authUser=String(data?.user?.user_metadata?.username||"").normalize("NFKC").toLocaleLowerCase("en-US");
   if(error||!data?.user||!savedUser||savedUser!==authUser){logout(true);return;}
-  const {data:profile,error:profileError}=await supabaseClient.from("app_user_profiles").select("username,display_name,app_role,owner_role,is_active,is_blocked,is_linked").eq("user_id",data.user.id).maybeSingle();
+  const {data:profile,error:profileError}=await supabaseClient.from("app_user_profiles").select("username,display_name,app_role,owner_role,officer_name,is_active,is_blocked,is_linked").eq("user_id",data.user.id).maybeSingle();
   if(profileError||!profile||!profile.is_active||profile.is_blocked||!profile.is_linked){logout(true);return;}
-  appSessionReady=true;session={...session,user:profile.username,name:profile.display_name||session.name,ownerRole:profile.owner_role||session.ownerRole||""};applySession();
+  const restoredUser={username:profile.username,name:profile.display_name||session.name,role:profile.app_role,ownerRole:profile.owner_role||session.ownerRole||"",officerName:profile.officer_name||session.officerName||"",active:profile.is_active!==false,blocked:profile.is_blocked===true,linked:profile.is_linked!==false};
+  const localUser=users.find(user=>String(user.username).normalize("NFKC").toLocaleLowerCase("en-US")===String(profile.username).normalize("NFKC").toLocaleLowerCase("en-US"));
+  if(localUser)Object.assign(localUser,restoredUser);else users.push(restoredUser);
+  saveUsers();
+  appSessionReady=true;session={...session,...restoredUser,user:profile.username};
+  try{sessionStorage.setItem(SESSION_KEY,JSON.stringify(session));if(localStorage.getItem(REMEMBER_SESSION_KEY))localStorage.setItem(REMEMBER_SESSION_KEY,JSON.stringify(session));}catch(e){console.warn("تحديث بيانات الجلسة:",e)}
+  applySession();
  }).catch(()=>logout(true));
 }else {document.getElementById("app").style.display="none";document.getElementById("loginScreen").style.display="flex";refreshLoginUsers();}
 setInterval(()=>{if(session)enforceSession()},1500);
@@ -11231,32 +11237,36 @@ const locationRegionCache=new Map();
 let locationRegionLookupKey="";
 let locationGeocodeQueue=Promise.resolve();
 let locationLastGeocodeAt=0;
+const locationRegionCorrection={latitude:30.642295,longitude:31.081731,radiusMeters:500,region:"بركة السبع — محافظة المنوفية"};
+function locationDistanceMeters(lat1,lon1,lat2,lon2){const rad=value=>value*Math.PI/180,dLat=rad(lat2-lat1),dLon=rad(lon2-lon1),a=Math.sin(dLat/2)**2+Math.cos(rad(lat1))*Math.cos(rad(lat2))*Math.sin(dLon/2)**2;return 6371000*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));}
 function lookupLocationRegion(item) {
-  const el=document.getElementById("locationLastRegion");
+  const el=document.getElementById("locationLastRegion"),streetEl=document.getElementById("locationLastStreet");
   const lat=Number(item?.latitude),lon=Number(item?.longitude);
   if(!el)return;
-  if(!Number.isFinite(lat)||!Number.isFinite(lon)||Math.abs(lat)>90||Math.abs(lon)>180){locationRegionLookupKey="";el.textContent="—";return;}
+  if(!Number.isFinite(lat)||!Number.isFinite(lon)||Math.abs(lat)>90||Math.abs(lon)>180){locationRegionLookupKey="";el.textContent="—";if(streetEl)streetEl.textContent="—";return;}
   const key=`${lat.toFixed(5)},${lon.toFixed(5)}`;
   locationRegionLookupKey=key;
-  if(locationRegionCache.has(key)){el.textContent=locationRegionCache.get(key);return;}
-  el.textContent="جارٍ تحديد المنطقة…";
+  if(locationRegionCache.has(key)){const place=locationRegionCache.get(key);el.textContent=place.region;if(streetEl)streetEl.textContent=place.street;return;}
+  el.textContent="جارٍ تحديد المنطقة…";if(streetEl)streetEl.textContent="جارٍ تحديد الشارع…";
   const request=locationGeocodeQueue.then(async()=>{
     const wait=Math.max(0,1100-(Date.now()-locationLastGeocodeAt));
     if(wait)await new Promise(resolve=>setTimeout(resolve,wait));
     locationLastGeocodeAt=Date.now();
     const url=`https://nominatim.openstreetmap.org/reverse?format=jsonv2&addressdetails=1&accept-language=ar&zoom=18&lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}`;
     const response=await fetch(url,{headers:{Accept:"application/json"}});
-    if(!response.ok)throw new Error("تعذر تحديد المنطقة");
+    if(!response.ok)throw new Error("تعذر تحديد العنوان");
     const data=await response.json(),address=data.address||{};
     const locality=address.neighbourhood||address.quarter||address.residential||address.suburb||address.city_district||address.district||address.city||address.town||address.village||address.municipality||address.state;
     const hierarchy=[locality,address.city||address.town||address.village||address.municipality,address.state]
       .filter(Boolean)
       .filter((value,index,all)=>all.findIndex(part=>part.toLocaleLowerCase("ar")===value.toLocaleLowerCase("ar"))===index);
-    const region=hierarchy.join(" — ")||data.name||"لم تُحدَّد المنطقة";
-    return String(region);
+    const nearbyConfirmedTown=locationDistanceMeters(lat,lon,locationRegionCorrection.latitude,locationRegionCorrection.longitude)<=locationRegionCorrection.radiusMeters;
+    const region=nearbyConfirmedTown?locationRegionCorrection.region:(hierarchy.join(" — ")||data.name||"لم تُحدَّد المنطقة");
+    const street=address.road||address.pedestrian||address.footway||address.path||address.cycleway||address.service||"لا يوجد اسم شارع مسجل في الخريطة";
+    return {region:String(region),street:String(street)};
   });
   locationGeocodeQueue=request.catch(()=>{});
-  request.then(region=>{locationRegionCache.set(key,region);if(locationRegionLookupKey===key&&el.isConnected)el.textContent=region;}).catch(()=>{if(locationRegionLookupKey===key&&el.isConnected)el.textContent="تعذّر تحديد المنطقة";});
+  request.then(place=>{locationRegionCache.set(key,place);if(locationRegionLookupKey===key&&el.isConnected){el.textContent=place.region;if(streetEl)streetEl.textContent=place.street;}}).catch(()=>{if(locationRegionLookupKey===key&&el.isConnected){el.textContent="تعذّر تحديد المنطقة";if(streetEl)streetEl.textContent="تعذّر تحديد الشارع";}});
 }
 function renderLocationFacts(item) {
   const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
@@ -11267,7 +11277,7 @@ function renderLocationFacts(item) {
   set("locationLastReceived", item ? locationDate(item.server_received_at) : "—");
   set("locationLastAccuracy", item ? `${Math.round(Number(item.accuracy_m)||0)} متر` : "—");
   set("locationLastValidation", item ? locationStatusLabel(item.validation_status) : "—");
-  if(item)lookupLocationRegion(item);else{locationRegionLookupKey="";set("locationLastRegion","—");}
+  if(item)lookupLocationRegion(item);else{locationRegionLookupKey="";set("locationLastRegion","—");set("locationLastStreet","—");}
   renderLocationMap(item);
 }
 let locationInteractiveMap=null; let locationInteractiveMarkers=[]; let locationMapItems=[];
