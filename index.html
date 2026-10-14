@@ -5857,7 +5857,7 @@ function buildDuePrintLayer(forPdf=false){
   if(!active||!source)return null;
   const sourceRows=[...source.querySelectorAll("tbody tr")].filter(r=>r.textContent.trim()&&!r.classList.contains("due-specialist-screen-header-row")&&!r.classList.contains("due-specialist-group-row")&&!r.classList.contains("due-specialist-subtotal-row"));
   if(!sourceRows.length||sourceRows[0].textContent.includes("لا توجد أقساط مستحقة"))return null;
-  const visibleColumnIndexes=[0,1,2,3,4,5,6,7,8,9,11,12,13,15,16,17,18],widths=[3,9,9,7,4,8,4,5,5,5,7,3,4,5,7,7,8];
+  const visibleColumnIndexes=[0,1,2,3,4,5,6,7,8,9,11,12,13,14,15,16,17,18],widths=[3,8,8,7,4,7,4,5,5,5,7,3,4,7,4,6,6,7];
   // القالب المستقل يُستخدم عند اختيار «جميع الأخصائيين» أو أخصائي محدد من خانة اسم الأخصائي.
   // يعمل بنفس التنسيق في الطباعة والمعاينة وPDF، ولا يعتمد على بطاقة حالة الأخصائي.
   const officerInputValue=(document.getElementById("dueOfficer")?.value||"").trim(),allSelected=norm(officerInputValue)===norm(DUE_ALL_SPECIALISTS_LABEL);
@@ -5923,6 +5923,9 @@ function buildDuePrintLayer(forPdf=false){
     const table=makeTable(printRows),pageSize=forPdf?10:12,pageSlices=[];for(let start=0;start<printRows.length;){const remaining=printRows.length-start;let count=Math.min(pageSize,remaining);if(!forPdf&&count===pageSize&&remaining===pageSize+1)count=pageSize-1;pageSlices.push({start,rows:printRows.slice(start,start+count)});start+=count}
     pageSlices.forEach((slice,pageIndex)=>{const page=document.createElement("section");page.className="print-page due-report-page-block";page.dir="rtl";page.style.cssText="page-break-inside:avoid;break-inside:avoid;";page.style.setProperty("height","auto","important");page.style.setProperty("min-height","0","important");page.style.setProperty("max-height","none","important");page.style.setProperty("overflow","visible","important");page.style.setProperty("box-shadow","none","important");if(pageIndex>0){page.style.pageBreakBefore="always";page.style.breakBefore="page"}const content=document.createElement("div");content.className="page-content";if(pageIndex===0){content.appendChild(title.cloneNode(true));content.appendChild(meta.cloneNode(true))}const pageTable=table.cloneNode(false);pageTable.style.setProperty("height","auto","important");pageTable.style.setProperty("min-height","0","important");pageTable.style.setProperty("max-height","none","important");pageTable.style.setProperty("box-shadow","none","important");pageTable.appendChild(table.querySelector("colgroup").cloneNode(true));pageTable.appendChild(table.querySelector("thead").cloneNode(true));const pageBody=document.createElement("tbody");slice.rows.forEach((row,index)=>{const cells=[...table.querySelector("tbody").rows[slice.start+index].cells],printed=document.createElement("tr");cells.forEach(cell=>printed.appendChild(cell.cloneNode(true)));printed.cells[0].textContent=String(slice.start+index+1);printed.style.setProperty("page-break-inside","avoid","important");printed.style.setProperty("break-inside","avoid","important");pageBody.appendChild(printed)});pageTable.appendChild(pageBody);content.appendChild(pageTable);page.appendChild(content);layer.appendChild(page)})
   }
+  const duePhoneColumnStyle=document.createElement("style");
+  duePhoneColumnStyle.textContent="#riskPrintLayer.due-print-report .risk-print-table td:nth-child(n+16) .phone-nowrap{display:inline-block!important;white-space:nowrap!important;word-break:keep-all!important;overflow-wrap:normal!important;direction:ltr!important;max-width:100%!important;overflow:hidden!important}";
+  layer.appendChild(duePhoneColumnStyle);
   return layer;
 }
 function printRiskReport(event){
