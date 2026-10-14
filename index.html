@@ -3351,8 +3351,9 @@ async function login(){
  document.getElementById("currentUser").textContent=session.name;
  document.getElementById("currentRole").textContent=isOwnerRole(session.role)?(session.ownerRole||"مالك / إدارة"):"أخصائي تمويل";
  applyPermissions();
- if(session.role==="officer") showScreen("clients");
- else showScreen("dash");
+	 const preferredScreen=String(location.hash||"").replace(/^#/,"");
+	 const canRestoreScreen=SCREEN_IDS.includes(preferredScreen)&&!(["users","specialists","audit","dash"].includes(preferredScreen)&&!isOwnerRole(session.role));
+	 showScreen(canRestoreScreen?preferredScreen:(session.role==="officer"?"clients":"dash"));
 	 if(typeof refreshOnOpen==="function")void refreshOnOpen();
 }
 let INACTIVITY_LIMIT=8*60*60*1000;
@@ -4169,6 +4170,7 @@ function renderCollection(){
   const collectionRate=sumTotal>0 ? (sumPaid/sumTotal)*100 : 0;
   document.getElementById("collectionScreenRate").textContent=collectionRate.toLocaleString("en-US",{maximumFractionDigits:2})+"%";
   document.getElementById("collectionDetails").style.display="none";
+  saveCollectionFilters();
 }
 function guarantorText(r,n){
   const name=get(r,"g"+n)||getAny(r,[n===1?H.g1:n===2?H.g2:H.g3,`اسم الضامن ${n}`]);
@@ -6895,11 +6897,11 @@ document.getElementById("dueStatus")?.addEventListener("change",renderDueInstall
 document.getElementById("sf")?.addEventListener("input",renderPrint);
 ["riskStatus","portfolioStatus"].forEach(id=>document.getElementById(id).addEventListener("change",()=>{renderRisk();renderPortfolio()}));
 const debouncedRenderCollection=debounce(()=>{updateCollectionFilterLists();renderCollection()},180);
-["collectionClient","collectionOfficer","collectionFrom","collectionTo"].forEach(id=>document.getElementById(id).addEventListener("input",()=>{if(id==="collectionTo")syncCumulativeCriterionWithCollectionTo();debouncedRenderCollection()}));
+["collectionClient","collectionOfficer","collectionFrom","collectionTo"].forEach(id=>{const input=document.getElementById(id);input.addEventListener("input",()=>{saveCollectionFilters();if(id==="collectionTo")syncCumulativeCriterionWithCollectionTo();debouncedRenderCollection()});input.addEventListener("change",saveCollectionFilters)});
 document.getElementById("cumulativeCriterionFrom")?.addEventListener("input",handleCumulativeCriterionInput);
 document.getElementById("cumulativeCriterionTo")?.addEventListener("input",handleCumulativeCriterionInput);
 document.getElementById("collectionStatus").addEventListener("change",()=>{updateCollectionFilterLists();renderCollection()});
-try{initCollectionCumulativeCriterion();setCollectionCurrentMonth()}catch(e){}
+// تهيئة الفلاتر تتم بعد تحميل أدوات التخزين في نهاية هذا السكربت.
 
 function setRiskCurrentMonth(){
   const now=new Date();
@@ -6935,6 +6937,9 @@ function formatInputDate(d){
 const COLLECTION_CUMULATIVE_CRITERION_KEY="mub_collection_cumulative_criterion_v1";
 let collectionCumulativeCriterion={from:"2023-01-01",to:"",locked:false};
 function readCumulativeCriterion(){try{const saved=JSON.parse(localStorage.getItem(COLLECTION_CUMULATIVE_CRITERION_KEY)||"null");return saved&&typeof saved==="object"?{from:String(saved.from||"2023-01-01"),to:String(saved.to||""),locked:saved.locked===true}:null}catch(e){return null}}
+function collectionFiltersStorageKey(){return `mub_collection_filters_v1:${String(session?.user||"guest").trim().toLocaleLowerCase("ar-EG")}`}
+function saveCollectionFilters(){const state={client:document.getElementById("collectionClient")?.value||"",officer:document.getElementById("collectionOfficer")?.value||"",status:document.getElementById("collectionStatus")?.value||"",from:document.getElementById("collectionFrom")?.value||"",to:document.getElementById("collectionTo")?.value||""};try{sessionStorage.setItem(collectionFiltersStorageKey(),JSON.stringify(state))}catch(e){}}
+function restoreCollectionFilters(){let saved=null;try{saved=JSON.parse(sessionStorage.getItem(collectionFiltersStorageKey())||"null")}catch(e){}if(!saved||typeof saved!=="object"){setCollectionCurrentMonth();return}const set=(id,value)=>{const el=document.getElementById(id);if(el)el.value=String(value??"")};set("collectionClient",saved.client);set("collectionOfficer",saved.officer);set("collectionStatus",saved.status);set("collectionFrom",saved.from);set("collectionTo",saved.to);syncCumulativeCriterionWithCollectionTo();updateCollectionFilterLists();renderCollection()}
 function cumulativeCriterionSetStatus(text,ok=false){const el=document.getElementById("cumulativeCriterionStatus");if(el){el.textContent=text||"";el.style.color=ok?"#16705f":"#64747a"}}
 function updateCumulativeCriterionInputs(){const from=document.getElementById("cumulativeCriterionFrom"),to=document.getElementById("cumulativeCriterionTo");if(from)from.value=collectionCumulativeCriterion.from||"2023-01-01";if(to)to.value=collectionCumulativeCriterion.to||document.getElementById("collectionTo")?.value||isoDate(new Date())}
 function initCollectionCumulativeCriterion(){const saved=readCumulativeCriterion();if(saved)collectionCumulativeCriterion=saved;updateCumulativeCriterionInputs();cumulativeCriterionSetStatus(saved?.locked?"معيار محفوظ":"يتزامن مع تاريخ الفلتر")}
@@ -7475,7 +7480,7 @@ document.getElementById("specialistStatus")?.addEventListener("change",e=>{setSp
 document.getElementById("specialistLoanStatus")?.addEventListener("change",renderSpecialists);
 ["specialistsFrom","specialistsTo"].forEach(id=>document.getElementById(id)?.addEventListener("change",renderSpecialists));
 
-setCollectionCurrentMonth();
+initCollectionCumulativeCriterion();restoreCollectionFilters();
 setClientsDefaultDateRange();
 setPortfolioDefaultDateRange();
 if(session&&appSessionReady)refreshOnOpen();
