@@ -2292,6 +2292,8 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
 @media(max-width:760px){#users .user-presence-time{white-space:normal;min-width:110px}}
 </style>
 <style id="hide-last-reading-region">#location .location-info-card .location-facts > div:has(#locationLastRegion){display:none!important}</style>
+<style id="hide-last-reading-street">#location .location-info-card .location-facts > div:has(#locationLastStreet){display:none!important}</style>
+<style id="user-password-reset-visibility-style">#users .user-password-reset-field{display:flex;align-items:stretch;gap:6px}#users .user-password-reset-field input{flex:1;min-width:0}#users .user-password-toggle{flex:0 0 auto;min-width:64px;padding:6px 10px;border:1px solid #cbd5e1;border-radius:8px;background:#f8fafc;color:#334155;font:inherit;font-size:12px;font-weight:800;cursor:pointer}#users .user-password-toggle:hover{background:#eaf1f8}</style>
 </head>
 
 <body>
@@ -2467,7 +2469,7 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
       <input id="ownerEditKey" type="hidden">
       <div><label>اسم المستخدم</label><input id="ownerFormUsername" placeholder="مثال: اسم المستخدم"></div>
       <div><label>اسم المالك</label><input id="ownerFormName" placeholder="اسم المالك"></div>
-      <div><label>كلمة المرور</label><input id="ownerFormPassword" type="password" autocomplete="new-password" placeholder="اتركه فارغًا للإبقاء على الحالية؛ اكتب الجديدة للتغيير"></div>
+      <div><label for="ownerFormPassword">كلمة المرور الجديدة</label><div class="user-password-reset-field"><input id="ownerFormPassword" type="password" autocomplete="new-password" placeholder="اتركه فارغًا للإبقاء على الحالية؛ اكتب الجديدة للتغيير"><button type="button" class="user-password-toggle" data-password-input="ownerFormPassword" aria-label="إظهار كلمة المرور الجديدة" aria-pressed="false" onclick="toggleResetPasswordVisibility('ownerFormPassword',this)">إظهار</button></div></div>
       <div><label>الحالة</label><select id="ownerFormActive"><option value="1">نشط</option><option value="0">غير نشط</option></select></div>
     </div>
     <div class="user-actions"><button class="green" onclick="saveOwnerUser()">💾 حفظ المالك</button><button class="light" onclick="clearOwnerForm()">مسح النموذج</button></div>
@@ -2484,7 +2486,7 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
       <input id="userEditKey" type="hidden">
       <div><label>اسم المستخدم</label><input id="userFormUsername" autocomplete="off" placeholder="مثال: ahmed أو اسم مختصر"></div>
       <div class="user-display-name-field"><label for="userFormName">الاسم الظاهر</label><input id="userFormName" list="userFormNameList" autocomplete="off" aria-label="الاسم الظاهر للأخصائي" placeholder="اختر اسمًا من الاقتراحات أو اكتب الاسم الظاهر"><datalist id="userFormNameList"></datalist></div>
-      <div><label>كلمة المرور</label><input id="userFormPassword" type="password" autocomplete="new-password" placeholder="أدخل كلمة مرور أولية (6 أحرف على الأقل)"></div>
+      <div><label for="userFormPassword">كلمة المرور الجديدة</label><div class="user-password-reset-field"><input id="userFormPassword" type="password" autocomplete="new-password" placeholder="أدخل كلمة مرور أولية (6 أحرف على الأقل)"><button type="button" class="user-password-toggle" data-password-input="userFormPassword" aria-label="إظهار كلمة المرور الجديدة" aria-pressed="false" onclick="toggleResetPasswordVisibility('userFormPassword',this)">إظهار</button></div></div>
       <div><label>الاسم من شيت Excel</label><select id="userFormOfficer"></select><small>اختر الاسم المطابق للبيانات حتى يظهر في شاشة الدخول.</small></div>
     </div>
     <div class="user-actions"><button class="green" onclick="saveOfficerUser()">💾 حفظ المستخدم</button><button class="light" onclick="clearUserForm()">مسح</button></div>
@@ -3218,6 +3220,8 @@ function toggleLoginPassword(){
  if(button){button.textContent=visible?"◉":"◌";button.setAttribute("aria-label",visible?"إظهار كلمة المرور":"إخفاء كلمة المرور");button.title=visible?"إظهار كلمة المرور":"إخفاء كلمة المرور";}
  input.focus();
 }
+function resetUserPasswordVisibility(inputId){const input=document.getElementById(inputId),button=document.querySelector(`.user-password-toggle[data-password-input="${inputId}"]`);if(input)input.type="password";if(button){button.textContent="إظهار";button.setAttribute("aria-label","إظهار كلمة المرور الجديدة");button.setAttribute("aria-pressed","false");}}
+function toggleResetPasswordVisibility(inputId,button){const input=document.getElementById(inputId);if(!input||!button)return;const visible=input.type!=="text";input.type=visible?"text":"password";button.textContent=visible?"إخفاء":"إظهار";button.setAttribute("aria-label",visible?"إخفاء كلمة المرور الجديدة":"إظهار كلمة المرور الجديدة");button.setAttribute("aria-pressed",String(visible));}
 function refreshLoginUsers(){
  const role=document.getElementById("loginRole")?.value||"owner";
  const roleChanged=lastLoginRole!==role;lastLoginRole=role;
@@ -7062,8 +7066,8 @@ function exportAuditExcel(){if(typeof XLSX==="undefined")return alert("مكتب�
 function dataQualityReport(sourceRows=rows){let missingNid=0,missingPhone=0,negative=0,duplicates=0;const seen=new Set();sourceRows.forEach(r=>{if(!String(get(r,"nid")||"").trim())missingNid++;if(!String(firstPhone(r)||"").trim())missingPhone++;if(num(get(r,"unpaid"))<0)negative++;const k=key(get(r,"loan"))+"|"+key(get(r,"installment"));if(k!=="|"){if(seen.has(k))duplicates++;seen.add(k)}});const issues=missingNid+missingPhone+negative;const score=sourceRows.length?Math.max(0,Math.min(100,100-(issues/Math.max(sourceRows.length,1))*50-(duplicates/Math.max(sourceRows.length,1))*50)):0;return{missingNid,missingPhone,negative,duplicates,score}}
 function refreshDataQuality(){const q=dataQualityReport(),n=rows.length;const health=document.getElementById("dbHealth"),last=document.getElementById("dbLastUpdate"),count=document.getElementById("dbRowsCount");if(count)count.textContent=n.toLocaleString("en-US");if(last)last.textContent=safeLocalGet("mub_time")||"—";if(health){health.textContent=n?`جودة ${q.score.toFixed(0)}% — نقص الرقم القومي: ${q.missingNid} | نقص الهاتف: ${q.missingPhone} | تكرار محتمل: ${q.duplicates}`:(cloudReady?"لا توجد بيانات مرفوعة بعد":"لم يتم تحميل بيانات محليًا");health.className=n?(q.score>=95?"audit-ok":q.score>=80?"audit-warn":"audit-bad"):"audit-warn"}return q}
 function roleLabel(u){return isOwnerRole(u.role)?(u.ownerRole||"مالك") : "أخصائي"}
-function clearOwnerForm(){["ownerEditKey","ownerFormUsername","ownerFormName","ownerFormPassword"].forEach(id=>{const e=document.getElementById(id);if(e)e.value=""});const a=document.getElementById("ownerFormActive");if(a)a.value="1";}
-function editOwnerUser(username){if(!canManageOwners())return alert("إضافة وحذف الملاك متاحة لمحاسب الفرع فقط.");const u=users.find(x=>x.username===username&&x.role==="owner");if(!u)return;document.getElementById("ownerEditKey").value=u.username;document.getElementById("ownerFormUsername").value=u.username;document.getElementById("ownerFormName").value=u.name||"";document.getElementById("ownerFormPassword").value="";document.getElementById("ownerFormActive").value=u.active===false?"0":"1";}
+function clearOwnerForm(){["ownerEditKey","ownerFormUsername","ownerFormName","ownerFormPassword"].forEach(id=>{const e=document.getElementById(id);if(e)e.value=""});resetUserPasswordVisibility("ownerFormPassword");const a=document.getElementById("ownerFormActive");if(a)a.value="1";}
+function editOwnerUser(username){if(!canManageOwners())return alert("إضافة وحذف الملاك متاحة لمحاسب الفرع فقط.");const u=users.find(x=>x.username===username&&x.role==="owner");if(!u)return;document.getElementById("ownerEditKey").value=u.username;document.getElementById("ownerFormUsername").value=u.username;document.getElementById("ownerFormName").value=u.name||"";document.getElementById("ownerFormPassword").value="";resetUserPasswordVisibility("ownerFormPassword");document.getElementById("ownerFormActive").value=u.active===false?"0":"1";}
 async function saveOwnerUser(){
  if(!canManageOwners())return alert("هذه العملية متاحة لمحاسب الفرع فقط.");
  const old=document.getElementById("ownerEditKey").value.trim();const username=document.getElementById("ownerFormUsername").value.trim();const name=document.getElementById("ownerFormName").value.trim();const password=document.getElementById("ownerFormPassword").value;const active=document.getElementById("ownerFormActive").value==="1";
@@ -7284,8 +7288,8 @@ function userPresenceNormalizeName(value){return String(value||"").normalize("NF
  const ob=document.getElementById("ownerManagementBox");if(ob)ob.style.display=canManageOwners()?"block":"none";
  const fb=document.getElementById("officerManagementBox");if(fb)fb.style.display=canManageOfficers()?"block":"none"; if(!userPresenceLoading&&Date.now()-userPresenceFetchedAt>30000)void refreshUsersPresence();
 }
-function clearUserForm(){["userEditKey","userFormUsername","userFormName","userFormPassword"].forEach(id=>{const e=document.getElementById(id);if(e)e.value=""});const s=document.getElementById("userFormOfficer");if(s)s.value="";}
-function editOfficerUser(username){if(!canManageOfficers())return alert("إدارة الأخصائيين متاحة لمحاسب الفرع ومدير الفرع فقط.");const u=users.find(x=>x.username===username&&x.role==="officer");if(!u)return;document.getElementById("userEditKey").value=u.username;document.getElementById("userFormUsername").value=u.username;document.getElementById("userFormName").value=u.name||"";document.getElementById("userFormPassword").value=u.password||"";renderUsers();document.getElementById("userFormOfficer").value=u.officerName||"";document.getElementById("userFormUsername").focus();}
+function clearUserForm(){["userEditKey","userFormUsername","userFormName","userFormPassword"].forEach(id=>{const e=document.getElementById(id);if(e)e.value=""});resetUserPasswordVisibility("userFormPassword");const s=document.getElementById("userFormOfficer");if(s)s.value="";}
+function editOfficerUser(username){if(!canManageOfficers())return alert("إدارة الأخصائيين متاحة لمحاسب الفرع ومدير الفرع فقط.");const u=users.find(x=>x.username===username&&x.role==="officer");if(!u)return;document.getElementById("userEditKey").value=u.username;document.getElementById("userFormUsername").value=u.username;document.getElementById("userFormName").value=u.name||"";document.getElementById("userFormPassword").value=u.password||"";resetUserPasswordVisibility("userFormPassword");renderUsers();document.getElementById("userFormOfficer").value=u.officerName||"";document.getElementById("userFormUsername").focus();}
 async function saveOfficerUser(){
  if(!canManageOfficerAccounts())return alert("إضافة أو تعديل حساب الأخصائي متاح لمحاسب الفرع ومدير الفرع فقط.");
  const old=document.getElementById("userEditKey").value.trim().toLowerCase(),username=document.getElementById("userFormUsername").value.trim().toLowerCase(),name=document.getElementById("userFormName").value.trim(),password=document.getElementById("userFormPassword").value,officerName=document.getElementById("userFormOfficer").value;
