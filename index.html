@@ -2869,7 +2869,7 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
   <div class="portfolio-filter-box"><div class="due-specialist-status-control app-shared-specialist-status-control no-print" role="radiogroup" aria-label="حالة الأخصائي"><span class="due-specialist-status-title">حالة الأخصائي</span><label><input type="radio" style="width:14px!important;height:14px!important;min-width:14px!important;max-width:14px!important;display:inline-block!important;flex:0 0 14px!important;margin:0!important;"  name="appSpecialistStatus_portfolio" value="active" checked data-app-specialist-state-control onchange="setAppSpecialistStatus(this.value)">الأخصائيون النشطون</label><label><input type="radio" style="width:14px!important;height:14px!important;min-width:14px!important;max-width:14px!important;display:inline-block!important;flex:0 0 14px!important;margin:0!important;"  name="appSpecialistStatus_portfolio" value="inactive" data-app-specialist-state-control onchange="setAppSpecialistStatus(this.value)">أخصائي مستقيل</label><label><input type="radio" style="width:14px!important;height:14px!important;min-width:14px!important;max-width:14px!important;display:inline-block!important;flex:0 0 14px!important;margin:0!important;"  name="appSpecialistStatus_portfolio" value="all" data-app-specialist-state-control onchange="setAppSpecialistStatus(this.value)">جميع الأخصائيين</label></div><label for="portfolioOfficer">اسم الأخصائي</label><select id="portfolioOfficer"><option value="">كل الأخصائيين</option></select></div>
   <div class="portfolio-filter-box"><label for="portfolioClient">اسم العميل</label><select id="portfolioClient"><option value="">كل العملاء</option></select></div>
   <div class="portfolio-filter-box portfolio-date-filter"><div class="portfolio-date-heading"><label>البحث بالتاريخ</label><span>صيغة التاريخ: يوم/شهر/سنة</span></div><div class="portfolio-date-range"><div class="portfolio-date-field"><label for="portfolioFrom">من تاريخ</label><div class="portfolio-date-input"><span>📅</span><input id="portfolioFrom" type="text" inputmode="numeric" placeholder="01/01/1990" aria-label="من تاريخ"><button type="button" class="portfolio-calendar-trigger" aria-label="اختيار من تاريخ" title="اختيار التاريخ" onclick="openPortfolioDatePicker('portfolioFrom')">⌄</button><input id="portfolioFromPicker" class="portfolio-date-picker-input" type="date" tabindex="-1" aria-hidden="true"></div></div><div class="portfolio-date-field"><label for="portfolioTo">إلى تاريخ</label><div class="portfolio-date-input"><span>📅</span><input id="portfolioTo" type="text" inputmode="numeric" placeholder="31/12/2050" aria-label="إلى تاريخ"><button type="button" class="portfolio-calendar-trigger" aria-label="اختيار إلى تاريخ" title="اختيار التاريخ" onclick="openPortfolioDatePicker('portfolioTo')">⌄</button><input id="portfolioToPicker" class="portfolio-date-picker-input" type="date" tabindex="-1" aria-hidden="true"></div></div></div><div class="portfolio-date-tools"><button type="button" class="light" onclick="setPortfolioPreviousYear()">◀️ السنة السابقة</button><button type="button" class="light" onclick="setPortfolioDefaultDateRange()">📅 كل السنوات</button></div></div>
-  <div class="portfolio-filter-box"><label for="portfolioStatus">حالة القرض</label><select id="portfolioStatus"><option value="open">القروض القائمة (الرئيسية)</option><option value="closed">القروض المغلقة</option><option value="all">كل القروض</option></select><div class="portfolio-filter-actions"><span class="filter-status-note">يمكن البحث بأي حرف داخل القوائم</span><button type="button" class="light" onclick="clearSectionFilter('portfolio')">🧹 مسح الفلاتر</button></div></div>
+  <div class="portfolio-filter-box"><label for="portfolioStatus">حالة القرض</label><select id="portfolioStatus"><option value="open">القرض قائم</option><option value="closed">القروض المغلقة</option><option value="all">كل القروض</option></select><div class="portfolio-filter-actions"><span class="filter-status-note">يمكن البحث بأي حرف داخل القوائم</span><button type="button" class="light" onclick="clearSectionFilter('portfolio')">🧹 مسح الفلاتر</button></div></div>
 </div>
 <div class="toolbar no-print" style="display:none"><input id="pf" value=""></div>
 
@@ -4900,7 +4900,7 @@ function renderPortfolio(){
  const filteredGroups=visibleGroups().filter(g=>{
   const gOfficer=String(get(g.r,"officer")||"");
   const gClient=String(get(g.r,"client")||"");
-  return statusMatch(g,filter)
+  return portfolioStatusMatches(g,filter)
    && specialistStatusAllows(gOfficer)
    && (!officer || officerKey(gOfficer)===officerKey(officer))
    && (!client || norm(gClient)===norm(client))
@@ -4931,7 +4931,7 @@ function renderPortfolio(){
   const interest=portfolioOutstandingComponent(items,interestNames,interestMatcher,principalNames,principalMatcher);
   const originalPrincipal=profileLoanExcelTotalFromRows(items,principalNames,principalMatcher);
   portfolioTotalPrincipal+=principal;
-  if(filter==="closed"){
+  if(portfolioStatusIsClosed(filter)){
    const closedClientKey=norm(getAny(r,[H.client,"اسم العميل","العميل"]));
    if(!closedClientKey || !closedLoanClientsSeen.has(closedClientKey)){
     if(closedClientKey)closedLoanClientsSeen.add(closedClientKey);
@@ -4951,7 +4951,7 @@ function renderPortfolio(){
  if(clientCountEl){const uniqueClients=new Set(portfolioGroups.map(g=>norm(getAny(g.r,[H.client,"اسم العميل","العميل"]))).filter(Boolean));clientCountEl.textContent=uniqueClients.size.toLocaleString("en-US");}
  // إجمالي القروض المغلقة يُحتسب مرة واحدة لكل اسم عميل.
  const closedCard=document.getElementById("portfolioClosedLoansCard"),closedTotalEl=document.getElementById("portfolioClosedLoansTotal");
- if(closedCard)closedCard.classList.toggle("show",filter==="closed");
+ if(closedCard)closedCard.classList.toggle("show",portfolioStatusIsClosed(filter));
  if(closedTotalEl)closedTotalEl.textContent=Math.round(portfolioClosedLoansTotal).toLocaleString("en-US");
 }
 function renderPrint(){
@@ -5127,7 +5127,7 @@ function clearSectionFilter(section){
   }
   if(section==="portfolio"){
     ["portfolioOfficer","portfolioClient"].forEach(id=>{const el=document.getElementById(id);if(el)el.value="";});
-    const st=document.getElementById("portfolioStatus");if(st)st.value="open";
+    setPortfolioDefaultStatus();
     const q=document.getElementById("pf");if(q)q.value="";
     setPortfolioDefaultDateRange();
     window.smartSelectSync?.();
@@ -5220,6 +5220,57 @@ function populateClientsLists(){
   if(cl)cl.innerHTML=clients.map(x=>`<option value="${esc(x)}"></option>`).join("");
   if(sl)sl.innerHTML=clients.map(x=>`<option value="${esc(x)}"></option>`).join("");
 }
+function portfolioGroupExcelStatus(group){
+ const source=group?.items||[group?.r||{}];
+ for(const row of source){const status=String(clientLoanStatusFromRow(row)||"").trim();if(status)return status;}
+ return "";
+}
+function portfolioExcelStatusValues(){
+ const values=new Map();
+ visibleGroups().forEach(group=>{const status=portfolioGroupExcelStatus(group),key=normFast(status);if(status&&key&&!values.has(key))values.set(key,status)});
+ return [...values.values()].sort((a,b)=>a.localeCompare(b,"ar"));
+}
+function portfolioStatusValue(status){return "excel:"+encodeURIComponent(String(status||""))}
+function portfolioStatusFromValue(value){if(!String(value||"").startsWith("excel:"))return null;try{return decodeURIComponent(String(value).slice(6))}catch(e){return String(value).slice(6)}}
+function portfolioStatusIsCurrentText(status){return clientLoanIsExplicitlyCurrent({status},{});}
+function portfolioDefaultActiveStatus(statuses){return statuses.find(status=>normFast(status)===normFast("القرض قائم"))||statuses.find(portfolioStatusIsCurrentText)||null;}
+function portfolioStatusIsClosed(filter){
+ if(filter==="closed")return true;
+ const status=portfolioStatusFromValue(filter);
+ return status!==null&&clientLoanIsExplicitlyClosed({status},{});
+}
+function portfolioStatusMatches(group,filter){
+ if(!filter||filter==="all")return true;
+ if(filter==="open")return !group.closed;
+ if(filter==="closed")return group.closed;
+ const wanted=portfolioStatusFromValue(filter);
+ if(wanted===null)return false;
+ return normFast(portfolioGroupExcelStatus(group))===normFast(wanted);
+}
+function setPortfolioDefaultStatus(){
+ const select=document.getElementById("portfolioStatus");if(!select)return;
+ const current=portfolioDefaultActiveStatus(portfolioExcelStatusValues());
+ select.value=current?portfolioStatusValue(current):(select.querySelector('option[value="open"]')?"open":"all");
+}
+function populatePortfolioStatusOptions(){
+ const select=document.getElementById("portfolioStatus");if(!select)return;
+ const previous=select.value,statuses=portfolioExcelStatusValues();
+ if(!statuses.length){
+  select.innerHTML='<option value="open">القرض قائم</option><option value="closed">القروض المغلقة</option><option value="all">كل القروض</option>';
+  select.value=["open","closed","all"].includes(previous)?previous:"open";
+  return;
+ }
+ select.innerHTML='<option value="all">كل القروض</option>'+statuses.map(status=>`<option value="${escAttr(portfolioStatusValue(status))}">${esc(status)}</option>`).join("");
+ const savedStatus=portfolioStatusFromValue(previous);
+ const preserved=savedStatus===null?null:statuses.find(status=>normFast(status)===normFast(savedStatus));
+ if(previous==="all")select.value="all";
+ else if(preserved)select.value=portfolioStatusValue(preserved);
+ else{
+  const current=portfolioDefaultActiveStatus(statuses);
+  select.value=current?portfolioStatusValue(current):"all";
+ }
+ window.smartSelectSync?.();
+}
 function populatePortfolioLists(){
   const officerEl=document.getElementById("portfolioOfficer"),clientEl=document.getElementById("portfolioClient");
   const officerValue=officerEl?.value||"",clientValue=clientEl?.value||"";
@@ -5227,6 +5278,7 @@ function populatePortfolioLists(){
   if(clientEl)clientEl.innerHTML='<option value="">كل العملاء</option>'+uniqueClientNames().map(x=>`<option value="${escAttr(x)}">${esc(x)}</option>`).join("");
   if(officerEl && officerValue)officerEl.value=officerValue;
   if(clientEl && clientValue)clientEl.value=clientValue;
+  populatePortfolioStatusOptions();
 }
 function buildClientSummaries(entries){
   const map=new Map();
