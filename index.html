@@ -4717,6 +4717,14 @@ function portfolioOutstandingComponent(items,names,matcher,otherNames,otherMatch
   return sum+(component*ratio);
  },0);
 }
+function portfolioOutstandingPrincipal(items,names,matcher){
+ return (items||[]).reduce((sum,row)=>{
+  const principal=Math.max(0,num(profileLoanExcelValue(row,names,matcher)));
+  if(principal<=0)return sum;
+  const paid=Math.max(0,rowPaidAmount(row));
+  return sum+Math.max(0,principal-paid);
+ },0);
+}
 function portfolioUniqueByClient(list){
  const seen=new Set();
  return list.filter(g=>{
@@ -4956,7 +4964,7 @@ function renderPortfolio(){
   const interestNames=["قيمة الفائده من القسط","قيمة الفائدة من القسط","قيمة فائده القسط","فائدة القسط","فائده مستحقه","فائدة مستحقة"];
   const principalMatcher=q=>(q.includes("اصل")||q.includes("أصل"))&&(q.includes("قسط")||q.includes("مستحق"));
   const interestMatcher=q=>(q.includes("فائد")||q.includes("فائده"))&&(q.includes("قسط")||q.includes("مستحق"));
-  const principal=portfolioOutstandingComponent(items,principalNames,principalMatcher,interestNames,interestMatcher);
+  const principal=portfolioOutstandingPrincipal(items,principalNames,principalMatcher);
   const interest=portfolioOutstandingComponent(items,interestNames,interestMatcher,principalNames,principalMatcher);
   const originalPrincipal=profileLoanExcelTotalFromRows(items,principalNames,principalMatcher);
   portfolioTotalPrincipal+=principal;
