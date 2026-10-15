@@ -4941,25 +4941,72 @@ function buildPortfolioPrintLayer(){
  rows.forEach(row=>{
   const name=String(row.cells[0]?.textContent||"غير محدد").trim()||"غير محدد";
   const key=officerKey(name)||norm(name);
-  if(!groups.has(key))groups.set(key,{name,rows:[]});
+  if(!groups.has(key))groups.set(key,{key,name,rows:[]});
   groups.get(key).rows.push(row);
  });
- const report=document.createElement("div");report.id="portfolioPrintLayer";report.dir="rtl";
- report.style.cssText="background:#fff;color:#000;width:100%;box-sizing:border-box;padding:8mm;font-family:Arial,Tahoma,sans-serif;direction:rtl;";
- const title=document.createElement("h1");title.textContent="تقرير المحفظة";title.style.cssText="font-size:20px;text-align:center;margin:0 0 8px;font-weight:700;";report.appendChild(title);
- const meta=document.createElement("div");meta.style.cssText="font-size:11px;margin:0 0 12px;text-align:center;";
+ const numCell=(row,index)=>num(row?.cells?.[index]?.textContent||0);
+ const summarize=groupRows=>{
+  const clients=new Set(groupRows.map(row=>norm(row.cells[1]?.textContent||"")).filter(Boolean));
+  return {clients:clients.size,loans:groupRows.length,loanAmount:groupRows.reduce((sum,row)=>sum+numCell(row,4),0),principal:groupRows.reduce((sum,row)=>sum+numCell(row,6),0),interest:groupRows.reduce((sum,row)=>sum+numCell(row,7),0)};
+ };
+ const orderedGroups=[...groups.values()].sort((a,b)=>a.name.localeCompare(b.name,"ar"));
+ orderedGroups.forEach(group=>group.totals=summarize(group.rows));
+ const allRows=orderedGroups.flatMap(group=>group.rows),grand=summarize(allRows);
+ const branchName=(document.title.split(/[—-]/).pop()||"فرع قويسنا").trim()||"فرع قويسنا";
  const selected=(document.getElementById("portfolioOfficer")?.value||"").trim();
  const from=document.getElementById("portfolioFrom")?.value||"—",to=document.getElementById("portfolioTo")?.value||"—";
- const loanStatus=document.getElementById("portfolioStatus")?.selectedOptions?.[0]?.textContent?.trim()||"";
- meta.textContent=`الأخصائي: ${selected||"جميع الأخصائيين"}  |  حالة القرض: ${loanStatus}  |  الفترة: ${from} - ${to}  |  تاريخ التقرير: ${new Date().toLocaleDateString("ar-EG")}`;report.appendChild(meta);
+ const loanStatus=document.getElementById("portfolioStatus")?.selectedOptions?.[0]?.textContent?.trim()||"كل حالات القرض";
+ const user=typeof reportUserName==="function"?reportUserName():"غير محدد";
+ const printed=typeof reportDateTime==="function"?reportDateTime():{date:formatPrintDate(new Date()),time:new Date().toLocaleTimeString("ar-EG")};
+ const logo=document.querySelector(".association-logo")||document.querySelector(".print-logo"),logoSrc=logo?.currentSrc||logo?.src||"";
+ const report=document.createElement("div");report.id="portfolioPrintLayer";report.dir="rtl";
+ report.style.cssText="background:#fff;color:#111;width:100%;box-sizing:border-box;font-family:Arial,Tahoma,sans-serif;direction:rtl;margin:0;padding:0;";
+ const guide=document.createElement("section");guide.className="portfolio-guide-page";guide.dir="rtl";
+ guide.style.cssText="min-height:190mm;box-sizing:border-box;padding:2mm 2mm 1mm;display:flex;flex-direction:column;gap:2mm;background:#fff;color:#10243e;";
+ const header=document.createElement("div");header.className="portfolio-report-header";
+ header.style.cssText="display:flex;align-items:center;justify-content:space-between;gap:5mm;padding:0 0 2mm;border-bottom:2px solid #0f766e;";
+ header.innerHTML=`<div style="display:flex;align-items:center;gap:3mm">${logoSrc?`<img src="${escAttr(logoSrc)}" alt="شعار الجمعية" style="width:20mm;height:20mm;object-fit:contain">`:`<div style="width:20mm;height:20mm;border:1px solid #0f766e;border-radius:50%;display:grid;place-items:center;font-size:8px;text-align:center">شعار<br>الجمعية</div>`}<div><div style="font-size:17px;font-weight:900;color:#0f766e">جمعية المبادرة</div><div style="font-size:14px;font-weight:900;color:#10243e;margin-top:1mm">${esc(branchName)}</div><div style="font-size:10px;color:#64748b;margin-top:1mm">تقرير المحفظة</div></div></div><div style="text-align:left;font-size:10px;line-height:1.6;color:#334155"><div><b>المستخدم:</b> ${esc(user)}</div><div><b>تاريخ الطباعة:</b> ${esc(printed.date)}</div><div><b>الوقت:</b> ${esc(printed.time)}</div></div>`;
+ guide.appendChild(header);
+ const title=document.createElement("h1");title.textContent=selected?`تقرير المحفظة — ${selected}`:"تقرير المحفظة — جميع الأخصائيين";
+ title.style.cssText="text-align:center;font-size:20px;color:#0b2239;margin:1mm 0;font-weight:950;";guide.appendChild(title);
+ const filters=document.createElement("div");filters.className="portfolio-guide-filters";
+ filters.style.cssText="display:flex;justify-content:space-between;gap:3mm;flex-wrap:wrap;border:1px solid #cbd5e1;background:#f8fafc;padding:2mm 3mm;font-size:9.5px;";
+ filters.innerHTML=`<span><b>الأخصائي:</b> ${esc(selected||"جميع الأخصائيين")}</span><span><b>حالة القرض:</b> ${esc(loanStatus)}</span><span><b>الفترة:</b> ${esc(from)} — ${esc(to)}</span><span><b>عدد الأخصائيين:</b> ${orderedGroups.length.toLocaleString("en-US")}</span>`;guide.appendChild(filters);
+ const table=document.createElement("table");table.className="portfolio-guide-table";table.style.cssText="width:100%;border-collapse:collapse;table-layout:fixed;font-size:8.5px;";
+ table.innerHTML=`<thead><tr><th>اسم الأخصائي</th><th>عدد العملاء</th><th>عدد القروض</th><th>إجمالي مبالغ القروض</th><th>المتبقي أصل</th><th>المتبقي فائدة</th><th>إجمالي المتبقي</th></tr></thead><tbody>${orderedGroups.map(group=>{const t=group.totals;return `<tr><td>${esc(group.name)}</td><td>${t.clients.toLocaleString("en-US")}</td><td>${t.loans.toLocaleString("en-US")}</td><td>${esc(money(t.loanAmount))}</td><td>${esc(money(t.principal))}</td><td>${esc(money(t.interest))}</td><td>${esc(money(t.principal+t.interest))}</td></tr>`}).join("")}</tbody>`;
+ table.querySelectorAll("th,td").forEach(cell=>cell.style.cssText="border:1px solid #64748b;padding:1.3mm 1mm;text-align:center;vertical-align:middle;overflow-wrap:anywhere;font-size:8.5px;");
+ table.querySelectorAll("th").forEach(cell=>cell.style.cssText+=";background:#164e5a;color:#fff;font-weight:900;");
+ guide.appendChild(table);
+ const summaryBox=(label,stats,accent)=>{
+  const box=document.createElement("div");box.className="portfolio-total-panel";box.style.cssText=`border:1.5px solid ${accent};background:${accent==="#0f766e"?"#f0fdfa":"#eff6ff"};padding:2mm 3mm;text-align:center;`;
+  box.innerHTML=`<div style="font-size:13px;font-weight:950;color:${accent};margin-bottom:1mm">${esc(label)}</div><div style="display:grid;grid-template-columns:repeat(6,1fr);gap:1mm;font-size:8.5px;font-weight:800"><span>عدد الأخصائيين<br><b>${orderedGroups.length.toLocaleString("en-US")}</b></span><span>عدد العملاء<br><b>${stats.clients.toLocaleString("en-US")}</b></span><span>عدد القروض<br><b>${stats.loans.toLocaleString("en-US")}</b></span><span>إجمالي مبالغ القروض<br><b>${esc(money(stats.loanAmount))}</b></span><span>المتبقي أصل<br><b>${esc(money(stats.principal))}</b></span><span>المتبقي فائدة<br><b>${esc(money(stats.interest))}</b></span></div><div style="margin-top:1mm;font-size:10px;font-weight:950">إجمالي المتبقي: ${esc(money(stats.principal+stats.interest))}</div>`;
+  return box;
+ };
+ guide.appendChild(summaryBox(`إجمالي الفرع — ${branchName}`,grand,"#0f766e"));
+ guide.appendChild(summaryBox("الإجمالي العام",grand,"#1d4ed8"));
+ const guideFooter=document.createElement("div");guideFooter.className="portfolio-guide-footer";
+ guideFooter.style.cssText="margin-top:auto;display:flex;justify-content:space-between;gap:3mm;padding-top:1.5mm;border-top:1px solid #94a3b8;font-size:9px;font-weight:800;color:#334155;";
+ guideFooter.innerHTML=`<span>أُعد بواسطة: ${esc(user)}</span><span>تاريخ الطباعة: ${esc(printed.date)}</span><span>الوقت: ${esc(printed.time)}</span>`;guide.appendChild(guideFooter);report.appendChild(guide);
  const headers=[...source.querySelectorAll("thead tr")].map(row=>row.cloneNode(true));
- [...groups.values()].sort((a,b)=>a.name.localeCompare(b.name,"ar")).forEach(group=>{
-  const heading=document.createElement("h2");heading.textContent=`اسم الأخصائي: ${group.name}`;heading.style.cssText="font-size:14px;margin:14px 0 5px;padding:5px 7px;background:#eef2f7;border:1px solid #94a3b8;page-break-after:avoid;break-after:avoid;";report.appendChild(heading);
-  const table=source.cloneNode(false);table.removeAttribute("id");table.classList.add("portfolio-print-table");table.style.cssText="width:100%;min-width:0;table-layout:fixed;border-collapse:collapse;direction:rtl;font-size:8px;margin:0 0 8px;";
-  const thead=document.createElement("thead");headers.forEach(row=>thead.appendChild(row.cloneNode(true)));table.appendChild(thead);
-  const tbody=document.createElement("tbody");group.rows.forEach(row=>tbody.appendChild(row.cloneNode(true)));table.appendChild(tbody);
-  table.querySelectorAll("th,td").forEach(cell=>{cell.style.cssText+=";border:1px solid #333;padding:3px 2px;text-align:center;vertical-align:middle;overflow-wrap:anywhere;word-break:break-word;color:#000;background:#fff;font-size:8px;"});
-  report.appendChild(table);
+ orderedGroups.forEach((group,groupIndex)=>{
+  const page=document.createElement("section");page.className="portfolio-specialist-page";page.dir="rtl";
+  page.style.cssText="box-sizing:border-box;width:100%;padding:0;background:#fff;color:#111;";
+  const pageHeader=document.createElement("div");pageHeader.style.cssText="display:flex;justify-content:space-between;align-items:flex-end;gap:3mm;border-bottom:2px solid #0f766e;padding:0 0 2mm;margin-bottom:2mm;";
+  pageHeader.innerHTML=`<div><div style="font-size:9px;color:#64748b">جمعية المبادرة — ${esc(branchName)}</div><h2 style="font-size:16px;color:#10243e;margin:1mm 0 0">اسم الأخصائي: ${esc(group.name)}</h2></div><div style="font-size:9px;text-align:left">المستخدم: ${esc(user)}<br>التاريخ: ${esc(printed.date)} — ${esc(printed.time)}</div>`;page.appendChild(pageHeader);
+  const subtotal=document.createElement("div");subtotal.style.cssText="display:flex;justify-content:space-around;flex-wrap:wrap;gap:2mm;background:#f1f5f9;border:1px solid #cbd5e1;padding:1.5mm;margin-bottom:2mm;font-size:9px;font-weight:800;";
+  subtotal.innerHTML=`<span>العملاء: ${group.totals.clients.toLocaleString("en-US")}</span><span>القروض: ${group.totals.loans.toLocaleString("en-US")}</span><span>إجمالي مبالغ القروض: ${esc(money(group.totals.loanAmount))}</span><span>المتبقي أصل: ${esc(money(group.totals.principal))}</span><span>المتبقي فائدة: ${esc(money(group.totals.interest))}</span><span>إجمالي المتبقي: ${esc(money(group.totals.principal+group.totals.interest))}</span>`;page.appendChild(subtotal);
+  const printTable=source.cloneNode(false);printTable.removeAttribute("id");printTable.classList.add("portfolio-print-table");
+  printTable.style.cssText="width:100%;min-width:0;table-layout:fixed;border-collapse:collapse;direction:rtl;font-size:8.5px;margin:0;";
+  const colgroup=document.createElement("colgroup");[3,11,9,9,8,6,8,7,7,8,8,8,8].forEach(width=>{const col=document.createElement("col");col.style.width=`${width}%`;colgroup.appendChild(col)});printTable.appendChild(colgroup);
+  const thead=document.createElement("thead");headers.forEach(headerRow=>{const clone=headerRow.cloneNode(true);const th=document.createElement("th");th.textContent="م";clone.insertBefore(th,clone.firstChild);thead.appendChild(clone)});printTable.appendChild(thead);
+  const tbody=document.createElement("tbody");group.rows.forEach((row,index)=>{const clone=row.cloneNode(true),serial=document.createElement("td");serial.textContent=String(index+1);serial.style.cssText="text-align:center;font-weight:800;";clone.insertBefore(serial,clone.firstChild);tbody.appendChild(clone)});printTable.appendChild(tbody);
+  printTable.querySelectorAll("th,td").forEach(cell=>cell.style.cssText+=";border:1px solid #475569;padding:1.1mm .6mm;text-align:center;vertical-align:middle;overflow-wrap:anywhere;word-break:break-word;color:#111;background:#fff;font-size:8.5px;");
+  printTable.querySelectorAll("thead th").forEach(cell=>cell.style.cssText+=";background:#164e5a;color:#fff;font-weight:900;white-space:normal;");
+  printTable.querySelectorAll("tbody tr:nth-child(even) td").forEach(cell=>cell.style.background="#f8fafc");
+  page.appendChild(printTable);
+  const pageFooter=document.createElement("div");pageFooter.style.cssText="margin-top:2mm;padding-top:1mm;border-top:1px solid #cbd5e1;display:flex;justify-content:space-between;font-size:8px;color:#475569;";
+  pageFooter.innerHTML=`<span>الأخصائي: ${esc(group.name)}</span><span>إجمالي سجلات الأخصائي: ${group.rows.length.toLocaleString("en-US")}</span><span>أُعد بواسطة: ${esc(user)} — ${esc(printed.date)} ${esc(printed.time)}</span>`;page.appendChild(pageFooter);
+  report.appendChild(page);
  });
  return report;
 }
@@ -4971,7 +5018,7 @@ function printPortfolioReport(event){
  const printWindow=window.open("","_blank");
  if(!printWindow){portfolioPrintActionBusyUntil=0;alert("تعذر فتح نافذة الطباعة. اسمح بالنوافذ المنبثقة لهذا البرنامج ثم أعد المحاولة.");return false}
  const title=portfolioReportFilename("pdf").replace(/\.pdf$/i,"");
- const printStyles=`@page{size:A4 landscape;margin:8mm}*{box-sizing:border-box}html,body{margin:0;padding:0;background:#fff;color:#000}body{padding:8mm;font-family:Arial,Tahoma,sans-serif;direction:rtl;-webkit-print-color-adjust:exact;print-color-adjust:exact}#portfolioPrintLayer{display:block!important;visibility:visible!important;width:100%!important;color:#000!important;background:#fff!important}.portfolio-print-table{width:100%!important;min-width:0!important;table-layout:fixed;border-collapse:collapse;direction:rtl}.portfolio-print-table thead{display:table-header-group}.portfolio-print-table tr{break-inside:avoid;page-break-inside:avoid}.portfolio-print-table th,.portfolio-print-table td{border:1px solid #333;padding:3px 2px;text-align:center;vertical-align:middle;overflow-wrap:anywhere;word-break:break-word;color:#000;background:#fff;font-size:8px}#portfolioPrintLayer h1{text-align:center;font-size:20px;margin:0 0 8px}#portfolioPrintLayer h2{break-after:avoid;page-break-after:avoid;font-size:14px;margin:14px 0 5px;padding:5px 7px;background:#eef2f7;border:1px solid #94a3b8}`;
+ const printStyles=`@page{size:A4 landscape;margin:5mm 3mm}*{box-sizing:border-box}html,body{margin:0;padding:0;background:#fff;color:#111}body{font-family:Arial,Tahoma,sans-serif;direction:rtl;-webkit-print-color-adjust:exact;print-color-adjust:exact}#portfolioPrintLayer{display:block!important;visibility:visible!important;width:100%!important;color:#111!important;background:#fff!important}.portfolio-specialist-page{break-before:page!important;page-break-before:always!important}.portfolio-print-table{width:100%!important;min-width:0!important;table-layout:fixed!important;border-collapse:collapse!important;direction:rtl!important}.portfolio-print-table thead{display:table-header-group!important}.portfolio-print-table tr{break-inside:avoid!important;page-break-inside:avoid!important}.portfolio-print-table th,.portfolio-print-table td{border:1px solid #475569;padding:1.1mm .6mm;text-align:center;vertical-align:middle;overflow-wrap:anywhere;word-break:break-word;color:#111;background:#fff;font-size:7.5px}#portfolioPrintLayer h1{text-align:center;color:#0b2239}#portfolioPrintLayer h2{break-after:avoid;page-break-after:avoid;color:#10243e}`;
  printWindow.document.open();
  printWindow.document.write(`<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(title)}</title><style>${printStyles}</style></head><body>${layer.outerHTML}</body></html>`);
  printWindow.document.close();
@@ -4983,9 +5030,34 @@ async function downloadPortfolioPDF(event){
  if(event?.preventDefault)event.preventDefault();if(event?.stopImmediatePropagation)event.stopImmediatePropagation();
  if(Date.now()<portfolioPrintActionBusyUntil)return false;portfolioPrintActionBusyUntil=Date.now()+1400;
  let layer=buildPortfolioPrintLayer();if(!layer){portfolioPrintActionBusyUntil=0;alert("لا توجد بيانات مطابقة لتحميلها PDF من المحفظة.");return false}
+ if(typeof window.html2pdf!=="function"){portfolioPrintActionBusyUntil=0;alert("تعذر تشغيل تحميل PDF. تأكد من اتصال الإنترنت ثم أعد المحاولة.");return false}
  const button=document.querySelector("#portfolioExportToolbar .pdf-btn"),label=button?.querySelector(".action-label"),oldText=label?.textContent;
- try{if(button){button.disabled=true;button.setAttribute("aria-busy","true");if(label)label.textContent="جاري الإنشاء..."}await downloadReportLayerPDF(layer,portfolioReportFilename("pdf"),"portfolio-report-pdf");}
- finally{if(button){button.disabled=false;button.removeAttribute("aria-busy");if(label)label.textContent=oldText||"PDF"}portfolioPrintActionBusyUntil=0}
+ const holder=document.createElement("div"),filename=portfolioReportFilename("pdf");
+ holder.style.cssText="position:absolute;left:0;top:0;width:1120px;min-width:1120px;background:#fff;z-index:-1;visibility:visible;display:block;overflow:visible;";
+ const loadMerger=async()=>{
+  if(window.PDFLib?.PDFDocument)return window.PDFLib;
+  await new Promise((resolve,reject)=>{const script=document.createElement("script");script.src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js";script.async=true;script.onload=()=>window.PDFLib?.PDFDocument?resolve():reject(new Error("تعذر تهيئة مكتبة دمج PDF"));script.onerror=()=>reject(new Error("تعذر تحميل مكتبة دمج PDF"));document.head.appendChild(script)});
+  return window.PDFLib;
+ };
+ try{
+  if(button){button.disabled=true;button.setAttribute("aria-busy","true");if(label)label.textContent="جاري الإنشاء..."}
+  const PDFLib=await loadMerger(),nodes=[layer.querySelector(".portfolio-guide-page"),...layer.querySelectorAll(".portfolio-specialist-page")].filter(Boolean),parts=[];
+  if(!nodes.length)throw new Error("لا توجد صفحات تقرير قابلة للتصدير");
+  const options={margin:[5,3,5,3],filename,image:{type:"jpeg",quality:.97},html2canvas:{scale:1.5,useCORS:true,backgroundColor:"#fff",logging:false,width:1120,windowWidth:1120,x:0,y:0,scrollX:0,scrollY:0},jsPDF:{unit:"mm",format:"a4",orientation:"landscape",compress:true},pagebreak:{mode:["css","legacy"],avoid:["tr","thead","tfoot"]}};
+  for(let i=0;i<nodes.length;i++){
+   const clone=nodes[i].cloneNode(true);clone.style.setProperty("page-break-before","auto","important");clone.style.setProperty("break-before","auto","important");clone.style.setProperty("page-break-after","auto","important");clone.style.setProperty("break-after","auto","important");
+   clone.style.setProperty("width","1120px","important");clone.style.setProperty("min-width","1120px","important");clone.style.setProperty("margin","0","important");clone.style.setProperty("position","static","important");clone.style.setProperty("display","block","important");clone.style.setProperty("visibility","visible","important");clone.style.setProperty("opacity","1","important");clone.style.setProperty("background","#fff","important");
+   if(button&&label)label.textContent=`جاري الإنشاء ${i+1}/${nodes.length}...`;
+   holder.appendChild(clone);document.body.appendChild(holder);
+   try{const part=await window.html2pdf().set(options).from(clone).outputPdf("blob");parts.push(await part.arrayBuffer())}
+   finally{holder.remove()}
+  }
+  const merged=await PDFLib.PDFDocument.create();
+  for(const partBytes of parts){const part=await PDFLib.PDFDocument.load(partBytes);const pages=await merged.copyPages(part,part.getPageIndices());pages.forEach(page=>merged.addPage(page))}
+  const output=new Blob([await merged.save()],{type:"application/pdf"}),url=URL.createObjectURL(output),anchor=document.createElement("a");anchor.href=url;anchor.download=filename;anchor.style.display="none";document.body.appendChild(anchor);anchor.click();anchor.remove();setTimeout(()=>URL.revokeObjectURL(url),30000);
+  if(typeof showMsg==="function")showMsg("تم إنشاء ملف PDF للمحفظة بنجاح.","ok");
+ }catch(error){console.error("Portfolio PDF:",error);alert("تعذر إنشاء PDF للمحفظة. حاول مرة أخرى.")}
+ finally{holder.remove();if(button){button.disabled=false;button.removeAttribute("aria-busy");if(label)label.textContent=oldText||"PDF"}portfolioPrintActionBusyUntil=0}
  return false;
 }
 function renderPortfolio(){
