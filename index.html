@@ -3663,12 +3663,12 @@ async function importExcelFile(file){
   if(archiveRequired)archiveResult=await archivePreviousSheetSnapshot(previousRows);
   const archiveWarning=archiveRequired&&!archiveResult.saved;
   let cloudSaved=false;
-  if(!archiveWarning)try{cloudSaved=await saveDB(importedRows,(percent,stage,note)=>setImportProgress(percent,stage,note))}catch(cloudErr){console.warn("cloud import save:",cloudErr)}
-  let sharedDifferenceSaved=false;
-  if(cloudSaved)sharedDifferenceSaved=await saveSharedCollectionDifferences(comparison);
-  const sharedDifferenceWarning=cloudSaved&&!sharedDifferenceSaved;
-  const loadedAt=new Date().toLocaleString("en-US",{dateStyle:"full",timeStyle:"medium"});
-  safeLocalSet("mub_current_sheet_meta_v1",JSON.stringify({fileName:displayFileName,sheetName:name,uploadedAt:new Date().toISOString(),rowCount:rows.length,fileSize:file.size}));
+	  if(!archiveWarning)try{cloudSaved=await saveDB(importedRows,(percent,stage,note)=>setImportProgress(percent,stage,note))}catch(cloudErr){console.warn("cloud import save:",cloudErr)}
+	  let sharedDifferenceSaved=false;
+	  if(cloudSaved)sharedDifferenceSaved=await window.saveSharedCollectionDifferences(comparison);
+	  const sharedDifferenceWarning=cloudSaved&&!sharedDifferenceSaved;
+	  const loadedAt=new Date().toLocaleString("en-US",{dateStyle:"full",timeStyle:"medium"});
+	  safeLocalSet("mub_current_sheet_meta_v1",JSON.stringify({fileName:displayFileName,sheetName:name,uploadedAt:new Date().toISOString(),rowCount:rows.length,fileSize:file.size}));
   if(typeof renderCurrentSheetInfo==="function")renderCurrentSheetInfo();
   try{auditLog("رفع Excel",`${rows.length} صف — ورقة: ${name}`)}catch(auditErr){console.warn("audit import:",auditErr)}
   showMsg(cloudSaved
@@ -11675,13 +11675,14 @@ window.showScreen = function(id) { const result=previousShowScreen.apply(this,ar
    document.querySelectorAll("#collectionDifferencesPanel [data-diff-filter]").forEach(b=>b.classList.toggle("is-active",b.dataset.diffFilter===filter));
    if(body&&body.dataset.open==="1")body.hidden=false;
  }
- window.renderCollectionDifferences=renderCollectionDifferences;
- window.compareCollectionSheetRows=compareCollectionSheetRows;
- window.storeCollectionDifferences=storeCollectionDifferences;
- window.loadSharedCollectionDifferences=loadSharedCollectionDifferences;
- document.addEventListener("DOMContentLoaded",()=>{
-   loadCollectionDifferences();renderCollectionDifferences();
-   window.addEventListener("focus",()=>{if(session&&document.getElementById("collection")?.classList.contains("active"))void loadSharedCollectionDifferences()});
+	 window.renderCollectionDifferences=renderCollectionDifferences;
+	 window.compareCollectionSheetRows=compareCollectionSheetRows;
+	 window.storeCollectionDifferences=storeCollectionDifferences;
+	 window.saveSharedCollectionDifferences=saveSharedCollectionDifferences;
+	 window.loadSharedCollectionDifferences=loadSharedCollectionDifferences;
+	 document.addEventListener("DOMContentLoaded",()=>{
+	   loadCollectionDifferences();renderCollectionDifferences();
+	   window.addEventListener("focus",()=>{if(session&&document.getElementById("collection")?.classList.contains("active"))void loadSharedCollectionDifferences()});
    ["collectionDifferenceFrom","collectionDifferenceTo"].forEach(id=>{const input=document.getElementById(id);if(input)["input","change"].forEach(eventName=>input.addEventListener(eventName,()=>renderCollectionDifferences(activeDifferenceFilter())))});
    document.getElementById("collectionDifferenceCopyScreenDates")?.addEventListener("click",syncCollectionDifferenceDateRangeFromScreen);document.getElementById("collectionDifferenceClearDates")?.addEventListener("click",clearCollectionDifferenceDateRange);
    const panel=document.getElementById("collectionDifferencesPanel"),body=document.getElementById("collectionDifferencesBody"),toggle=document.getElementById("collectionDifferencesToggle"),close=document.getElementById("collectionDifferencesClose");
