@@ -3138,7 +3138,7 @@ function showScreen(id){
   if((id==="users"||id==="specialists"||id==="audit"||id==="dash") && !isOwnerRole(session.role)) id="search";
   const screens=showScreen._screens||(showScreen._screens=[...document.querySelectorAll(".screen")]);
   screens.forEach(s=>{s.classList.remove("active");s.setAttribute("aria-hidden","true")});
-  const target=document.getElementById(id);if(target){target.classList.add("active");target.setAttribute("aria-hidden","false")}if(id==='dueInstallments'&&typeof ensureDueDefaultSpecialistOption==='function')ensureDueDefaultSpecialistOption();if(typeof renderLastImportNotices==="function")renderLastImportNotices();if(typeof syncSharedLastImportNotice==="function")syncSharedLastImportNotice();
+  const target=document.getElementById(id);if(target){target.classList.add("active");target.setAttribute("aria-hidden","false")}if(id==="collection"&&typeof window.loadSharedCollectionDifferences==="function")void window.loadSharedCollectionDifferences();if(id==='dueInstallments'&&typeof ensureDueDefaultSpecialistOption==='function')ensureDueDefaultSpecialistOption();if(typeof renderLastImportNotices==="function")renderLastImportNotices();if(typeof syncSharedLastImportNotice==="function")syncSharedLastImportNotice();
   const navLinks=showScreen._navLinks||(showScreen._navLinks=[...document.querySelectorAll("nav a[data-screen]")]);
   navLinks.forEach(a=>a.classList.toggle("active",a.dataset.screen===id));
   window.scrollTo({top:0,behavior:"auto"});
@@ -3664,12 +3664,17 @@ async function importExcelFile(file){
   const archiveWarning=archiveRequired&&!archiveResult.saved;
   let cloudSaved=false;
   if(!archiveWarning)try{cloudSaved=await saveDB(importedRows,(percent,stage,note)=>setImportProgress(percent,stage,note))}catch(cloudErr){console.warn("cloud import save:",cloudErr)}
+  let sharedDifferenceSaved=false;
+  if(cloudSaved)sharedDifferenceSaved=await saveSharedCollectionDifferences(comparison);
+  const sharedDifferenceWarning=cloudSaved&&!sharedDifferenceSaved;
   const loadedAt=new Date().toLocaleString("en-US",{dateStyle:"full",timeStyle:"medium"});
   safeLocalSet("mub_current_sheet_meta_v1",JSON.stringify({fileName:displayFileName,sheetName:name,uploadedAt:new Date().toISOString(),rowCount:rows.length,fileSize:file.size}));
   if(typeof renderCurrentSheetInfo==="function")renderCurrentSheetInfo();
   try{auditLog("رفع Excel",`${rows.length} صف — ورقة: ${name}`)}catch(auditErr){console.warn("audit import:",auditErr)}
   showMsg(cloudSaved
-    ? "✅ تم حفظ الملف سحابيًا لجميع المستخدمين — "+rows.length.toLocaleString("en-US")+" صف من ورقة: "+name+(previousRows.length?" — حُفظت النسخة السابقة في الأرشيف.":" — لا توجد نسخة سابقة لأرشفتها.")
+    ? sharedDifferenceWarning
+      ? "⚠️ تم حفظ الشيت الجديد سحابيًا، لكن تعذر مشاركة ملخص الفروقات مع بقية الملاك."
+      : "✅ تم حفظ الملف سحابيًا لجميع المستخدمين — "+rows.length.toLocaleString("en-US")+" صف من ورقة: "+name+(previousRows.length?" — حُفظت النسخة السابقة في الأرشيف.":" — لا توجد نسخة سابقة لأرشفتها.")
     : archiveWarning
       ? "⚠️ لم يتم استبدال الشيت السحابي لأن حفظ النسخة السابقة في الأرشيف تعذر. تبقى البيانات الجديدة محلية في هذه الجلسة فقط."
       : rows.length>50000
@@ -3680,14 +3685,14 @@ async function importExcelFile(file){
   const importStatus=document.getElementById("importConfirmStatus");
   if(importStatus){
     importStatus.textContent=cloudSaved
-      ? "✅ تم تأكيد حفظ الملف ومزامنته سحابيًا"+(previousRows.length?" وحُفظت النسخة السابقة في الأرشيف":"")+" — التاريخ والوقت: "+loadedAt
+      ? (sharedDifferenceWarning?"⚠️ تم حفظ الشيت، لكن لم تتم مشاركة ملخص الفروقات مع بقية الملاك":"✅ تم تأكيد حفظ الملف ومزامنته سحابيًا"+(previousRows.length?" وحُفظت النسخة السابقة في الأرشيف":""))+" — التاريخ والوقت: "+loadedAt
       : archiveWarning?"⚠️ لم يتم استبدال بيانات الخادم لأن أرشفة النسخة السابقة تعذرت — "+loadedAt:"⚠️ تمت قراءة الملف، لكن لم يتم تأكيد حفظه في السحابة — التاريخ والوقت: "+loadedAt;
-    importStatus.style.background=cloudSaved&&!archiveWarning?"#ecfdf5":"#fff7ed";
-    importStatus.style.borderColor=cloudSaved&&!archiveWarning?"#86efac":"#fdba74";
-    importStatus.style.color=cloudSaved&&!archiveWarning?"#166534":"#9a3412";
+    importStatus.style.background=cloudSaved&&!archiveWarning&&!sharedDifferenceWarning?"#ecfdf5":"#fff7ed";
+    importStatus.style.borderColor=cloudSaved&&!archiveWarning&&!sharedDifferenceWarning?"#86efac":"#fdba74";
+    importStatus.style.color=cloudSaved&&!archiveWarning&&!sharedDifferenceWarning?"#166534":"#9a3412";
   }
-  document.getElementById("status").textContent=cloudSaved?"☁️ تم تأكيد حفظ البيانات في السحابة":archiveWarning?"⚠️ لم يتم استبدال الشيت السحابي لأن الأرشيف لم يُحدّث":"⚠️ لم يكتمل الحفظ السحابي — النسخة محلية فقط";
-  if(cloudSaved)finishImportProgress(true,"تم ضغط البيانات ورفعها ومزامنتها مع جميع المستخدمين.");
+  document.getElementById("status").textContent=cloudSaved?(sharedDifferenceWarning?"⚠️ تم حفظ الشيت، لكن ملخص الفروقات لم يصل لبقية الملاك":"☁️ تم تأكيد حفظ البيانات في السحابة"):archiveWarning?"⚠️ لم يتم استبدال الشيت السحابي لأن الأرشيف لم يُحدّث":"⚠️ لم يكتمل الحفظ السحابي — النسخة محلية فقط";
+  if(cloudSaved)finishImportProgress(true,sharedDifferenceWarning?"تم حفظ الشيت، لكن تعذر مشاركة ملخص الفروقات.":"تم ضغط البيانات ورفعها ومزامنتها مع جميع المستخدمين.");
   else{
     setImportProgress(100,"المزامنة السحابية غير مكتملة",archiveWarning?"لم يتم استبدال الشيت السحابي؛ تعذر حفظ النسخة السابقة في الأرشيف.":(localSaved?"حُفظت النسخة على هذا الجهاز فقط؛ لا تتم إعادة المحاولة تلقائيًا.":"البيانات باقية في الجلسة فقط؛ لا تتم إعادة المحاولة تلقائيًا."));
     const progressBar=document.getElementById("importProgressBar");if(progressBar)progressBar.style.background="#f59e0b";
@@ -7336,6 +7341,7 @@ const DB_NAME="mubadara_data", DB_VERSION=1, STORE="rows", LS_ROWS="mubadara_row
 const SUPABASE_URL="https://xuqserqqycvwntepqvme.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY="sb_publishable_dNTZIiukZPrxhxTjM_7rPA_iVGtsmzU";
 const SUPABASE_TABLE="mubadara_data";
+const COLLECTION_DIFFERENCES_TABLE="mubadara_collection_differences";
 let supabaseClient=null;
 let supabaseChannel=null;
 let cloudReady=false;
@@ -11510,6 +11516,34 @@ window.showScreen = function(id) { const result=previousShowScreen.apply(this,ar
  }
  function storeCollectionDifferences(result){try{const payload={...result,mode:DIFF_MODE};localStorage.setItem(STORAGE_KEY,JSON.stringify(payload));Object.assign(diffState,payload)}catch(e){console.warn("collection payment summary storage:",e)}}
  function loadCollectionDifferences(){try{const d=JSON.parse(localStorage.getItem(STORAGE_KEY)||"null");if(d&&d.mode===DIFF_MODE&&Array.isArray(d.items)){Object.assign(diffState,d);return d}}catch(e){}return null}
+ async function saveSharedCollectionDifferences(result){
+   if(!result||result.mode!==DIFF_MODE||!Array.isArray(result.items)||!cloudReady||!supabaseClient||!session||!isOwnerRole(session.role))return false;
+   try{const payload=await packCloudRows(result);const {error}=await supabaseClient.rpc("save_latest_collection_differences",{p_result:payload});if(error)throw error;return true}
+   catch(e){console.warn("Shared collection differences save:",e);return false}
+ }
+ async function loadSharedCollectionDifferences(){
+   if(!session||!isOwnerRole(session.role)||!cloudReady||!supabaseClient)return false;
+   try{
+     const {data,error}=await supabaseClient.from(COLLECTION_DIFFERENCES_TABLE).select("result,updated_at").eq("id",1).maybeSingle();
+     if(error)throw error;
+     if(data?.result){
+       const shared=await unpackCloudRows(data.result);
+       if(!shared||shared.mode!==DIFF_MODE||!Array.isArray(shared.items))throw new Error("تنسيق نتيجة المقارنة المشتركة غير صالح.");
+       storeCollectionDifferences(shared);renderCollectionDifferences(activeDifferenceFilter());return true;
+     }
+     /* ترحيل مبدئي آمن لنتيجة الرافع المحلية فقط إذا طابقت توقيت الشيت السحابي وعدد صفوفه. */
+     const local=loadCollectionDifferences();let meta=null;
+     try{meta=JSON.parse(localStorage.getItem("mub_current_sheet_meta_v1")||"null")}catch(e){}
+     if(!local||!meta?.uploadedAt||Number(meta.rowCount)!==Number(local.counts?.current))return false;
+     const {data:live,error:liveError}=await supabaseClient.from(SUPABASE_TABLE).select("updated_at").eq("id",1).maybeSingle();
+     if(liveError||!live?.updated_at)return false;
+     const cloudAt=Date.parse(live.updated_at),localAt=Date.parse(meta.uploadedAt);
+     if(!Number.isFinite(cloudAt)||!Number.isFinite(localAt)||Math.abs(cloudAt-localAt)>5*60*1000)return false;
+     const published=await saveSharedCollectionDifferences(local);
+     if(published)renderCollectionDifferences(activeDifferenceFilter());
+     return published;
+   }catch(e){console.warn("Shared collection differences load:",e);return false}
+ }
  function fmt(v){return Number(v||0).toLocaleString("ar-EG")}
  function fmtMoney(v){return Number(v||0).toLocaleString("ar-EG",{maximumFractionDigits:2})}
  function badge(type){return type==="new"?'<span class="collection-difference-badge new">تحصيل جديد</span>':'<span class="collection-difference-badge changed">زيادة تحصيل</span>'}
@@ -11644,8 +11678,10 @@ window.showScreen = function(id) { const result=previousShowScreen.apply(this,ar
  window.renderCollectionDifferences=renderCollectionDifferences;
  window.compareCollectionSheetRows=compareCollectionSheetRows;
  window.storeCollectionDifferences=storeCollectionDifferences;
+ window.loadSharedCollectionDifferences=loadSharedCollectionDifferences;
  document.addEventListener("DOMContentLoaded",()=>{
    loadCollectionDifferences();renderCollectionDifferences();
+   window.addEventListener("focus",()=>{if(session&&document.getElementById("collection")?.classList.contains("active"))void loadSharedCollectionDifferences()});
    ["collectionDifferenceFrom","collectionDifferenceTo"].forEach(id=>{const input=document.getElementById(id);if(input)["input","change"].forEach(eventName=>input.addEventListener(eventName,()=>renderCollectionDifferences(activeDifferenceFilter())))});
    document.getElementById("collectionDifferenceCopyScreenDates")?.addEventListener("click",syncCollectionDifferenceDateRangeFromScreen);document.getElementById("collectionDifferenceClearDates")?.addEventListener("click",clearCollectionDifferenceDateRange);
    const panel=document.getElementById("collectionDifferencesPanel"),body=document.getElementById("collectionDifferencesBody"),toggle=document.getElementById("collectionDifferencesToggle"),close=document.getElementById("collectionDifferencesClose");
