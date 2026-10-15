@@ -3144,7 +3144,8 @@ function showScreen(id){
   window.scrollTo({top:0,behavior:"auto"});
   if(typeof programSettings!=="undefined"&&programSettings.vibration)vibrateProgram(programSettings.vibrationDuration);
   history.replaceState(null,"","#"+id);
-  const needsRender=screenRenderVersion[id]!==screenDataVersion;
+  if(id==="portfolio"&&typeof setPortfolioOpeningDateRange==="function")setPortfolioOpeningDateRange();
+  const needsRender=id==="portfolio"||screenRenderVersion[id]!==screenDataVersion;
   if(id==="risk"&&!document.getElementById("riskFrom")?.value&&!document.getElementById("riskTo")?.value){
     if(typeof setRiskCurrentMonth === "function")setRiskCurrentMonth();
     else if(needsRender&&typeof renderScreenData === "function"){renderScreenData(id);screenRenderVersion[id]=screenDataVersion}
@@ -4705,23 +4706,34 @@ function portfolioDateText(v){
  const d=parseExcelDate(v);
  return d?clientsDateText(d):String(v??"").trim()||"—";
 }
-function portfolioOutstandingComponent(items,names,matcher,otherNames,otherMatcher){
+function portfolioPaymentIsAfterCutoff(row,cutoff){
+ if(!cutoff)return false;
+ const paidDate=parseExcelDate(rowPaymentDate(row));
+ return !!paidDate&&paidDate>cutoff;
+}
+function portfolioPaidAmountAsOf(row,cutoff){
+ return portfolioPaymentIsAfterCutoff(row,cutoff)?0:Math.max(0,rowPaidAmount(row));
+}
+function portfolioRemainingAsOf(row,cutoff,installmentTotal){
+ return portfolioPaymentIsAfterCutoff(row,cutoff)?Math.max(0,installmentTotal):rowInstallmentRemainingForCount(row);
+}
+function portfolioOutstandingComponent(items,names,matcher,otherNames,otherMatcher,cutoff){
  return (items||[]).reduce((sum,row)=>{
   const component=num(profileLoanExcelValue(row,names,matcher));
   if(component<=0)return sum;
   const other=num(profileLoanExcelValue(row,otherNames,otherMatcher));
   const installmentTotal=Math.max(num(get(row,"total")),num(get(row,"value")),component+other);
-  const remaining=rowInstallmentRemainingForCount(row);
+  const remaining=portfolioRemainingAsOf(row,cutoff,installmentTotal);
   if(remaining<=0)return sum;
   const ratio=installmentTotal>0?Math.min(1,remaining/installmentTotal):1;
   return sum+(component*ratio);
  },0);
 }
-function portfolioOutstandingPrincipal(items,names,matcher){
+function portfolioOutstandingPrincipal(items,names,matcher,cutoff){
  return (items||[]).reduce((sum,row)=>{
   const principal=Math.max(0,num(profileLoanExcelValue(row,names,matcher)));
   if(principal<=0)return sum;
-  const paid=Math.max(0,rowPaidAmount(row));
+  const paid=portfolioPaidAmountAsOf(row,cutoff);
   return sum+Math.max(0,principal-paid);
  },0);
 }
@@ -5110,8 +5122,8 @@ function renderPortfolio(){
   const interestNames=["قيمة الفائده من القسط","قيمة الفائدة من القسط","قيمة فائده القسط","فائدة القسط","فائده مستحقه","فائدة مستحقة"];
   const principalMatcher=q=>(q.includes("اصل")||q.includes("أصل"))&&(q.includes("قسط")||q.includes("مستحق"));
   const interestMatcher=q=>(q.includes("فائد")||q.includes("فائده"))&&(q.includes("قسط")||q.includes("مستحق"));
-  const principal=portfolioOutstandingPrincipal(items,principalNames,principalMatcher);
-  const interest=portfolioOutstandingComponent(items,interestNames,interestMatcher,principalNames,principalMatcher);
+  const principal=portfolioOutstandingPrincipal(items,principalNames,principalMatcher,to);
+  const interest=portfolioOutstandingComponent(items,interestNames,interestMatcher,principalNames,principalMatcher,to);
   const originalPrincipal=profileLoanExcelTotalFromRows(items,principalNames,principalMatcher);
   portfolioTotalPrincipal+=principal;
   if(portfolioStatusIsClosed(filter)){
@@ -5642,6 +5654,13 @@ function setPortfolioDefaultDateRange(){
   if(to)to.value="31/12/2050";
   syncPortfolioPicker("portfolioFrom");syncPortfolioPicker("portfolioTo");
   renderPortfolio();
+}
+function setPortfolioOpeningDateRange(){
+  const from=document.getElementById("portfolioFrom"),to=document.getElementById("portfolioTo");
+  const today=new Date(),yesterday=new Date(today.getFullYear(),today.getMonth(),today.getDate()-1);
+  if(from)from.value="2023/01/01";
+  if(to)to.value=clientsDateText(yesterday);
+  syncPortfolioPicker("portfolioFrom");syncPortfolioPicker("portfolioTo");
 }
 function setPortfolioPreviousYear(){
   const year=new Date().getFullYear()-1;
