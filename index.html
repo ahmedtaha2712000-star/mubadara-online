@@ -5022,7 +5022,9 @@ function printPortfolioReport(event){
  printWindow.document.open();
  printWindow.document.write(`<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(title)}</title><style>${printStyles}</style></head><body>${layer.outerHTML}</body></html>`);
  printWindow.document.close();
- let started=false;const launchPrint=()=>{if(started)return;started=true;try{printWindow.focus();printWindow.print();printWindow.addEventListener("afterprint",()=>setTimeout(()=>printWindow.close(),250),{once:true})}catch(error){console.error("Portfolio print:",error);try{printWindow.close()}catch(e){}alert("تعذرت طباعة تقرير المحفظة. حاول مرة أخرى.")}finally{portfolioPrintActionBusyUntil=0}};
+ const closePrintWindow=()=>setTimeout(()=>{try{if(!printWindow.closed)printWindow.close()}catch(error){}try{window.focus()}catch(error){}},250);
+ printWindow.addEventListener("afterprint",closePrintWindow,{once:true});
+ let started=false;const launchPrint=()=>{if(started||printWindow.closed)return;started=true;try{printWindow.focus();printWindow.print()}catch(error){console.error("Portfolio print:",error);try{printWindow.close()}catch(e){}try{window.focus()}catch(e){}alert("تعذرت طباعة تقرير المحفظة. حاول مرة أخرى.")}finally{portfolioPrintActionBusyUntil=0}};
  printWindow.addEventListener("load",()=>setTimeout(launchPrint,100),{once:true});setTimeout(launchPrint,500);
  return false;
 }
