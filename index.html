@@ -5027,17 +5027,26 @@ function printPortfolioReport(event){
  if(Date.now()<portfolioPrintActionBusyUntil)return false;portfolioPrintActionBusyUntil=Date.now()+1400;
  const layer=buildPortfolioPrintLayer();
  if(!layer){portfolioPrintActionBusyUntil=0;alert("لا توجد بيانات مطابقة للطباعة في المحفظة.");return false}
- const printWindow=window.open("","_blank");
- if(!printWindow){portfolioPrintActionBusyUntil=0;alert("تعذر فتح نافذة الطباعة. اسمح بالنوافذ المنبثقة لهذا البرنامج ثم أعد المحاولة.");return false}
  const title=portfolioReportFilename("pdf").replace(/\.pdf$/i,"");
  const printStyles=`@page{size:A4 landscape;margin:5mm 3mm}*{box-sizing:border-box}html,body{margin:0;padding:0;background:#fff;color:#111}body{font-family:Arial,Tahoma,sans-serif;direction:rtl;-webkit-print-color-adjust:exact;print-color-adjust:exact}#portfolioPrintLayer{display:block!important;visibility:visible!important;width:100%!important;color:#111!important;background:#fff!important}.portfolio-specialist-page{break-before:page!important;page-break-before:always!important}.portfolio-print-table{width:100%!important;min-width:0!important;table-layout:fixed!important;border-collapse:collapse!important;direction:rtl!important}.portfolio-print-table thead{display:table-header-group!important}.portfolio-print-table tr{break-inside:avoid!important;page-break-inside:avoid!important}.portfolio-print-table th,.portfolio-print-table td{border:1px solid #475569;padding:1.1mm .6mm;text-align:center;vertical-align:middle;overflow-wrap:anywhere;word-break:break-word;color:#111;background:#fff;font-size:7.5px}#portfolioPrintLayer h1{text-align:center;color:#0b2239}#portfolioPrintLayer h2{break-after:avoid;page-break-after:avoid;color:#10243e}`;
- printWindow.document.open();
- printWindow.document.write(`<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(title)}</title><style>${printStyles}</style></head><body>${layer.outerHTML}</body></html>`);
- printWindow.document.close();
- const closePrintWindow=()=>setTimeout(()=>{try{if(!printWindow.closed)printWindow.close()}catch(error){}try{window.focus()}catch(error){}},250);
- printWindow.addEventListener("afterprint",closePrintWindow,{once:true});
- let started=false;const launchPrint=()=>{if(started||printWindow.closed)return;started=true;try{printWindow.focus();printWindow.print()}catch(error){console.error("Portfolio print:",error);try{printWindow.close()}catch(e){}try{window.focus()}catch(e){}alert("تعذرت طباعة تقرير المحفظة. حاول مرة أخرى.")}finally{portfolioPrintActionBusyUntil=0}};
- printWindow.addEventListener("load",()=>setTimeout(launchPrint,100),{once:true});setTimeout(launchPrint,500);
+ const printFrame=document.createElement("iframe");
+ printFrame.setAttribute("aria-hidden","true");printFrame.setAttribute("tabindex","-1");
+ printFrame.style.cssText="position:fixed;left:-12000px;top:0;width:1200px;height:900px;border:0;opacity:0;pointer-events:none;z-index:-1";
+ document.body.appendChild(printFrame);
+ const printDocument=printFrame.contentDocument;
+ if(!printDocument){printFrame.remove();portfolioPrintActionBusyUntil=0;alert("تعذر تجهيز تقرير الطباعة. حاول مرة أخرى.");return false}
+ let cleaned=false,started=false;
+ const cleanup=()=>{if(cleaned)return;cleaned=true;try{printFrame.contentWindow.removeEventListener("afterprint",cleanup)}catch(error){}printFrame.remove();portfolioPrintActionBusyUntil=0;try{window.focus()}catch(error){}};
+ const launchPrint=()=>{if(started||!printFrame.isConnected)return;started=true;try{printFrame.contentWindow.focus();printFrame.contentWindow.print()}catch(error){console.error("Portfolio print:",error);cleanup();alert("تعذرت طباعة تقرير المحفظة. حاول مرة أخرى.")}};
+ try{
+  printDocument.open();
+  printDocument.write(`<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(title)}</title><style>${printStyles}</style></head><body>${layer.outerHTML}</body></html>`);
+  printDocument.close();
+  printFrame.contentWindow.addEventListener("afterprint",cleanup,{once:true});
+  setTimeout(launchPrint,350);
+  setTimeout(launchPrint,900);
+  setTimeout(cleanup,300000);
+ }catch(error){console.error("Portfolio print setup:",error);cleanup();alert("تعذر تجهيز تقرير الطباعة. حاول مرة أخرى.")}
  return false;
 }
 async function downloadPortfolioPDF(event){
