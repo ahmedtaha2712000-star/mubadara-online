@@ -4927,6 +4927,14 @@ function exportIssuedLoansExcel(){
 function renderPortfolio(){
  const officer=document.getElementById("portfolioOfficer")?.value||"";
  const client=document.getElementById("portfolioClient")?.value||"";
+ const specialistState=document.querySelector('#portfolio input[name="appSpecialistStatus_portfolio"]:checked')?.value||appSpecialistFilterState();
+ const specialistStateCache=new Map();
+ const portfolioSpecialistAllowed=name=>{
+  const key=officerKey(name)||norm(name);
+  if(!key)return true;
+  if(!specialistStateCache.has(key))specialistStateCache.set(key,specialistMatchesState(name,specialistState));
+  return specialistStateCache.get(key);
+ };
  const filter=document.getElementById("portfolioStatus")?.value||"open";
  const fromVal=document.getElementById("portfolioFrom")?.value||"";
  const toVal=document.getElementById("portfolioTo")?.value||"";
@@ -4938,7 +4946,7 @@ function renderPortfolio(){
   const gOfficer=String(get(g.r,"officer")||"");
   const gClient=String(get(g.r,"client")||"");
   return portfolioStatusMatches(g,filter)
-   && specialistStatusAllows(gOfficer)
+   && portfolioSpecialistAllowed(gOfficer)
    && (!officer || officerKey(gOfficer)===officerKey(officer))
    && (!client || norm(gClient)===norm(client))
    && portfolioDateInRange(g,from,to)
