@@ -2882,6 +2882,10 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
   <div class="portfolio-filter-box portfolio-date-filter"><div class="portfolio-date-heading"><label>البحث بالتاريخ</label><span>صيغة التاريخ: يوم/شهر/سنة</span></div><div class="portfolio-date-range"><div class="portfolio-date-field"><label for="portfolioFrom">من تاريخ</label><div class="portfolio-date-input"><span>📅</span><input id="portfolioFrom" type="text" inputmode="numeric" placeholder="01/01/1990" aria-label="من تاريخ"><button type="button" class="portfolio-calendar-trigger" aria-label="اختيار من تاريخ" title="اختيار التاريخ" onclick="openPortfolioDatePicker('portfolioFrom')">⌄</button><input id="portfolioFromPicker" class="portfolio-date-picker-input" type="date" tabindex="-1" aria-hidden="true"></div></div><div class="portfolio-date-field"><label for="portfolioTo">إلى تاريخ</label><div class="portfolio-date-input"><span>📅</span><input id="portfolioTo" type="text" inputmode="numeric" placeholder="31/12/2050" aria-label="إلى تاريخ"><button type="button" class="portfolio-calendar-trigger" aria-label="اختيار إلى تاريخ" title="اختيار التاريخ" onclick="openPortfolioDatePicker('portfolioTo')">⌄</button><input id="portfolioToPicker" class="portfolio-date-picker-input" type="date" tabindex="-1" aria-hidden="true"></div></div></div><div class="portfolio-date-tools"><button type="button" class="light" onclick="setPortfolioPreviousYear()">◀️ السنة السابقة</button><button type="button" class="light" onclick="setPortfolioDefaultDateRange()">📅 كل السنوات</button></div></div>
   <div class="portfolio-filter-box"><label for="portfolioStatus">حالة القرض</label><select id="portfolioStatus"><option value="open">القرض قائم</option><option value="closed">القروض المغلقة</option><option value="all">كل القروض</option></select><div class="portfolio-filter-actions"><span class="filter-status-note">يمكن البحث بأي حرف داخل القوائم</span><button type="button" class="light" onclick="clearSectionFilter('portfolio')">🧹 مسح الفلاتر</button></div></div>
 </div>
+<div class="export-toolbar no-print" id="portfolioExportToolbar">
+  <button class="print-btn icon-action" type="button" aria-label="طباعة تقرير المحفظة" title="طباعة" onclick="printPortfolioReport(event)"><span class="action-glyph glyph-print" aria-hidden="true">🖨️</span><span class="action-label">طباعة</span></button>
+  <button class="pdf-btn icon-action" type="button" aria-label="تحميل تقرير المحفظة PDF" title="تحميل PDF" onclick="downloadPortfolioPDF(event)"><span class="action-glyph glyph-pdf" aria-hidden="true">📄</span><span class="action-label">PDF</span></button>
+</div>
 <div class="toolbar no-print" style="display:none"><input id="pf" value=""></div>
 
 <div class="wrap portfolio-table-wrap"><table class="portfolio-main-table"><thead><tr>
@@ -4923,6 +4927,66 @@ function exportIssuedLoansExcel(){
  if(typeof XLSX==="undefined")return alert("مكتبة Excel غير متاحة.");
  const records=window.__issuedLoanRecords||[],data=records.map((item,index)=>({"م":index+1,"اسم العميل":item.client,"اسم الأخصائي":item.officer,"مبلغ القرض":item.amount,"مدة القرض":item.term,"تاريخ منح القرض":portfolioDateText(item.rawDate),"نوع المنتج":item.product,"قيمة القسط":item.installmentValue,"تاريخ الاستحقاق":item.dueDate?clientsDateText(item.dueDate):"","تاريخ نهاية القرض":portfolioDateText(item.endDateRaw),"حالة القرض":item.status}));
  const ws=XLSX.utils.json_to_sheet(data.length?data:[{"ملاحظة":"لا توجد قروض مطابقة للفلاتر"}]);ws["!cols"]=[{wch:7},{wch:28},{wch:22},{wch:17},{wch:15},{wch:17},{wch:20},{wch:16},{wch:17},{wch:18},{wch:18}];const wb=XLSX.utils.book_new();wb.Workbook={Views:[{RTL:true}]};XLSX.utils.book_append_sheet(wb,ws,"القروض المصدرة");XLSX.writeFile(wb,`القروض_المصدرة_${new Date().toISOString().slice(0,10)}.xlsx`);
+}
+let portfolioPrintActionBusyUntil=0;
+function portfolioReportFilename(extension){
+ const officer=(document.getElementById("portfolioOfficer")?.value||"").trim();
+ const label=officer||"جميع_الأخصائيين";
+ const safe=String(label).replace(/[\\/:*?"<>|]/g,"_").replace(/\s+/g,"_").replace(/^_+|_+$/g,"")||"المحفظة";
+ return `تقرير_المحفظة_${safe}_${new Date().toISOString().slice(0,10)}.${extension}`;
+}
+function buildPortfolioPrintLayer(){
+ renderPortfolio();
+ const source=document.querySelector("#portfolio .portfolio-main-table"),body=source?.querySelector("tbody#pt");
+ if(!source||!body)return null;
+ const rows=[...body.querySelectorAll("tr")].filter(row=>row.cells.length>1&&!row.textContent.includes("لا توجد بيانات"));
+ if(!rows.length)return null;
+ const groups=new Map();
+ rows.forEach(row=>{
+  const name=String(row.cells[0]?.textContent||"غير محدد").trim()||"غير محدد";
+  const key=officerKey(name)||norm(name);
+  if(!groups.has(key))groups.set(key,{name,rows:[]});
+  groups.get(key).rows.push(row);
+ });
+ const report=document.createElement("div");report.id="portfolioPrintLayer";report.dir="rtl";
+ report.style.cssText="background:#fff;color:#000;width:100%;box-sizing:border-box;padding:8mm;font-family:Arial,Tahoma,sans-serif;direction:rtl;";
+ const title=document.createElement("h1");title.textContent="تقرير المحفظة";title.style.cssText="font-size:20px;text-align:center;margin:0 0 8px;font-weight:700;";report.appendChild(title);
+ const meta=document.createElement("div");meta.style.cssText="font-size:11px;margin:0 0 12px;text-align:center;";
+ const selected=(document.getElementById("portfolioOfficer")?.value||"").trim();
+ const from=document.getElementById("portfolioFrom")?.value||"—",to=document.getElementById("portfolioTo")?.value||"—";
+ const loanStatus=document.getElementById("portfolioStatus")?.selectedOptions?.[0]?.textContent?.trim()||"";
+ meta.textContent=`الأخصائي: ${selected||"جميع الأخصائيين"}  |  حالة القرض: ${loanStatus}  |  الفترة: ${from} - ${to}  |  تاريخ التقرير: ${new Date().toLocaleDateString("ar-EG")}`;report.appendChild(meta);
+ const headers=[...source.querySelectorAll("thead tr")].map(row=>row.cloneNode(true));
+ [...groups.values()].sort((a,b)=>a.name.localeCompare(b.name,"ar")).forEach(group=>{
+  const heading=document.createElement("h2");heading.textContent=`اسم الأخصائي: ${group.name}`;heading.style.cssText="font-size:14px;margin:14px 0 5px;padding:5px 7px;background:#eef2f7;border:1px solid #94a3b8;page-break-after:avoid;break-after:avoid;";report.appendChild(heading);
+  const table=source.cloneNode(false);table.removeAttribute("id");table.classList.add("portfolio-print-table");table.style.cssText="width:100%;min-width:0;table-layout:fixed;border-collapse:collapse;direction:rtl;font-size:8px;margin:0 0 8px;";
+  const thead=document.createElement("thead");headers.forEach(row=>thead.appendChild(row.cloneNode(true)));table.appendChild(thead);
+  const tbody=document.createElement("tbody");group.rows.forEach(row=>tbody.appendChild(row.cloneNode(true)));table.appendChild(tbody);
+  table.querySelectorAll("th,td").forEach(cell=>{cell.style.cssText+=";border:1px solid #333;padding:3px 2px;text-align:center;vertical-align:middle;overflow-wrap:anywhere;word-break:break-word;color:#000;background:#fff;font-size:8px;"});
+  report.appendChild(table);
+ });
+ return report;
+}
+function printPortfolioReport(event){
+ if(event?.preventDefault)event.preventDefault();if(event?.stopImmediatePropagation)event.stopImmediatePropagation();
+ if(Date.now()<portfolioPrintActionBusyUntil)return false;portfolioPrintActionBusyUntil=Date.now()+1400;
+ const layer=buildPortfolioPrintLayer();if(!layer){portfolioPrintActionBusyUntil=0;alert("لا توجد بيانات مطابقة للطباعة في المحفظة.");return false}
+ const style=document.createElement("style");style.id="portfolioPrintStyles";style.textContent='@page{size:A4 landscape;margin:8mm}@media screen{#portfolioPrintLayer{display:none!important}}@media print{body.printing-portfolio-report>*:not(#portfolioPrintLayer){display:none!important}body.printing-portfolio-report #portfolioPrintLayer{display:block!important;position:absolute!important;inset:0 auto auto 0!important;width:100%!important;margin:0!important;visibility:visible!important}body.printing-portfolio-report #portfolioPrintLayer .portfolio-print-table thead{display:table-header-group}body.printing-portfolio-report #portfolioPrintLayer tr{break-inside:avoid;page-break-inside:avoid}body.printing-portfolio-report #portfolioPrintLayer h2{break-after:avoid;page-break-after:avoid}}';
+ document.head.appendChild(style);document.body.appendChild(layer);document.body.classList.add("printing-portfolio-report");
+ const previousTitle=document.title;document.title=portfolioReportFilename("pdf");
+ let cleaned=false;const cleanup=()=>{if(cleaned)return;cleaned=true;document.body.classList.remove("printing-portfolio-report");if(layer.isConnected)layer.remove();if(style.isConnected)style.remove();document.title=previousTitle;window.removeEventListener("afterprint",cleanup);portfolioPrintActionBusyUntil=0};
+ window.addEventListener("afterprint",cleanup,{once:true});void layer.offsetHeight;
+ try{window.print()}catch(error){cleanup();alert("تعذرت طباعة تقرير المحفظة. حاول مرة أخرى.")}
+ setTimeout(cleanup,60000);return false;
+}
+async function downloadPortfolioPDF(event){
+ if(event?.preventDefault)event.preventDefault();if(event?.stopImmediatePropagation)event.stopImmediatePropagation();
+ if(Date.now()<portfolioPrintActionBusyUntil)return false;portfolioPrintActionBusyUntil=Date.now()+1400;
+ let layer=buildPortfolioPrintLayer();if(!layer){portfolioPrintActionBusyUntil=0;alert("لا توجد بيانات مطابقة لتحميلها PDF من المحفظة.");return false}
+ const button=document.querySelector("#portfolioExportToolbar .pdf-btn"),label=button?.querySelector(".action-label"),oldText=label?.textContent;
+ try{if(button){button.disabled=true;button.setAttribute("aria-busy","true");if(label)label.textContent="جاري الإنشاء..."}await downloadReportLayerPDF(layer,portfolioReportFilename("pdf"),"portfolio-report-pdf");}
+ finally{if(button){button.disabled=false;button.removeAttribute("aria-busy");if(label)label.textContent=oldText||"PDF"}portfolioPrintActionBusyUntil=0}
+ return false;
 }
 function renderPortfolio(){
  const officer=document.getElementById("portfolioOfficer")?.value||"";
