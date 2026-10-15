@@ -2624,13 +2624,20 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
 
 <section id="collectionDifferencesPanel" class="collection-differences-panel no-print" aria-label="ملخص مبالغ التحصيل الجديدة">
   <div class="collection-differences-head">
-    <div><h3>التحصيلات الجديدة منذ آخر تحديث</h3><p id="collectionDifferencesIntro">بعد رفع الشيت الجديد، ستظهر هنا المبالغ التي زادت لكل عميل بحسب تاريخ السداد.</p></div>
+    <div><h3>التحصيلات الجديدة منذ آخر تحديث</h3><p id="collectionDifferencesIntro">تعرض كل الزيادات منذ آخر رفع. استخدم تاريخ البطاقة للبحث أو انسخ نطاق شاشة التحصيل عند الحاجة.</p></div>
     <div class="collection-differences-actions"><button type="button" class="light" id="collectionDifferencesToggle">عرض ملخص التحصيل الجديد</button><button type="button" class="light collection-diff-export" id="collectionDifferencesPrint" hidden>طباعة</button><button type="button" class="light collection-diff-export" id="collectionDifferencesOpenPdf" hidden>فتح PDF</button><button type="button" class="light collection-diff-export" id="collectionDifferencesPdf" hidden>تنزيل PDF</button><button type="button" class="light collection-diff-export" id="collectionDifferencesWhatsapp" hidden>مشاركة PDF عبر واتساب</button><button type="button" class="light collection-diff-export" id="collectionDifferencesExcel" hidden>Excel</button><button type="button" class="light" id="collectionDifferencesClose" hidden>إخفاء</button></div>
   </div>
   <div id="collectionDifferencesBody" hidden>
     <div class="collection-difference-metrics" id="collectionDifferenceMetrics"></div>
     <div class="collection-difference-filters" role="tablist" aria-label="تصفية مبالغ التحصيل الجديدة">
       <button type="button" class="is-active" data-diff-filter="all">كل مبالغ التحصيل الجديدة</button><button type="button" data-diff-filter="new">تحصيل جديد للعميل/التاريخ</button><button type="button" data-diff-filter="changed">زيادة على تحصيل سابق</button>
+    </div>
+    <div class="collection-difference-date-tools" aria-label="البحث بتاريخ السداد في فروقات التحصيل">
+      <label>من تاريخ <input id="collectionDifferenceFrom" type="date" aria-label="من تاريخ السداد"></label>
+      <label>إلى تاريخ <input id="collectionDifferenceTo" type="date" aria-label="إلى تاريخ السداد"></label>
+      <button type="button" class="light" id="collectionDifferenceCopyScreenDates">استخدام نطاق شاشة التحصيل</button>
+      <button type="button" class="light" id="collectionDifferenceClearDates">كل التواريخ</button>
+      <span id="collectionDifferenceDateStatus" role="status" aria-live="polite">يعرض كل تواريخ السداد منذ آخر رفع.</span>
     </div>
     <div class="collection-differences-table-wrap"><table class="collection-differences-table"><thead><tr><th>نوع التحصيل</th><th>اسم العميل</th><th>تاريخ السداد</th><th>مبلغ التحصيل الجديد</th></tr></thead><tbody id="collectionDifferencesBodyRows"></tbody></table></div>
     <p class="collection-differences-note">تُجمع المبالغ حسب العميل وتاريخ السداد، ويُعرض المبلغ الإضافي مقارنة بالشيت السابق فقط. لا تُعرض تغييرات الصفوف أو المبالغ التي انخفضت.</p>
@@ -3645,38 +3652,44 @@ async function importExcelFile(file){
     storeCollectionDifferences(comparison);
   }catch(compareErr){
     console.warn("collection sheet comparison:",compareErr);
-    comparison={error:true,items:[],counts:{previous:previousRows.length,current:importedRows.length,new:0,changed:0,removed:0,unchanged:0}};
+    comparison={error:true,createdAt:new Date().toISOString(),items:[],counts:{previous:previousRows.length,current:importedRows.length,new:0,changed:0,customerCount:0,totalNewAmount:0,removed:0,unchanged:0}};storeCollectionDifferences(comparison);
   }
   let localSaved=false;
   try{if(importedRows.length<=50000)localSaved=safeLocalSet(LS_ROWS,JSON.stringify(importedRows));}catch(localErr){console.warn("local import backup:",localErr)}
   safeLocalSet("mub_time",new Date().toLocaleString("en-US"));
   try{build();renderCollectionDifferences()}catch(buildErr){console.error("build after import:",buildErr);throw new Error("تمت قراءة الملف لكن تعذر تجهيز صفوفه: "+(buildErr.message||buildErr))}
+  const archiveRequired=previousRows.length>0&&cloudReady&&!!supabaseClient;
+  let archiveResult={saved:false,skipped:!archiveRequired};
+  if(archiveRequired)archiveResult=await archivePreviousSheetSnapshot(previousRows);
+  const archiveWarning=archiveRequired&&!archiveResult.saved;
   let cloudSaved=false;
-  try{cloudSaved=await saveDB(importedRows,(percent,stage,note)=>setImportProgress(percent,stage,note))}catch(cloudErr){console.warn("cloud import save:",cloudErr)}
+  if(!archiveWarning)try{cloudSaved=await saveDB(importedRows,(percent,stage,note)=>setImportProgress(percent,stage,note))}catch(cloudErr){console.warn("cloud import save:",cloudErr)}
   const loadedAt=new Date().toLocaleString("en-US",{dateStyle:"full",timeStyle:"medium"});
   safeLocalSet("mub_current_sheet_meta_v1",JSON.stringify({fileName:displayFileName,sheetName:name,uploadedAt:new Date().toISOString(),rowCount:rows.length,fileSize:file.size}));
   if(typeof renderCurrentSheetInfo==="function")renderCurrentSheetInfo();
   try{auditLog("رفع Excel",`${rows.length} صف — ورقة: ${name}`)}catch(auditErr){console.warn("audit import:",auditErr)}
   showMsg(cloudSaved
-    ? "✅ تم حفظ الملف سحابيًا لجميع المستخدمين — "+rows.length.toLocaleString("en-US")+" صف من ورقة: "+name
-    : rows.length>50000
+    ? "✅ تم حفظ الملف سحابيًا لجميع المستخدمين — "+rows.length.toLocaleString("en-US")+" صف من ورقة: "+name+(previousRows.length?" — حُفظت النسخة السابقة في الأرشيف.":" — لا توجد نسخة سابقة لأرشفتها.")
+    : archiveWarning
+      ? "⚠️ لم يتم استبدال الشيت السحابي لأن حفظ النسخة السابقة في الأرشيف تعذر. تبقى البيانات الجديدة محلية في هذه الجلسة فقط."
+      : rows.length>50000
       ? "⚠️ تمت قراءة الملف، لكن لم ينجح حفظه سحابيًا؛ البيانات متاحة في هذه الجلسة فقط."
       : localSaved
         ? "⚠️ حُفظ الملف على هذا الجهاز فقط؛ لم يتم تأكيد حفظه في السحابة."
-        : "⚠️ تمت قراءة الملف في هذه الجلسة فقط؛ لم تُحفظ نسخة محلية أو سحابية.",cloudSaved?"ok":"warn");
+        : "⚠️ تمت قراءة الملف في هذه الجلسة فقط؛ لم تُحفظ نسخة محلية أو سحابية.",cloudSaved&&!archiveWarning?"ok":"warn");
   const importStatus=document.getElementById("importConfirmStatus");
   if(importStatus){
     importStatus.textContent=cloudSaved
-      ? "✅ تم تأكيد حفظ الملف ومزامنته سحابيًا — التاريخ والوقت: "+loadedAt
-      : "⚠️ تمت قراءة الملف، لكن لم يتم تأكيد حفظه في السحابة — التاريخ والوقت: "+loadedAt;
-    importStatus.style.background=cloudSaved?"#ecfdf5":"#fff7ed";
-    importStatus.style.borderColor=cloudSaved?"#86efac":"#fdba74";
-    importStatus.style.color=cloudSaved?"#166534":"#9a3412";
+      ? "✅ تم تأكيد حفظ الملف ومزامنته سحابيًا"+(previousRows.length?" وحُفظت النسخة السابقة في الأرشيف":"")+" — التاريخ والوقت: "+loadedAt
+      : archiveWarning?"⚠️ لم يتم استبدال بيانات الخادم لأن أرشفة النسخة السابقة تعذرت — "+loadedAt:"⚠️ تمت قراءة الملف، لكن لم يتم تأكيد حفظه في السحابة — التاريخ والوقت: "+loadedAt;
+    importStatus.style.background=cloudSaved&&!archiveWarning?"#ecfdf5":"#fff7ed";
+    importStatus.style.borderColor=cloudSaved&&!archiveWarning?"#86efac":"#fdba74";
+    importStatus.style.color=cloudSaved&&!archiveWarning?"#166534":"#9a3412";
   }
-  document.getElementById("status").textContent=cloudSaved?"☁️ تم تأكيد حفظ البيانات في السحابة":"⚠️ لم يكتمل الحفظ السحابي — النسخة محلية فقط";
+  document.getElementById("status").textContent=cloudSaved?"☁️ تم تأكيد حفظ البيانات في السحابة":archiveWarning?"⚠️ لم يتم استبدال الشيت السحابي لأن الأرشيف لم يُحدّث":"⚠️ لم يكتمل الحفظ السحابي — النسخة محلية فقط";
   if(cloudSaved)finishImportProgress(true,"تم ضغط البيانات ورفعها ومزامنتها مع جميع المستخدمين.");
   else{
-    setImportProgress(100,"المزامنة السحابية غير مكتملة",localSaved?"حُفظت النسخة على هذا الجهاز فقط؛ لا تتم إعادة المحاولة تلقائيًا.":"البيانات باقية في الجلسة فقط؛ لا تتم إعادة المحاولة تلقائيًا.");
+    setImportProgress(100,"المزامنة السحابية غير مكتملة",archiveWarning?"لم يتم استبدال الشيت السحابي؛ تعذر حفظ النسخة السابقة في الأرشيف.":(localSaved?"حُفظت النسخة على هذا الجهاز فقط؛ لا تتم إعادة المحاولة تلقائيًا.":"البيانات باقية في الجلسة فقط؛ لا تتم إعادة المحاولة تلقائيًا."));
     const progressBar=document.getElementById("importProgressBar");if(progressBar)progressBar.style.background="#f59e0b";
   }
   if(cloudSaved)try{recordSuccessfulImportNotice()}catch(importNoticeErr){console.warn("تعذر حفظ ملاحظة آخر استيراد:",importNoticeErr)}
@@ -7379,6 +7392,19 @@ async function saveCloud(data,progress){
     showMsg("⚠️ تعذر حفظ البيانات على الخادم: "+(e.message||e),"warn");
     return false;
   }finally{cloudWriting=false}
+}
+async function archivePreviousSheetSnapshot(snapshotRows){
+  if(!Array.isArray(snapshotRows)||!snapshotRows.length)return {saved:false,skipped:true};
+  if(!cloudReady||!supabaseClient)return {saved:false,error:"اتصال الأرشيف السحابي غير متاح."};
+  try{
+    const archivedRows=await packCloudRows(snapshotRows);
+    const {error}=await supabaseClient.rpc("archive_previous_sheet",{p_rows:archivedRows,p_row_count:snapshotRows.length});
+    if(error)throw error;
+    return {saved:true};
+  }catch(e){
+    console.warn("Previous sheet archive failed:",e);
+    return {saved:false,error:e?.message||"تعذر حفظ نسخة الشيت السابق في الأرشيف."};
+  }
 }
 async function loadCloud(){
   lastCloudLoadError="";
@@ -11429,8 +11455,9 @@ window.showScreen = function(id) { const result=previousShowScreen.apply(this,ar
 .collection-differences-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.collection-differences-head h3{margin:0;color:#123b4b;font-size:16px;font-weight:950}.collection-differences-head p{margin:4px 0 0;color:#607782;font-size:11px;line-height:1.6}.collection-differences-actions{display:flex;gap:7px;flex-wrap:wrap}.collection-differences-actions button{min-width:105px}
 .collection-difference-metrics{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin:13px 0 10px}.collection-difference-metric{padding:10px 11px;border:1px solid #d9e6e7;border-top:3px solid #64748b;border-radius:10px;background:#fff}.collection-difference-metric small{display:block;color:#667985;font-size:10px;font-weight:800}.collection-difference-metric b{display:block;margin-top:4px;color:#183b4a;font-size:20px;font-weight:950}.collection-difference-metric.new{border-top-color:#16a34a}.collection-difference-metric.changed{border-top-color:#d97706}.collection-difference-metric.removed{border-top-color:#dc2626}
 .collection-difference-filters{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 10px;padding:5px;border:1px solid #dbe7ea;border-radius:10px;background:#f8fbfc}.collection-difference-filters button{border:1px solid transparent;border-radius:8px;background:transparent;color:#526b76;padding:7px 10px;font:inherit;font-size:11px;font-weight:900;cursor:pointer}.collection-difference-filters button:hover,.collection-difference-filters button.is-active{background:#e0f2ec;color:#086044;border-color:#a9d8c9}
+.collection-difference-date-tools{display:flex;align-items:flex-end;gap:8px;flex-wrap:wrap;margin:0 0 10px;padding:9px;border:1px solid #dbe7ea;border-radius:10px;background:#fff}.collection-difference-date-tools label{display:flex;align-items:center;gap:6px;color:#526b76;font-size:11px;font-weight:900}.collection-difference-date-tools input{min-height:34px;padding:5px 7px;border:1px solid #cbd5e1;border-radius:7px;background:#fff;color:#1f2937;font:inherit}.collection-difference-date-tools button{min-height:34px}.collection-difference-date-tools span{flex:1 1 220px;color:#64748b;font-size:10px;font-weight:800}
 .collection-differences-table-wrap{max-height:360px;overflow:auto;border:1px solid #d8e4e7;border-radius:10px;background:#fff}.collection-differences-table{width:100%;min-width:760px;border-collapse:collapse;font-size:11px}.collection-differences-table th{position:sticky;top:0;z-index:1;background:#eaf5f2;color:#285564;font-weight:950}.collection-differences-table th,.collection-differences-table td{padding:9px 8px;border-bottom:1px solid #e6eef0;text-align:right;vertical-align:middle}.collection-differences-table tbody tr:hover td{background:#f2faf7}.collection-difference-badge{display:inline-flex;align-items:center;padding:4px 7px;border-radius:999px;font-size:10px;font-weight:900;white-space:nowrap}.collection-difference-badge.new{background:#dcfce7;color:#166534}.collection-difference-badge.changed{background:#ffedd5;color:#9a3412}.collection-difference-badge.removed{background:#fee2e2;color:#991b1b}.collection-difference-details{color:#526b76;font-size:10px;font-weight:800}.collection-differences-note{margin:9px 2px 0;color:#71828a;font-size:10px;line-height:1.6}
-@media(max-width:800px){.collection-difference-metrics{grid-template-columns:repeat(3,minmax(0,1fr))}}@media(max-width:520px){.collection-differences-head{align-items:flex-start}.collection-difference-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.collection-difference-filters button{flex:1 1 44%}}
+@media(max-width:800px){.collection-difference-metrics{grid-template-columns:repeat(3,minmax(0,1fr))}}@media(max-width:520px){.collection-differences-head{align-items:flex-start}.collection-difference-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.collection-difference-filters button{flex:1 1 44%}.collection-difference-date-tools label{flex:1 1 100%;justify-content:space-between}.collection-difference-date-tools input{flex:1}}
 @media print{#collectionDifferencesPanel{display:none!important}}
 </style>
 <script id="collection-differences-logic">
@@ -11488,7 +11515,9 @@ window.showScreen = function(id) { const result=previousShowScreen.apply(this,ar
  function badge(type){return type==="new"?'<span class="collection-difference-badge new">تحصيل جديد</span>':'<span class="collection-difference-badge changed">زيادة تحصيل</span>'}
  function activeDifferenceFilter(){return document.querySelector("#collectionDifferencesPanel [data-diff-filter].is-active")?.dataset.diffFilter||"all"}
  function differenceLabel(filter){return filter==="new"?"تحصيل_جديد":filter==="changed"?"زيادة_تحصيل":"كل_التحصيلات_الجديدة"}
- function selectedCollectionPaymentRange(){return {from:document.getElementById("collectionFrom")?.value||"",to:document.getElementById("collectionTo")?.value||""}}
+ function selectedCollectionPaymentRange(){return {from:document.getElementById("collectionDifferenceFrom")?.value||"",to:document.getElementById("collectionDifferenceTo")?.value||""}}
+ function syncCollectionDifferenceDateRangeFromScreen(){const from=document.getElementById("collectionDifferenceFrom"),to=document.getElementById("collectionDifferenceTo");if(from)from.value=document.getElementById("collectionFrom")?.value||"";if(to)to.value=document.getElementById("collectionTo")?.value||"";renderCollectionDifferences(activeDifferenceFilter())}
+ function clearCollectionDifferenceDateRange(){const from=document.getElementById("collectionDifferenceFrom"),to=document.getElementById("collectionDifferenceTo");if(from)from.value="";if(to)to.value="";renderCollectionDifferences(activeDifferenceFilter())}
  function collectionPaymentRangeLabel(){
    const {from,to}=selectedCollectionPaymentRange(),label=value=>{const d=typeof parseExcelDate==="function"?parseExcelDate(value):null;return d?d.toLocaleDateString("ar-EG"):value};
    if(!from&&!to)return "جميع تواريخ السداد";
@@ -11604,7 +11633,8 @@ window.showScreen = function(id) { const result=previousShowScreen.apply(this,ar
    const d=diffState,toggleButton=document.getElementById("collectionDifferencesToggle"),closeButton=document.getElementById("collectionDifferencesClose");panel.hidden=false;
    if(!d.createdAt&&!(d.items||[]).length){intro.textContent="جاهزة للمقارنة. بعد رفع الشيت التالي ستظهر الزيادة في مبالغ التحصيل بحسب فترة تاريخ السداد المختارة.";if(body){body.hidden=true;body.dataset.open="0"}if(toggleButton){toggleButton.textContent="لا توجد مقارنة بعد";toggleButton.disabled=true}if(closeButton)closeButton.hidden=true;return}
    if(toggleButton){toggleButton.textContent="عرض ملخص التحصيل الجديد";toggleButton.disabled=false}
-   const periodItems=filteredDifferenceItems("all"),c=differenceSummary(periodItems),list=filteredDifferenceItems(filter);
+   const periodItems=filteredDifferenceItems("all"),c=differenceSummary(periodItems),list=filteredDifferenceItems(filter),dateStatus=document.getElementById("collectionDifferenceDateStatus"),dateRange=selectedCollectionPaymentRange();
+   if(dateStatus)dateStatus.textContent=(dateRange.from||dateRange.to)?`تصفية مستقلة حسب تاريخ السداد: ${collectionPaymentRangeLabel()}`:"يعرض كل تواريخ السداد منذ آخر رفع.";
    intro.textContent=d.error?"تعذر تجهيز ملخص التحصيل، بينما تم اعتماد الشيت الجديد بأمان.":`فترة المقارنة: ${collectionPaymentRangeLabel()} — مبالغ التحصيل الإضافية: ${fmtMoney(c.totalNewAmount)} عبر ${fmt(c.customerCount)} عميلًا.`;
    metrics.innerHTML=[["إجمالي مبالغ التحصيل الجديدة",fmtMoney(c.totalNewAmount),"new"],["عدد العملاء",fmt(c.customerCount),""],["تحصيل جديد للعميل/التاريخ",fmt(c.new),"new"],["زيادة على تحصيل سابق",fmt(c.changed),"changed"]].map(x=>`<div class="collection-difference-metric ${x[2]}"><small>${x[0]}</small><b>${x[1]}</b></div>`).join("");
    tbody.innerHTML=list.length?list.map(item=>`<tr><td>${badge(item.type)}</td><td>${esc(item.current?.client||"—")}</td><td>${esc(item.current?.paymentDate||"تاريخ غير محدد")}</td><td class="collection-difference-details">${esc(fmtMoney(item.current?.paid||0))}</td></tr>`).join(""):'<tr><td colspan="4" style="text-align:center;padding:22px;color:#71828a">لا توجد مبالغ تحصيل جديدة ضمن فترة التاريخ المختارة وهذا التصنيف.</td></tr>';
@@ -11616,7 +11646,8 @@ window.showScreen = function(id) { const result=previousShowScreen.apply(this,ar
  window.storeCollectionDifferences=storeCollectionDifferences;
  document.addEventListener("DOMContentLoaded",()=>{
    loadCollectionDifferences();renderCollectionDifferences();
-   ["collectionFrom","collectionTo"].forEach(id=>{const input=document.getElementById(id);if(input)["input","change"].forEach(eventName=>input.addEventListener(eventName,()=>renderCollectionDifferences(activeDifferenceFilter())))});
+   ["collectionDifferenceFrom","collectionDifferenceTo"].forEach(id=>{const input=document.getElementById(id);if(input)["input","change"].forEach(eventName=>input.addEventListener(eventName,()=>renderCollectionDifferences(activeDifferenceFilter())))});
+   document.getElementById("collectionDifferenceCopyScreenDates")?.addEventListener("click",syncCollectionDifferenceDateRangeFromScreen);document.getElementById("collectionDifferenceClearDates")?.addEventListener("click",clearCollectionDifferenceDateRange);
    const panel=document.getElementById("collectionDifferencesPanel"),body=document.getElementById("collectionDifferencesBody"),toggle=document.getElementById("collectionDifferencesToggle"),close=document.getElementById("collectionDifferencesClose");
    toggle?.addEventListener("click",()=>{body.hidden=false;body.dataset.open='1';toggle.hidden=true;if(close)close.hidden=false;document.getElementById("collectionDifferencesPrint")?.removeAttribute("hidden");document.getElementById("collectionDifferencesOpenPdf")?.removeAttribute("hidden");document.getElementById("collectionDifferencesWhatsapp")?.removeAttribute("hidden");document.getElementById("collectionDifferencesExcel")?.removeAttribute("hidden");document.getElementById("collectionDifferencesPdf")?.removeAttribute("hidden");renderCollectionDifferences(document.querySelector("#collectionDifferencesPanel [data-diff-filter].is-active")?.dataset.diffFilter||"all")});close?.addEventListener("click",()=>{body.hidden=true;body.dataset.open='0';close.hidden=true;toggle.hidden=false;document.getElementById("collectionDifferencesPrint")?.setAttribute("hidden","");document.getElementById("collectionDifferencesOpenPdf")?.setAttribute("hidden","");document.getElementById("collectionDifferencesWhatsapp")?.setAttribute("hidden","");document.getElementById("collectionDifferencesExcel")?.setAttribute("hidden","");document.getElementById("collectionDifferencesPdf")?.setAttribute("hidden","")});document.getElementById("collectionDifferencesPrint")?.addEventListener("click",printCollectionDifferences);document.getElementById("collectionDifferencesExcel")?.addEventListener("click",exportCollectionDifferencesExcel);document.getElementById("collectionDifferencesPdf")?.addEventListener("click",exportCollectionDifferencesPDF);
    document.getElementById("collectionDifferencesOpenPdf")?.addEventListener("click",()=>runCollectionDifferencesPdfAction("open"));
