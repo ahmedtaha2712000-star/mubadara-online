@@ -11232,14 +11232,25 @@ async function prepareDueWhatsAppPDF(event){
     layer.querySelectorAll("table.collection-print-table th,table.collection-print-table td").forEach(cell=>{cell.style.setProperty("font-size","10px","important");cell.style.setProperty("font-weight","700","important");cell.style.setProperty("color","#000","important")});
     layer.querySelectorAll(".collection-print-specialist-section table.collection-print-table th,.collection-print-specialist-section table.collection-print-table td").forEach(cell=>{cell.style.setProperty("font-size","14px","important");cell.style.setProperty("font-weight","700","important");cell.style.setProperty("line-height","1.35","important");cell.style.setProperty("padding","5px 3px","important");cell.style.setProperty("height","auto","important");cell.style.setProperty("color","#000","important");if(cell.cellIndex===cell.parentElement.cells.length-1){cell.style.setProperty("white-space","normal","important");cell.style.setProperty("overflow-wrap","anywhere","important");cell.style.setProperty("word-break","normal","important")}});
   }
-  async function printCollectionWithDueStyle(forPdf=false){
+  async function downloadCollectionReportViaVercel(layer,filename){
+  let css=[...document.querySelectorAll("style")].map(style=>style.textContent||"").join("\n"),requestBody=JSON.stringify({html:layer.outerHTML,css,filename,reportType:"collection-report"});
+  try{
+    const response=await fetch("/api/generate-pdf",{method:"POST",headers:{"Content-Type":"application/json"},body:requestBody});requestBody=null;css=null;
+    if(!response.ok){let detail="";try{detail=await response.text()}catch(e){}throw new Error(`Vercel PDF API ${response.status}: ${detail}`)}
+    const blob=await response.blob();if(!(blob instanceof Blob)||blob.size<100)throw new Error("خادم Vercel لم يُرجع ملف PDF صالحًا.");
+    const url=URL.createObjectURL(blob),link=document.createElement("a");link.href=url;link.download=filename;link.style.display="none";document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);
+    if(typeof showMsg==="function")showMsg("تم إنشاء ملف PDF للتحصيل من خادم Vercel بنجاح.","ok");
+    return true;
+  }catch(error){console.error("Vercel collection PDF API:",error);alert("تعذر إنشاء PDF للتحصيل من خادم Vercel. تأكد من نشر وظيفة PDF ثم أعد المحاولة.");return false}
+}
+async function printCollectionWithDueStyle(forPdf=false){
     document.getElementById("collectionPrintReportLayer")?.remove();
     document.getElementById("collectionStandalonePrintLayer")?.remove();
     const layer=buildCollectionDueStylePrintLayer();
     if(!layer){alert(forPdf?"لا توجد بيانات تحصيل مطابقة لتحميلها PDF.":"لا توجد بيانات تحصيل مطابقة للطباعة.");return false}
     formatCollectionPrintLayer(layer);
     const filename=`تقرير_التحصيل_${new Date().toISOString().slice(0,10)}.pdf`;
-    if(forPdf){layer.style.setProperty("display","block","important");await downloadReportLayerPDF(layer,filename,"collection-report-download");return false}
+    if(forPdf){layer.style.setProperty("display","block","important");await downloadCollectionReportViaVercel(layer,filename);return false}
     const previousTitle=document.title;document.title=filename.replace(/\.pdf$/i,"");
     document.body.appendChild(layer);document.body.classList.add("printing-collection-report");
     const restoreNodes=[...document.body.childNodes].filter(node=>node.nodeType===Node.TEXT_NODE&&node.textContent.trim()).map(node=>{const marker=document.createComment("collection-print-text-restore");node.parentNode.insertBefore(marker,node);node.remove();return{node,marker}});
