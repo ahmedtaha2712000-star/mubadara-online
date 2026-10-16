@@ -6138,7 +6138,7 @@ function buildDuePrintLayer(forPdf=false){
   if(!active||!source)return null;
   const sourceRows=[...source.querySelectorAll("tbody tr")].filter(r=>r.textContent.trim()&&!r.classList.contains("due-specialist-screen-header-row")&&!r.classList.contains("due-specialist-group-row")&&!r.classList.contains("due-specialist-subtotal-row"));
   if(!sourceRows.length||sourceRows[0].textContent.includes("لا توجد أقساط مستحقة"))return null;
-  const visibleColumnIndexes=[0,1,2,3,4,5,6,7,8,9,11,12,13,14,15,16,17,18],widths=[3,8,8,7,4,7,4,5,5,5,7,3,4,7,7,7,7,7];
+  const visibleColumnIndexes=[0,1,2,3,4,5,6,7,8,9,11,12,13,14,15,16,17,18],widths=[3,8,8,7,4,7,4,5,5,5,7,3,4,7,12,7,7,7];
   // القالب المستقل يُستخدم عند اختيار «جميع الأخصائيين» أو أخصائي محدد من خانة اسم الأخصائي.
   // يعمل بنفس التنسيق في الطباعة والمعاينة وPDF، ولا يعتمد على بطاقة حالة الأخصائي.
   const officerInputValue=(document.getElementById("dueOfficer")?.value||"").trim(),allSelected=norm(officerInputValue)===norm(DUE_ALL_SPECIALISTS_LABEL);
@@ -6267,7 +6267,7 @@ function applyArrearsPrintFormat(layer){
     });
     const scoreTotal=scores.reduce((sum,value)=>sum+value,0)||1;
     table.querySelectorAll("col").forEach((col,index)=>{
-      const width=table.classList.contains("due-approved-table")&&index>=14&&index<=17?"7%":((scores[index]||6)/scoreTotal*100).toFixed(2)+"%";
+      const width=table.classList.contains("due-approved-table")&&index===14?"12%":table.classList.contains("due-approved-table")&&index>=15&&index<=17?"7%":((scores[index]||6)/scoreTotal*100).toFixed(2)+"%";
       col.style.setProperty("width",width,"important");
     });
   });
@@ -6347,9 +6347,9 @@ async function downloadReportLayerPDF(layer,filename,className="report-pdf-downl
   }
   if(isDuePDF){
     layer.querySelectorAll(".risk-print-table").forEach(table=>{
-      [16,17,18].forEach(column=>{
+      [15,16,17,18].forEach(column=>{
         table.querySelectorAll(`col:nth-child(${column}),th:nth-child(${column}),td:nth-child(${column})`).forEach(cell=>{
-          cell.style.setProperty("font-size","8px","important");
+          cell.style.setProperty("font-size",column===15?"10px":"8px","important");
           cell.style.setProperty("font-weight","400","important");
           cell.style.setProperty("line-height","1.15","important");
           cell.style.setProperty("color","#000","important");
@@ -12401,7 +12401,7 @@ window.showScreen = function(id) { const result=previousShowScreen.apply(this,ar
 
 <script id="due-final-output-typography-lock">
 (function(){
- function enforceDueOutputTypography(layer){if(!layer)return layer;layer.querySelectorAll('table.due-approved-table').forEach(table=>table.querySelectorAll('tr').forEach(row=>row.querySelectorAll('th,td').forEach((cell,index)=>{if(index<14){cell.style.setProperty('font-family','Arial, sans-serif','important');cell.style.setProperty('color','#000','important');cell.style.setProperty('font-weight','800','important');cell.style.setProperty('font-size',cell.tagName==='TH'?'12px':'13px','important');cell.style.setProperty('line-height','1.15','important');}else if(index>=14&&index<=17){cell.style.setProperty('font-family','Arial, sans-serif','important');cell.style.setProperty('font-size',cell.tagName==='TH'?'12px':'11px','important');cell.style.setProperty('font-weight','800','important');cell.style.setProperty('color','#000','important');}})));layer.querySelectorAll('.due-print-guide-page,.due-print-guide-page *').forEach(node=>node.style.setProperty('font-family','Arial, sans-serif','important'));return layer}
+ function enforceDueOutputTypography(layer){if(!layer)return layer;layer.querySelectorAll('table.due-approved-table').forEach(table=>table.querySelectorAll('tr').forEach(row=>row.querySelectorAll('th,td').forEach((cell,index)=>{if(index<14){cell.style.setProperty('font-family','Arial, sans-serif','important');cell.style.setProperty('color','#000','important');cell.style.setProperty('font-weight','800','important');cell.style.setProperty('font-size',cell.tagName==='TH'?'12px':'13px','important');cell.style.setProperty('line-height','1.15','important');}else if(index>=14&&index<=17){cell.style.setProperty('font-family','Arial, sans-serif','important');cell.style.setProperty('font-size',cell.tagName==='TH'?'12px':'10px','important');cell.style.setProperty('font-weight','800','important');cell.style.setProperty('color','#000','important');}})));layer.querySelectorAll('.due-print-guide-page,.due-print-guide-page *').forEach(node=>node.style.setProperty('font-family','Arial, sans-serif','important'));return layer}
  window.enforceDueOutputTypography=enforceDueOutputTypography;
 })();
 </script>
@@ -12451,5 +12451,20 @@ window.showScreen = function(id) { const result=previousShowScreen.apply(this,ar
 @media print{
 #riskPrintLayer.due-print-report .due-approved-table th:nth-child(15),#riskPrintLayer.due-print-report .due-approved-table th:nth-child(16),#riskPrintLayer.due-print-report .due-approved-table th:nth-child(17),#riskPrintLayer.due-print-report .due-approved-table th:nth-child(18){font-size:12px!important;font-weight:800!important}
 #riskPrintLayer.due-print-report .due-approved-table td:nth-child(15),#riskPrintLayer.due-print-report .due-approved-table td:nth-child(16),#riskPrintLayer.due-print-report .due-approved-table td:nth-child(17),#riskPrintLayer.due-print-report .due-approved-table td:nth-child(18),#riskPrintLayer.due-print-report .due-approved-table td:nth-child(16) .guarantor-name,#riskPrintLayer.due-print-report .due-approved-table td:nth-child(17) .guarantor-name,#riskPrintLayer.due-print-report .due-approved-table td:nth-child(18) .guarantor-name,#riskPrintLayer.due-print-report .due-approved-table td:nth-child(16) .phone-nowrap,#riskPrintLayer.due-print-report .due-approved-table td:nth-child(17) .phone-nowrap,#riskPrintLayer.due-print-report .due-approved-table td:nth-child(18) .phone-nowrap{font-size:11px!important;font-weight:800!important}
+}
+</style>
+
+<style id="due-wider-title-column-final">
+/* توسيع العنوان لتقليل التفاف النص وارتفاع الصف؛ لا يغير أعمدة الضامنين. */
+#riskPrintLayer.due-print-report .due-approved-table col:nth-child(15){width:12%!important}
+#riskPrintLayer.due-print-report .due-approved-table th:nth-child(15){width:12%!important;font-family:Arial,sans-serif!important;font-size:10px!important;font-weight:800!important;color:#000!important;line-height:1.15!important}
+#riskPrintLayer.due-print-report .due-approved-table td:nth-child(15),
+#riskPrintLayer.due-print-report .due-approved-table td:nth-child(15) *{width:12%!important;font-family:Arial,sans-serif!important;font-size:10px!important;font-weight:800!important;color:#000!important;line-height:1.15!important}
+#dueInstallments table.risk-installments-table th:nth-child(16),
+#dueInstallments table.risk-installments-table td:nth-child(16),
+#dueInstallments table.risk-installments-table td:nth-child(16) *{width:12%!important;font-family:Arial,sans-serif!important;font-size:10px!important;font-weight:800!important;color:#000!important;line-height:1.15!important}
+@media print{
+#riskPrintLayer.due-print-report .due-approved-table col:nth-child(15){width:12%!important}
+#riskPrintLayer.due-print-report .due-approved-table th:nth-child(15),#riskPrintLayer.due-print-report .due-approved-table td:nth-child(15),#riskPrintLayer.due-print-report .due-approved-table td:nth-child(15) *{width:12%!important;font-size:10px!important;font-weight:800!important}
 }
 </style>
