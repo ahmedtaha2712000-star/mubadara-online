@@ -12373,3 +12373,28 @@ window.showScreen = function(id) { const result=previousShowScreen.apply(this,ar
  #riskPrintLayer.due-print-report .due-approved-table th:nth-child(-n+15){font-size:11px!important;font-weight:950!important}
 }
 </style>
+
+<style id="due-installments-print-calendar-suggestions-final">
+@media screen{
+ #dueInstallments .due-date-range{display:flex!important;align-items:center!important;gap:5px!important;flex-wrap:nowrap!important}
+ #dueInstallments .due-calendar-picker{display:inline-grid!important;place-items:center!important;flex:0 0 30px!important;width:30px!important;height:30px!important;padding:0!important;border:1px solid #68727d!important;border-radius:7px!important;background:#f4f8fb!important;color:#1769aa!important;font-size:17px!important;line-height:1!important;cursor:pointer!important}
+ #dueInstallments .due-calendar-picker:hover{background:#e0f0fb!important;border-color:#1769aa!important}
+ #dueInstallments .smart-datalist.open .smart-select-menu,#dueInstallments .smart-select.open .smart-select-menu{z-index:200000!important;min-height:80px!important;border:2px solid #1769aa!important;background:#fff!important;box-shadow:0 16px 34px rgba(15,45,70,.28)!important}
+ #dueInstallments .smart-datalist.open .smart-select-search,#dueInstallments .smart-select.open .smart-select-search{height:42px!important;padding:8px 12px!important;color:#000!important;background:#fff!important;font-size:18px!important;font-weight:950!important;border:1px solid #68727d!important}
+ #dueInstallments .smart-datalist.open .smart-select-search::placeholder,#dueInstallments .smart-select.open .smart-select-search::placeholder{color:#111!important;font-size:16px!important;font-weight:900!important}
+ #dueInstallments .smart-datalist.open .smart-select-option,#dueInstallments .smart-select.open .smart-select-option{padding:11px 13px!important;color:#000!important;background:#fff!important;font-size:18px!important;font-weight:950!important;line-height:1.35!important;border-bottom:1px solid #d5dee6!important}
+ #dueInstallments .smart-datalist.open .smart-select-option:hover,#dueInstallments .smart-datalist.open .smart-select-option.active,#dueInstallments .smart-select.open .smart-select-option:hover,#dueInstallments .smart-select.open .smart-select-option.active{background:#e7f2fb!important;color:#000!important}
+}
+</style>
+<script id="due-installments-calendar-print-suggestions-behavior">
+(function(){
+ function duePickerDate(value){const d=typeof parseExcelDate==='function'?parseExcelDate(value):null;return d?`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`:''}
+ function dueManualDate(d){return `${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}`}
+ function openDueCalendarPicker(id){const target=document.getElementById(id);if(!target)return;const picker=document.createElement('input');picker.type='date';picker.className='due-native-calendar-picker';picker.value=duePickerDate(target.value);picker.style.cssText='position:fixed;left:-10000px;top:0;width:1px;height:1px;opacity:0;pointer-events:none';document.body.appendChild(picker);picker.addEventListener('change',()=>{if(picker.value){const d=new Date(picker.value+'T00:00:00');target.value=dueManualDate(d);target.dispatchEvent(new Event('input',{bubbles:true}));target.dispatchEvent(new Event('change',{bubbles:true}));if(typeof renderDueInstallments==='function')renderDueInstallments()}picker.remove()},{once:true});try{if(typeof picker.showPicker==='function')picker.showPicker();else picker.click()}catch(e){picker.click()}setTimeout(()=>{if(picker.parentNode)picker.remove()},60000)}
+ function installDueCalendarButtons(){['dueFrom','dueTo'].forEach(id=>{const input=document.getElementById(id);if(!input||input.dataset.calendarButtonReady==='1')return;input.dataset.calendarButtonReady='1';const button=document.createElement('button');button.type='button';button.className='due-calendar-picker no-print';button.textContent='📅';button.title='اختيار التاريخ من التقويم — ويمكن الكتابة يدويًا';button.setAttribute('aria-label','اختيار التاريخ من التقويم');button.addEventListener('click',()=>openDueCalendarPicker(id));input.insertAdjacentElement('afterend',button)})}
+ function styleDuePrintLayer(layer){if(!layer)return layer;layer.querySelectorAll('.due-approved-table tr').forEach(row=>row.querySelectorAll('th,td').forEach((cell,index)=>{if(index<15){cell.style.setProperty('font-family','Arial, sans-serif','important');cell.style.setProperty('color','#000','important');cell.style.setProperty('font-weight','900','important');cell.style.setProperty('font-size',cell.tagName==='TH'?'12px':'13px','important');cell.style.setProperty('line-height','1.15','important')}}));layer.querySelectorAll('.due-print-guide-page,.due-print-guide-page *').forEach(node=>node.style.setProperty('font-family','Arial, sans-serif','important'));return layer}
+ function hookPrintBuilder(){const original=window.buildDuePrintLayer;if(typeof original!=='function'||original.__calendarPrintHook)return;const wrapped=function(){return styleDuePrintLayer(original.apply(this,arguments))};wrapped.__calendarPrintHook=true;window.buildDuePrintLayer=wrapped}
+ function init(){installDueCalendarButtons();hookPrintBuilder()}
+ document.addEventListener('DOMContentLoaded',()=>{init();setTimeout(init,150)});window.addEventListener('load',()=>{init();setTimeout(init,150)});
+})();
+</script>
