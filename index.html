@@ -12288,17 +12288,15 @@ window.showScreen = function(id) { const result=previousShowScreen.apply(this,ar
 })();
 </script>
 
-<style id="due-installments-preview-v7-final">
+<style id="due-installments-preview-v7-only">
 @media screen{
  #dueInstallments .due-filter-panel>div{position:relative!important;z-index:1!important;border-color:#68727d!important}
  #dueInstallments .due-filter-panel>div:first-child,
  #dueInstallments .due-filter-panel>div:has(.smart-datalist.open),
  #dueInstallments .due-filter-panel>div:has(.smart-select.open),
  #dueInstallments .due-filter-panel>div:has(.smart-select-menu){z-index:100000!important}
- #dueInstallments .due-filter-panel input:not([type=radio]):not([type=checkbox]),
- #dueInstallments .due-filter-panel select{border:1px solid #68727d!important}
- #dueInstallments .due-filter-panel .smart-datalist.open,
- #dueInstallments .due-filter-panel .smart-select.open{z-index:100001!important}
+ #dueInstallments .due-filter-panel input:not([type=radio]):not([type=checkbox]),#dueInstallments .due-filter-panel select{border:1px solid #68727d!important}
+ #dueInstallments .due-filter-panel .smart-datalist.open,#dueInstallments .due-filter-panel .smart-select.open{z-index:100001!important}
  #dueInstallments .due-filter-panel .smart-select-menu{z-index:100002!important;position:absolute!important;isolation:isolate!important}
  #dueInstallments .due-client-profile-link{display:inline!important;border:0!important;background:transparent!important;padding:0!important;color:#111!important;font:inherit!important;font-weight:800!important;text-decoration:none!important;cursor:pointer!important;text-align:right!important}
  #dueInstallments .due-client-profile-link:hover{color:#146da8!important;text-decoration:underline!important;text-underline-offset:2px!important}
@@ -12306,26 +12304,14 @@ window.showScreen = function(id) { const result=previousShowScreen.apply(this,ar
  #dueInstallments .due-calendar-card.is-active{border-color:#168671!important;background:#e8f7f2!important;color:#116c5b!important;box-shadow:0 0 0 2px rgba(22,134,113,.16)!important;position:relative!important}
  #dueInstallments .due-calendar-card.is-active::after{content:"مفعّل";position:absolute;top:-9px;left:4px;background:#168671;color:#fff;border-radius:4px;padding:1px 3px;font-size:7px;font-weight:950}
 }
-@media print{
- #riskPrintLayer.due-print-report .due-print-client-status{display:block!important;margin-top:1px!important;color:#000!important;font-size:6.5px!important;font-weight:700!important;line-height:1.1!important;white-space:nowrap!important}
- #riskPrintLayer.due-print-report .due-print-client-name{display:block!important;color:#000!important;font-size:8.5px!important;font-weight:400!important;line-height:1.1!important}
-}
 </style>
-<script id="due-installments-preview-v7-behavior">
+<script id="due-installments-preview-v7-only-behavior">
 (function(){
  function statusLabelFromDate(value){const d=typeof parseExcelDate==='function'?parseExcelDate(value):null;if(!d)return'';const today=new Date();today.setHours(0,0,0,0);if(d<today)return'متأخر';if(d.getTime()===today.getTime())return'مستحق اليوم';return'استحقاق لاحق'}
- function decorateDueScreenRows(){
-  const body=document.getElementById('dueTableBody');if(!body)return;const groups=window.dueProfileGroups||[];body.querySelectorAll('tr[data-due-data-row="1"]').forEach(row=>{const button=row.querySelector('.due-client-profile-link');if(!button)return;button.style.display='inline';let status=row.querySelector('.due-client-status');if(!status){status=document.createElement('span');status.className='due-client-status';button.parentNode.appendChild(status)}const index=Number(row.dataset.rowIndex||0),group=groups[index],value=group?.r?riskDueDateValue(group.r):row.cells?.[7]?.textContent;status.textContent=statusLabelFromDate(value)})
- }
- function decorateDuePrintLayer(layer){
-  if(!layer)return layer;layer.querySelectorAll('table.due-approved-table tbody tr').forEach(row=>{const client=row.cells?.[1],date=row.cells?.[7];if(!client||!date||client.querySelector('.due-print-client-status'))return;const raw=client.textContent.trim();client.textContent='';const name=document.createElement('span');name.className='due-print-client-name';name.textContent=raw;const status=document.createElement('span');status.className='due-print-client-status';status.textContent=statusLabelFromDate(date.textContent);client.append(name,status)});return layer
- }
- function wrap(name,after){const original=window[name];if(typeof original!=='function'||original.__v7Wrapped)return;const wrapped=function(){const result=original.apply(this,arguments);try{after(result)}catch(error){console.warn('تعذر تطبيق تحسينات الإصدار السابع:',error)}return result};wrapped.__v7Wrapped=true;window[name]=wrapped}
+ function decorateDueScreenRows(){const body=document.getElementById('dueTableBody');if(!body)return;const groups=window.dueProfileGroups||[];body.querySelectorAll('tr[data-due-data-row="1"]').forEach(row=>{const button=row.querySelector('.due-client-profile-link');if(!button)return;let status=row.querySelector('.due-client-status');if(!status){status=document.createElement('span');status.className='due-client-status';button.parentNode.appendChild(status)}const index=Number(row.dataset.rowIndex||0),group=groups[index],value=group?.r?riskDueDateValue(group.r):row.cells?.[7]?.textContent;status.textContent=statusLabelFromDate(value)})}
+ function wrapRender(){const original=window.renderDueInstallments;if(typeof original!=='function'||original.__v7OnlyWrapped)return;const wrapped=function(){const result=original.apply(this,arguments);setTimeout(decorateDueScreenRows,0);return result};wrapped.__v7OnlyWrapped=true;window.renderDueInstallments=wrapped}
  function setActiveCard(card){document.querySelectorAll('#dueInstallments .due-calendar-card').forEach(x=>x.classList.remove('is-active'));card?.classList.add('is-active')}
- function init(){
-  const cards=[...document.querySelectorAll('#dueInstallments .due-calendar-card')];if(cards.length){if(!cards.some(x=>x.classList.contains('is-active')))cards[1]?.classList.add('is-active');cards.forEach(card=>{if(card.dataset.v7Ready==='1')return;card.dataset.v7Ready='1';card.addEventListener('click',()=>setActiveCard(card))})}
-  decorateDueScreenRows();wrap('renderDueInstallments',decorateDueScreenRows);wrap('buildDuePrintLayer',decorateDuePrintLayer)
- }
- document.addEventListener('DOMContentLoaded',()=>{init();setTimeout(init,120)});window.addEventListener('load',()=>{init();setTimeout(init,120)});
+ function init(){const cards=[...document.querySelectorAll('#dueInstallments .due-calendar-card')];if(cards.length){if(!cards.some(x=>x.classList.contains('is-active')))cards[1]?.classList.add('is-active');cards.forEach(card=>{if(card.dataset.v7OnlyReady==='1')return;card.dataset.v7OnlyReady='1';card.addEventListener('click',()=>setActiveCard(card))})}wrapRender();decorateDueScreenRows()}
+ document.addEventListener('DOMContentLoaded',()=>{init();setTimeout(init,150)});window.addEventListener('load',()=>{init();setTimeout(init,150)});
 })();
 </script>
