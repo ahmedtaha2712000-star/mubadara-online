@@ -2701,7 +2701,7 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
 <thead><tr>
 <th class="collection-screen-only">م</th>
 <th>الأخصائي</th><th>اسم العميل</th><th>رقم الهاتف</th><th>قيمة القسط</th><th>تاريخ الاستحقاق</th><th>رقم القسط</th>
-<th>المسدد</th><th>تاريخ السداد</th><th>المبلغ المتبقي</th><th>عدد الأقساط المتأخرة</th><th>إجمالي المتأخرات حتى الانتظام</th><th>العنوان</th>
+<th>المسدد</th><th>تاريخ السداد</th><th>المبلغ المتبقي</th><th>عدد الأقساط المتأخرة</th><th>إجمالي المتأخرات حتى الانتظام</th><th>اسم المنتج</th>
 </tr></thead>
 <tbody id="ct"></tbody>
 </table>
@@ -3577,7 +3577,7 @@ installment:"رقم القسط",date:"تاريخ القسط",value:"قيمة ا�
 paid:"المبلغ المسدد",unpaid:"المبلغ الغير مسدد",status:"حالة القرض",late:"عدد الأقساط المتأخرة",
 installStatus:"حالة القسط",firstLate:"اول قسط متاخر",phone:"رقم الهاتف",approval:"قيمة الموافقة",
 g1:"أسم الضامن",g1p:"رقم موبيل الضامن",g2:"اسم الضامن التاني",g2p:"تلبفون الضامن التاني",
-g3:"اسم الضامن الثالث",g3p:"تلبفون الضامن الثالث",address:"العنوان",paymentDate:"تاريخ السداد",delayDays:"ايام التاخير",carry:"عدد الأقساط المرحلة",term:"مدة القرض",phone2:"رقم الهاتف الثاني",phone3:"رقم الهاتف الثالث",loanCode:"كود القرض",loanAmount:"مبلغ القرض"
+g3:"اسم الضامن الثالث",g3p:"تلبفون الضامن الثالث",address:"العنوان",paymentDate:"تاريخ السداد",delayDays:"ايام التاخير",carry:"عدد الأقساط المرحلة",term:"مدة القرض",phone2:"رقم الهاتف الثاني",phone3:"رقم الهاتف الثالث",loanCode:"كود القرض",loanAmount:"مبلغ القرض",product:"اسم المنتج"
 };
 let rows=[], groups=[];
 // Caches reduce repeated Arabic normalization/property lookups during filtering and rendering.
@@ -4253,7 +4253,7 @@ function renderCollection(){
         <td>${money(get(r,"unpaid"))}</td>
         <td>${esc(customerLateCount)}</td>
         <td>${money(customerArrears)}</td>
-        <td>${esc(get(r,"address")||get(g.r,"address"))}</td>
+        <td class="collection-product-cell">${esc(get(r,"product")||get(g.r,"product"))}</td>
       </tr>`;
     });
   });
@@ -6357,7 +6357,12 @@ async function downloadReportLayerPDF(layer,filename,className="report-pdf-downl
       });
     });
   }
-  if(className==="collection-report-download")layer.querySelectorAll("table.collection-print-table th,table.collection-print-table td").forEach(cell=>{cell.style.setProperty("font-size","10px","important");cell.style.setProperty("font-weight","700","important");cell.style.setProperty("color","#000","important")});
+  if(className==="collection-report-download"){
+    layer.querySelectorAll("table.collection-print-table th,table.collection-print-table td").forEach(cell=>{cell.style.setProperty("font-size","10px","important");cell.style.setProperty("font-weight","700","important");cell.style.setProperty("color","#000","important")});
+    layer.querySelectorAll(".collection-print-specialist-section table.collection-print-table th,.collection-print-specialist-section table.collection-print-table td").forEach(cell=>{cell.style.setProperty("font-size","14px","important");cell.style.setProperty("font-weight","700","important");cell.style.setProperty("line-height","1.35","important");cell.style.setProperty("padding","5px 3px","important");cell.style.setProperty("height","auto","important");cell.style.setProperty("color","#000","important");if(cell.cellIndex===cell.parentElement.cells.length-1){cell.style.setProperty("white-space","normal","important");cell.style.setProperty("overflow-wrap","anywhere","important");cell.style.setProperty("word-break","normal","important")}});
+    layer.querySelectorAll("table.collection-print-detail-table").forEach(table=>{table.style.setProperty("table-layout","fixed","important");table.style.setProperty("width","100%","important")});
+    layer.querySelectorAll("table.collection-print-detail-table").forEach(table=>{table.style.setProperty("table-layout","fixed","important");table.style.setProperty("width","100%","important")});
+  }
   holder.appendChild(layer);document.body.appendChild(holder);
   try{
     await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
@@ -11078,6 +11083,22 @@ async function prepareDueWhatsAppPDF(event){
 #collectionPrintReportLayer table.collection-print-table th,#collectionPrintReportLayer table.collection-print-table td{color:#000!important;font-size:10px!important;font-weight:700!important}
 #collectionPrintReportLayer .collection-print-footer{font-size:9px!important}
 </style>
+<style id="collection-product-column-layout">
+#collection .collection-main-table th:last-child,
+#collection .collection-main-table td:last-child{
+  min-width:145px!important;max-width:240px!important;white-space:normal!important;
+  overflow-wrap:anywhere!important;word-break:normal!important;line-height:1.35!important;
+}
+#collection .collection-main-table td.collection-product-cell{font-weight:700!important;}
+#collection .collection-main-table th:last-child{min-width:145px!important;}
+
+@media print{
+ #collectionPrintReportLayer .collection-print-specialist-section table.collection-print-table th:last-child,
+ #collectionPrintReportLayer .collection-print-specialist-section table.collection-print-table td:last-child{
+  white-space:normal!important;overflow-wrap:anywhere!important;word-break:normal!important;line-height:1.35!important;
+ }
+}
+</style>
 <script id="collection-print-due-parity-logic">
 (function(){
   function buildCollectionDueStylePrintLayer(){
@@ -11194,7 +11215,9 @@ async function prepareDueWhatsAppPDF(event){
     groups.forEach(group=>{
       const totals=summarize(group.rows),section=document.createElement("section");section.className="collection-print-specialist-section";
       const rowMarkup=group.rows.map((row,index)=>{const values=[...row.cells].map(cell=>cell.textContent.trim());values[0]=String(index+1);return`<tr>${values.map((value,column)=>`<td data-column="${column}">${esc(value||"—")}</td>`).join("")}</tr>`}).join("");
-      const table=`<table class="collection-print-table risk-print-table"><thead><tr class="collection-print-specialist-heading"><th colspan="${headers.length}">الأخصائي: ${esc(group.name)}</th></tr><tr>${headers.map(header=>`<th>${esc(header)}</th>`).join("")}</tr></thead><tbody>${rowMarkup}</tbody></table>`;
+      const detailColumnWidths=["3%","7%","9%","9%","7%","8%","4%","7%","8%","7%","6%","8%","17%"];
+      const detailColgroup=`<colgroup>${detailColumnWidths.map(width=>`<col style="width:${width}">`).join("")}</colgroup>`;
+      const table=`<table class="collection-print-table risk-print-table collection-print-detail-table">${detailColgroup}<thead><tr class="collection-print-specialist-heading"><th colspan="${headers.length}">الأخصائي: ${esc(group.name)}</th></tr><tr>${headers.map(header=>`<th>${esc(header)}</th>`).join("")}</tr></thead><tbody>${rowMarkup}</tbody></table>`;
       section.innerHTML=`<h1 class="collection-print-title">جمعية المبادرة — تقرير التحصيل</h1><h2 class="collection-print-specialist-title">الأخصائي: ${esc(group.name)}</h2><div class="collection-print-meta"><span>الفترة: ${esc(period)}</span><span>حالة القرض: ${esc(selectedText("collectionStatus"))}</span><span>عدد العملاء: ${fmt(totals.clients)}</span><span>عدد الأقساط: ${fmt(totals.installments)}</span></div>${table}<div class="collection-print-specialist-subtotal"><strong>الإجمالي الفرعي — ${esc(group.name)}</strong><span>عدد العملاء: <b>${fmt(totals.clients)}</b></span><span>عدد الأقساط: <b>${fmt(totals.installments)}</b></span><span>المستحق: <b>${esc(money(totals.due))}</b></span><span>المسدد: <b>${esc(money(totals.paid))}</b></span><span>غير المسدد: <b>${esc(money(totals.unpaid))}</b></span><span>متأخرات العملاء حتى الانتظام: <b>${esc(money(totals.arrears))}</b></span></div><footer class="collection-print-footer"><span>المستخدم: ${esc(user)}</span><span>تاريخ الطباعة: ${esc(formatPrintDate(now))}</span><span>الأخصائي: ${esc(group.name)}</span></footer>`;
       layer.appendChild(section);
     });
@@ -11207,6 +11230,7 @@ async function prepareDueWhatsAppPDF(event){
     layer.querySelectorAll("table.collection-print-table td:first-child").forEach(cell=>{cell.style.setProperty("white-space","nowrap","important");cell.style.setProperty("direction","ltr","important");cell.style.setProperty("text-align","center","important")});
     // Re-apply collection-specific typography after the shared formatter, which sets inline !important styles.
     layer.querySelectorAll("table.collection-print-table th,table.collection-print-table td").forEach(cell=>{cell.style.setProperty("font-size","10px","important");cell.style.setProperty("font-weight","700","important");cell.style.setProperty("color","#000","important")});
+    layer.querySelectorAll(".collection-print-specialist-section table.collection-print-table th,.collection-print-specialist-section table.collection-print-table td").forEach(cell=>{cell.style.setProperty("font-size","14px","important");cell.style.setProperty("font-weight","700","important");cell.style.setProperty("line-height","1.35","important");cell.style.setProperty("padding","5px 3px","important");cell.style.setProperty("height","auto","important");cell.style.setProperty("color","#000","important");if(cell.cellIndex===cell.parentElement.cells.length-1){cell.style.setProperty("white-space","normal","important");cell.style.setProperty("overflow-wrap","anywhere","important");cell.style.setProperty("word-break","normal","important")}});
   }
   async function printCollectionWithDueStyle(forPdf=false){
     document.getElementById("collectionPrintReportLayer")?.remove();
