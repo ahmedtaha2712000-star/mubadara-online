@@ -12288,30 +12288,37 @@ window.showScreen = function(id) { const result=previousShowScreen.apply(this,ar
 })();
 </script>
 
-<style id="due-installments-preview-v7-only">
+<style id="due-installments-preview-v8-screen-only">
 @media screen{
- #dueInstallments .due-filter-panel>div{position:relative!important;z-index:1!important;border-color:#68727d!important}
- #dueInstallments .due-filter-panel>div:first-child,
- #dueInstallments .due-filter-panel>div:has(.smart-datalist.open),
- #dueInstallments .due-filter-panel>div:has(.smart-select.open),
- #dueInstallments .due-filter-panel>div:has(.smart-select-menu){z-index:100000!important}
- #dueInstallments .due-filter-panel input:not([type=radio]):not([type=checkbox]),#dueInstallments .due-filter-panel select{border:1px solid #68727d!important}
+ #dueInstallments{background:#d8e2ec!important;padding:22px 26px!important;color:#152b45!important}
+ #dueInstallments .due-export-toolbar{padding:10px 14px!important;background:linear-gradient(110deg,#0d2b45,#164e6f)!important;border-radius:13px!important;box-shadow:0 8px 20px rgba(15,45,70,.16)!important;gap:7px!important}
+ #dueInstallments .due-export-toolbar .icon-action{border-color:#b5c8d7!important;background:#fff!important;color:#2f516c!important;border-radius:8px!important}
+ #dueInstallments .due-export-toolbar .icon-action.pdf-btn,#dueInstallments .due-export-toolbar .icon-action.print-btn{background:#27a889!important;border-color:#27a889!important;color:#fff!important}
+ #dueInstallments>h2{margin:10px 0 12px!important;padding:12px 15px!important;border-radius:10px!important;background:linear-gradient(110deg,#0d2b45,#164e6f)!important;color:#fff!important;font-size:25px!important;box-shadow:0 5px 14px rgba(15,45,70,.12)!important}
+ #dueInstallments .risk-summary-cards,#dueInstallments .due-risk-parity-cards{display:flex!important;gap:7px!important;overflow-x:auto!important;margin:0 0 9px!important;padding:0 1px 2px!important}
+ #dueInstallments .risk-summary-card{flex:1 1 145px!important;min-width:145px!important;min-height:58px!important;height:58px!important;padding:7px 10px!important;border:1px solid #879daf!important;border-radius:9px!important;background:#f8fbfd!important;box-shadow:0 3px 9px rgba(27,60,90,.07)!important}
+ #dueInstallments .risk-summary-card span{font-size:9px!important;color:#5b7084!important;font-weight:900!important}
+ #dueInstallments .risk-summary-card b{font-size:16px!important;color:#17456b!important}
+ #dueInstallments .risk-summary-card small{font-size:8px!important;color:#718498!important}
+ #dueInstallments .due-display-controls{border:1px solid #a9bccd!important;background:#f8fbfd!important;border-radius:10px!important;box-shadow:0 3px 10px rgba(27,60,90,.07)!important}
+ #dueInstallments .due-navigation{border-color:#a9bccd!important;background:#f8fbfd!important;border-radius:10px!important}
+ #dueInstallments .due-filter-panel{background:#f4f8fb!important;border:1px solid #879daf!important;border-radius:13px!important;padding:12px!important;gap:10px!important;box-shadow:0 5px 16px rgba(27,60,90,.1)!important}
+ #dueInstallments .due-filter-panel>div{position:relative!important;z-index:1!important;min-width:0!important;background:#fff!important;border:1px solid #68727d!important;border-radius:10px!important;padding:9px!important;box-shadow:0 2px 5px rgba(30,65,95,.05)!important}
+ #dueInstallments .due-filter-panel>div:first-child{border-right:4px solid #56758e!important}
+ #dueInstallments .due-filter-panel>div:nth-child(4){border-right:4px solid #25a184!important}
+ #dueInstallments .due-filter-panel>div:first-child,#dueInstallments .due-filter-panel>div:has(.smart-datalist.open),#dueInstallments .due-filter-panel>div:has(.smart-select.open),#dueInstallments .due-filter-panel>div:has(.smart-select-menu){z-index:100000!important}
+ #dueInstallments .due-filter-panel input:not([type=radio]):not([type=checkbox]),#dueInstallments .due-filter-panel select{border:1px solid #68727d!important;border-radius:7px!important;background:#fff!important;color:#111!important}
+ #dueInstallments .due-filter-panel .due-specialist-status-control{border:1px solid #9db2c2!important;background:#f3f8fb!important;border-radius:7px!important}
+ #dueInstallments .due-filter-panel .due-date-range input,#dueInstallments #dueFrom,#dueInstallments #dueTo{font-size:14px!important;font-weight:950!important;color:#000!important;direction:ltr!important;text-align:center!important}
+ #dueInstallments .due-filter-panel .due-calendar-cards{display:flex!important;gap:4px!important;flex-wrap:wrap!important;padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important}
+ #dueInstallments .due-filter-panel .due-calendar-card{height:25px!important;min-height:25px!important;padding:4px 6px!important;border:1px solid #8ca2b2!important;border-radius:5px!important;background:#f6fafc!important;color:#35536b!important;font-size:8px!important;font-weight:900!important;white-space:nowrap!important}
+ #dueInstallments .due-filter-panel .due-calendar-card:nth-child(2){border-color:#25a184!important;background:#e8f7f2!important;color:#116c5b!important;box-shadow:0 0 0 2px rgba(37,161,132,.15)!important}
  #dueInstallments .due-filter-panel .smart-datalist.open,#dueInstallments .due-filter-panel .smart-select.open{z-index:100001!important}
  #dueInstallments .due-filter-panel .smart-select-menu{z-index:100002!important;position:absolute!important;isolation:isolate!important}
- #dueInstallments .due-client-profile-link{display:inline!important;border:0!important;background:transparent!important;padding:0!important;color:#111!important;font:inherit!important;font-weight:800!important;text-decoration:none!important;cursor:pointer!important;text-align:right!important}
- #dueInstallments .due-client-profile-link:hover{color:#146da8!important;text-decoration:underline!important;text-underline-offset:2px!important}
- #dueInstallments .due-client-status{display:block!important;margin-top:3px!important;color:#111!important;font-size:9px!important;font-weight:700!important;line-height:1.2!important;white-space:nowrap!important}
- #dueInstallments .due-calendar-card.is-active{border-color:#168671!important;background:#e8f7f2!important;color:#116c5b!important;box-shadow:0 0 0 2px rgba(22,134,113,.16)!important;position:relative!important}
- #dueInstallments .due-calendar-card.is-active::after{content:"مفعّل";position:absolute;top:-9px;left:4px;background:#168671;color:#fff;border-radius:4px;padding:1px 3px;font-size:7px;font-weight:950}
+ #dueInstallments .due-filter-persistence-toolbar{border-color:#a9bccd!important;background:#f8fbfd!important;border-radius:9px!important}
+ #dueInstallments .risk-installments-wrap{border:1px solid #879daf!important;border-radius:11px!important;background:#fff!important;box-shadow:0 7px 18px rgba(26,60,90,.09)!important}
+ #dueInstallments .risk-installments-table thead th{background:#d9eaf5!important;color:#153d5b!important;border-color:#c1d0dc!important}
+ #dueInstallments .risk-installments-table tbody td{border-color:#d4e0e8!important}
+ #dueInstallments .due-table-tools{border-color:#a9bccd!important;background:#f4f8fb!important;border-radius:9px!important}
 }
 </style>
-<script id="due-installments-preview-v7-only-behavior">
-(function(){
- function statusLabelFromDate(value){const d=typeof parseExcelDate==='function'?parseExcelDate(value):null;if(!d)return'';const today=new Date();today.setHours(0,0,0,0);if(d<today)return'متأخر';if(d.getTime()===today.getTime())return'مستحق اليوم';return'استحقاق لاحق'}
- function decorateDueScreenRows(){const body=document.getElementById('dueTableBody');if(!body)return;const groups=window.dueProfileGroups||[];body.querySelectorAll('tr[data-due-data-row="1"]').forEach(row=>{const button=row.querySelector('.due-client-profile-link');if(!button)return;let status=row.querySelector('.due-client-status');if(!status){status=document.createElement('span');status.className='due-client-status';button.parentNode.appendChild(status)}const index=Number(row.dataset.rowIndex||0),group=groups[index],value=group?.r?riskDueDateValue(group.r):row.cells?.[7]?.textContent;status.textContent=statusLabelFromDate(value)})}
- function wrapRender(){const original=window.renderDueInstallments;if(typeof original!=='function'||original.__v7OnlyWrapped)return;const wrapped=function(){const result=original.apply(this,arguments);setTimeout(decorateDueScreenRows,0);return result};wrapped.__v7OnlyWrapped=true;window.renderDueInstallments=wrapped}
- function setActiveCard(card){document.querySelectorAll('#dueInstallments .due-calendar-card').forEach(x=>x.classList.remove('is-active'));card?.classList.add('is-active')}
- function init(){const cards=[...document.querySelectorAll('#dueInstallments .due-calendar-card')];if(cards.length){if(!cards.some(x=>x.classList.contains('is-active')))cards[1]?.classList.add('is-active');cards.forEach(card=>{if(card.dataset.v7OnlyReady==='1')return;card.dataset.v7OnlyReady='1';card.addEventListener('click',()=>setActiveCard(card))})}wrapRender();decorateDueScreenRows()}
- document.addEventListener('DOMContentLoaded',()=>{init();setTimeout(init,150)});window.addEventListener('load',()=>{init();setTimeout(init,150)});
-})();
-</script>
