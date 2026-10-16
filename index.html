@@ -6422,7 +6422,7 @@ function printDueReport(event){
  const layer=buildDuePrintLayer(false);if(!layer){alert("لا توجد أقساط مستحقة للطباعة.");return false}
  document.body.appendChild(layer);document.body.classList.add("printing-risk-report","printing-due-installments-report");
  // تطبيق منسق شاشة المتأخرات بعد إلحاق الطبقة حتى تُقاس الأعمدة على عرض الطباعة الفعلي.
- const summaryRows=[...layer.querySelectorAll(".due-print-specialist-heading,.due-print-specialist-subtotal")].map(row=>{const marker=document.createComment("due-print-summary-row");row.parentNode.insertBefore(marker,row);row.remove();return{row,marker}});applyArrearsPrintFormat(layer);summaryRows.forEach(({row,marker})=>{if(marker.parentNode)marker.parentNode.insertBefore(row,marker);marker.remove()});layer.style.setProperty("font-weight","700","important");layer.querySelectorAll("*").forEach(node=>{if(!node.closest(".due-print-guide-page"))node.style.setProperty("font-weight","700","important")});
+ const summaryRows=[...layer.querySelectorAll(".due-print-specialist-heading,.due-print-specialist-subtotal")].map(row=>{const marker=document.createComment("due-print-summary-row");row.parentNode.insertBefore(marker,row);row.remove();return{row,marker}});applyArrearsPrintFormat(layer);summaryRows.forEach(({row,marker})=>{if(marker.parentNode)marker.parentNode.insertBefore(row,marker);marker.remove()});layer.style.setProperty("font-weight","700","important");layer.querySelectorAll("*").forEach(node=>{if(!node.closest(".due-print-guide-page"))node.style.setProperty("font-weight","700","important")});if(typeof enforceDueOutputTypography==="function")enforceDueOutputTypography(layer);
  const previousTitle=document.title;document.title=dueExportFileName("pdf");
  const restoreNodes=[...document.body.childNodes].filter(node=>node.nodeType===Node.TEXT_NODE&&node.textContent.trim()).map(node=>{const marker=document.createComment("due-print-text-restore");node.parentNode.insertBefore(marker,node);node.remove();return{node,marker}});
  let cleaned=false;const cleanup=()=>{if(cleaned)return;cleaned=true;restoreNodes.forEach(({node,marker})=>{if(marker.parentNode)marker.parentNode.insertBefore(node,marker);marker.remove()});document.title=previousTitle;document.body.classList.remove("printing-risk-report","printing-due-installments-report");layer.remove();window.removeEventListener("afterprint",cleanup)};
@@ -6438,7 +6438,7 @@ async function downloadDuePDF(event){
   if(button){button.disabled=true;const label=button.querySelector('.action-label');if(label)label.textContent="جاري الإنشاء...";button.setAttribute("aria-busy","true")}
   const summaryRows=[...layer.querySelectorAll(".due-print-specialist-heading,.due-print-specialist-subtotal")].map(row=>{const marker=document.createComment("due-pdf-summary-row");row.parentNode.insertBefore(marker,row);row.remove();return{row,marker}});
   applyArrearsPrintFormat(layer);summaryRows.forEach(({row,marker})=>{if(marker.parentNode)marker.parentNode.insertBefore(row,marker);marker.remove()});
-  layer.style.setProperty("font-weight","700","important");layer.querySelectorAll("*").forEach(node=>{if(!node.closest(".due-print-guide-page"))node.style.setProperty("font-weight","700","important")});
+  layer.style.setProperty("font-weight","700","important");layer.querySelectorAll("*").forEach(node=>{if(!node.closest(".due-print-guide-page"))node.style.setProperty("font-weight","700","important")});if(typeof enforceDueOutputTypography==="function")enforceDueOutputTypography(layer);
   let css=[...document.querySelectorAll("style")].map(style=>style.textContent||"").join("\n"),requestBody=JSON.stringify({html:layer.outerHTML,css,filename:dueExportFileName("pdf"),reportType:"due-installments"});
   const response=await fetch("/api/generate-pdf",{method:"POST",headers:{"Content-Type":"application/json"},body:requestBody});requestBody=null;css=null;releaseDuePdfBuildLayer(layer);layer=null;
   if(!response.ok){let detail="";try{detail=await response.text()}catch(e){}throw new Error(`Vercel PDF API ${response.status}: ${detail}`)}
@@ -10365,7 +10365,7 @@ async function prepareDueWhatsAppPDF(event){
     layer=buildDuePrintLayer(false);if(!layer){alert("لا توجد أقساط مستحقة لمشاركتها في التقرير الحالي.");return false}
     const summaryRows=[...layer.querySelectorAll(".due-print-specialist-heading,.due-print-specialist-subtotal")].map(row=>{const marker=document.createComment("due-whatsapp-pdf-summary-row");row.parentNode.insertBefore(marker,row);row.remove();return{row,marker}});
     applyArrearsPrintFormat(layer);summaryRows.forEach(({row,marker})=>{if(marker.parentNode)marker.parentNode.insertBefore(row,marker);marker.remove()});
-    layer.style.setProperty("font-weight","700","important");layer.querySelectorAll("*").forEach(node=>{if(!node.closest(".due-print-guide-page"))node.style.setProperty("font-weight","700","important")});
+    layer.style.setProperty("font-weight","700","important");layer.querySelectorAll("*").forEach(node=>{if(!node.closest(".due-print-guide-page"))node.style.setProperty("font-weight","700","important")});if(typeof enforceDueOutputTypography==="function")enforceDueOutputTypography(layer);
     let css=[...document.querySelectorAll("style")].map(style=>style.textContent||"").join("\n");
     const fileName=dueExportFileName("pdf");let requestBody=JSON.stringify({html:layer.outerHTML,css,filename:fileName,reportType:"due-installments"});
     const response=await fetch("/api/generate-pdf",{method:"POST",headers:{"Content-Type":"application/json"},body:requestBody});requestBody=null;css=null;releaseDuePdfBuildLayer(layer);layer=null;
@@ -12396,5 +12396,12 @@ window.showScreen = function(id) { const result=previousShowScreen.apply(this,ar
  function hookPrintBuilder(){const original=window.buildDuePrintLayer;if(typeof original!=='function'||original.__calendarPrintHook)return;const wrapped=function(){return styleDuePrintLayer(original.apply(this,arguments))};wrapped.__calendarPrintHook=true;window.buildDuePrintLayer=wrapped}
  function init(){installDueCalendarButtons();hookPrintBuilder()}
  document.addEventListener('DOMContentLoaded',()=>{init();setTimeout(init,150)});window.addEventListener('load',()=>{init();setTimeout(init,150)});
+})();
+</script>
+
+<script id="due-final-output-typography-lock">
+(function(){
+ function enforceDueOutputTypography(layer){if(!layer)return layer;layer.querySelectorAll('table.due-approved-table').forEach(table=>table.querySelectorAll('tr').forEach(row=>row.querySelectorAll('th,td').forEach((cell,index)=>{if(index<15){cell.style.setProperty('font-family','Arial, sans-serif','important');cell.style.setProperty('color','#000','important');cell.style.setProperty('font-weight','900','important');cell.style.setProperty('font-size',cell.tagName==='TH'?'13px':'14px','important');cell.style.setProperty('line-height','1.15','important');cell.style.setProperty('text-shadow','none','important');cell.style.setProperty('-webkit-text-stroke','0','important')}})));layer.querySelectorAll('.due-print-guide-page,.due-print-guide-page *').forEach(node=>node.style.setProperty('font-family','Arial, sans-serif','important'));return layer}
+ window.enforceDueOutputTypography=enforceDueOutputTypography;
 })();
 </script>
