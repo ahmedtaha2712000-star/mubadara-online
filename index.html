@@ -12512,7 +12512,7 @@ window.showScreen = function(id) { const result=previousShowScreen.apply(this,ar
 (function(){
   const ownerSession=()=>typeof session!=="undefined"&&session&&typeof isOwnerRole==="function"&&isOwnerRole(session.role);
   const prior=window.notifyNewLocation;
-  window.notifyNewLocation=function(item){if(!ownerSession())return;window.showOwnerLocationGlobalNotice?.(item);if(typeof prior==="function")prior(item)};
+  window.notifyNewLocation=function(item){if(!ownerSession())return;const sender=String(item?.username||"").trim().toLocaleLowerCase("ar"),current=String(session?.user||session?.name||"").trim().toLocaleLowerCase("ar");if(sender&&current&&sender===current)return;window.showOwnerLocationGlobalNotice?.(item);if(typeof prior==="function")prior(item)};
   window.locationPollStart=function(){
     if(window.locationNotificationTimer)clearInterval(window.locationNotificationTimer);
     window.locationNotificationTimer=setInterval(()=>{if(ownerSession()&&typeof refreshSharedLocations==="function")refreshSharedLocations(true)},15000);
@@ -12525,3 +12525,53 @@ window.showScreen = function(id) { const result=previousShowScreen.apply(this,ar
 <style id="owner-location-notification-print-isolation">
 @media print{#ownerLocationGlobalNotice{display:none!important}}
 </style>
+
+<style id="owner-login-notifications-final">
+@media print{#ownerLocationGlobalNotice{display:none!important}}
+</style>
+<script id="owner-login-notifications-logic">
+(function(){
+  let loginSnapshot=null,loginPollTimer=null,loginNoticeBusy=false;
+  const ownerSession=()=>typeof session!=="undefined"&&session&&typeof isOwnerRole==="function"&&isOwnerRole(session.role);
+  const loginKey=item=>String(item?.username||item?.display_name||"").trim().toLocaleLowerCase("ar");
+  const loginTime=item=>{const t=Date.parse(item?.last_login_at||"");return Number.isFinite(t)?t:0};
+  const showLoginNotice=item=>{
+    if(!ownerSession()||!item||loginNoticeBusy)return;
+    loginNoticeBusy=true;
+    const isOfficer=String(item.app_role||item.role||"").toLowerCase()==="officer";
+    const name=String(item.officer_name||item.display_name||item.username||"مستخدم").trim();
+    const title=isOfficer?`سجّل الأخصائي ${name} الدخول`:`سجّل المالك ${name} الدخول`;
+    if(typeof window.showOwnerLocationGlobalNotice==="function")window.showOwnerLocationGlobalNotice({display_name:title,username:"",server_received_at:item.last_login_at});
+    const box=document.getElementById("ownerLocationGlobalNotice");
+    if(box){const text=box.querySelector(".owner-location-notice-text");if(text)text.textContent=title+" — متاح الآن داخل البرنامج";}
+    if("Notification" in window&&Notification.permission==="granted")try{new Notification(isOfficer?"دخول أخصائي":"دخول مالك",{body:title})}catch(e){}
+    setTimeout(()=>{loginNoticeBusy=false},900);
+  };
+  async function pollOwnerLogins(){
+    if(!ownerSession()||typeof callUserPresenceApi!=="function")return;
+    try{
+      const result=await callUserPresenceApi("list"),items=Array.isArray(result?.users)?result.users:[],next=new Map();
+      items.forEach(item=>{const key=loginKey(item);if(key)next.set(key,item)});
+      if(!loginSnapshot){loginSnapshot=next;return;}
+      next.forEach((item,key)=>{
+        if(key===String(session.user||session.name||"").trim().toLocaleLowerCase("ar"))return;
+        const before=loginSnapshot.get(key),previous=loginTime(before),current=loginTime(item);
+        if(current&&current>previous)showLoginNotice(item);
+      });
+      loginSnapshot=next;
+    }catch(e){console.warn("Owner login notifications:",e?.message||e)}
+  }
+  function startOwnerLoginNotifications(){
+    if(!ownerSession())return;
+    if(loginPollTimer)return;
+    loginSnapshot=null;
+    pollOwnerLogins();
+    loginPollTimer=setInterval(pollOwnerLogins,15000);
+  }
+  window.pollOwnerLogins=pollOwnerLogins;
+  window.startOwnerLoginNotifications=startOwnerLoginNotifications;
+  const previousScreen=window.showScreen;
+  if(typeof previousScreen==="function")window.showScreen=function(id){const result=previousScreen.apply(this,arguments);if(ownerSession())startOwnerLoginNotifications();return result;};
+  setInterval(()=>{if(ownerSession()&&!loginPollTimer)startOwnerLoginNotifications();if(!ownerSession()&&loginPollTimer){clearInterval(loginPollTimer);loginPollTimer=null;loginSnapshot=null;}},5000);
+})();
+</script>
