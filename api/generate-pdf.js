@@ -30,7 +30,11 @@ module.exports = async function handler(req, res) {
       html,
       css = "",
       filename = "due-installments.pdf",
+      reportType = "due-installments",
     } = req.body || {};
+    const bodyClass = reportType === "collection-report"
+      ? "printing-collection-report"
+      : "printing-risk-report printing-due-installments-report";
 
     if (!html) {
       return res.status(400).json({
@@ -107,7 +111,7 @@ module.exports = async function handler(req, res) {
 
 <body
   dir="rtl"
-  class="printing-risk-report printing-due-installments-report"
+  class="${bodyClass}"
 >
   ${html}
 </body>
