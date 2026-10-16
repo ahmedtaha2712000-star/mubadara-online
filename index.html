@@ -2820,7 +2820,7 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
  </div>
   <div style="margin-bottom:10px"><span class="filter-label">البحث باسم العميل</span><input id="dueClient" list="dueClientList" autocomplete="off" placeholder="اكتب أي حرف من اسم العميل..."><datalist id="dueClientList"></datalist></div>
   <div style="margin-bottom:10px"><span class="filter-label">البحث بالعنوان</span><input id="dueAddress" list="dueAddressList" autocomplete="off" placeholder="اكتب أي حرف من العنوان أو المنطقة"><datalist id="dueAddressList"></datalist></div>
-  <div style="margin-bottom:10px"><span class="filter-label">التاريخ</span><div class="due-date-range"><input id="dueFrom" type="text" inputmode="numeric" placeholder="yyyy/mm/dd" autocomplete="off" title="من تاريخ — yyyy/mm/dd"><span>إلى</span><input id="dueTo" type="text" inputmode="numeric" placeholder="yyyy/mm/dd" autocomplete="off" title="إلى تاريخ — yyyy/mm/dd"></div><small class="due-date-format-note">التنسيق: yyyy/mm/dd</small><div class="toolbar no-print" style="margin-top:8px"><button type="button" class="light" onclick="setDueCurrentMonth()">الشهر الحالي</button><button type="button" class="light" onclick="setDueNextMonth()">الشهر القادم</button><button type="button" class="light" onclick="setDueToday()">تاريخ اليوم</button></div></div>
+  <div style="margin-bottom:10px"><span class="filter-label">التاريخ</span><div class="due-date-range"><input id="dueFrom" type="text" inputmode="numeric" placeholder="yyyy/mm/dd" autocomplete="off" title="من تاريخ — yyyy/mm/dd"><span>إلى</span><input id="dueTo" type="text" inputmode="numeric" placeholder="yyyy/mm/dd" autocomplete="off" title="إلى تاريخ — yyyy/mm/dd"></div><div class="toolbar no-print due-calendar-cards" style="margin-top:8px"><button type="button" class="light due-calendar-card" onclick="setDuePreviousMonth()">الشهر السابق</button><button type="button" class="light due-calendar-card" onclick="setDueCurrentMonth()">الشهر الحالي</button><button type="button" class="light due-calendar-card" onclick="setDueNextMonth()">الشهر التالي</button><button type="button" class="light due-calendar-card" onclick="setDuePreviousDay()">اليوم السابق</button><button type="button" class="light due-calendar-card due-calendar-today" onclick="setDueToday()">تاريخ اليوم</button><button type="button" class="light due-calendar-card" onclick="setDueTomorrow()">اليوم التالي</button></div></div>
   <div><span class="filter-label">حالة القرض</span><select id="dueStatus"><option value="open" selected>القروض القائمة</option><option value="closed">القروض المغلقة</option><option value="all">كل القروض</option></select></div>
 </div>
 <div style="margin:10px 0;padding:10px 12px;border:1px solid #dbe5eb;border-radius:10px;background:#f8fafc">
@@ -12247,3 +12247,42 @@ window.showScreen = function(id) { const result=previousShowScreen.apply(this,ar
  #dueInstallments .risk-installments-table tbody td:nth-child(8){font-size:16px!important;font-weight:950!important;color:#000!important;white-space:nowrap!important;direction:ltr!important;letter-spacing:.1px!important}
 }
 </style>
+
+<style id="due-installments-preview-v5-applied-final">
+@media screen{
+ #dueInstallments{background:#dfe7ef!important;padding:20px 24px!important}
+ #dueInstallments .due-display-controls,#dueInstallments .risk-summary-cards{background:#f8fbfd!important;border-color:#aebfce!important}
+ #dueInstallments .due-filter-panel{background:#f1f6fa!important;border:2px solid #9fb4c6!important;box-shadow:0 5px 16px rgba(27,60,90,.12)!important;border-radius:13px!important;padding:10px!important;gap:8px!important}
+ #dueInstallments .due-filter-panel>div{background:#fdfefe!important;border:1.5px solid #aebfce!important;box-shadow:0 2px 5px rgba(30,65,95,.06)!important;border-radius:9px!important;padding:8px!important}
+ #dueInstallments .due-filter-panel>div:first-child{border-right:4px solid #168671!important}
+ #dueInstallments .due-filter-panel>div:nth-child(2){border-right:4px solid #617c97!important}
+ #dueInstallments .due-filter-panel input:not([type=radio]):not([type=checkbox]),#dueInstallments .due-filter-panel select{border:1.5px solid #93abbf!important}
+ #dueInstallments .due-filter-panel .due-date-range{gap:5px!important;flex-wrap:nowrap!important}
+ #dueInstallments .due-filter-panel .due-date-range input{font-size:14px!important;font-weight:950!important;color:#000!important;text-align:center!important;direction:ltr!important;min-width:0!important}
+ #dueInstallments .due-filter-panel .due-calendar-cards{display:flex!important;align-items:center!important;gap:4px!important;flex-wrap:wrap!important;margin-top:7px!important;padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important}
+ #dueInstallments .due-filter-panel .due-calendar-card{min-height:25px!important;height:25px!important;padding:4px 6px!important;border:1px solid #93abbf!important;border-radius:5px!important;background:#f6fafc!important;color:#35536b!important;font-size:9px!important;font-weight:900!important;white-space:nowrap!important}
+ #dueInstallments .due-filter-panel .due-calendar-card:hover{background:#e9f4fb!important}
+ #dueInstallments .due-filter-panel .due-calendar-card.due-calendar-today{border-color:#168671!important;background:#e8f7f2!important;color:#116c5b!important}
+ #dueInstallments .due-filter-panel .due-specialist-status-control{border:1.5px solid #b1c2d0!important;background:#f2f7fb!important}
+ #dueInstallments .due-filter-panel .smart-select-menu{border:2px solid #146da8!important;box-shadow:0 12px 24px rgba(18,55,87,.27)!important}
+ #dueInstallments .due-filter-persistence-toolbar{border-top:2px solid #aebfce!important;background:transparent!important;border-radius:0!important}
+ #dueInstallments .risk-installments-wrap{border:1.5px solid #aebfce!important}
+}
+@media screen and (max-width:760px){
+ #dueInstallments .due-filter-panel .due-calendar-card{font-size:8px!important;padding-inline:5px!important}
+ #dueInstallments .due-filter-panel .due-date-range input{font-size:13px!important}
+}
+@media print{#dueInstallments{background:#fff!important}}
+</style>
+<script id="due-installments-preview-v5-calendar-actions">
+(function(){
+ function dueDateText(d){const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0');return `${y}/${m}/${day}`}
+ function dueSetRange(from,to){const a=document.getElementById('dueFrom'),b=document.getElementById('dueTo');if(!a||!b)return;a.value=dueDateText(from);b.value=dueDateText(to);if(typeof renderDueInstallments==='function')renderDueInstallments()}
+ window.setDuePreviousMonth=function(){const n=new Date();dueSetRange(new Date(n.getFullYear(),n.getMonth()-1,1),new Date(n.getFullYear(),n.getMonth(),0))}
+ window.setDueCurrentMonth=function(){const n=new Date();dueSetRange(new Date(n.getFullYear(),n.getMonth(),1),new Date(n.getFullYear(),n.getMonth()+1,0))}
+ window.setDueNextMonth=function(){const n=new Date();dueSetRange(new Date(n.getFullYear(),n.getMonth()+1,1),new Date(n.getFullYear(),n.getMonth()+2,0))}
+ window.setDuePreviousDay=function(){const n=new Date();n.setDate(n.getDate()-1);dueSetRange(n,n)}
+ window.setDueToday=function(){const n=new Date();dueSetRange(n,n)}
+ window.setDueTomorrow=function(){const n=new Date();n.setDate(n.getDate()+1);dueSetRange(n,n)}
+})();
+</script>
