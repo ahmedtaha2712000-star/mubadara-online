@@ -2345,6 +2345,7 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
 <nav class="no-print" aria-label="التنقل الرئيسي">
 <div class="nav-section-title">التشغيل اليومي</div>
 <a href="#dash" data-screen="dash" data-manager-only><span class="nav-icon nav-icon-dashboard" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 13h6V4H4v9Zm0 7h6v-4H4v4Zm10 0h6v-9h-6v9Zm0-16v4h6V4h-6Z"/></svg></span><span class="nav-label">لوحة التحكم</span><small>ملخص سريع</small></a>
+<a href="#dailyOperations" data-screen="dailyOperations"><span class="nav-icon nav-icon-dashboard" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 4h14v16H5zM8 8h8M8 12h5M8 16h8"/></svg></span><span class="nav-label">لوحة التشغيل اليومية</span><small>متابعة عمل اليوم</small></a>
 <a href="#clients" data-screen="clients"><span class="nav-icon nav-icon-clients" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M16 20v-1.5a4.5 4.5 0 0 0-4.5-4.5h-3A4.5 4.5 0 0 0 4 18.5V20m6-10a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Zm5.5 1a3 3 0 1 0 0-6m1.5 10h3v-1.2a3.8 3.8 0 0 0-2.8-3.7"/></svg></span><span class="nav-label">العملاء</span><small>عرض ومتابعة</small></a>
 <a href="#collection" data-screen="collection"><span class="nav-icon nav-icon-collection" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 3v3m10-3v3M4 9h16M6 5h12a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Zm2 8h3m2 0h3m-8 4h3m2 0h3"/></svg></span><span class="nav-label">التحصيل</span><small>الأقساط المستحقة</small></a>
 <a href="#search" data-screen="search"><span class="nav-icon nav-icon-search" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 5 5"/></svg></span><span class="nav-label">البحث السريع</span><small>الوصول لأي سجل</small></a>
@@ -2365,6 +2366,44 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
 </nav>
 
 <main class="print-area">
+
+<section id="dailyOperations" class="card screen daily-ops-screen" aria-hidden="true">
+  <div class="daily-ops-head">
+    <div>
+      <div class="daily-ops-kicker">التشغيل اليومي</div>
+      <h2>لوحة التشغيل اليومية</h2>
+      <p>مساحة عمل مختصرة لمتابعة مستحقات اليوم، الأولويات، والتحصيل حسب الأخصائي.</p>
+    </div>
+    <div class="daily-ops-actions no-print">
+      <label class="daily-ops-date-label">يوم التشغيل <input id="dailyOpsDate" type="date" aria-label="تاريخ التشغيل"></label>
+      <button type="button" class="daily-ops-btn secondary" id="dailyOpsTodayBtn">اليوم</button>
+      <button type="button" class="daily-ops-btn primary" id="dailyOpsRefreshBtn">تحديث اللوحة</button>
+    </div>
+  </div>
+  <div class="daily-ops-filters no-print">
+    <label>الأخصائي <select id="dailyOpsOfficer"><option value="">كل الأخصائيين</option></select></label>
+    <span id="dailyOpsLastUpdated" class="daily-ops-last-updated" aria-live="polite"></span>
+  </div>
+  <div id="dailyOpsCards" class="daily-ops-cards" aria-live="polite"></div>
+  <div class="daily-ops-progress-panel">
+    <div class="daily-ops-section-head"><div><h3>حالة التشغيل</h3><p id="dailyOpsProgressText">جارٍ تجهيز بيانات اليوم...</p></div><strong id="dailyOpsProgressValue">0%</strong></div>
+    <div class="daily-ops-progress-track"><span id="dailyOpsProgressBar"></span></div>
+  </div>
+  <div class="daily-ops-grid">
+    <section class="daily-ops-panel daily-ops-priority-panel">
+      <div class="daily-ops-section-head"><div><h3>أولويات اليوم</h3><p>الأقساط المستحقة والمتأخرة التي تحتاج متابعة.</p></div><span id="dailyOpsPriorityCount" class="daily-ops-count">0</span></div>
+      <div class="daily-ops-table-wrap"><table class="daily-ops-table"><thead><tr><th>الأولوية</th><th>العميل</th><th>الأخصائي</th><th>تاريخ الاستحقاق</th><th>المتبقي</th><th>الإجراء</th></tr></thead><tbody id="dailyOpsPriorityBody"></tbody></table></div>
+    </section>
+    <section class="daily-ops-panel">
+      <div class="daily-ops-section-head"><div><h3>يحتاج انتباهك</h3><p>تنبيهات تشغيلية مختصرة.</p></div></div>
+      <div id="dailyOpsAlerts" class="daily-ops-alerts"></div>
+    </section>
+  </div>
+  <section class="daily-ops-panel daily-ops-specialists-panel">
+    <div class="daily-ops-section-head"><div><h3>ملخص الأخصائيين</h3><p>مؤشرات المتابعة والتحصيل لليوم المحدد.</p></div><span id="dailyOpsSpecialistCount" class="daily-ops-count">0</span></div>
+    <div class="daily-ops-table-wrap"><table class="daily-ops-table daily-ops-specialists-table"><thead><tr><th>الأخصائي</th><th>المستحق اليوم</th><th>المتابعات</th><th>التحصيل</th><th>المتبقي</th><th>الإنجاز</th></tr></thead><tbody id="dailyOpsSpecialistsBody"></tbody></table></div>
+  </section>
+</section>
 
 <section id="clients" class="card screen">
 <div class="export-toolbar no-print">
@@ -3130,7 +3169,7 @@ programSettings=readProgramSettings();
 window.addEventListener("storage",e=>{if(e.key===PROGRAM_SETTINGS_KEY){programSettings=readProgramSettings();applyProgramSettings()}});
 if(settingsChannel)settingsChannel.onmessage=()=>{programSettings=readProgramSettings();applyProgramSettings()};
 window.addEventListener("resize",()=>{if(programSettings.orientation==="auto")applyProgramSettings()});
- const SCREEN_IDS=["clients","search","dash","collection","risk","dueInstallments","paymentFollowup","paymentFollowupArchive","location","portfolio","issuedLoans","dropoutClients","print","users","specialists","audit","import","settings"];
+ const SCREEN_IDS=["clients","search","dash","dailyOperations","collection","risk","dueInstallments","paymentFollowup","paymentFollowupArchive","location","portfolio","issuedLoans","dropoutClients","print","users","specialists","audit","import","settings"];
 let screenDataVersion=0;const screenRenderVersion=Object.create(null);
 function showScreen(id){
   if(!enforceSession()) return;
@@ -3956,6 +3995,7 @@ function build(){
 function renderScreenData(id){
  switch(id){
   case "dash": renderDash(); break;
+  case "dailyOperations": renderDailyOperations(); break;
   case "clients": renderClients(); break;
   case "search": renderSearch(); break;
   case "collection": renderCollection(); break;
@@ -6359,9 +6399,9 @@ async function downloadReportLayerPDF(layer,filename,className="report-pdf-downl
   }
   if(className==="collection-report-download"){
     layer.querySelectorAll("table.collection-print-table th,table.collection-print-table td").forEach(cell=>{cell.style.setProperty("font-size","10px","important");cell.style.setProperty("font-weight","700","important");cell.style.setProperty("color","#000","important")});
-    layer.querySelectorAll("table.collection-print-summary-table th").forEach(cell=>{cell.style.setProperty("font-size","14px","important");cell.style.setProperty("font-weight","800","important");cell.style.setProperty("color","#000","important");cell.style.setProperty("line-height","1.4","important");cell.style.setProperty("padding","7px 4px","important");cell.style.setProperty("height","auto","important")});
-    layer.querySelectorAll("table.collection-print-summary-table tbody td:first-child,table.collection-print-summary-table tfoot th:first-child").forEach(cell=>{cell.style.setProperty("font-size","14px","important");cell.style.setProperty("font-weight","800","important");cell.style.setProperty("color","#000","important");cell.style.setProperty("line-height","1.4","important");cell.style.setProperty("padding","7px 4px","important");cell.style.setProperty("height","auto","important")});
-    layer.querySelectorAll("table.collection-print-summary-table tbody td:not(:first-child),table.collection-print-summary-table tfoot th:not(:first-child)").forEach(cell=>{cell.style.setProperty("font-size","20px","important");cell.style.setProperty("font-weight","900","important");cell.style.setProperty("color","#000","important");cell.style.setProperty("line-height","1.45","important");cell.style.setProperty("padding","8px 4px","important");cell.style.setProperty("height","auto","important")});
+    layer.querySelectorAll("table.collection-print-summary-table th").forEach(cell=>{cell.style.setProperty("font-size","17px","important");cell.style.setProperty("font-weight","800","important");cell.style.setProperty("color","#000","important");cell.style.setProperty("line-height","1.4","important");cell.style.setProperty("padding","7px 4px","important");cell.style.setProperty("height","auto","important")});
+    layer.querySelectorAll("table.collection-print-summary-table tbody td:first-child,table.collection-print-summary-table tfoot th:first-child").forEach(cell=>{cell.style.setProperty("font-size","17px","important");cell.style.setProperty("font-weight","800","important");cell.style.setProperty("color","#000","important");cell.style.setProperty("line-height","1.4","important");cell.style.setProperty("padding","7px 4px","important");cell.style.setProperty("height","auto","important")});
+    layer.querySelectorAll("table.collection-print-summary-table tbody td:not(:first-child),table.collection-print-summary-table tfoot th:not(:first-child)").forEach(cell=>{cell.style.setProperty("font-size","17px","important");cell.style.setProperty("font-weight","900","important");cell.style.setProperty("color","#000","important");cell.style.setProperty("line-height","1.45","important");cell.style.setProperty("padding","8px 4px","important");cell.style.setProperty("height","auto","important")});
     layer.querySelectorAll(".collection-print-specialist-section table.collection-print-table th,.collection-print-specialist-section table.collection-print-table td").forEach(cell=>{cell.style.setProperty("font-size","16px","important");cell.style.setProperty("font-weight","800","important");cell.style.setProperty("color","#000","important");cell.style.setProperty("line-height","1.35","important");cell.style.setProperty("padding","6px 3px","important");cell.style.setProperty("height","auto","important");cell.style.setProperty("color","#000","important");if(cell.cellIndex===cell.parentElement.cells.length-1){cell.style.setProperty("white-space","normal","important");cell.style.setProperty("overflow-wrap","anywhere","important");cell.style.setProperty("word-break","normal","important")}});
     layer.querySelectorAll("table.collection-print-detail-table").forEach(table=>{table.style.setProperty("table-layout","fixed","important");table.style.setProperty("width","100%","important")});
     layer.querySelectorAll("table.collection-print-detail-table").forEach(table=>{table.style.setProperty("table-layout","fixed","important");table.style.setProperty("width","100%","important")});
@@ -10218,7 +10258,7 @@ function downloadCurrentSheetExcel(){
       let reportsTitle=children.find(el=>el.classList.contains('desktop-nav-reports-title'));
       if(!reportsTitle){reportsTitle=document.createElement('div');reportsTitle.className='nav-section-title desktop-nav-reports-title';reportsTitle.textContent='التقارير';}
       const linkMap=new Map([...nav.querySelectorAll('a[data-screen]')].map(link=>[link.dataset.screen,link]));
-      const primaryIds=['dash','dueInstallments','clients','collection','search','risk','paymentFollowup'];
+      const primaryIds=['dash','dailyOperations','dueInstallments','clients','collection','search','risk','paymentFollowup'];
       const reportIds=['portfolio','print'];
       const adminIds=['specialists','users','audit','import','settings'];
       const primaryLinks=primaryIds.map(id=>linkMap.get(id)).filter(Boolean);
@@ -11084,9 +11124,9 @@ async function prepareDueWhatsAppPDF(event){
 #collectionPrintReportLayer h1,#collectionPrintReportLayer h2,#collectionPrintReportLayer .collection-print-specialist-title{font-size:16px!important}
 #collectionPrintReportLayer .collection-print-section-title,#collectionPrintReportLayer .collection-print-grand-total>strong,#collectionPrintReportLayer .collection-print-specialist-subtotal>strong,#collectionPrintReportLayer .collection-print-metric b{font-size:12px!important}
 #collectionPrintReportLayer table.collection-print-table th,#collectionPrintReportLayer table.collection-print-table td{color:#000!important;font-size:10px!important;font-weight:700!important}
-#collectionPrintReportLayer table.collection-print-summary-table th{font-size:14px!important;font-weight:800!important;color:#000!important;line-height:1.4!important;padding:7px 4px!important;height:auto!important}
-#collectionPrintReportLayer table.collection-print-summary-table tbody td:first-child,#collectionPrintReportLayer table.collection-print-summary-table tfoot th:first-child{font-size:14px!important;font-weight:800!important;color:#000!important;line-height:1.4!important;padding:7px 4px!important;height:auto!important}
-#collectionPrintReportLayer table.collection-print-summary-table tbody td:not(:first-child),#collectionPrintReportLayer table.collection-print-summary-table tfoot th:not(:first-child){font-size:20px!important;font-weight:900!important;color:#000!important;line-height:1.45!important;padding:8px 4px!important;height:auto!important}
+#collectionPrintReportLayer table.collection-print-summary-table th{font-size:17px!important;font-weight:800!important;color:#000!important;line-height:1.4!important;padding:7px 4px!important;height:auto!important}
+#collectionPrintReportLayer table.collection-print-summary-table tbody td:first-child,#collectionPrintReportLayer table.collection-print-summary-table tfoot th:first-child{font-size:17px!important;font-weight:800!important;color:#000!important;line-height:1.4!important;padding:7px 4px!important;height:auto!important}
+#collectionPrintReportLayer table.collection-print-summary-table tbody td:not(:first-child),#collectionPrintReportLayer table.collection-print-summary-table tfoot th:not(:first-child){font-size:17px!important;font-weight:900!important;color:#000!important;line-height:1.45!important;padding:8px 4px!important;height:auto!important}
 #collectionPrintReportLayer table.collection-print-detail-table{table-layout:fixed!important}
 #collectionPrintReportLayer table.collection-print-detail-table th,#collectionPrintReportLayer table.collection-print-detail-table td{font-size:16px!important;font-weight:800!important;color:#000!important;line-height:1.35!important;padding:6px 3px!important}
 #collectionPrintReportLayer table.collection-print-detail-table th:last-child,#collectionPrintReportLayer table.collection-print-detail-table td:last-child{white-space:normal!important;overflow-wrap:anywhere!important;word-break:normal!important}
@@ -11244,9 +11284,9 @@ async function prepareDueWhatsAppPDF(event){
     layer.querySelectorAll("table.collection-print-table td:first-child").forEach(cell=>{cell.style.setProperty("white-space","nowrap","important");cell.style.setProperty("direction","ltr","important");cell.style.setProperty("text-align","center","important")});
     // Re-apply collection-specific typography after the shared formatter, which sets inline !important styles.
     layer.querySelectorAll("table.collection-print-table th,table.collection-print-table td").forEach(cell=>{cell.style.setProperty("font-size","10px","important");cell.style.setProperty("font-weight","700","important");cell.style.setProperty("color","#000","important")});
-    layer.querySelectorAll("table.collection-print-summary-table th").forEach(cell=>{cell.style.setProperty("font-size","14px","important");cell.style.setProperty("font-weight","800","important");cell.style.setProperty("color","#000","important");cell.style.setProperty("line-height","1.4","important");cell.style.setProperty("padding","7px 4px","important");cell.style.setProperty("height","auto","important")});
-    layer.querySelectorAll("table.collection-print-summary-table tbody td:first-child,table.collection-print-summary-table tfoot th:first-child").forEach(cell=>{cell.style.setProperty("font-size","14px","important");cell.style.setProperty("font-weight","800","important");cell.style.setProperty("color","#000","important");cell.style.setProperty("line-height","1.4","important");cell.style.setProperty("padding","7px 4px","important");cell.style.setProperty("height","auto","important")});
-    layer.querySelectorAll("table.collection-print-summary-table tbody td:not(:first-child),table.collection-print-summary-table tfoot th:not(:first-child)").forEach(cell=>{cell.style.setProperty("font-size","20px","important");cell.style.setProperty("font-weight","900","important");cell.style.setProperty("color","#000","important");cell.style.setProperty("line-height","1.45","important");cell.style.setProperty("padding","8px 4px","important");cell.style.setProperty("height","auto","important")});
+    layer.querySelectorAll("table.collection-print-summary-table th").forEach(cell=>{cell.style.setProperty("font-size","17px","important");cell.style.setProperty("font-weight","800","important");cell.style.setProperty("color","#000","important");cell.style.setProperty("line-height","1.4","important");cell.style.setProperty("padding","7px 4px","important");cell.style.setProperty("height","auto","important")});
+    layer.querySelectorAll("table.collection-print-summary-table tbody td:first-child,table.collection-print-summary-table tfoot th:first-child").forEach(cell=>{cell.style.setProperty("font-size","17px","important");cell.style.setProperty("font-weight","800","important");cell.style.setProperty("color","#000","important");cell.style.setProperty("line-height","1.4","important");cell.style.setProperty("padding","7px 4px","important");cell.style.setProperty("height","auto","important")});
+    layer.querySelectorAll("table.collection-print-summary-table tbody td:not(:first-child),table.collection-print-summary-table tfoot th:not(:first-child)").forEach(cell=>{cell.style.setProperty("font-size","17px","important");cell.style.setProperty("font-weight","900","important");cell.style.setProperty("color","#000","important");cell.style.setProperty("line-height","1.45","important");cell.style.setProperty("padding","8px 4px","important");cell.style.setProperty("height","auto","important")});
     layer.querySelectorAll(".collection-print-specialist-section table.collection-print-table th,.collection-print-specialist-section table.collection-print-table td").forEach(cell=>{cell.style.setProperty("font-size","16px","important");cell.style.setProperty("font-weight","800","important");cell.style.setProperty("color","#000","important");cell.style.setProperty("line-height","1.35","important");cell.style.setProperty("padding","6px 3px","important");cell.style.setProperty("height","auto","important");cell.style.setProperty("color","#000","important");if(cell.cellIndex===cell.parentElement.cells.length-1){cell.style.setProperty("white-space","normal","important");cell.style.setProperty("overflow-wrap","anywhere","important");cell.style.setProperty("word-break","normal","important")}});
   }
   async function downloadCollectionReportViaVercel(layer,filename){
@@ -12083,3 +12123,75 @@ window.showScreen = function(id) { const result=previousShowScreen.apply(this,ar
 <style id="hide-all-submitted-locations-map-screen-only">
 @media screen{#locationAllMapCard{display:none!important}}
 </style>
+
+<style id="daily-operations-isolated-style">
+.daily-ops-screen{direction:rtl;background:#f7fafc;color:#172b4d;min-height:640px;padding:22px!important}
+.daily-ops-screen[aria-hidden="true"]{display:none!important}
+.daily-ops-screen[aria-hidden="false"]{display:block!important}
+.daily-ops-head{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;margin-bottom:18px;padding-bottom:16px;border-bottom:1px solid #dbe5ef}
+.daily-ops-kicker{color:#2563eb;font-size:12px;font-weight:900;margin-bottom:5px}
+.daily-ops-head h2{margin:0;color:#102a43;font-size:27px;font-weight:950}
+.daily-ops-head p{margin:7px 0 0;color:#64748b;font-size:13px}
+.daily-ops-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.daily-ops-date-label,.daily-ops-filters label{display:flex;align-items:center;gap:7px;color:#405568;font-size:12px;font-weight:900}
+.daily-ops-date-label input,.daily-ops-filters select{min-height:36px;border:1px solid #cbd5e1;border-radius:9px;background:#fff;color:#172b4d;padding:6px 9px;font:inherit}
+.daily-ops-btn{min-height:36px;padding:7px 13px;border:1px solid #cbd5e1;border-radius:9px;font-size:12px;font-weight:900;cursor:pointer}
+.daily-ops-btn.primary{border-color:#2563eb;background:#2563eb;color:#fff}.daily-ops-btn.secondary{background:#fff;color:#274c77}
+.daily-ops-filters{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px;padding:10px 12px;border:1px solid #dbe5ef;border-radius:11px;background:#fff}
+.daily-ops-last-updated{color:#718096;font-size:11px;font-weight:700}
+.daily-ops-cards{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin-bottom:16px}
+.daily-ops-card{min-height:105px;padding:14px;border:1px solid #dbe5ef;border-top:4px solid var(--daily-accent,#2563eb);border-radius:13px;background:#fff;box-shadow:0 5px 15px rgba(31,55,80,.06)}
+.daily-ops-card.warn{--daily-accent:#d97706;background:#fffbeb}.daily-ops-card.danger{--daily-accent:#dc2626;background:#fff7f7}.daily-ops-card.success{--daily-accent:#159570;background:#f0fdf8}
+.daily-ops-card small{display:block;color:#64748b;font-size:11px;font-weight:900}.daily-ops-card strong{display:block;margin-top:9px;color:#102a43;font-size:24px;font-weight:950;line-height:1.1}.daily-ops-card span{display:block;margin-top:7px;color:#718096;font-size:10px;font-weight:700}
+.daily-ops-progress-panel,.daily-ops-panel{border:1px solid #dbe5ef;border-radius:13px;background:#fff;box-shadow:0 5px 15px rgba(31,55,80,.05)}
+.daily-ops-progress-panel{padding:15px 17px;margin-bottom:16px}.daily-ops-section-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:11px}.daily-ops-section-head h3{margin:0;color:#17324a;font-size:16px;font-weight:950}.daily-ops-section-head p{margin:4px 0 0;color:#718096;font-size:11px;font-weight:700}.daily-ops-section-head>strong{color:#2563eb;font-size:23px;font-weight:950}.daily-ops-count{display:inline-flex;align-items:center;justify-content:center;min-width:31px;height:27px;padding:0 8px;border-radius:999px;background:#eaf2ff;color:#2563eb;font-size:12px;font-weight:950}
+.daily-ops-progress-track{height:11px;overflow:hidden;border-radius:999px;background:#e7eef5}.daily-ops-progress-track span{display:block;width:0;height:100%;border-radius:inherit;background:linear-gradient(90deg,#2563eb,#159570);transition:width .25s ease}
+.daily-ops-grid{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(280px,.8fr);gap:16px;margin-bottom:16px}.daily-ops-panel{padding:15px 17px}.daily-ops-table-wrap{overflow:auto;border:1px solid #e2e8f0;border-radius:9px}.daily-ops-table{width:100%;min-width:650px;border-collapse:collapse;font-size:11px}.daily-ops-table th{background:#eff5fb;color:#35516b;font-weight:950;white-space:nowrap}.daily-ops-table th,.daily-ops-table td{padding:9px 8px;border-bottom:1px solid #e7edf3;text-align:right;vertical-align:middle}.daily-ops-table tbody tr:last-child td{border-bottom:0}.daily-ops-table tbody tr:hover td{background:#f8fbff}.daily-ops-table td strong{color:#17324a;font-weight:950}.daily-ops-table .daily-ops-muted{color:#94a3b8}.daily-ops-priority{display:inline-flex;padding:4px 7px;border-radius:999px;font-size:10px;font-weight:950;white-space:nowrap}.daily-ops-priority.overdue{background:#fee2e2;color:#b91c1c}.daily-ops-priority.today{background:#fef3c7;color:#a16207}.daily-ops-action-link{border:0;background:none;color:#2563eb;font:inherit;font-size:10px;font-weight:950;cursor:pointer;padding:3px}.daily-ops-action-link:hover{text-decoration:underline}.daily-ops-alerts{display:flex;flex-direction:column;gap:8px}.daily-ops-alert{display:flex;align-items:flex-start;gap:9px;padding:10px;border:1px solid #e2e8f0;border-radius:9px;background:#f8fafc;color:#475569;font-size:11px;font-weight:800;line-height:1.5}.daily-ops-alert strong{color:#172b4d}.daily-ops-alert.warn{border-color:#fde68a;background:#fffbeb}.daily-ops-alert.danger{border-color:#fecaca;background:#fff7f7}.daily-ops-alert.ok{border-color:#bbf7d0;background:#f0fdf4}.daily-ops-alert i{display:block;flex:0 0 8px;width:8px;height:8px;margin-top:5px;border-radius:50%;background:#94a3b8}.daily-ops-alert.warn i{background:#d97706}.daily-ops-alert.danger i{background:#dc2626}.daily-ops-alert.ok i{background:#16a34a}.daily-ops-empty{padding:22px!important;text-align:center!important;color:#94a3b8!important;font-weight:800!important}.daily-ops-specialists-panel{margin-bottom:8px}.daily-ops-specialists-table{min-width:720px}.daily-ops-rate{font-weight:950}.daily-ops-rate.good{color:#15803d}.daily-ops-rate.mid{color:#b45309}.daily-ops-rate.low{color:#b91c1c}
+@media(max-width:1000px){.daily-ops-cards{grid-template-columns:repeat(3,minmax(0,1fr))}.daily-ops-head{flex-direction:column}.daily-ops-actions{width:100%}}
+@media(max-width:700px){.daily-ops-screen{padding:14px!important}.daily-ops-cards{grid-template-columns:repeat(2,minmax(0,1fr))}.daily-ops-grid{grid-template-columns:1fr}.daily-ops-filters{align-items:stretch;flex-direction:column}.daily-ops-date-label{width:100%;justify-content:space-between}.daily-ops-date-label input{flex:1}.daily-ops-head h2{font-size:22px}}
+@media(max-width:430px){.daily-ops-cards{grid-template-columns:1fr}.daily-ops-actions>*{flex:1}.daily-ops-btn{padding-inline:8px}}
+@media print{#dailyOperations{display:none!important}}
+</style>
+<script id="daily-operations-isolated-logic">
+(function(){
+  const byId=id=>document.getElementById(id);
+  const localKey=date=>{if(!date)return "";const y=date.getFullYear(),m=String(date.getMonth()+1).padStart(2,"0"),d=String(date.getDate()).padStart(2,"0");return `${y}-${m}-${d}`};
+  const todayDate=()=>{const d=new Date();d.setHours(0,0,0,0);return d};
+  const selectedDate=()=>{const value=byId("dailyOpsDate")?.value||localKey(todayDate()),parts=value.split("-").map(Number),d=new Date(parts[0],(parts[1]||1)-1,parts[2]||1);d.setHours(0,0,0,0);return d};
+  const textDate=value=>{const d=value instanceof Date?value:typeof parseExcelDate==="function"?parseExcelDate(value):null;return d?d.toLocaleDateString("ar-EG"):"غير محدد"};
+  const dateValue=row=>typeof riskDueDateValue==="function"?riskDueDateValue(row):getAny(row,["تاريخ الاستحقاق","تاريخ استحقاق القسط","تاريخ القسط","تاريخ القسط المستحق",H.date]);
+  const paymentValue=row=>typeof rowPaymentDate==="function"?rowPaymentDate(row):get(row,"paymentDate");
+  const amount=row=>num(getAny(row,[H.unpaid,"المبلغ غير المسدد","المبلغ المتبقي","الرصيد المتبقي"]));
+  const installmentValue=row=>num(getAny(row,[H.value,"قيمة القسط الشهري"]));
+  const officerName=(g,row)=>String(get(row,"officer")||get(g.r,"officer")||"غير محدد").trim()||"غير محدد";
+  const clientName=(g,row)=>String(get(row,"client")||get(g.r,"client")||"غير محدد").trim()||"غير محدد";
+  const format=value=>Number(value||0).toLocaleString("en-US",{maximumFractionDigits:2});
+  const formatMoney=value=>typeof money==="function"?money(value):format(value);
+  const filteredRows=()=>{
+    const selectedOfficer=norm(byId("dailyOpsOfficer")?.value||"");
+    const list=[];
+    (typeof visibleGroups==="function"?visibleGroups():[]).forEach(g=>(g.items||[g.r]).forEach(row=>{const officer=officerName(g,row);if(selectedOfficer&&!norm(officer).includes(selectedOfficer))return;list.push({g,row,officer,client:clientName(g,row),due:typeof parseExcelDate==="function"?parseExcelDate(dateValue(row)):null,payment:typeof parseExcelDate==="function"?parseExcelDate(paymentValue(row)):null,remaining:amount(row),value:installmentValue(row),paid:typeof rowPaidAmount==="function"?rowPaidAmount(row):num(get(row,"paid"))})}));
+    return list;
+  };
+  function populateOfficers(){
+    const select=byId("dailyOpsOfficer");if(!select)return;const current=select.value;const names=[...new Set(filteredRows().map(x=>x.officer))].sort((a,b)=>a.localeCompare(b,"ar"));select.innerHTML='<option value="">كل الأخصائيين</option>'+names.map(name=>`<option value="${escAttr(name)}">${esc(name)}</option>`).join("");if(names.includes(current))select.value=current;
+  }
+  function card(label,value,note,kind=""){return `<div class="daily-ops-card ${kind}"><small>${label}</small><strong>${value}</strong><span>${note}</span></div>`}
+  function alertBox(type,html){return `<div class="daily-ops-alert ${type}"><i aria-hidden="true"></i><div>${html}</div></div>`}
+  function renderDailyOperations(){
+    const dateInput=byId("dailyOpsDate");if(!dateInput)return;if(!dateInput.value)dateInput.value=localKey(todayDate());populateOfficers();const target=selectedDate(),targetKey=localKey(target),rowsForDay=filteredRows();
+    const dueToday=rowsForDay.filter(x=>x.due&&localKey(x.due)===targetKey&&x.remaining>0),overdue=rowsForDay.filter(x=>x.due&&localKey(x.due)<targetKey&&x.remaining>0),paidToday=rowsForDay.filter(x=>x.payment&&localKey(x.payment)===targetKey&&x.paid>0);const priority=[...overdue.map(x=>({...x,priority:"overdue"})),...dueToday.map(x=>({...x,priority:"today"}))].sort((a,b)=>(a.priority===b.priority?((a.due?.getTime()||0)-(b.due?.getTime()||0)):a.priority==="overdue"?-1:1));
+    const dueClients=new Set([...dueToday,...overdue].map(x=>norm(x.client))).size,dueAmount=dueToday.reduce((s,x)=>s+x.value,0),collected=paidToday.reduce((s,x)=>s+x.paid,0),overdueAmount=overdue.reduce((s,x)=>s+x.remaining,0),totalWork=dueToday.length+overdue.length,completed=paidToday.length,rate=totalWork?Math.min(100,Math.round(completed/totalWork*100)):0;
+    byId("dailyOpsCards").innerHTML=[card("عملاء يحتاجون متابعة",format(dueClients),`${format(dueToday.length+overdue.length)} قسط ضمن الأولويات`,dueClients?"warn":"success"),card("مستحق اليوم",formatMoney(dueAmount),`${format(dueToday.length)} قسط مستحق`,dueToday.length?"warn":"success"),card("التحصيل اليومي",formatMoney(collected),`${format(paidToday.length)} عملية مسجلة`,collected?"success":""),card("المتأخرات",formatMoney(overdueAmount),`${format(overdue.length)} قسط متأخر`,overdue.length?"danger":"success"),card("مهام الأولوية",format(totalWork),`نسبة الإنجاز ${rate}%`,totalWork?"warn":"success")].join("");
+    byId("dailyOpsProgressValue").textContent=`${rate}%`;byId("dailyOpsProgressBar").style.width=`${rate}%`;byId("dailyOpsProgressText").textContent=totalWork?`تم تسجيل ${format(completed)} إجراء من أصل ${format(totalWork)} أولوية ليوم ${textDate(target)}.`:`لا توجد أولويات مسجلة ليوم ${textDate(target)}.`;
+    byId("dailyOpsPriorityCount").textContent=format(priority.length);byId("dailyOpsPriorityBody").innerHTML=priority.slice(0,50).map(x=>`<tr><td><span class="daily-ops-priority ${x.priority}">${x.priority==="overdue"?"متأخر":"مستحق اليوم"}</span></td><td><strong>${esc(x.client)}</strong></td><td>${esc(x.officer)}</td><td>${esc(textDate(x.due))}</td><td>${esc(formatMoney(x.remaining))}</td><td><button type="button" class="daily-ops-action-link" onclick="showScreen('collection')">فتح التحصيل</button></td></tr>`).join("")||'<tr><td colspan="6" class="daily-ops-empty">لا توجد أولويات لهذا اليوم.</td></tr>';
+    const specialistMap=new Map();rowsForDay.forEach(x=>{const item=specialistMap.get(x.officer)||{name:x.officer,due:0,followups:0,collected:0,remaining:0,dueAmount:0};if(x.due&&localKey(x.due)===targetKey&&x.remaining>0){item.due++;item.dueAmount+=x.value;item.remaining+=x.remaining}if(x.payment&&localKey(x.payment)===targetKey&&x.paid>0){item.followups++;item.collected+=x.paid}specialistMap.set(x.officer,item)});
+    const specialists=[...specialistMap.values()].sort((a,b)=>b.collected-a.collected||a.name.localeCompare(b.name,"ar"));byId("dailyOpsSpecialistCount").textContent=format(specialists.length);byId("dailyOpsSpecialistsBody").innerHTML=specialists.map(x=>{const specialistRate=x.dueAmount>0?Math.min(100,Math.round(x.collected/x.dueAmount*100)):x.followups?100:0;const rateClass=specialistRate>=90?"good":specialistRate>=70?"mid":"low";return `<tr><td><strong>${esc(x.name)}</strong></td><td>${format(x.due)}</td><td>${format(x.followups)}</td><td>${esc(formatMoney(x.collected))}</td><td>${esc(formatMoney(x.remaining))}</td><td><span class="daily-ops-rate ${rateClass}">${specialistRate}%</span></td></tr>`}).join("")||'<tr><td colspan="6" class="daily-ops-empty">لا توجد بيانات أخصائيين لليوم المحدد.</td></tr>';
+    const alerts=[];if(overdue.length)alerts.push(alertBox("danger",`هناك <strong>${format(overdue.length)} قسط</strong> متأخر بإجمالي <strong>${esc(formatMoney(overdueAmount))}</strong> ويحتاج متابعة.`));if(dueToday.length)alerts.push(alertBox("warn",`يوجد <strong>${format(dueToday.length)} قسط</strong> مستحق اليوم بإجمالي <strong>${esc(formatMoney(dueAmount))}</strong>.`));if(!rowsForDay.length)alerts.push(alertBox("warn","لا توجد بيانات مطابقة للفلاتر الحالية."));if(!overdue.length&&!dueToday.length)alerts.push(alertBox("ok","لا توجد تنبيهات عاجلة ضمن بيانات اليوم المحدد."));byId("dailyOpsAlerts").innerHTML=alerts.join("");byId("dailyOpsLastUpdated").textContent=`آخر تحديث: ${new Date().toLocaleTimeString("ar-EG",{hour:"2-digit",minute:"2-digit"})}`;
+  }
+  function initDailyOperations(){
+    const dateInput=byId("dailyOpsDate");if(!dateInput||dateInput.dataset.ready==="1")return;dateInput.dataset.ready="1";dateInput.value=localKey(todayDate());byId("dailyOpsTodayBtn")?.addEventListener("click",()=>{dateInput.value=localKey(todayDate());renderDailyOperations()});byId("dailyOpsRefreshBtn")?.addEventListener("click",renderDailyOperations);dateInput.addEventListener("change",renderDailyOperations);byId("dailyOpsOfficer")?.addEventListener("change",renderDailyOperations);renderDailyOperations();
+  }
+  window.renderDailyOperations=renderDailyOperations;document.addEventListener("DOMContentLoaded",initDailyOperations);
+})();
+</script>
