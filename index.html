@@ -2820,7 +2820,7 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
  </div>
   <div style="margin-bottom:10px"><span class="filter-label">البحث باسم العميل</span><input id="dueClient" list="dueClientList" autocomplete="off" placeholder="اكتب أي حرف من اسم العميل..."><datalist id="dueClientList"></datalist></div>
   <div style="margin-bottom:10px"><span class="filter-label">البحث بالعنوان</span><input id="dueAddress" list="dueAddressList" autocomplete="off" placeholder="اكتب أي حرف من العنوان أو المنطقة"><datalist id="dueAddressList"></datalist></div>
-  <div style="margin-bottom:10px"><span class="filter-label">التاريخ</span><div class="due-date-range"><input id="dueFrom" type="date" lang="ja-JP" title="من تاريخ — yyyy/mm/dd"><span>إلى</span><input id="dueTo" type="date" lang="ja-JP" title="إلى تاريخ — yyyy/mm/dd"></div><small class="due-date-format-note">التنسيق: yyyy/mm/dd</small><div class="toolbar no-print" style="margin-top:8px"><button type="button" class="light" onclick="setDueCurrentMonth()">الشهر الحالي</button><button type="button" class="light" onclick="setDueNextMonth()">الشهر القادم</button><button type="button" class="light" onclick="setDueToday()">تاريخ اليوم</button></div></div>
+  <div style="margin-bottom:10px"><span class="filter-label">التاريخ</span><div class="due-date-range"><input id="dueFrom" type="text" inputmode="numeric" placeholder="yyyy/mm/dd" autocomplete="off" title="من تاريخ — yyyy/mm/dd"><span>إلى</span><input id="dueTo" type="text" inputmode="numeric" placeholder="yyyy/mm/dd" autocomplete="off" title="إلى تاريخ — yyyy/mm/dd"></div><small class="due-date-format-note">التنسيق: yyyy/mm/dd</small><div class="toolbar no-print" style="margin-top:8px"><button type="button" class="light" onclick="setDueCurrentMonth()">الشهر الحالي</button><button type="button" class="light" onclick="setDueNextMonth()">الشهر القادم</button><button type="button" class="light" onclick="setDueToday()">تاريخ اليوم</button></div></div>
   <div><span class="filter-label">حالة القرض</span><select id="dueStatus"><option value="open" selected>القروض القائمة</option><option value="closed">القروض المغلقة</option><option value="all">كل القروض</option></select></div>
 </div>
 <div style="margin:10px 0;padding:10px 12px;border:1px solid #dbe5eb;border-radius:10px;background:#f8fafc">
@@ -12141,5 +12141,56 @@ window.showScreen = function(id) { const result=previousShowScreen.apply(this,ar
  }
  window.toggleDueOptionalSections=applyDueOptionalSections;
  document.addEventListener('DOMContentLoaded',()=>{applyDueOptionalSections()});
+})();
+</script>
+
+<style id="due-installments-screen-polish-final">
+@media screen and (min-width:761px){
+ #dueInstallments .due-filter-panel{grid-template-columns:repeat(4,minmax(150px,1fr))!important;align-items:stretch!important;gap:9px!important;padding:10px!important}
+ #dueInstallments .due-filter-panel>div:first-child,#dueInstallments .due-filter-panel>div:nth-child(4){grid-column:span 2!important}
+ #dueInstallments .due-filter-panel>div{padding:8px!important}
+}
+@media screen{
+ #dueInstallments .due-filter-panel>div{position:relative!important;z-index:1!important}
+ #dueInstallments .due-filter-panel>div:has(.smart-select.open),#dueInstallments .due-filter-panel>div:has(.smart-datalist.open),#dueInstallments .due-filter-panel>div:has(.smart-datalist:has(.smart-select-menu)){z-index:13000!important}
+ #dueInstallments .due-filter-panel .smart-datalist.open,#dueInstallments .due-filter-panel .smart-select.open{z-index:13001!important}
+ #dueInstallments .due-filter-panel .smart-select-menu{z-index:13002!important;position:absolute!important;top:calc(100% + 4px)!important;right:0!important;left:0!important;width:100%!important;max-width:none!important}
+ #dueInstallments .due-filter-panel input:not([type=radio]):not([type=checkbox]),#dueInstallments .due-filter-panel select{min-height:34px!important;padding:5px 8px!important;font-size:11px!important}
+ #dueInstallments .due-filter-panel .filter-label{font-size:10px!important;margin-bottom:4px!important}
+ #dueInstallments .due-filter-panel .due-specialist-status-control{gap:4px 10px!important;margin:-1px 0 6px!important;padding:5px 7px!important}
+ #dueInstallments .due-filter-panel .due-specialist-status-control label{font-size:11px!important}
+ #dueInstallments .due-date-range{gap:6px!important;flex-wrap:nowrap!important}
+ #dueInstallments .due-date-range input{min-width:0!important;flex:1 1 0!important;text-align:center!important;direction:ltr!important}
+ #dueInstallments #dueFrom,#dueInstallments #dueTo{background:#fff!important;color:#000!important;font-weight:950!important;font-size:12px!important;border-color:#9fb5ca!important}
+ #dueInstallments #dueFrom::placeholder,#dueInstallments #dueTo::placeholder{color:#475569!important;font-weight:800!important;opacity:1!important}
+ #dueInstallments #dueAllSpecialistsSummary[hidden]{display:none!important}
+}
+@media print{
+ #dueInstallments #dueAllSpecialistsSummary[hidden]{display:grid!important}
+}
+</style>
+<script id="due-installments-screen-polish-logic">
+(function(){
+ const dateIds=['dueFrom','dueTo'];
+ function formatDueDateValue(value){
+  const s=String(value??'').trim();if(!s)return '';
+  let m=s.match(/^(\d{4})[-\/](\d{1,2})[-\/](\d{1,2})/);if(m)return `${m[1]}/${String(m[2]).padStart(2,'0')}/${String(m[3]).padStart(2,'0')}`;
+  m=s.match(/^(\d{1,2})[-\/](\d{1,2})[-\/](\d{4})/);if(m)return `${m[3]}/${String(m[2]).padStart(2,'0')}/${String(m[1]).padStart(2,'0')}`;
+  return s;
+ }
+ function normalizeDueDateFields(){dateIds.forEach(id=>{const el=document.getElementById(id);if(el&&el.value)el.value=formatDueDateValue(el.value)})}
+ function applyDueOptionalSectionsPolished(){
+  const screen=document.getElementById('dueInstallments');if(!screen)return;
+  const aging=document.getElementById('dueShowAging')?.checked===true,metrics=document.getElementById('dueShowMetrics')?.checked===true,quick=document.getElementById('dueShowQuickSummary')?.checked===true;
+  screen.classList.toggle('due-view-aging',aging);screen.classList.toggle('due-view-metrics',metrics);screen.classList.toggle('due-view-quick',quick);
+  const general=document.getElementById('dueAllSpecialistsSummary');if(general)general.hidden=!quick;
+ }
+ function wrapDueAction(name){const original=window[name];if(typeof original!=='function'||original.__duePolished)return;const wrapped=function(){const result=original.apply(this,arguments);normalizeDueDateFields();return result};wrapped.__duePolished=true;window[name]=wrapped}
+ function init(){
+  dateIds.forEach(id=>{const el=document.getElementById(id);if(!el||el.dataset.duePolished==='1')return;el.dataset.duePolished='1';el.addEventListener('blur',normalizeDueDateFields);el.addEventListener('change',()=>{normalizeDueDateFields();if(typeof debouncedRenderDue==='function')debouncedRenderDue()})});
+  ['renderDueInstallments','setDueCurrentMonth','setDueNextMonth','setDueToday','restoreDueFilters','resetDueFiltersToDefault'].forEach(wrapDueAction);normalizeDueDateFields();applyDueOptionalSectionsPolished();
+ }
+ const previousToggle=window.toggleDueOptionalSections;window.toggleDueOptionalSections=function(){if(typeof previousToggle==='function')previousToggle();applyDueOptionalSectionsPolished()};
+ window.addEventListener('load',()=>{init();setTimeout(()=>{init();normalizeDueDateFields()},80)});document.addEventListener('DOMContentLoaded',()=>{init();setTimeout(()=>{init();normalizeDueDateFields()},80)});
 })();
 </script>
