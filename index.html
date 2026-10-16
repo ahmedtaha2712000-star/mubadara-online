@@ -12431,3 +12431,25 @@ window.showScreen = function(id) { const result=previousShowScreen.apply(this,ar
 #dueInstallments table.risk-installments-table td:nth-child(18),
 #dueInstallments table.risk-installments-table td:nth-child(19){font-family:Arial,sans-serif!important;font-size:13px!important;font-weight:800!important;color:#000!important;width:7%!important}
 </style>
+
+<style id="due-final-black-bold-device-parity">
+/* قاعدة أخيرة موحدة للطباعة وPDF؛ لا تعتمد على عرض الشاشة أو نوع الجهاز. */
+#riskPrintLayer.due-print-report .due-approved-table th:nth-child(15),
+#riskPrintLayer.due-print-report .due-approved-table th:nth-child(16),
+#riskPrintLayer.due-print-report .due-approved-table th:nth-child(17),
+#riskPrintLayer.due-print-report .due-approved-table th:nth-child(18){font-family:Arial,sans-serif!important;font-size:12px!important;font-weight:800!important;color:#000!important;text-shadow:none!important;-webkit-text-stroke:0!important}
+#riskPrintLayer.due-print-report .due-approved-table td:nth-child(15),
+#riskPrintLayer.due-print-report .due-approved-table td:nth-child(16),
+#riskPrintLayer.due-print-report .due-approved-table td:nth-child(17),
+#riskPrintLayer.due-print-report .due-approved-table td:nth-child(18),
+#riskPrintLayer.due-print-report .due-approved-table td:nth-child(16) .guarantor-name,
+#riskPrintLayer.due-print-report .due-approved-table td:nth-child(17) .guarantor-name,
+#riskPrintLayer.due-print-report .due-approved-table td:nth-child(18) .guarantor-name,
+#riskPrintLayer.due-print-report .due-approved-table td:nth-child(16) .phone-nowrap,
+#riskPrintLayer.due-print-report .due-approved-table td:nth-child(17) .phone-nowrap,
+#riskPrintLayer.due-print-report .due-approved-table td:nth-child(18) .phone-nowrap{font-family:Arial,sans-serif!important;font-size:11px!important;font-weight:800!important;color:#000!important;text-shadow:none!important;-webkit-text-stroke:0!important;filter:none!important}
+@media print{
+#riskPrintLayer.due-print-report .due-approved-table th:nth-child(15),#riskPrintLayer.due-print-report .due-approved-table th:nth-child(16),#riskPrintLayer.due-print-report .due-approved-table th:nth-child(17),#riskPrintLayer.due-print-report .due-approved-table th:nth-child(18){font-size:12px!important;font-weight:800!important}
+#riskPrintLayer.due-print-report .due-approved-table td:nth-child(15),#riskPrintLayer.due-print-report .due-approved-table td:nth-child(16),#riskPrintLayer.due-print-report .due-approved-table td:nth-child(17),#riskPrintLayer.due-print-report .due-approved-table td:nth-child(18),#riskPrintLayer.due-print-report .due-approved-table td:nth-child(16) .guarantor-name,#riskPrintLayer.due-print-report .due-approved-table td:nth-child(17) .guarantor-name,#riskPrintLayer.due-print-report .due-approved-table td:nth-child(18) .guarantor-name,#riskPrintLayer.due-print-report .due-approved-table td:nth-child(16) .phone-nowrap,#riskPrintLayer.due-print-report .due-approved-table td:nth-child(17) .phone-nowrap,#riskPrintLayer.due-print-report .due-approved-table td:nth-child(18) .phone-nowrap{font-size:11px!important;font-weight:800!important}
+}
+</style>
