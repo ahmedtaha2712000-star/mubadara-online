@@ -6357,6 +6357,7 @@ async function downloadReportLayerPDF(layer,filename,className="report-pdf-downl
       });
     });
   }
+  if(className==="collection-report-download")layer.querySelectorAll("table.collection-print-table th,table.collection-print-table td").forEach(cell=>{cell.style.setProperty("font-size","10px","important");cell.style.setProperty("font-weight","700","important");cell.style.setProperty("color","#000","important")});
   holder.appendChild(layer);document.body.appendChild(holder);
   try{
     await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
@@ -11204,6 +11205,8 @@ async function prepareDueWhatsAppPDF(event){
     layer.querySelectorAll("table.collection-print-table thead th,table.collection-print-table tfoot th").forEach(cell=>{cell.style.setProperty("background-color","#f0f0f0","important");cell.style.setProperty("font-weight","700","important");cell.style.setProperty("color","#000","important")});
     layer.querySelectorAll("table.collection-print-table .collection-print-specialist-heading th").forEach(cell=>{cell.style.setProperty("background-color","#e8e8e8","important");cell.style.setProperty("font-weight","900","important");cell.style.setProperty("text-align","right","important")});
     layer.querySelectorAll("table.collection-print-table td:first-child").forEach(cell=>{cell.style.setProperty("white-space","nowrap","important");cell.style.setProperty("direction","ltr","important");cell.style.setProperty("text-align","center","important")});
+    // Re-apply collection-specific typography after the shared formatter, which sets inline !important styles.
+    layer.querySelectorAll("table.collection-print-table th,table.collection-print-table td").forEach(cell=>{cell.style.setProperty("font-size","10px","important");cell.style.setProperty("font-weight","700","important");cell.style.setProperty("color","#000","important")});
   }
   async function printCollectionWithDueStyle(forPdf=false){
     document.getElementById("collectionPrintReportLayer")?.remove();
