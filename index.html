@@ -12468,3 +12468,60 @@ window.showScreen = function(id) { const result=previousShowScreen.apply(this,ar
 #riskPrintLayer.due-print-report .due-approved-table th:nth-child(15),#riskPrintLayer.due-print-report .due-approved-table td:nth-child(15),#riskPrintLayer.due-print-report .due-approved-table td:nth-child(15) *{width:12%!important;font-size:10px!important;font-weight:800!important}
 }
 </style>
+
+<style id="owner-location-notification-final">
+#ownerLocationGlobalNotice{position:fixed;top:18px;right:18px;z-index:2147483000;display:flex;align-items:flex-start;gap:10px;min-width:min(360px,calc(100vw - 36px));max-width:min(460px,calc(100vw - 36px));padding:14px 16px;border:1px solid #86efac;border-right:5px solid #16a34a;border-radius:14px;background:#f0fdf4;color:#14532d;box-shadow:0 14px 34px rgba(15,23,42,.2);font-family:Arial,Tahoma,sans-serif;font-size:14px;font-weight:800;line-height:1.6;direction:rtl;opacity:0;transform:translateY(-12px);pointer-events:none;transition:opacity .2s ease,transform .2s ease}
+#ownerLocationGlobalNotice.is-visible{opacity:1;transform:translateY(0);pointer-events:auto}
+#ownerLocationGlobalNotice .owner-location-notice-icon{font-size:20px;line-height:1;color:#16a34a}
+#ownerLocationGlobalNotice .owner-location-notice-close{margin-inline-start:auto;border:0;background:transparent;color:#166534;font-size:20px;line-height:1;cursor:pointer;padding:0 2px}
+@media(max-width:520px){#ownerLocationGlobalNotice{top:10px;right:10px;min-width:0;font-size:13px}}
+</style>
+<script id="owner-location-notification-logic">
+(function(){
+  const originalNotifyNewLocation=window.notifyNewLocation;
+  let globalNoticeTimer=null;
+  function showOwnerLocationGlobalNotice(item){
+    if(!window.session||typeof window.isOwnerRole!=="function"||!window.isOwnerRole(window.session.role))return;
+    let box=document.getElementById("ownerLocationGlobalNotice");
+    if(!box){box=document.createElement("div");box.id="ownerLocationGlobalNotice";box.setAttribute("role","status");box.setAttribute("aria-live","polite");box.innerHTML='<span class="owner-location-notice-icon" aria-hidden="true">●</span><span class="owner-location-notice-text"></span><button type="button" class="owner-location-notice-close" aria-label="إغلاق الإشعار">×</button>';document.body.appendChild(box);box.querySelector(".owner-location-notice-close").addEventListener("click",()=>{box.classList.remove("is-visible");});}
+    const name=typeof window.locationText==="function"?window.locationText(item?.display_name,item?.username):String(item?.display_name||item?.username||"الأخصائي");
+    const time=typeof window.locationDate==="function"?window.locationDate(item?.server_received_at||item?.captured_at):"";
+    box.querySelector(".owner-location-notice-text").textContent=`أرسل الأخصائي ${name} موقعه${time&&time!=="—"?` — ${time}`:""}`;
+    box.classList.add("is-visible");
+    clearTimeout(globalNoticeTimer);globalNoticeTimer=setTimeout(()=>box.classList.remove("is-visible"),7000);
+  }
+  window.notifyNewLocation=function(item){
+    if(!window.session||typeof window.isOwnerRole!=="function"||!window.isOwnerRole(window.session.role))return;
+    showOwnerLocationGlobalNotice(item);
+    if(typeof originalNotifyNewLocation==="function")originalNotifyNewLocation(item);
+  };
+  const oldLocationPollStart=window.locationPollStart;
+  window.locationPollStart=function(){
+    if(typeof oldLocationPollStart==="function")oldLocationPollStart();
+    if(window.locationNotificationTimer)clearInterval(window.locationNotificationTimer);
+    window.locationNotificationTimer=setInterval(()=>{if(window.session&&window.isOwnerRole?.(window.session.role))window.refreshSharedLocations?.(true)},15000);
+  };
+  const oldShowScreen=window.showScreen;
+  if(typeof oldShowScreen==="function")window.showScreen=function(id){const result=oldShowScreen.apply(this,arguments);if(window.session&&window.isOwnerRole?.(window.session.role))window.locationPollStart?.();return result;};
+  window.showOwnerLocationGlobalNotice=showOwnerLocationGlobalNotice;
+})();
+</script>
+
+<!-- owner notification binding correction -->
+<script>
+(function(){
+  const ownerSession=()=>typeof session!=="undefined"&&session&&typeof isOwnerRole==="function"&&isOwnerRole(session.role);
+  const prior=window.notifyNewLocation;
+  window.notifyNewLocation=function(item){if(!ownerSession())return;window.showOwnerLocationGlobalNotice?.(item);if(typeof prior==="function")prior(item)};
+  window.locationPollStart=function(){
+    if(window.locationNotificationTimer)clearInterval(window.locationNotificationTimer);
+    window.locationNotificationTimer=setInterval(()=>{if(ownerSession()&&typeof refreshSharedLocations==="function")refreshSharedLocations(true)},15000);
+  };
+  const priorShow=window.showScreen;
+  if(typeof priorShow==="function")window.showScreen=function(id){const result=priorShow.apply(this,arguments);if(ownerSession())window.locationPollStart();return result;};
+})();
+</script>
+
+<style id="owner-location-notification-print-isolation">
+@media print{#ownerLocationGlobalNotice{display:none!important}}
+</style>
