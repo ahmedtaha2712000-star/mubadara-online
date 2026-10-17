@@ -12535,7 +12535,6 @@ window.showScreen = function(id) { const result=previousShowScreen.apply(this,ar
   const ownerSession=()=>typeof session!=="undefined"&&session&&typeof isOwnerRole==="function"&&isOwnerRole(session.role);
   const loginKey=item=>String(item?.username||item?.display_name||"").trim().toLocaleLowerCase("ar");
   const loginTime=item=>{const t=Date.parse(item?.last_login_at||"");return Number.isFinite(t)?t:0};
-  const loginOnline=item=>item?.online===true||(item?.last_seen_at&&Date.now()-Date.parse(item.last_seen_at)<120000);
   const showLoginNotice=item=>{
     if(!ownerSession()||!item||loginNoticeBusy)return;
     loginNoticeBusy=true;
@@ -12557,7 +12556,7 @@ window.showScreen = function(id) { const result=previousShowScreen.apply(this,ar
       next.forEach((item,key)=>{
         if(key===String(session.user||session.name||"").trim().toLocaleLowerCase("ar"))return;
         const before=loginSnapshot.get(key),previous=loginTime(before),current=loginTime(item);
-        if((current&&current>previous)||(!loginOnline(before)&&loginOnline(item)))showLoginNotice(item);
+        if(current&&current>previous)showLoginNotice(item);
       });
       loginSnapshot=next;
     }catch(e){console.warn("Owner login notifications:",e?.message||e)}
