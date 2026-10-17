@@ -2526,6 +2526,7 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
     <div><small>اسم ورقة Excel</small><b id="currentSheetName">—</b></div>
     <div><small>آخر رفع</small><b id="currentSheetUploadedAt">—</b></div>
     <div><small>عدد الصفوف</small><b id="currentSheetRowCount">—</b></div>
+    <div><small>اسم المستخدم الرافع</small><b id="currentSheetUploadedBy">غير مسجل</b></div>
   </div>
   <div class="current-sheet-actions no-print" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:12px">
     <button type="button" class="blue" onclick="downloadCurrentSheetExcel()">⬇️ تنزيل الشيت الحالي Excel</button>
@@ -2535,7 +2536,8 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
 <section id="previousSheetArchiveCard" class="previous-sheet-archive-card" aria-label="الشيت السابق المؤرشف">
   <div class="previous-sheet-archive-head"><div><strong>🗄️ الشيت السابق المؤرشف</strong><p>آخر نسخة سابقة محفوظة في الأرشيف.</p></div><button type="button" class="light no-print" id="previousSheetArchiveRefresh">تحديث البيانات</button></div>
   <div class="previous-sheet-archive-grid">
-    <div><small>اسم الشيت</small><b id="previousSheetArchiveName">الشيت السابق</b></div>
+    <div><small>اسم الشيت</small><b id="previousSheetArchiveName">الشيت السابق المؤرشف</b></div>
+    <div><small>اسم ورقة Excel</small><b id="previousSheetArchiveSheetName">غير محفوظ في سجل الأرشيف</b></div>
     <div><small>تاريخ ووقت الأرشفة</small><b id="previousSheetArchiveAt">جارٍ التحميل…</b></div>
     <div><small>اسم المستخدم الرافع</small><b id="previousSheetArchiveBy">—</b></div>
     <div><small>عدد الصفوف</small><b id="previousSheetArchiveCount">—</b></div>
@@ -10152,7 +10154,7 @@ document.addEventListener("DOMContentLoaded",()=>{setTimeout(()=>restoreDueFilte
 <script id="current-sheet-info-final">
 const CURRENT_SHEET_META_KEY="mub_current_sheet_meta_v1";
 function readCurrentSheetMeta(){try{const value=JSON.parse(localStorage.getItem(CURRENT_SHEET_META_KEY)||"null");return value&&typeof value==="object"?value:null}catch(e){return null}}
-function renderCurrentSheetInfo(){const meta=readCurrentSheetMeta();const ids={fileName:"currentSheetFileName",sheetName:"currentSheetName",uploadedAt:"currentSheetUploadedAt",rowCount:"currentSheetRowCount"};const state=document.getElementById("currentSheetState");if(!meta){if(state)state.textContent="لا توجد بيانات محفوظة";return}Object.entries(ids).forEach(([key,id])=>{const el=document.getElementById(id);if(!el)return;if(key==="uploadedAt"){const d=new Date(meta[key]);el.textContent=isNaN(d.getTime())?String(meta[key]||"—"):d.toLocaleString("ar-EG",{dateStyle:"full",timeStyle:"medium"})}else if(key==="rowCount")el.textContent=Number(meta[key]||0).toLocaleString("ar-EG");else el.textContent=String(meta[key]||"—")});if(state)state.textContent="بيانات الشيت الحالي"}
+function renderCurrentSheetInfo(){const meta=readCurrentSheetMeta();const ids={fileName:"currentSheetFileName",sheetName:"currentSheetName",uploadedAt:"currentSheetUploadedAt",rowCount:"currentSheetRowCount",importedBy:"currentSheetUploadedBy"};const state=document.getElementById("currentSheetState");if(!meta){if(state)state.textContent="لا توجد بيانات محفوظة";return}Object.entries(ids).forEach(([key,id])=>{const el=document.getElementById(id);if(!el)return;if(key==="uploadedAt"){const d=new Date(meta[key]);el.textContent=isNaN(d.getTime())?String(meta[key]||"—"):d.toLocaleString("ar-EG",{dateStyle:"full",timeStyle:"medium"})}else if(key==="rowCount")el.textContent=Number(meta[key]||0).toLocaleString("ar-EG");else if(key==="importedBy")el.textContent=String(meta.importedBy||meta.uploadedBy||"غير مسجل");else el.textContent=String(meta[key]||"—")});if(state)state.textContent="بيانات الشيت الحالي"}
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",renderCurrentSheetInfo,{once:true});else renderCurrentSheetInfo();
 </script>
 <style id="current-sheet-info-style">
@@ -10166,7 +10168,7 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
   if(!meta&&count>0){let updated="";try{updated=typeof lastCloudUpdatedAt!=="undefined"&&lastCloudUpdatedAt?lastCloudUpdatedAt:(localStorage.getItem(typeof DISPLAY_UPDATE_KEY!=="undefined"?DISPLAY_UPDATE_KEY:"mub_time")||"")}catch(e){}meta={fileName:"البيانات الحالية — تم تحميلها سابقًا",sheetName:"البيانات الحالية",uploadedAt:updated||new Date().toISOString(),rowCount:count}}
   return meta;
  }
- window.renderCurrentSheetInfo=function(){const meta=currentMeta();const state=document.getElementById("currentSheetState");const ids={fileName:"currentSheetFileName",sheetName:"currentSheetName",uploadedAt:"currentSheetUploadedAt",rowCount:"currentSheetRowCount"};if(!meta){if(state)state.textContent="لم يتم تحميل شيت حتى الآن";return}Object.entries(ids).forEach(([key,id])=>{const el=document.getElementById(id);if(!el)return;if(key==="uploadedAt"){const d=new Date(meta[key]);el.textContent=isNaN(d.getTime())?String(meta[key]||"غير محدد"):d.toLocaleString("ar-EG",{dateStyle:"full",timeStyle:"medium"})}else if(key==="rowCount")el.textContent=Number(meta[key]||0).toLocaleString("ar-EG");else el.textContent=String(meta[key]||"غير محدد")});if(state)state.textContent=meta.fileName&&meta.fileName.includes("سابقًا")?"البيانات الحالية المحفوظة":"بيانات الشيت الحالي"};
+  window.renderCurrentSheetInfo=function(){const meta=currentMeta();const state=document.getElementById("currentSheetState");const ids={fileName:"currentSheetFileName",sheetName:"currentSheetName",uploadedAt:"currentSheetUploadedAt",rowCount:"currentSheetRowCount",importedBy:"currentSheetUploadedBy"};if(!meta){if(state)state.textContent="لم يتم تحميل شيت حتى الآن";return}Object.entries(ids).forEach(([key,id])=>{const el=document.getElementById(id);if(!el)return;if(key==="uploadedAt"){const d=new Date(meta[key]);el.textContent=isNaN(d.getTime())?String(meta[key]||"غير محدد"):d.toLocaleString("ar-EG",{dateStyle:"full",timeStyle:"medium"})}else if(key==="rowCount")el.textContent=Number(meta[key]||0).toLocaleString("ar-EG");else if(key==="importedBy")el.textContent=String(meta.importedBy||meta.uploadedBy||"غير مسجل");else el.textContent=String(meta[key]||"غير محدد")});if(state)state.textContent=meta.fileName&&meta.fileName.includes("سابقًا")?"البيانات الحالية المحفوظة":"بيانات الشيت الحالي"};
  function refresh(){renderCurrentSheetInfo()}
  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",()=>{refresh();setTimeout(refresh,700);setTimeout(refresh,1800);setTimeout(refresh,3500)},{once:true});else{refresh();setTimeout(refresh,700);setTimeout(refresh,1800);setTimeout(refresh,3500)}
 })();
@@ -10405,7 +10407,7 @@ async function prepareDueWhatsAppPDF(event){
   if(!meta||typeof meta!=="object")return null;const stamp=meta.importedAt||meta.uploadedAt||new Date().toISOString(),userName=String(meta.importedBy||meta.userName||meta.importedUsername||"اسم المستخدم غير متاح").trim(),normalized={...meta,importedAt:stamp,uploadedAt:meta.uploadedAt||stamp,importedBy:userName,userName,importedUsername:meta.importedUsername||"",syncStatus:meta.syncStatus||"shared"};window.__lastImportNoticeMeta=normalized;
   try{localStorage.setItem(LAST_IMPORT_NOTICE_KEY,JSON.stringify(normalized))}catch(e){console.warn("last import notice local storage:",e)}
   try{const sheet=safeRead(SHEET_META_KEY);if(sheet){sheet.importedAt=stamp;sheet.importedBy=userName;sheet.importedUsername=normalized.importedUsername;localStorage.setItem(SHEET_META_KEY,JSON.stringify(sheet))}}catch(e){console.warn("sheet import attribution:",e)}
-  window.renderLastImportNotices();return normalized;
+  window.renderLastImportNotices();try{if(typeof window.renderCurrentSheetInfo==="function")window.renderCurrentSheetInfo()}catch(e){}return normalized;
  }
  async function readSharedImportMeta(){
   const {data,error}=await supabaseClient.from(SUPABASE_TABLE).select("id,rows,updated_at").eq("id",SHARED_IMPORT_ROW_ID).maybeSingle();if(error)throw error;if(!data)return{exists:false,meta:null};const meta=data.rows?.[SHARED_IMPORT_FIELD];return meta&&typeof meta==="object"?{exists:true,meta}:{exists:true,occupied:true,meta:null};
@@ -12680,6 +12682,7 @@ document.addEventListener("DOMContentLoaded",()=>{document.getElementById("notif
     const at=data?.archived_at?new Date(data.archived_at):null;
     archiveDate=at&&!Number.isNaN(at.getTime())?at.toISOString().slice(0,10):"";
     el("previousSheetArchiveName").textContent="الشيت السابق المؤرشف";
+    el("previousSheetArchiveSheetName").textContent="غير محفوظ في بيانات هذه النسخة";
     el("previousSheetArchiveAt").textContent=at&&!Number.isNaN(at.getTime())?at.toLocaleString("ar-EG",{dateStyle:"full",timeStyle:"medium"}):"غير مسجل";
     el("previousSheetArchiveBy").textContent=String(data?.archived_by||"غير مسجل");
     el("previousSheetArchiveCount").textContent=Number(data?.row_count||archivedRows?.length||0).toLocaleString("ar-EG");
@@ -12694,11 +12697,12 @@ document.addEventListener("DOMContentLoaded",()=>{document.getElementById("notif
     try{
       const {data,error}=await supabaseClient.from(TABLE).select("rows,archived_at,archived_by,row_count").eq("id",1).maybeSingle();
       if(error)throw error;
-      if(!data){archivedRows=null;el("previousSheetArchiveName").textContent="لا توجد نسخة سابقة";el("previousSheetArchiveAt").textContent="—";el("previousSheetArchiveBy").textContent="—";el("previousSheetArchiveCount").textContent="0";el("previousSheetArchiveDownload").disabled=true;status("لا توجد نسخة سابقة محفوظة في الأرشيف.");lastLoadedAt=Date.now();return}
+      if(!data){archivedRows=null;archiveDate="";el("previousSheetArchiveName").textContent="لا توجد نسخة سابقة";el("previousSheetArchiveSheetName").textContent="—";el("previousSheetArchiveAt").textContent="—";el("previousSheetArchiveBy").textContent="—";el("previousSheetArchiveCount").textContent="0";el("previousSheetArchiveDownload").disabled=true;status("لا توجد نسخة سابقة محفوظة في الأرشيف.");lastLoadedAt=Date.now();return}
       const decoded=typeof unpackCloudRows==="function"?await unpackCloudRows(data.rows):data.rows;
       if(!Array.isArray(decoded))throw new Error("صيغة بيانات الشيت المؤرشف غير صالحة.");
       archivedRows=decoded;setMeta(data);el("previousSheetArchiveDownload").disabled=!archivedRows.length;
-      status(archivedRows.length?"تم تحميل بيانات الشيت السابق من الأرشيف.":"سجل الأرشيف موجود لكنه لا يحتوي على صفوف.",archivedRows.length?"ok":"");lastLoadedAt=Date.now();
+      let sameAsCurrent=false;try{sameAsCurrent=Array.isArray(rows)&&JSON.stringify(rows)===JSON.stringify(archivedRows)}catch(e){}
+      status(!archivedRows.length?"سجل الأرشيف موجود لكنه لا يحتوي على صفوف.":sameAsCurrent?"تنبيه: النسخة المؤرشفة مطابقة لمحتوى الشيت الحالي، لذلك تظهر البيانات نفسها.":"تم تحميل بيانات الشيت السابق من الأرشيف.",archivedRows.length?"ok":"");lastLoadedAt=Date.now();
     }catch(error){archivedRows=null;el("previousSheetArchiveDownload").disabled=true;status(error?.message||"تعذر تحميل بيانات الشيت السابق.","error");console.warn("Previous sheet archive load:",error)}
     finally{loading=false;if(button)button.disabled=false}
   }
