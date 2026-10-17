@@ -12968,6 +12968,41 @@ body.du-camera-open #mobileBottomNav,body.du-camera-open #mobileMorePanel,body.d
     const camera=$("docUploadCameraInput"),images=$("docUploadImagesInput"),pdfs=$("docUploadPdfsInput"),any=$("docUploadAnyInput"),autoOcr=$("docUploadAutoOcr");try{autoOcr.checked=localStorage.getItem("mub_document_upload_auto_ocr_v1")!=="off"}catch(error){}autoOcr.addEventListener("change",()=>{try{localStorage.setItem("mub_document_upload_auto_ocr_v1",autoOcr.checked?"on":"off")}catch(error){}});$("docUploadCamera").addEventListener("click",()=>void startCamera());$("docUploadImages").addEventListener("click",()=>images.click());$("docUploadPdfs").addEventListener("click",()=>pdfs.click());
     [[camera],[images],[pdfs],[any]].forEach(([input])=>input.addEventListener("change",async()=>{await addFiles(input.files);input.value=""}));
     $("docUploadCameraFallback").addEventListener("click",()=>{stopCamera();camera.click()});$("docUploadCameraCapture").addEventListener("click",()=>void captureCamera());$("docUploadCameraClose").addEventListener("click",stopCamera);$("docUploadCameraCancel").addEventListener("click",stopCamera);$("docUploadCameraModal").addEventListener("click",e=>{if(e.target===$("docUploadCameraModal"))stopCamera()});document.querySelectorAll('nav a[data-screen]').forEach(link=>link.addEventListener("click",stopCamera));
+    const duTouchFallbackDispatching=new WeakSet(),duTouchFallbackSuppressUntil=new WeakMap();
+    const bindDuTouchFallback=button=>{
+      if(!button||button.dataset.duTouchFallbackBound==="1")return;
+      button.dataset.duTouchFallbackBound="1";
+      button.addEventListener("click",event=>{
+        if(duTouchFallbackDispatching.has(button))return;
+        if(Date.now()<(duTouchFallbackSuppressUntil.get(button)||0)){event.preventDefault();event.stopImmediatePropagation()}
+      },true);
+      button.addEventListener("touchend",event=>{
+        const touch=event.changedTouches&&event.changedTouches[0];
+        if(!touch||button.disabled)return;
+        const rect=button.getBoundingClientRect();
+        if(touch.clientX<rect.left||touch.clientX>rect.right||touch.clientY<rect.top||touch.clientY>rect.bottom)return;
+        event.preventDefault();
+        duTouchFallbackSuppressUntil.set(button,Date.now()+850);
+        duTouchFallbackDispatching.add(button);
+        try{button.click()}finally{duTouchFallbackDispatching.delete(button)}
+      },{capture:true,passive:false});
+    };
+    const bindDuTouchFallbacks=root=>{
+      if(!root)return;
+      if(root.matches&&root.matches("button"))bindDuTouchFallback(root);
+      root.querySelectorAll("button").forEach(bindDuTouchFallback);
+      if(root.dataset.duTouchObserverBound==="1")return;
+      root.dataset.duTouchObserverBound="1";
+      const observer=new MutationObserver(records=>{
+        for(const record of records)for(const node of record.addedNodes){
+          if(node.nodeType!==1)continue;
+          if(node.matches&&node.matches("button"))bindDuTouchFallback(node);
+          node.querySelectorAll&&node.querySelectorAll("button").forEach(bindDuTouchFallback);
+        }
+      });
+      observer.observe(root,{childList:true,subtree:true});
+    };
+    [$('uploadTool'),$('docUploadCameraModal'),$('docUploadCropModal')].forEach(bindDuTouchFallbacks);
     const drop=$("docUploadDrop");drop.addEventListener("click",()=>{if(!drop.classList.contains("is-disabled"))any.click()});drop.addEventListener("keydown",e=>{if((e.key==="Enter"||e.key===" ")&&!drop.classList.contains("is-disabled")){e.preventDefault();any.click()}});drop.addEventListener("dragover",e=>{e.preventDefault();drop.classList.add("is-over")});drop.addEventListener("dragleave",()=>drop.classList.remove("is-over"));drop.addEventListener("drop",e=>{e.preventDefault();drop.classList.remove("is-over");void addFiles(e.dataTransfer?.files)});
     els.pages.addEventListener("click",e=>{const button=e.target.closest("button[data-action]");if(!button)return;const index=Number(button.dataset.index),action=button.dataset.action;if(action==="remove")removeAt(index);else if(action==="up")moveAt(index,-1);else if(action==="down")moveAt(index,1);else if(action==="rotate")void rotateAt(index);else if(action==="crop")void openCrop(pages[index]?.id)});
     els.create.addEventListener("click",buildPdf);$("docUploadClear").addEventListener("click",clearAll);$("docUploadOcr").addEventListener("click",runOcr);$("docUploadQuality").addEventListener("input",e=>$("docUploadQualityLabel").textContent=`${e.target.value}%`);["docUploadBrightness","docUploadContrast"].forEach(id=>$(id).addEventListener("input",e=>{$(id+"Label").textContent=e.target.value+"%";render()}));
