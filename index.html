@@ -2532,6 +2532,17 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
     <small>يُنشئ ملفًا من بيانات الشيت الحالية المحفوظة (أول ورقة مستوردة، دون تنسيق الملف الأصلي أو أوراقه الأخرى).</small>
   </div>
 </div>
+<section id="previousSheetArchiveCard" class="previous-sheet-archive-card" aria-label="الشيت السابق المؤرشف">
+  <div class="previous-sheet-archive-head"><div><strong>🗄️ الشيت السابق المؤرشف</strong><p>آخر نسخة سابقة محفوظة في الأرشيف.</p></div><button type="button" class="light no-print" id="previousSheetArchiveRefresh">تحديث البيانات</button></div>
+  <div class="previous-sheet-archive-grid">
+    <div><small>اسم الشيت</small><b id="previousSheetArchiveName">الشيت السابق</b></div>
+    <div><small>تاريخ ووقت الأرشفة</small><b id="previousSheetArchiveAt">جارٍ التحميل…</b></div>
+    <div><small>اسم المستخدم الرافع</small><b id="previousSheetArchiveBy">—</b></div>
+    <div><small>عدد الصفوف</small><b id="previousSheetArchiveCount">—</b></div>
+  </div>
+  <div class="previous-sheet-archive-actions no-print"><button type="button" class="blue" id="previousSheetArchiveDownload" disabled>⬇️ تنزيل الشيت السابق Excel</button><small>يتم إنشاء ملف Excel من بيانات النسخة المؤرشفة، وليس نسخة مطابقة للملف الأصلي.</small></div>
+  <p id="previousSheetArchiveStatus" class="previous-sheet-archive-status" role="status" aria-live="polite"></p>
+</section>
 </section>
 
 <section id="search" class="card no-print screen">
@@ -12641,3 +12652,78 @@ document.addEventListener("DOMContentLoaded",()=>{document.getElementById("notif
 <style id="notification-center-delete-style">
 .notification-center-time{display:flex;flex-direction:column;align-items:flex-end;gap:6px}.notification-center-delete{border:1px solid #fecaca;border-radius:7px;padding:3px 7px;background:#fff1f2;color:#b91c1c;font:800 10px/1.2 Arial;cursor:pointer}.notification-center-delete:hover{background:#fee2e2;border-color:#f87171}
 </style>
+
+<style id="previous-sheet-archive-card-style">
+#previousSheetArchiveCard{margin-top:14px;padding:14px;border:2px solid #64748b;border-radius:14px;background:linear-gradient(135deg,#f8fafc,#fff);color:#172033;direction:rtl}
+#previousSheetArchiveCard .previous-sheet-archive-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+#previousSheetArchiveCard .previous-sheet-archive-head strong{font-size:16px}
+#previousSheetArchiveCard .previous-sheet-archive-head p{margin:4px 0 0;color:#64748b;font-size:12px}
+#previousSheetArchiveCard .previous-sheet-archive-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+#previousSheetArchiveCard .previous-sheet-archive-grid>div{min-width:0;padding:9px;border:1px solid #cbd5e1;border-radius:9px;background:#fff;display:grid;gap:4px}
+#previousSheetArchiveCard small{color:#475569;font-size:11px;font-weight:800}
+#previousSheetArchiveCard b{color:#0f172a;font-size:12px;overflow-wrap:anywhere}
+#previousSheetArchiveCard .previous-sheet-archive-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:12px}
+#previousSheetArchiveCard .previous-sheet-archive-status{margin:8px 0 0;color:#64748b;font-size:12px}
+#previousSheetArchiveCard .previous-sheet-archive-status.is-error{color:#b91c1c;font-weight:800}
+#previousSheetArchiveCard .previous-sheet-archive-status.is-ok{color:#15803d;font-weight:800}
+#previousSheetArchiveCard button:disabled{opacity:.55;cursor:not-allowed}
+@media(max-width:700px){#previousSheetArchiveCard .previous-sheet-archive-grid{grid-template-columns:repeat(2,minmax(0,1fr))}#previousSheetArchiveCard .previous-sheet-archive-head{align-items:flex-start;flex-direction:column}}
+@media print{#previousSheetArchiveCard{display:none!important}}
+</style>
+<script id="previous-sheet-archive-card-logic">
+(function(){
+  const TABLE="mubadara_data_archive";
+  let archivedRows=null,loading=false,lastLoadedAt=0,archiveDate="";
+  const el=id=>document.getElementById(id);
+  const status=(text,kind="")=>{const node=el("previousSheetArchiveStatus");if(!node)return;node.textContent=text;node.classList.toggle("is-error",kind==="error");node.classList.toggle("is-ok",kind==="ok")};
+  function setMeta(data){
+    const at=data?.archived_at?new Date(data.archived_at):null;
+    archiveDate=at&&!Number.isNaN(at.getTime())?at.toISOString().slice(0,10):"";
+    el("previousSheetArchiveName").textContent="الشيت السابق المؤرشف";
+    el("previousSheetArchiveAt").textContent=at&&!Number.isNaN(at.getTime())?at.toLocaleString("ar-EG",{dateStyle:"full",timeStyle:"medium"}):"غير مسجل";
+    el("previousSheetArchiveBy").textContent=String(data?.archived_by||"غير مسجل");
+    el("previousSheetArchiveCount").textContent=Number(data?.row_count||archivedRows?.length||0).toLocaleString("ar-EG");
+  }
+  async function loadPreviousSheetArchive(force=false){
+    const button=el("previousSheetArchiveRefresh");
+    if(loading||(!force&&Date.now()-lastLoadedAt<60000))return;
+    if(!session||typeof isOwnerRole!=="function"||!isOwnerRole(session.role)){status("عرض الأرشيف متاح للملاك فقط.");return}
+    if(!supabaseClient&&typeof initSupabase==="function")initSupabase();
+    if(!supabaseClient||!cloudReady){archivedRows=null;el("previousSheetArchiveDownload").disabled=true;status("تعذر الاتصال بالخادم لقراءة الأرشيف.","error");return}
+    loading=true;if(button)button.disabled=true;status("جارٍ قراءة بيانات الأرشيف…");
+    try{
+      const {data,error}=await supabaseClient.from(TABLE).select("rows,archived_at,archived_by,row_count").eq("id",1).maybeSingle();
+      if(error)throw error;
+      if(!data){archivedRows=null;el("previousSheetArchiveName").textContent="لا توجد نسخة سابقة";el("previousSheetArchiveAt").textContent="—";el("previousSheetArchiveBy").textContent="—";el("previousSheetArchiveCount").textContent="0";el("previousSheetArchiveDownload").disabled=true;status("لا توجد نسخة سابقة محفوظة في الأرشيف.");lastLoadedAt=Date.now();return}
+      const decoded=typeof unpackCloudRows==="function"?await unpackCloudRows(data.rows):data.rows;
+      if(!Array.isArray(decoded))throw new Error("صيغة بيانات الشيت المؤرشف غير صالحة.");
+      archivedRows=decoded;setMeta(data);el("previousSheetArchiveDownload").disabled=!archivedRows.length;
+      status(archivedRows.length?"تم تحميل بيانات الشيت السابق من الأرشيف.":"سجل الأرشيف موجود لكنه لا يحتوي على صفوف.",archivedRows.length?"ok":"");lastLoadedAt=Date.now();
+    }catch(error){archivedRows=null;el("previousSheetArchiveDownload").disabled=true;status(error?.message||"تعذر تحميل بيانات الشيت السابق.","error");console.warn("Previous sheet archive load:",error)}
+    finally{loading=false;if(button)button.disabled=false}
+  }
+  async function downloadPreviousSheetArchive(){
+    if(!archivedRows?.length){await loadPreviousSheetArchive(true);if(!archivedRows?.length)return}
+    try{
+      if(typeof ensureXLSXLoaded==="function")await ensureXLSXLoaded();
+      if(typeof XLSX==="undefined")throw new Error("مكتبة Excel غير متاحة؛ تحقق من الاتصال بالإنترنت.");
+      const first=archivedRows.find(row=>row&&typeof row==="object"&&!Array.isArray(row));
+      if(!first)throw new Error("لا توجد صفوف صالحة في النسخة المؤرشفة.");
+      const headers=Object.keys(first);if(!headers.length)throw new Error("لا توجد أعمدة قابلة للتصدير.");
+      const workbook=XLSX.utils.book_new();workbook.Workbook=workbook.Workbook||{};workbook.Workbook.Views=[{RTL:true}];
+      const worksheet=XLSX.utils.json_to_sheet(archivedRows,{header:headers});XLSX.utils.book_append_sheet(workbook,worksheet,"الشيت السابق");
+      const date=archiveDate||new Date().toISOString().slice(0,10);
+      XLSX.writeFile(workbook,`الشيت_السابق_المؤرشف_${date}.xlsx`,{compression:true});status(`تم تنزيل الشيت السابق (${archivedRows.length.toLocaleString("ar-EG")} صف).`,"ok");
+    }catch(error){console.error("Previous sheet archive download:",error);status(error?.message||"تعذر إنشاء ملف Excel للأرشيف.","error");alert(error?.message||"تعذر إنشاء ملف Excel للشيت المؤرشف.")}
+  }
+  function init(){
+    el("previousSheetArchiveRefresh")?.addEventListener("click",()=>loadPreviousSheetArchive(true));
+    el("previousSheetArchiveDownload")?.addEventListener("click",downloadPreviousSheetArchive);
+    const screen=el("import");if(!screen)return;
+    const observer=new MutationObserver(()=>{if(screen.classList.contains("active"))void loadPreviousSheetArchive()});
+    observer.observe(screen,{attributes:true,attributeFilter:["class"]});
+    if(screen.classList.contains("active"))void loadPreviousSheetArchive(true);
+  }
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
+})();
+</script>
