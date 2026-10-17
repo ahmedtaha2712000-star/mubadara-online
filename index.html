@@ -12534,17 +12534,35 @@ window.showScreen = function(id) { const result=previousShowScreen.apply(this,ar
   let loginSnapshot=null,loginPollTimer=null,loginNoticeBusy=false;
   const ownerSession=()=>typeof session!=="undefined"&&session&&typeof isOwnerRole==="function"&&isOwnerRole(session.role);
   const loginKey=item=>String(item?.username||item?.display_name||"").trim().toLocaleLowerCase("ar");
-  const loginTime=item=>{const t=Date.parse(item?.last_login_at||"");return Number.isFinite(t)?t:0};
+  const loginTime=item=>{const t=Date.parse(item?.last_login_at||item?.last_login||item?.login_at||"");return Number.isFinite(t)?t:0};
+  const onlineValue=item=>item?.online===true||item?.online==="true"||item?.status==="online";
   const showLoginNotice=item=>{
     if(!ownerSession()||!item||loginNoticeBusy)return;
     loginNoticeBusy=true;
     const isOfficer=String(item.app_role||item.role||"").toLowerCase()==="officer";
     const name=String(item.officer_name||item.display_name||item.username||"مستخدم").trim();
     const title=isOfficer?`سجّل الأخصائي ${name} الدخول`:`سجّل المالك ${name} الدخول`;
+    window.recordAppNotification?.({type:"login",title,at:item.last_login_at||new Date().toISOString(),details:isOfficer?"دخول أخصائي إلى النظام":"دخول مالك آخر إلى النظام"});
+    window.__notificationCenterMuteNext=true;
     if(typeof window.showOwnerLocationGlobalNotice==="function")window.showOwnerLocationGlobalNotice({display_name:title,username:"",server_received_at:item.last_login_at});
     const box=document.getElementById("ownerLocationGlobalNotice");
     if(box){const text=box.querySelector(".owner-location-notice-text");if(text)text.textContent=title+" — متاح الآن داخل البرنامج";}
     if("Notification" in window&&Notification.permission==="granted")try{new Notification(isOfficer?"دخول أخصائي":"دخول مالك",{body:title})}catch(e){}
+    setTimeout(()=>{loginNoticeBusy=false},900);
+  };
+  const showLogoutNotice=item=>{
+    if(!ownerSession()||!item||loginNoticeBusy)return;
+    loginNoticeBusy=true;
+    const isOfficer=String(item.app_role||item.role||"").toLowerCase()==="officer";
+    const name=String(item.officer_name||item.display_name||item.username||"مستخدم").trim();
+    const title=isOfficer?`سجّل الأخصائي ${name} الخروج`:`سجّل المالك ${name} الخروج`;
+    const at=item.last_logout_at||new Date().toISOString();
+    window.recordAppNotification?.({type:"logout",title,at,details:isOfficer?"تسجيل خروج أخصائي من النظام":"تسجيل خروج مالك من النظام"});
+    window.__notificationCenterMuteNext=true;
+    if(typeof window.showOwnerLocationGlobalNotice==="function")window.showOwnerLocationGlobalNotice({display_name:title,username:"",server_received_at:at});
+    const box=document.getElementById("ownerLocationGlobalNotice");
+    if(box){const text=box.querySelector(".owner-location-notice-text");if(text)text.textContent=title;}
+    if("Notification" in window&&Notification.permission==="granted")try{new Notification(isOfficer?"خروج أخصائي":"خروج مالك",{body:title})}catch(e){}
     setTimeout(()=>{loginNoticeBusy=false},900);
   };
   async function pollOwnerLogins(){
@@ -12555,8 +12573,9 @@ window.showScreen = function(id) { const result=previousShowScreen.apply(this,ar
       if(!loginSnapshot){loginSnapshot=next;return;}
       next.forEach((item,key)=>{
         if(key===String(session.user||session.name||"").trim().toLocaleLowerCase("ar"))return;
-        const before=loginSnapshot.get(key),previous=loginTime(before),current=loginTime(item);
-        if(current&&current>previous)showLoginNotice(item);
+        const before=loginSnapshot.get(key),previous=loginTime(before),current=loginTime(item),loginChanged=current&&current>previous,becameOnline=!onlineValue(before)&&onlineValue(item),wentOffline=onlineValue(before)&&!onlineValue(item);
+        if(before&&wentOffline)showLogoutNotice(item);
+        else if(before&&(loginChanged||becameOnline))showLoginNotice(item);
       });
       loginSnapshot=next;
     }catch(e){console.warn("Owner login notifications:",e?.message||e)}
@@ -12575,3 +12594,50 @@ window.showScreen = function(id) { const result=previousShowScreen.apply(this,ar
   setInterval(()=>{if(ownerSession()&&!loginPollTimer)startOwnerLoginNotifications();if(!ownerSession()&&loginPollTimer){clearInterval(loginPollTimer);loginPollTimer=null;loginSnapshot=null;}},5000);
 })();
 </script>
+
+<style id="notification-center-final-style">
+#notificationBellButton{position:relative;display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;margin-inline:4px;border:1px solid #cbd5e1;border-radius:11px;background:#fff;color:#17324a;cursor:pointer;font-size:20px;box-shadow:0 2px 7px rgba(15,35,55,.1)}
+#notificationBellButton:hover{background:#eef4ff;border-color:#6485d5}#notificationBellButton .notification-bell-badge{position:absolute;top:-6px;right:-6px;min-width:18px;height:18px;padding:0 4px;border-radius:99px;background:#dc2626;color:#fff;font:800 10px/18px Arial;text-align:center;border:2px solid #fff}#notificationBellButton .notification-bell-badge[hidden]{display:none}
+#notifications{direction:rtl;padding:20px;background:linear-gradient(145deg,#f8fbff,#eef5fb);border:1px solid #d8e3ee;border-radius:18px;box-shadow:0 10px 28px rgba(23,50,74,.08)}
+.notification-center-header{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:16px}.notification-center-header h2{margin:0;color:#17324a}.notification-center-sub{margin:5px 0 0;color:#64748b;font-size:13px}.notification-center-actions{display:flex;gap:8px;flex-wrap:wrap}.notification-center-actions button{border:1px solid #cbd5e1;border-radius:9px;padding:8px 12px;background:#fff;color:#17324a;font-weight:800;cursor:pointer}.notification-center-actions button:hover{background:#eef4ff}.notification-center-filters{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:12px;margin-bottom:14px;background:#fff;border:1px solid #d6e2ed;border-radius:12px}.notification-center-filters label{display:flex;align-items:center;gap:6px;color:#334155;font-size:13px;font-weight:800}.notification-center-filters select,.notification-center-filters input{border:1px solid #94a3b8;border-radius:8px;padding:7px 9px;background:#fff;color:#111827}.notification-center-list{display:grid;gap:9px}.notification-center-item{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:start;padding:13px 14px;background:#fff;border:1px solid #d6e2ed;border-right:4px solid #94a3b8;border-radius:12px}.notification-center-item.unread{background:#f0f7ff;border-right-color:#2563eb}.notification-center-item.location{border-right-color:#16a34a}.notification-center-item.login{border-right-color:#7c3aed}.notification-center-icon{font-size:21px;line-height:1.2}.notification-center-title{font-weight:900;color:#172033}.notification-center-details{margin-top:3px;color:#64748b;font-size:12px}.notification-center-time{white-space:nowrap;color:#64748b;font-size:11px}.notification-center-empty{padding:28px;text-align:center;color:#64748b;background:#fff;border:1px dashed #94a3b8;border-radius:12px}@media(max-width:620px){#notifications{padding:13px}.notification-center-item{grid-template-columns:auto 1fr}.notification-center-time{grid-column:2}.notification-center-header{align-items:flex-start}}
+@media print{#notifications,#notificationBellButton{display:none!important}}
+</style>
+<script id="notification-center-final-logic">
+(function(){
+  const KEY="mubadara_notification_center_v1_";
+  const getUserKey=()=>String(typeof session!=="undefined"?(session?.user||session?.name||"guest"):"guest").trim()||"guest";
+  const storageKey=()=>KEY+encodeURIComponent(getUserKey());
+  const read=()=>{try{const x=JSON.parse(localStorage.getItem(storageKey())||"[]");return Array.isArray(x)?x:[]}catch(e){return[]}};
+  const write=list=>{try{localStorage.setItem(storageKey(),JSON.stringify(list.slice(0,300)))}catch(e){}};
+  const safeText=v=>String(v??"").replace(/[<>]/g,"");
+  const formatTime=iso=>{const d=new Date(iso);return Number.isNaN(d.getTime())?"—":d.toLocaleString("ar-EG",{dateStyle:"medium",timeStyle:"short"})};
+  function record(item){const title=safeText(item?.title||"إشعار جديد"),type=item?.type||"system",at=item?.at||new Date().toISOString(),list=read();if(list.some(x=>x.title===title&&Math.abs(Date.parse(x.at||0)-Date.parse(at||0))<3000))return;list.unshift({id:(crypto.randomUUID?.()||String(Date.now())+Math.random()),title,type,at,details:safeText(item?.details||""),read:false});write(list);updateBadge();if(document.getElementById("notifications")?.classList.contains("active"))render();}
+  function updateBadge(){const badge=document.querySelector("#notificationBellButton .notification-bell-badge");if(!badge)return;const count=read().filter(x=>!x.read).length;badge.textContent=count>99?"99+":String(count);badge.hidden=!count;}
+  function icon(type){return type==="location"?"📍":type==="login"?"🔐":type==="logout"?"🚪":"🔔"}
+  function render(){const host=document.getElementById("notificationCenterList");if(!host)return;const type=document.getElementById("notificationCenterType")?.value||"all",onlyUnread=!!document.getElementById("notificationCenterUnread")?.checked,query=(document.getElementById("notificationCenterSearch")?.value||"").trim().toLocaleLowerCase("ar");let list=read().filter(x=>(type==="all"||x.type===type)&&(!onlyUnread||!x.read)&&(!query||(`${x.title} ${x.details}`).toLocaleLowerCase("ar").includes(query)));host.innerHTML=list.length?list.map(x=>`<article class="notification-center-item ${x.read?"":"unread"} ${x.type}"><span class="notification-center-icon">${icon(x.type)}</span><div><div class="notification-center-title">${safeText(x.title)}</div><div class="notification-center-details">${safeText(x.details||"إشعار محفوظ في مركز الإشعارات")}</div></div><time class="notification-center-time">${formatTime(x.at)}<button type="button" class="notification-center-delete" onclick="deleteNotificationCenter('${safeText(x.id)}')">حذف</button></time></article>`).join(""):"<div class=\"notification-center-empty\">لا توجد إشعارات مطابقة.</div>";}
+  function markAll(){const list=read().map(x=>({...x,read:true}));write(list);updateBadge();render();}
+  function deleteOne(id){const next=read().filter(x=>String(x.id)!==String(id));write(next);updateBadge();render();}
+  function clearAll(){if(!read().length)return;if(!confirm("هل تريد حذف جميع الإشعارات المحفوظة؟"))return;write([]);updateBadge();render();}
+  function openCenter(){if(typeof showScreen==="function")showScreen("notifications");const list=read().map(x=>({...x,read:true}));write(list);updateBadge();render();}
+  function addBell(){const userbox=document.querySelector(".pro-header .userbox");if(userbox&&!document.getElementById("notificationBellButton")){const b=document.createElement("button");b.type="button";b.id="notificationBellButton";b.className="no-print";b.title="مركز الإشعارات";b.setAttribute("aria-label","فتح مركز الإشعارات");b.innerHTML="🔔<span class=\"notification-bell-badge\" hidden>0</span>";b.onclick=openCenter;userbox.insertBefore(b,userbox.firstElementChild)}const nav=document.querySelector(".layout>nav");if(nav&&!nav.querySelector('[data-screen="notifications"]')){const a=document.createElement("a");a.href="#notifications";a.dataset.screen="notifications";a.className="notification-center-nav no-print";a.innerHTML='<span class="nav-icon" aria-hidden="true">🔔</span><span class="nav-label">مركز الإشعارات</span><small>السجل والتنبيهات</small>';const settings=nav.querySelector('[data-screen="settings"]');nav.insertBefore(a,settings||null);a.addEventListener("click",e=>{e.preventDefault();openCenter()})}const main=document.querySelector("main.print-area");if(main&&!document.getElementById("notifications")){const s=document.createElement("section");s.id="notifications";s.className="card screen no-print";s.dataset.screenTitle="مركز الإشعارات";s.innerHTML='<div class="notification-center-header"><div><h2>🔔 مركز الإشعارات</h2><p class="notification-center-sub">سجل محفوظ للإشعارات الواردة أثناء استخدام هذا الحساب.</p></div><div class="notification-center-actions"><button type="button" onclick="markAllNotificationCenter()">✓ تحديد الكل كمقروء</button><button type="button" onclick="clearNotificationCenter()">حذف الكل</button></div></div><div class="notification-center-filters"><label>النوع <select id="notificationCenterType" onchange="renderNotificationCenter()"><option value="all">الكل</option><option value="location">المواقع</option><option value="login">تسجيل الدخول</option><option value="logout">تسجيل الخروج</option><option value="system">أخرى</option></select></label><label><input id="notificationCenterUnread" type="checkbox" onchange="renderNotificationCenter()"> غير المقروء فقط</label><input id="notificationCenterSearch" type="search" placeholder="بحث في الإشعارات..." oninput="renderNotificationCenter()"></div><div id="notificationCenterList" class="notification-center-list"></div>';const settings=main.querySelector("#settings");main.insertBefore(s,settings||null)}}
+  window.recordAppNotification=record;window.renderNotificationCenter=render;window.markAllNotificationCenter=markAll;window.clearNotificationCenter=clearAll;window.deleteNotificationCenter=deleteOne;window.openNotificationCenter=openCenter;window.updateNotificationCenterBadge=updateBadge;
+  const originalShow=window.showOwnerLocationGlobalNotice;
+  window.showOwnerLocationGlobalNotice=function(item){if(!window.__notificationCenterMuteNext){record({type:"location",title:`أرسل ${safeText(item?.display_name||item?.username||"مستخدم")} موقعه`,at:item?.server_received_at||item?.captured_at||new Date().toISOString()})}else window.__notificationCenterMuteNext=false;if(typeof originalShow==="function")return originalShow(item)};
+  const originalShowScreen=window.showScreen;
+  if(typeof SCREEN_IDS!=="undefined"&&!SCREEN_IDS.includes("notifications"))SCREEN_IDS.push("notifications");
+  document.addEventListener("DOMContentLoaded",()=>{addBell();updateBadge()});
+})();
+</script>
+
+<style id="notification-center-style-lock">
+#app main.print-area section#notifications.notification-center-screen{background:linear-gradient(145deg,#f8fbff,#eef5fb)!important;border:1px solid #d8e3ee!important;border-radius:18px!important;box-shadow:0 10px 28px rgba(23,50,74,.08)!important;padding:20px!important;direction:rtl!important}
+@media(max-width:620px){#app main.print-area section#notifications.notification-center-screen{padding:13px!important}}
+@media print{#app main.print-area section#notifications.notification-center-screen,#notificationBellButton{display:none!important}}
+</style>
+<script>
+document.addEventListener("DOMContentLoaded",()=>{document.getElementById("notifications")?.classList.add("notification-center-screen")});
+</script>
+
+<style id="notification-center-delete-style">
+.notification-center-time{display:flex;flex-direction:column;align-items:flex-end;gap:6px}.notification-center-delete{border:1px solid #fecaca;border-radius:7px;padding:3px 7px;background:#fff1f2;color:#b91c1c;font:800 10px/1.2 Arial;cursor:pointer}.notification-center-delete:hover{background:#fee2e2;border-color:#f87171}
+</style>
