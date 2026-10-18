@@ -4175,6 +4175,17 @@ function collectionGroupData(g,from,to){
   });
   return {items,total:items.reduce((a,r)=>a+num(get(r,"total")),0),paid:items.reduce((a,r)=>a+rowPaidAmount(r),0),unpaid:items.reduce((a,r)=>a+num(get(r,"unpaid")),0)};
 }
+function collectionRowsForScreen(g,from,to){
+  const source=g.items||[g.r];
+  if(!from&&!to)return source;
+  return source.filter(r=>{
+    const paymentDate=String(rowPaymentDate(r)||"").trim();
+    if(!paymentDate)return false;
+    const paidOn=parseExcelDate(paymentDate);
+    if(!paidOn)return false;
+    return (!from||paidOn>=from)&&(!to||paidOn<=to);
+  });
+}
 function collectionOverdueInstallmentCount(g){
   return uniqueProfileInstallments(g.items||[g.r]).filter(r=>rowInstallmentRemainingForCount(r)>0&&rowDelayDays(r)>0).length;
 }
@@ -4284,12 +4295,12 @@ function renderCollection(){
     if(!statusMatch(g,filter)||!specialistStatusAllows(get(g.r,"officer")))return false;
     if(client && !norm(get(g.r,"client")).includes(client))return false;
     if(officer && !norm(get(g.r,"officer")).includes(officer))return false;
-    return collectionGroupData(g,from,to).items.length>0;
+    return collectionRowsForScreen(g,from,to).length>0;
   }).forEach(g=>{
     const d=collectionGroupData(g,from,to);
     const customerLateCount=collectionOverdueInstallmentCount(g);
     sumTotal+=d.total; sumPaid+=d.paid; sumUnpaid+=d.unpaid;
-    d.items.forEach(r=>{
+    collectionRowsForScreen(g,from,to).forEach(r=>{
       count++;
       const unpaid=num(get(r,"unpaid"));
       const cls=unpaid>0?"unpaid-row":"paid-row";
