@@ -2836,7 +2836,7 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
   <div class="risk-summary-card due-today-card"><span>المستحق اليوم</span><b id="dueTodayAmount">0</b><small id="dueTodayCount">0 قسط</small></div>
 </div>
 <div class="due-risk-parity-cards no-print" aria-label="ملخص مالي للأقساط المستحقة">
-  <div class="risk-summary-card risk-summary-overdue"><span>إجمالي المتأخرات</span><b id="dueParityArrears">0</b><small>مجموع عمود المبلغ الغير مسدد في الصفوف المؤهلة</small></div>
+  <div class="risk-summary-card risk-summary-overdue"><span>إجمالي المتأخرات</span><b id="dueParityArrears">0</b><small>إجمالي المستحق − إجمالي المسدد</small></div>
   <div class="risk-summary-card risk-summary-due"><span>إجمالي المستحق</span><b id="dueParityDue">0</b><small>قيم عمود القسط ضمن الفترة، دون اعتبار السداد</small></div>
   <div class="risk-summary-card risk-summary-paid"><span>إجمالي المسدد</span><b id="dueParityPaid">0</b><small>إجمالي المسدد من الأقساط الظاهرة</small></div>
   <div class="risk-summary-card risk-summary-paid risk-payment-rate-card"><span>نسبة السداد</span><b id="dueParityRate">0%</b><small>إجمالي المسدد ÷ إجمالي المستحق × 100</small></div>
@@ -4689,7 +4689,7 @@ function renderDueSpecialistGrouping(matchesDueSpecialistState=specialistMatches
  const grouped=new Map();dataRows.forEach(row=>{const key=row.dataset.officerKey||'غير محدد';if(!grouped.has(key))grouped.set(key,{name:row.dataset.officerName||'غير محدد',rows:[]});grouped.get(key).rows.push(row)});
  const moneyAt=(row,index)=>num(row.cells[index]?.textContent||0);
  const clientCount=rows=>new Set(rows.map(row=>norm(row.cells[1]?.textContent||''))).size;
- const total=rows=>({clients:clientCount(rows),due:rows.reduce((s,r)=>s+moneyAt(r,8),0),paid:rows.reduce((s,r)=>s+moneyAt(r,9),0),remaining:rows.reduce((s,r)=>s+moneyAt(r,11),0),arrears:rows.reduce((s,r)=>s+moneyAt(r,14),0)});
+ const total=rows=>{const due=rows.reduce((s,r)=>s+moneyAt(r,8),0),paid=rows.reduce((s,r)=>s+moneyAt(r,9),0);return{clients:clientCount(rows),due,paid,remaining:rows.reduce((s,r)=>s+moneyAt(r,11),0),arrears:due-paid}};
  const all=total(dataRows);
  if(summary){summary.style.display='grid';[['dueAllClientsTotal',all.clients],['dueAllDueTotal',all.due],['dueAllPaidTotal',all.paid],['dueAllRemainingTotal',all.remaining],['dueAllArrearsTotal',all.arrears]].forEach(([id,value])=>{const el=document.getElementById(id);if(el)el.textContent=typeof value==='number'?value.toLocaleString('en-US',{maximumFractionDigits:2}):value})}
  const fragment=document.createDocumentFragment();let originalHeaderUsed=false;
@@ -4776,7 +4776,7 @@ function renderDueInstallments(baseRows){
    if(matchesDueSpecialistState(go,specialistState)&&(!officer||go.includes(officer))&&(!client||gc.includes(client))&&(!address||ga.includes(address))){if(dueAgingRange&&(dueDayType(r)!=='overdue'||dueRemainingForScreen(r)<=0||riskAgingBandForRow(r)?.id!==dueAgingRange))return;selectionRows.push({g,r})}
   });
  });
- const selectionByClient=new Map();selectionRows.forEach(x=>{const key=norm(get(x.r,'client')||get(x.g.r,'client'))||`row:${selectionByClient.size}`;if(!selectionByClient.has(key))selectionByClient.set(key,[]);selectionByClient.get(key).push(x)});
+ const selectionByClient=new Map(),selectionByClientLoan=excelRowMode?new Map():null;selectionRows.forEach(x=>{const rawClient=norm(get(x.r,'client')||get(x.g.r,'client')),key=rawClient||`row:${selectionByClient.size}`,loanKey=norm(get(x.r,'loan')||get(x.g.r,'loan'))+'|'+norm(get(x.r,'nid')||get(x.g.r,'nid')),composite=JSON.stringify([key,loanKey]);if(!selectionByClient.has(key))selectionByClient.set(key,[]);selectionByClient.get(key).push(x);if(selectionByClientLoan&&rawClient){if(!selectionByClientLoan.has(composite))selectionByClientLoan.set(composite,[]);selectionByClientLoan.get(composite).push(x)}});
  const uniqueRows=[...clientRows.keys()].map(key=>{
   if(excelRowMode){
    const matchingRows=clientRows.get(key)||[];
@@ -4785,7 +4785,7 @@ function renderDueInstallments(baseRows){
     return da-db||num(get(a.r,'installment'))-num(get(b.r,'installment'));
    })[0];
    if(!selected)return null;
-   const row=selected.r,rowArrears=getAny(row,['إجمالي المتأخرات','اجمالي المتأخرات','إجمالي متأخرات العميل','إجمالي المتأخرات على العميل','إجمالي المديونية المتأخرة','المبلغ الغير مسدد',H.unpaid]),selectedLoanKey=norm(get(row,'loan')||get(selected.g.r,'loan'))+'|'+norm(get(row,'nid')||get(selected.g.r,'nid')),delayRows=selectionRows.filter(x=>norm(get(x.r,'client')||get(x.g.r,'client'))===key&&norm(get(x.r,'loan')||get(x.g.r,'loan'))+'|'+norm(get(x.r,'nid')||get(x.g.r,'nid'))===selectedLoanKey);
+   const row=selected.r,rowArrears=getAny(row,['إجمالي المتأخرات','اجمالي المتأخرات','إجمالي متأخرات العميل','إجمالي المتأخرات على العميل','إجمالي المديونية المتأخرة','المبلغ الغير مسدد',H.unpaid]),selectedClientKey=norm(get(row,'client')||get(selected.g.r,'client')),selectedLoanKey=norm(get(row,'loan')||get(selected.g.r,'loan'))+'|'+norm(get(row,'nid')||get(selected.g.r,'nid')),delayRows=selectedClientKey?selectionByClientLoan.get(JSON.stringify([selectedClientKey,selectedLoanKey]))||[]:[];
    const calculatedDelayDays=delayRows.reduce((sum,x)=>{const due=parseExcelDate(riskDueDateValue(x.r)),remaining=dueRemainingForScreen(x.r),paid=rowPaidAmount(x.r),payment=parseExcelDate(rowPaymentDate(x.r)),end=remaining<=0&&paid>0&&payment?payment:new Date();if(!due||due>=end)return sum;return sum+Math.max(0,Math.floor((end-due)/86400000))},0);
    return {...selected,_dueOverdueCount:num(getAny(row,[H.late,'عدد الأقساط المتأخرة','عدد الاقساط المتأخرة','عدد الأقساط المتاخرة'])),_dueDelayDays:calculatedDelayDays,_dueArrears:String(rowArrears??'').trim()===''?dueRemainingForScreen(row):num(rowArrears)};
   }
@@ -4821,7 +4821,7 @@ function renderDueInstallments(baseRows){
  window.dueProfileGroups=uniqueRows.map(x=>x.g);
  // إجمالي الأقساط المتأخرة للعميل مستقل عن فلتر التاريخ، ويُقرأ من عمود Excel حتى الانتظام.
  uniqueRows.forEach((x,i)=>{const g=x.g,r=x.r,installmentValueRaw=get(r,'value'),value=String(installmentValueRaw??'').trim()===''?0:num(installmentValueRaw),paid=rowPaidAmount(r),unpaid=dueRemainingForScreen(r),clientKey=norm(get(r,'client')||get(g.r,'client'));totalDue+=value;totalPaid+=paid;totalUnpaid+=unpaid;uniqueClients.add(clientKey);const phone=clientPhones(r)||'',loanAmount=dueLoanAmount(r,g),term=String(getAny(r,[H.term,'مدة القرض','مدة التمويل','عدد الأقساط'])??'').trim(),arrears=dueCustomerArrears(clientKey),delayDays=Number(x._dueDelayDays)||0,overdueCount=Number(x._dueOverdueCount)||0;totalLateCount+=overdueCount;totalDelayDays+=delayDays;totalArrears+=arrears;const rowOfficer=String(get(r,'officer')||get(g.r,'officer')||'غير محدد').trim();out+=`<tr data-due-data-row="1" data-row-index="${i}" data-officer-key="${escAttr(officerKey(rowOfficer))}" data-officer-name="${escAttr(rowOfficer)}"><td>${i+1}</td><td><button type="button" class="due-client-profile-link" onclick="openDueClientProfile(${i})" title="فتح ملف العميل">${esc(get(r,'client')||'—')}</button></td><td>${esc(get(r,'nid')||'—')}</td><td>${String(loanAmount??'').trim()===''?'—':dueWhole(loanAmount)}</td><td>${esc(term||'—')}</td><td>${phone?`<a class="due-phone-link" href="tel:${escAttr(String(phone).replace(/[^\d+]/g,''))}" title="اتصال بالعميل">${esc(phone)}</a>`:'—'}</td><td>${esc(get(r,'installment')||'—')}</td><td>${esc(riskDisplayDate(riskDueDateValue(r))||'—')}</td><td>${String(installmentValueRaw??'').trim()===''?'—':money(installmentValueRaw)}</td><td>${money(paid)}</td><td>${esc(riskDisplayDate(rowPaymentDate(r))||'—')}</td><td>${money(unpaid)}</td><td>${dueWhole(overdueCount)}</td><td>${dueWhole(delayDays)}</td><td>${money(arrears)}</td><td class="due-address-cell" style="color:#000!important;font-family:Arial,sans-serif!important;font-weight:900!important">${esc(rowAddress(r)||'—')}</td><td>${dueGuarantorHTML(r,1)}</td><td>${dueGuarantorHTML(r,2)}</td><td>${dueGuarantorHTML(r,3)}</td></tr>`});
- const body=document.getElementById('dueTableBody');if(body)body.innerHTML=out||'<tr><td colspan="19">لا توجد أقساط مستحقة في الفترة المحددة</td></tr>';renderDueSpecialistGrouping(matchesDueSpecialistState);const setTotalMoney=(id,value)=>{const el=document.getElementById(id);if(el)el.textContent=money(value)},setTotalCount=(id,value)=>{const el=document.getElementById(id);if(el)el.textContent=dueWhole(value)};setTotalMoney('dueColumnTotalInstallmentValue',totalDue);setTotalMoney('dueColumnTotalPaid',totalPaid);setTotalMoney('dueColumnTotalRemaining',totalUnpaid);setTotalCount('dueColumnTotalLateCount',totalLateCount);setTotalCount('dueColumnTotalDelayDays',totalDelayDays);setTotalMoney('dueColumnTotalArrears',totalArrears);const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=typeof v==='number'?Math.round(num(v)||0).toLocaleString('en-US'):v};set('dueTotalDue',totalDue);set('dueTotalPaid',totalPaid);set('dueTotalUnpaid',totalUnpaid);set('dueClientsCount',uniqueClients.size);set('dueInstallmentsCount',uniqueRows.length);set('dueTodayAmount',stats.todayAmount);set('dueTodayCount',`${stats.todayCount.toLocaleString('en-US')} قسط`);set('dueNavDue',stats.due);set('dueNavUpcoming',stats.upcoming);set('dueNavPartial',stats.partial);set('dueNavPaid',stats.paid);set('dueNavOverdue',stats.overdue);const quickRows=uniqueRows,quickOfficers=new Set(quickRows.map(x=>norm(get(x.r,'officer')||get(x.g.r,'officer')||'غير محدد'))),quickSet=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=typeof v==='number'?money(v):v};quickSet('dueQuickSpecialists',quickOfficers.size);quickSet('dueQuickInstallments',quickRows.length);quickSet('dueQuickDue',totalDue);quickSet('dueQuickPaid',totalPaid);quickSet('dueQuickRemaining',totalUnpaid);quickSet('dueQuickArrears',totalArrears);updateDueQuickSearchSuggestions();applyDueQuickSearch();bindDueRowSelection();
+ const body=document.getElementById('dueTableBody');if(body)body.innerHTML=out||'<tr><td colspan="19">لا توجد أقساط مستحقة في الفترة المحددة</td></tr>';renderDueSpecialistGrouping(matchesDueSpecialistState);const setTotalMoney=(id,value)=>{const el=document.getElementById(id);if(el)el.textContent=money(value)},setTotalCount=(id,value)=>{const el=document.getElementById(id);if(el)el.textContent=dueWhole(value)};setTotalMoney('dueColumnTotalInstallmentValue',totalDue);setTotalMoney('dueColumnTotalPaid',totalPaid);setTotalMoney('dueColumnTotalRemaining',totalUnpaid);setTotalCount('dueColumnTotalLateCount',totalLateCount);setTotalCount('dueColumnTotalDelayDays',totalDelayDays);setTotalMoney('dueColumnTotalArrears',totalArrears);const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=typeof v==='number'?Math.round(num(v)||0).toLocaleString('en-US'):v};set('dueTotalDue',totalDue);set('dueTotalPaid',totalPaid);set('dueTotalUnpaid',totalUnpaid);set('dueClientsCount',uniqueClients.size);set('dueInstallmentsCount',uniqueRows.length);set('dueTodayAmount',stats.todayAmount);set('dueTodayCount',`${stats.todayCount.toLocaleString('en-US')} قسط`);set('dueNavDue',stats.due);set('dueNavUpcoming',stats.upcoming);set('dueNavPartial',stats.partial);set('dueNavPaid',stats.paid);set('dueNavOverdue',stats.overdue);const quickRows=uniqueRows,quickOfficers=new Set(quickRows.map(x=>norm(get(x.r,'officer')||get(x.g.r,'officer')||'غير محدد'))),quickSet=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=typeof v==='number'?money(v):v};quickSet('dueQuickSpecialists',quickOfficers.size);quickSet('dueQuickInstallments',quickRows.length);quickSet('dueQuickDue',totalDue);quickSet('dueQuickPaid',totalPaid);quickSet('dueQuickRemaining',totalUnpaid);quickSet('dueQuickArrears',totalDue-totalPaid);updateDueQuickSearchSuggestions();applyDueQuickSearch();bindDueRowSelection();
 }
 function setDueCurrentMonth(){const n=new Date();document.getElementById("dueFrom").value=isoDate(new Date(n.getFullYear(),n.getMonth(),1));document.getElementById("dueTo").value=isoDate(new Date(n.getFullYear(),n.getMonth()+1,0));if(document.getElementById("dueExcelRowMode")?.checked){const month=document.getElementById("dueSpecificMonth"),year=document.getElementById("dueSpecificYear");if(month)month.value=String(n.getMonth()+1).padStart(2,"0");if(year)year.value=String(n.getFullYear())}renderDueInstallments()}
 function setDueNextMonth(){const n=new Date();document.getElementById("dueFrom").value=isoDate(new Date(n.getFullYear(),n.getMonth()+1,1));document.getElementById("dueTo").value=isoDate(new Date(n.getFullYear(),n.getMonth()+2,0));if(document.getElementById("dueExcelRowMode")?.checked){const month=document.getElementById("dueSpecificMonth"),year=document.getElementById("dueSpecificYear"),next=new Date(n.getFullYear(),n.getMonth()+1,1);if(month)month.value=String(next.getMonth()+1).padStart(2,"0");if(year)year.value=String(next.getFullYear())}renderDueInstallments()}
@@ -10905,53 +10905,25 @@ async function prepareDueWhatsAppPDF(event){
 <script id="due-risk-parity-cards-logic">
 (function(){
  const format=value=>Number(value||0).toLocaleString('en-US',{maximumFractionDigits:2});
- const dueValueFromRiskLogic=()=>{
+ const totalsFromRiskLogic=()=>{
   let officer=norm(document.getElementById('dueOfficer')?.value||'');
   if(officer===norm(DUE_ALL_SPECIALISTS_LABEL))officer='';
   const fromVal=document.getElementById('dueFrom')?.value||'',toVal=document.getElementById('dueTo')?.value||'';
   const from=fromVal?parseExcelDate(fromVal):null,to=toVal?parseExcelDate(toVal):null;
   const excelMode=document.getElementById('dueExcelRowMode')?.checked===true,month=document.getElementById('dueSpecificMonth')?.value||'',year=document.getElementById('dueSpecificYear')?.value||'';
   const monthRange=excelMode&&month?dueMonthDateRange(month,year):null,dateFrom=monthRange?.from||from,dateTo=monthRange?.to||to;
-  let total=0;
+  let due=0,paid=0;
   visibleGroups().forEach(g=>(g.items||[g.r]).forEach(r=>{
    const rowOfficer=norm(get(r,'officer')||get(g.r,'officer'));
-   if(riskCardsIncludeLoanStatus(g,r)&&(!officer||rowOfficer.includes(officer))&&riskDateInRange(r,dateFrom,dateTo))
-    total+=num(getAny(r,[H.value,'قيمة القسط','قيمة القسط الشهري','قيمة القسط من الشيت'])||get(r,'value'));
+   if(riskCardsIncludeLoanStatus(g,r)&&(!officer||rowOfficer.includes(officer))&&riskDateInRange(r,dateFrom,dateTo)){
+    due+=num(getAny(r,[H.value,'قيمة القسط','قيمة القسط الشهري','قيمة القسط من الشيت'])||get(r,'value'));
+    paid+=rowPaidAmount(r);
+   }
   }));
-  return total;
- };
- const paidValueFromRiskLogic=()=>{
-  let officer=norm(document.getElementById('dueOfficer')?.value||'');
-  if(officer===norm(DUE_ALL_SPECIALISTS_LABEL))officer='';
-  const fromVal=document.getElementById('dueFrom')?.value||'',toVal=document.getElementById('dueTo')?.value||'';
-  const from=fromVal?parseExcelDate(fromVal):null,to=toVal?parseExcelDate(toVal):null;
-  const excelMode=document.getElementById('dueExcelRowMode')?.checked===true,month=document.getElementById('dueSpecificMonth')?.value||'',year=document.getElementById('dueSpecificYear')?.value||'';
-  const monthRange=excelMode&&month?dueMonthDateRange(month,year):null,dateFrom=monthRange?.from||from,dateTo=monthRange?.to||to;
-  let total=0;
-  visibleGroups().forEach(g=>(g.items||[g.r]).forEach(r=>{
-   const rowOfficer=norm(get(r,'officer')||get(g.r,'officer'));
-   if(riskCardsIncludeLoanStatus(g,r)&&(!officer||rowOfficer.includes(officer))&&riskDateInRange(r,dateFrom,dateTo))
-    total+=rowPaidAmount(r);
-  }));
-  return total;
- };
- const unpaidValueFromRiskLogic=()=>{
-  let officer=norm(document.getElementById('dueOfficer')?.value||'');
-  if(officer===norm(DUE_ALL_SPECIALISTS_LABEL))officer='';
-  const fromVal=document.getElementById('dueFrom')?.value||'',toVal=document.getElementById('dueTo')?.value||'';
-  const from=fromVal?parseExcelDate(fromVal):null,to=toVal?parseExcelDate(toVal):null;
-  const excelMode=document.getElementById('dueExcelRowMode')?.checked===true,month=document.getElementById('dueSpecificMonth')?.value||'',year=document.getElementById('dueSpecificYear')?.value||'';
-  const monthRange=excelMode&&month?dueMonthDateRange(month,year):null,dateFrom=monthRange?.from||from,dateTo=monthRange?.to||to;
-  let total=0;
-  visibleGroups().forEach(g=>(g.items||[g.r]).forEach(r=>{
-   const rowOfficer=norm(get(r,'officer')||get(g.r,'officer'));
-   if(riskCardsIncludeLoanStatus(g,r)&&(!officer||rowOfficer.includes(officer))&&riskDateInRange(r,dateFrom,dateTo))
-    total+=num(getAny(r,[H.unpaid,'المبلغ الغير مسدد','المبلغ غير المسدد','المتبقي','المبلغ المتبقي','الرصيد المتبقي']));
-  }));
-  return total;
+  return{due,paid};
  };
  const update=()=>{
-  const arrears=unpaidValueFromRiskLogic(),due=dueValueFromRiskLogic(),paid=paidValueFromRiskLogic();
+  const{due,paid}=totalsFromRiskLogic(),arrears=due-paid;
   const put=(id,value)=>{const el=document.getElementById(id);if(el)el.textContent=value};
   put('dueParityArrears',format(arrears));put('dueParityDue',format(due));put('dueParityPaid',format(paid));
   put('dueParityRate',`${format(due>0?(paid/due)*100:0)}%`);
@@ -12447,12 +12419,21 @@ window.showScreen = function(id) { const result=previousShowScreen.apply(this,ar
  #dueInstallments .smart-datalist.open .smart-select-option:hover,#dueInstallments .smart-datalist.open .smart-select-option.active,#dueInstallments .smart-select.open .smart-select-option:hover,#dueInstallments .smart-select.open .smart-select-option.active{background:#e7f2fb!important;color:#000!important}
 }
 </style>
+<style id="due-date-filter-inline-calendar-style">
+@media screen{
+ #dueInstallments .due-date-range .due-date-control{display:flex!important;align-items:center!important;gap:4px!important;flex:1 1 0!important;min-width:0!important}
+ #dueInstallments .due-date-range .due-date-control input{flex:1 1 0!important;width:100%!important;min-width:0!important}
+ #dueInstallments .due-date-range .due-date-control .due-calendar-picker{display:inline-grid!important;place-items:center!important;flex:0 0 34px!important;width:34px!important;height:34px!important;min-height:34px!important;padding:0!important;border:1px solid #1769aa!important;border-radius:8px!important;background:#eff7fd!important;color:#1769aa!important;cursor:pointer!important}
+ #dueInstallments .due-date-range .due-calendar-picker svg{display:block!important;width:18px!important;height:18px!important}
+}
+@media screen and (max-width:760px){#dueInstallments .due-date-range .due-date-control{flex:1 1 140px!important}#dueInstallments .due-date-range .due-date-control input{flex:1 1 0!important}}
+</style>
 <script id="due-installments-calendar-print-suggestions-behavior">
 (function(){
  function duePickerDate(value){const d=typeof parseExcelDate==='function'?parseExcelDate(value):null;return d?`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`:''}
  function dueManualDate(d){return `${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}`}
- function openDueCalendarPicker(id){const target=document.getElementById(id);if(!target)return;const anchor=document.querySelector('#dueInstallments .due-calendar-picker[data-for-id=\"'+id+'\"]'),rect=anchor?.getBoundingClientRect();const picker=document.createElement('input');picker.type='date';picker.className='due-native-calendar-picker';picker.value=duePickerDate(target.value);picker.style.cssText=`position:fixed;left:${Math.max(4,Math.round(rect?.left||0))}px;top:${Math.max(4,Math.round((rect?.bottom||0)+4))}px;width:30px;height:30px;opacity:.01;pointer-events:auto;z-index:250000`;document.body.appendChild(picker);picker.addEventListener('change',()=>{if(picker.value){const d=new Date(picker.value+'T00:00:00');target.value=dueManualDate(d);target.dispatchEvent(new Event('input',{bubbles:true}));target.dispatchEvent(new Event('change',{bubbles:true}));if(typeof renderDueInstallments==='function')renderDueInstallments()}picker.remove()},{once:true});try{if(typeof picker.showPicker==='function')picker.showPicker();else picker.click()}catch(e){picker.click()}setTimeout(()=>{if(picker.parentNode)picker.remove()},60000)}
- function installDueCalendarButtons(){['dueFrom','dueTo'].forEach(id=>{const input=document.getElementById(id);if(!input||input.dataset.calendarButtonReady==='1')return;input.dataset.calendarButtonReady='1';const button=document.createElement('button');button.type='button';button.className='due-calendar-picker no-print';button.dataset.forId=id;button.textContent='📅';button.title='اختيار التاريخ من التقويم — ويمكن الكتابة يدويًا';button.setAttribute('aria-label','اختيار التاريخ من التقويم');button.addEventListener('click',()=>openDueCalendarPicker(id));input.insertAdjacentElement('afterend',button)})}
+ function openDueCalendarPicker(id){const target=document.getElementById(id);if(!target)return;const anchor=document.querySelector('#dueInstallments .due-calendar-picker[data-for-id="'+id+'"]'),rect=anchor?.getBoundingClientRect();const picker=document.createElement('input');picker.type='date';picker.className='due-native-calendar-picker';picker.value=duePickerDate(target.value);picker.style.cssText=`position:fixed;left:${Math.max(4,Math.round(rect?.left||0))}px;top:${Math.max(4,Math.round((rect?.bottom||0)+4))}px;width:30px;height:30px;opacity:.01;pointer-events:auto;z-index:250000`;document.body.appendChild(picker);picker.addEventListener('change',()=>{if(picker.value){const d=new Date(picker.value+'T00:00:00');target.value=dueManualDate(d);target.dispatchEvent(new Event('input',{bubbles:true}));target.dispatchEvent(new Event('change',{bubbles:true}))}picker.remove()},{once:true});try{if(typeof picker.showPicker==='function')picker.showPicker();else picker.click()}catch(e){picker.click()}setTimeout(()=>{if(picker.parentNode)picker.remove()},60000)}
+ function installDueCalendarButtons(){['dueFrom','dueTo'].forEach(id=>{const input=document.getElementById(id);if(!input||input.dataset.calendarButtonReady==='1')return;input.dataset.calendarButtonReady='1';const button=document.createElement('button');button.type='button';button.className='due-calendar-picker no-print';button.dataset.forId=id;button.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3.5" y="5" width="17" height="15.5" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M7.5 3.5v3M16.5 3.5v3M4 9h16M8 12.5h2M13 12.5h2M8 16h2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>';button.title=id==='dueFrom'?'اختيار تاريخ البداية من التقويم':'اختيار تاريخ النهاية من التقويم';button.setAttribute('aria-label',button.title);button.addEventListener('click',()=>openDueCalendarPicker(id));const parent=input.parentNode,control=document.createElement('span');control.className='due-date-control';parent.insertBefore(control,input);control.append(input,button)})}
  function styleDuePrintLayer(layer){if(!layer)return layer;layer.querySelectorAll('.due-approved-table tr').forEach(row=>row.querySelectorAll('th,td').forEach((cell,index)=>{if(index<14){cell.style.setProperty('font-family','Arial, sans-serif','important');cell.style.setProperty('color','#000','important');cell.style.setProperty('font-weight','800','important');cell.style.setProperty('font-size',cell.tagName==='TH'?'12px':'13px','important');cell.style.setProperty('line-height','1.15','important')}}));layer.querySelectorAll('.due-print-guide-page,.due-print-guide-page *').forEach(node=>node.style.setProperty('font-family','Arial, sans-serif','important'));return layer}
  function hookPrintBuilder(){const original=window.buildDuePrintLayer;if(typeof original!=='function'||original.__calendarPrintHook)return;const wrapped=function(){return styleDuePrintLayer(original.apply(this,arguments))};wrapped.__calendarPrintHook=true;window.buildDuePrintLayer=wrapped}
  function init(){installDueCalendarButtons();hookPrintBuilder()}
