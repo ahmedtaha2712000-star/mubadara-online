@@ -7326,13 +7326,11 @@ const debouncedRenderRiskOnly=debounce(()=>renderRisk(),160);
 });
 ["riskFrom","riskTo"].forEach(id=>{
   const input=document.getElementById(id);if(!input)return;
-  input.addEventListener("input",()=>{normalizeRiskDateInput(input,false)});
   ["change","blur"].forEach(type=>input.addEventListener(type,()=>{if(normalizeRiskDateInput(input,true))debouncedRenderRiskOnly()}));
 });
 const debouncedRenderDue=debounce(()=>{const dueBase=dueInstallmentRows();updateDueFilterLists(dueBase);renderDueInstallments(dueBase)},180);
 const debouncedRenderDueDateOnly=debounce(()=>renderDueInstallments(),160);
 ["dueOfficer","dueClient","dueAddress"].forEach(id=>document.getElementById(id)?.addEventListener("input",()=>{if(id==="dueOfficer"){const input=document.getElementById("dueOfficer"),all=document.getElementById("dueAllSpecialists"),value=input?.value||"";if(all)all.checked=!value.trim()||norm(value)===norm(DUE_ALL_SPECIALISTS_LABEL)}debouncedRenderDue()}));
-["dueFrom","dueTo"].forEach(id=>{const input=document.getElementById(id);if(input)input.addEventListener("input",()=>{normalizeDueFilterDateInput(input,false)})});
 document.getElementById("dueOfficer")?.addEventListener("change",handleDueOfficerChoice);
 document.getElementById("dueSpecificMonth")?.addEventListener("change",renderDueInstallments);
 document.getElementById("dueSpecificYear")?.addEventListener("change",renderDueInstallments);
