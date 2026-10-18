@@ -11,11 +11,16 @@ function reply(res, status, body) {
 }
 
 function setCors(req, res) {
-  const allowedOrigin = process.env.APP_ORIGIN || DEFAULT_APP_ORIGIN;
   const origin = req.headers.origin;
+  const forwardedHost = req.headers["x-forwarded-host"] || req.headers.host || "";
+  const forwardedProto = req.headers["x-forwarded-proto"] || "https";
+  const requestHost = String(forwardedHost).split(",")[0].trim();
+  const requestProto = String(forwardedProto).split(",")[0].trim();
+  const requestOrigin = requestHost ? `${requestProto}://${requestHost}` : "";
+  const configuredOrigin = process.env.APP_ORIGIN || DEFAULT_APP_ORIGIN;
   res.setHeader("Vary", "Origin");
-  if (origin && origin !== allowedOrigin) return false;
-  if (origin) res.setHeader("Access-Control-Allow-Origin", allowedOrigin);
+  if (origin && origin !== configuredOrigin && origin !== requestOrigin) return false;
+  if (origin) res.setHeader("Access-Control-Allow-Origin", origin);
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Authorization, Content-Type, apikey");
   res.setHeader("Access-Control-Max-Age", "600");
