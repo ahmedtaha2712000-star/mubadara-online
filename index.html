@@ -2553,7 +2553,7 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
   <div id="docUploadDraftNotice" class="du-draft-banner" hidden role="status" aria-live="polite"><div><strong>توجد مسودة محفوظة على هذا الجهاز</strong><small id="docUploadDraftWhen">يمكن استعادتها للمتابعة.</small></div><div class="du-inline"><button type="button" class="du-primary" id="docUploadDraftRestore">استعادة المسودة</button><button type="button" class="du-secondary" id="docUploadDraftDismiss">حذف المسودة</button></div></div>
   <section id="docUploadLivePanel" aria-label="البث المباشر">
     <div class="du-live-head"><div><span class="du-live-kicker">اتصال مباشر — دون تسجيل أو حفظ في قاعدة البيانات</span><h3>البث المباشر</h3><p>يمكن للأخصائي والمالك بدء البث. المشاهدة متاحة للمالكين فقط.</p></div><span id="docUploadLiveBadge" class="du-live-badge" hidden>مباشر</span></div>
-    <div class="du-live-actions"><button type="button" class="du-primary" id="docUploadLiveStart">بدء البث بالفيديو والصوت</button><button type="button" class="du-secondary" id="docUploadLiveWatch" hidden>مشاهدة البث</button><button type="button" class="du-secondary" id="docUploadLiveAudio" hidden>تفعيل صوت المشاهدة</button><button type="button" class="du-danger" id="docUploadLiveStop" hidden>إنهاء الاتصال</button></div>
+    <div class="du-live-actions"><button type="button" class="du-primary" id="docUploadLiveStart">بدء البث بالفيديو والصوت</button><button type="button" class="du-secondary" id="docUploadLiveWatch" hidden>مشاهدة البث</button><button type="button" class="du-secondary" id="docUploadLiveAudio" hidden>تفعيل صوت المشاهدة</button><button type="button" class="du-secondary" id="docUploadLiveCamera" hidden>تبديل الكاميرا</button><button type="button" class="du-danger" id="docUploadLiveStop" hidden>إنهاء الاتصال</button></div>
     <p id="docUploadLiveStatus" class="du-live-status" role="status" aria-live="polite">يتطلب البث اتصالًا بالإنترنت وإذن الكاميرا والميكروفون.</p>
     <div id="docUploadLiveVideos" class="du-live-grid" hidden></div>
   </section>
@@ -13254,12 +13254,14 @@ body.du-camera-open #mobileBottomNav,body.du-camera-open #mobileMorePanel,body.d
   const startButton = document.getElementById("docUploadLiveStart");
   const watchButton = document.getElementById("docUploadLiveWatch");
   const audioButton = document.getElementById("docUploadLiveAudio");
+  const cameraButton = document.getElementById("docUploadLiveCamera");
   const stopButton = document.getElementById("docUploadLiveStop");
   const statusElement = document.getElementById("docUploadLiveStatus");
   const videoGrid = document.getElementById("docUploadLiveVideos");
   const liveBadge = document.getElementById("docUploadLiveBadge");
   const attachedTracks = new Map();
   let activeRoom = null;
+  let activeAction = "";
   let sdkPromise = null;
   let connecting = false;
   let joinAttempt = 0;
@@ -13319,6 +13321,8 @@ body.du-camera-open #mobileBottomNav,body.du-camera-open #mobileMorePanel,body.d
     const owner = isOwner();
     watchButton.hidden = !owner;
     audioButton.hidden = !owner || !activeRoom;
+    cameraButton.hidden = !activeRoom || activeAction !== "publish";
+    cameraButton.disabled = connecting;
     startButton.disabled = !authenticated || connecting || Boolean(activeRoom);
     watchButton.disabled = !authenticated || connecting || Boolean(activeRoom);
     stopButton.hidden = !activeRoom && !connecting;
@@ -13413,6 +13417,7 @@ body.du-camera-open #mobileBottomNav,body.du-camera-open #mobileMorePanel,body.d
     joinAttempt += 1;
     const room = activeRoom;
     activeRoom = null;
+    activeAction = "";
     if (room) {
       try { await room.localParticipant.setCameraEnabled(false); } catch {}
       try { await room.localParticipant.setMicrophoneEnabled(false); } catch {}
@@ -13454,6 +13459,7 @@ body.du-camera-open #mobileBottomNav,body.du-camera-open #mobileMorePanel,body.d
         videoCaptureDefaults: { resolution: sdk.VideoPresets.h720.resolution },
       });
       activeRoom = room;
+      activeAction = action;
       room.on(sdk.RoomEvent.TrackSubscribed, handleSubscribedTrack);
       room.on(sdk.RoomEvent.TrackUnsubscribed, track => removeTrack(track));
       room.on(sdk.RoomEvent.LocalTrackUnpublished, publication => {
@@ -13511,6 +13517,34 @@ body.du-camera-open #mobileBottomNav,body.du-camera-open #mobileMorePanel,body.d
 
   startButton.addEventListener("click", () => void join("publish"));
   watchButton.addEventListener("click", () => void join("watch"));
+  cameraButton.addEventListener("click", async () => {
+    if (!activeRoom || activeAction !== "publish" || connecting) return;
+    if (!navigator.mediaDevices?.enumerateDevices) {
+      setStatus("لا يمكن استعراض الكاميرات المتاحة في هذا المتصفح.", "error");
+      return;
+    }
+    cameraButton.disabled = true;
+    try {
+      const devices = (await navigator.mediaDevices.enumerateDevices())
+        .filter(device => device.kind === "videoinput" && device.deviceId);
+      if (devices.length < 2) {
+        setStatus("لم يعثر المتصفح على كاميرا أخرى. تحقق من إعدادات الكاميرا أو جرّب متصفحًا/جهازًا آخر.", "error");
+        return;
+      }
+      const sdk = window.LivekitClient;
+      const publication = activeRoom.localParticipant.getTrackPublication(sdk.Track.Source.Camera);
+      const currentId = publication?.track?.mediaStreamTrack?.getSettings?.().deviceId || "";
+      const currentIndex = devices.findIndex(device => device.deviceId === currentId);
+      const next = devices[(currentIndex + 1) % devices.length];
+      await activeRoom.switchActiveDevice("videoinput", next.deviceId);
+      const label = next.label || `الكاميرا ${((currentIndex + 1) % devices.length) + 1}`;
+      setStatus(`تم التبديل إلى ${label}.`, "active");
+    } catch (error) {
+      setStatus(error?.message || "تعذر تبديل الكاميرا. تحقق من أذونات الكاميرا.", "error");
+    } finally {
+      cameraButton.disabled = false;
+    }
+  });
   audioButton.addEventListener("click", async () => {
     if (!activeRoom || !isOwner()) return;
     try {
