@@ -2552,12 +2552,14 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
   <div class="du-hero"><div class="du-hero-icon" aria-hidden="true">▤</div><div><span class="du-eyebrow">أداة مستقلة — معالجة محلية</span><h2 id="docUploadTitle">شاشة الرفع</h2><p>صوّر البطاقة أو أضف صورًا وملفات PDF، رتّب الصفحات، ثم أنشئ ملف PDF واحدًا للتنزيل.</p></div></div>
   <div id="docUploadDraftNotice" class="du-draft-banner" hidden role="status" aria-live="polite"><div><strong>توجد مسودة محفوظة على هذا الجهاز</strong><small id="docUploadDraftWhen">يمكن استعادتها للمتابعة.</small></div><div class="du-inline"><button type="button" class="du-primary" id="docUploadDraftRestore">استعادة المسودة</button><button type="button" class="du-secondary" id="docUploadDraftDismiss">حذف المسودة</button></div></div>
   <section id="docUploadLivePanel" aria-label="البث المباشر">
-    <div class="du-live-head"><div><span class="du-live-kicker">اتصال مباشر — التسجيل واللقطات تحفظ محليًا على جهازك فقط</span><h3>البث المباشر</h3><p>يمكن للأخصائي والمالك بدء البث. المشاهدة متاحة للمالكين فقط.</p></div><span id="docUploadLiveBadge" class="du-live-badge" hidden>مباشر</span></div>
-    <div class="du-live-actions"><button type="button" class="du-primary" id="docUploadLiveStart">بدء البث بالفيديو والصوت</button><button type="button" class="du-secondary" id="docUploadLiveWatch" hidden>مشاهدة البث</button><button type="button" class="du-secondary" id="docUploadLiveAudio" hidden>تفعيل صوت المشاهدة</button><button type="button" class="du-secondary" id="docUploadLiveCamera" hidden>تبديل الكاميرا</button><button type="button" class="du-secondary" id="docUploadLiveSnapshot" hidden>التقاط صورة</button><button type="button" class="du-primary" id="docUploadLiveRecord" hidden>بدء تسجيل الفيديو</button><button type="button" class="du-danger" id="docUploadLiveRecordStop" hidden>إيقاف التسجيل</button><button type="button" class="du-danger" id="docUploadLiveStop" hidden>إنهاء الاتصال</button></div>
+    <div class="du-live-head"><div><span class="du-live-kicker">اتصال مباشر — التسجيل واللقطات تحفظ محليًا على جهازك فقط</span><h3>البث المباشر</h3><p>يمكن للأخصائي والمالك بدء البث، والمشاهدة للمالكين فقط. نطلب أعلى دقة متاحة حتى 4K؛ الدقة الفعلية تعتمد على الكاميرا والجهاز والاتصال.</p></div><span id="docUploadLiveBadge" class="du-live-badge" hidden>مباشر</span></div>
+    <div class="du-live-actions"><button type="button" class="du-primary" id="docUploadLiveStart">بدء البث بالفيديو والصوت</button><button type="button" class="du-secondary" id="docUploadLiveWatch" hidden>مشاهدة البث</button><button type="button" class="du-secondary" id="docUploadLiveAudio" hidden>تفعيل صوت المشاهدة</button><button type="button" class="du-secondary" id="docUploadLiveCamera" hidden>تبديل الكاميرا</button><button type="button" class="du-secondary" id="docUploadLiveSnapshot" hidden>التقاط صورة</button><button type="button" class="du-primary" id="docUploadLiveRecord" hidden>بدء تسجيل الفيديو</button><button type="button" class="du-danger" id="docUploadLiveRecordStop" hidden>إيقاف التسجيل</button><button type="button" class="du-secondary" id="docUploadLiveFullscreen" hidden>تكبير شاشة البث</button><button type="button" class="du-danger" id="docUploadLiveStop" hidden>إنهاء الاتصال</button></div>
     <p id="docUploadLiveStatus" class="du-live-status" role="status" aria-live="polite">يتطلب البث اتصالًا بالإنترنت وإذن الكاميرا والميكروفون.</p>
     <div id="docUploadLiveMetrics" class="du-live-metrics" aria-live="polite" hidden>
+      <span id="docUploadLiveBroadcaster" class="du-live-metric" data-state="waiting"><i></i><b>القائم بالبث</b><span>بانتظار القائم بالبث</span></span>
       <span id="docUploadLiveConnection" class="du-live-metric" data-state="idle"><i></i><b>الاتصال</b><span>غير متصل</span></span>
-      <span id="docUploadLiveQuality" class="du-live-metric" data-quality="unknown"><i></i><b>جودة البث</b><span>بانتظار القياس</span></span>
+      <span id="docUploadLiveQuality" class="du-live-metric" data-quality="unknown"><i></i><b>جودة الاتصال</b><span>بانتظار القياس</span></span>
+      <span id="docUploadLiveVideoQuality" class="du-live-metric" data-quality="unknown"><i></i><b>الفيديو الفعلي</b><span>بانتظار الفيديو</span></span>
       <span id="docUploadLiveRecording" class="du-live-metric" data-state="off" hidden><i></i><b>التسجيل</b><span>محلي · 00:00</span></span>
     </div>
     <div id="docUploadLiveVideos" class="du-live-grid" hidden></div>
@@ -13263,6 +13265,9 @@ body.du-camera-open #mobileBottomNav,body.du-camera-open #mobileMorePanel,body.d
   const snapshotButton = document.getElementById("docUploadLiveSnapshot");
   const recordButton = document.getElementById("docUploadLiveRecord");
   const stopRecordingButton = document.getElementById("docUploadLiveRecordStop");
+  const fullscreenButton = document.getElementById("docUploadLiveFullscreen");
+  const broadcasterMetric = document.getElementById("docUploadLiveBroadcaster");
+  const videoQualityMetric = document.getElementById("docUploadLiveVideoQuality");
   const connectionMetric = document.getElementById("docUploadLiveConnection");
   const qualityMetric = document.getElementById("docUploadLiveQuality");
   const recordingMetric = document.getElementById("docUploadLiveRecording");
@@ -13280,6 +13285,8 @@ body.du-camera-open #mobileBottomNav,body.du-camera-open #mobileMorePanel,body.d
   let recordingStartedAt = 0;
   let recordingTimer = null;
   let recordingStopResolver = null;
+  let videoQualityTimer = null;
+  let videoFpsSample = null;
   let sdkPromise = null;
   let connecting = false;
   let joinAttempt = 0;
@@ -13299,10 +13306,19 @@ body.du-camera-open #mobileBottomNav,body.du-camera-open #mobileMorePanel,body.d
     #docUploadLivePanel .du-live-status{margin-top:10px;padding:9px 11px;border-radius:9px;background:#f8fafc;color:#475569}
     #docUploadLivePanel .du-live-status[data-state="error"]{background:#fff1f2;color:#be123c}
     #docUploadLivePanel .du-live-status[data-state="active"]{background:#ecfdf5;color:#047857}
-    #docUploadLiveMetrics[hidden],#docUploadLiveRecording[hidden],#docUploadLiveSnapshot[hidden],#docUploadLiveRecord[hidden],#docUploadLiveRecordStop[hidden]{display:none!important}
+    #docUploadLiveMetrics[hidden],#docUploadLiveRecording[hidden],#docUploadLiveSnapshot[hidden],#docUploadLiveRecord[hidden],#docUploadLiveRecordStop[hidden],#docUploadLiveFullscreen[hidden]{display:none!important}
     #docUploadLivePanel .du-live-metrics{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
     #docUploadLivePanel .du-live-metric{display:inline-flex;align-items:center;gap:7px;padding:7px 10px;border:1px solid #dbe7e6;border-radius:999px;background:#fff;color:#334155;font-size:12px;box-shadow:0 2px 8px #0f766e0d}
     #docUploadLivePanel .du-live-metric b{font-weight:800;color:#0f3d3a}
+    #docUploadLivePanel.du-live-expanded,#docUploadLivePanel:fullscreen{position:fixed;inset:0;z-index:999999;box-sizing:border-box;width:100vw;height:100vh;height:100dvh;max-height:100dvh;margin:0;padding:clamp(12px,2vw,24px);overflow:auto;display:flex;flex-direction:column;border:0;border-radius:0;background:#07111b;color:#f8fafc;box-shadow:none}
+    #docUploadLivePanel.du-live-expanded .du-live-head p,#docUploadLivePanel:fullscreen .du-live-head p{color:#cbd5e1}
+    #docUploadLivePanel.du-live-expanded h3,#docUploadLivePanel:fullscreen h3{color:#f8fafc}
+    #docUploadLivePanel.du-live-expanded .du-live-metric,#docUploadLivePanel:fullscreen .du-live-metric{border-color:#334155;background:#111c2b;color:#e2e8f0}
+    #docUploadLivePanel.du-live-expanded .du-live-metric b,#docUploadLivePanel:fullscreen .du-live-metric b{color:#f8fafc}
+    #docUploadLivePanel.du-live-expanded .du-live-status,#docUploadLivePanel:fullscreen .du-live-status{background:#111c2b;color:#e2e8f0}
+    #docUploadLivePanel.du-live-expanded .du-live-grid,#docUploadLivePanel:fullscreen .du-live-grid{flex:1;min-height:180px;grid-template-columns:repeat(auto-fit,minmax(min(100%,480px),1fr));align-items:stretch}
+    #docUploadLivePanel.du-live-expanded .du-live-tile,#docUploadLivePanel:fullscreen .du-live-tile{height:100%;min-height:180px;display:flex;align-items:center;justify-content:center}
+    #docUploadLivePanel.du-live-expanded .du-live-tile video,#docUploadLivePanel:fullscreen .du-live-tile video{height:100%;max-height:calc(100dvh - 250px);object-fit:contain}
     #docUploadLivePanel .du-live-metric i{display:block;width:9px;height:9px;border-radius:50%;background:#94a3b8;box-shadow:0 0 0 3px #94a3b822}
     #docUploadLiveConnection[data-state="connected"] i{background:#10b981;box-shadow:0 0 0 3px #10b98126}
     #docUploadLiveConnection[data-state="reconnecting"] i{background:#f59e0b;animation:duLivePulse .8s infinite}
@@ -13358,6 +13374,7 @@ body.du-camera-open #mobileBottomNav,body.du-camera-open #mobileMorePanel,body.d
     recordButton.hidden = !activeRoom || Boolean(mediaRecorder?.state === "recording");
     recordButton.disabled = !window.MediaRecorder;
     stopRecordingButton.hidden = !activeRoom || mediaRecorder?.state !== "recording";
+    fullscreenButton.hidden = !activeRoom;
     metrics.hidden = !activeRoom;
     recordingMetric.hidden = mediaRecorder?.state !== "recording";
     startButton.disabled = !authenticated || connecting || Boolean(activeRoom);
@@ -13372,12 +13389,87 @@ body.du-camera-open #mobileBottomNav,body.du-camera-open #mobileMorePanel,body.d
     else delete statusElement.dataset.state;
   }
 
+  function setBroadcasterName(name) {
+    const cleanName = String(name || "").trim();
+    const fallback = activeAction === "publish" ? "أنت" : "بانتظار القائم بالبث";
+    broadcasterMetric.querySelector("span").textContent = cleanName || fallback;
+    broadcasterMetric.dataset.state = cleanName ? "active" : "waiting";
+  }
+
+  function updateVideoQuality() {
+    if (!activeRoom) {
+      videoQualityMetric.dataset.quality = "unknown";
+      videoQualityMetric.querySelector("span").textContent = "بانتظار الفيديو";
+      return;
+    }
+    const video = videoGrid.querySelector("video");
+    const participant = activeAction === "publish"
+      ? activeRoom.localParticipant
+      : Array.from(activeRoom.remoteParticipants.values()).find(p => [...p.trackPublications.values()].some(pub => pub.kind === "video" && pub.track));
+    const publication = participant && [...participant.trackPublications.values()].find(pub => pub.kind === "video" && pub.track);
+    const settings = publication?.track?.mediaStreamTrack?.getSettings?.() || {};
+    const width = video?.videoWidth || settings.width || 0;
+    const height = video?.videoHeight || settings.height || 0;
+    let fps = Number(settings.frameRate) || 0;
+    const playback = video?.getVideoPlaybackQuality?.();
+    if (playback && Number.isFinite(playback.totalVideoFrames)) {
+      const now = performance.now();
+      const frames = playback.totalVideoFrames;
+      if (videoFpsSample && now > videoFpsSample.time) {
+        const delta = (frames - videoFpsSample.frames) * 1000 / (now - videoFpsSample.time);
+        if (delta > 0 && delta < 120) fps = delta;
+      }
+      videoFpsSample = { frames, time: now };
+    }
+    if (!width || !height) {
+      videoQualityMetric.dataset.quality = "unknown";
+      videoQualityMetric.querySelector("span").textContent = "بانتظار الفيديو";
+      return;
+    }
+    const dimensions = `${Math.round(width)}×${Math.round(height)}`;
+    const fpsText = fps > 0 ? ` · ${Math.round(fps)} إطار/ث` : "";
+    videoQualityMetric.dataset.quality = height >= 2160 ? "ultra" : height >= 1080 ? "high" : height >= 720 ? "standard" : "low";
+    videoQualityMetric.querySelector("span").textContent = dimensions + fpsText;
+  }
+
+  function syncFullscreenButton() {
+    const expanded = document.fullscreenElement === panel || panel.classList.contains("du-live-expanded");
+    fullscreenButton.textContent = expanded ? "تصغير شاشة البث" : "تكبير شاشة البث";
+    fullscreenButton.setAttribute("aria-pressed", String(expanded));
+  }
+
+  async function toggleFullscreen() {
+    const nativeFullscreen = document.fullscreenElement === panel;
+    if (nativeFullscreen) {
+      try { await document.exitFullscreen(); } catch {}
+      syncFullscreenButton();
+      return;
+    }
+    if (panel.classList.contains("du-live-expanded")) {
+      panel.classList.remove("du-live-expanded");
+      syncFullscreenButton();
+      return;
+    }
+    if (panel.requestFullscreen) {
+      try {
+        await panel.requestFullscreen({ navigationUI: "hide" });
+        syncFullscreenButton();
+        setTimeout(updateVideoQuality, 800);
+        return;
+      } catch {}
+    }
+    panel.classList.add("du-live-expanded");
+    syncFullscreenButton();
+    setTimeout(updateVideoQuality, 800);
+  }
+
   function updateLiveMetrics(stateOverride) {
     if (!activeRoom) {
       connectionMetric.dataset.state = "idle";
       connectionMetric.querySelector("span").textContent = "غير متصل";
       qualityMetric.dataset.quality = "unknown";
       qualityMetric.querySelector("span").textContent = "بانتظار القياس";
+      updateVideoQuality();
       return;
     }
     const rawState = String(stateOverride || activeRoom.state || "connecting").toLowerCase();
@@ -13401,6 +13493,9 @@ body.du-camera-open #mobileBottomNav,body.du-camera-open #mobileMorePanel,body.d
     const qualityState = qualityMap[quality] || qualityMap.unknown;
     qualityMetric.dataset.quality = qualityState[0];
     qualityMetric.querySelector("span").textContent = qualityState[1];
+    updateVideoQuality();
+    const localName = activeRoom.localParticipant?.name;
+    if (activeAction === "publish" && localName) setBroadcasterName(localName);
   }
 
   function downloadBlob(blob, filename) {
@@ -13610,6 +13705,8 @@ body.du-camera-open #mobileBottomNav,body.du-camera-open #mobileMorePanel,body.d
   function handleSubscribedTrack(track, publication, participant) {
     const name = participant?.name || "مشارك في البث";
     attachTrack(track, name);
+    if (track.kind === "video" && participant?.name) setBroadcasterName(participant.name);
+    updateVideoQuality();
   }
 
   async function disconnectRoom(message) {
@@ -13619,6 +13716,12 @@ body.du-camera-open #mobileBottomNav,body.du-camera-open #mobileMorePanel,body.d
     activeRoom = null;
     activeAction = "";
     activeCameraDeviceId = "";
+    videoFpsSample = null;
+    if (videoQualityTimer) clearInterval(videoQualityTimer);
+    videoQualityTimer = null;
+    if (document.fullscreenElement === panel) { try { await document.exitFullscreen(); } catch {} }
+    panel.classList.remove("du-live-expanded");
+    syncFullscreenButton();
     if (room) {
       try { await room.localParticipant.setCameraEnabled(false); } catch {}
       try { await room.localParticipant.setMicrophoneEnabled(false); } catch {}
@@ -13635,6 +13738,7 @@ body.du-camera-open #mobileBottomNav,body.du-camera-open #mobileMorePanel,body.d
     metrics.hidden = true;
     recordingMetric.hidden = true;
     updateLiveMetrics("disconnected");
+    setBroadcasterName("");
     connecting = false;
     stopButton.hidden = true;
     startButton.hidden = false;
@@ -13657,10 +13761,12 @@ body.du-camera-open #mobileBottomNav,body.du-camera-open #mobileMorePanel,body.d
       const [sdk, access] = await Promise.all([loadLiveKitSdk(), requestJoinToken(action)]);
       if (attempt !== joinAttempt || !uploadScreenIsActive()) return;
       if (!/^wss:\/\//i.test(access.url)) throw new Error("عنوان خادم البث غير صالح.");
+      const maxVideoPreset = sdk.VideoPresets.h2160 || sdk.VideoPresets.h1440 || sdk.VideoPresets.h1080 || sdk.VideoPresets.h720;
       const room = new sdk.Room({
         adaptiveStream: true,
         dynacast: true,
-        videoCaptureDefaults: { resolution: sdk.VideoPresets.h720.resolution },
+        videoCaptureDefaults: { resolution: maxVideoPreset.resolution },
+        publishDefaults: { videoEncoding: maxVideoPreset.encoding },
       });
       activeRoom = room;
       activeAction = action;
@@ -13674,11 +13780,16 @@ body.du-camera-open #mobileBottomNav,body.du-camera-open #mobileMorePanel,body.d
       });
       room.on(sdk.RoomEvent.ConnectionStateChanged, state => updateLiveMetrics(state));
       room.on(sdk.RoomEvent.ConnectionQualityChanged, () => updateLiveMetrics());
+      room.on(sdk.RoomEvent.ParticipantConnected, participant => {
+        if (action === "watch" && participant?.name) setBroadcasterName(participant.name);
+      });
       room.on(sdk.RoomEvent.LocalTrackUnpublished, publication => {
         if (publication?.track) removeTrack(publication.track);
       });
       room.on(sdk.RoomEvent.ParticipantDisconnected, () => {
         if (action === "watch" && room.remoteParticipants.size === 0) {
+          setBroadcasterName("");
+          updateVideoQuality();
           setStatus("تم الاتصال. جارٍ انتظار بدء البث…");
         }
       });
@@ -13720,12 +13831,16 @@ body.du-camera-open #mobileBottomNav,body.du-camera-open #mobileMorePanel,body.d
           try { await room.disconnect(); } catch {}
           return;
         }
+        setBroadcasterName(room.localParticipant.name || "أنت");
         setStatus("البث مباشر الآن. يمكن للمالكين مشاهدة الفيديو والصوت.", "active");
       } else {
         setStatus("أنت متصل كمشاهد. جارٍ انتظار الأخصائي…", "active");
       }
       connecting = false;
       updateLiveMetrics("connected");
+      if (videoQualityTimer) clearInterval(videoQualityTimer);
+      videoQualityTimer = setInterval(updateVideoQuality, 1500);
+      updateVideoQuality();
       updateButtons();
       startButton.hidden = true;
       watchButton.hidden = true;
@@ -13780,6 +13895,11 @@ body.du-camera-open #mobileBottomNav,body.du-camera-open #mobileMorePanel,body.d
   });
   recordButton.addEventListener("click", startRecording);
   stopRecordingButton.addEventListener("click", () => { void finishRecording(); });
+  fullscreenButton.addEventListener("click", () => { void toggleFullscreen(); });
+  document.addEventListener("fullscreenchange", () => {
+    syncFullscreenButton();
+    setTimeout(updateVideoQuality, 500);
+  });
   audioButton.addEventListener("click", async () => {
     if (!activeRoom || !isOwner()) return;
     try {
