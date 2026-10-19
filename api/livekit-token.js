@@ -80,7 +80,7 @@ module.exports = async function handler(req, res) {
     const profileUrl = new URL(`${supabaseUrl}/rest/v1/app_user_profiles`);
     profileUrl.searchParams.set(
       "select",
-      "user_id,app_role,is_active,is_blocked,is_linked"
+      "user_id,username,display_name,officer_name,app_role,is_active,is_blocked,is_linked"
     );
     profileUrl.searchParams.set("user_id", `eq.${authUser.id}`);
     const profileResponse = await fetch(profileUrl, {
@@ -115,7 +115,10 @@ module.exports = async function handler(req, res) {
 
     const canPublish = action === "publish";
     const canSubscribe = isOwner;
-    const participantName = isOwner ? "مالك" : "أخصائي";
+    const verifiedName = isOfficer
+      ? (profile.officer_name || profile.display_name || profile.username || "الأخصائي")
+      : (profile.display_name || profile.username || "المالك");
+    const participantName = String(verifiedName).trim().slice(0, 80) || (isOwner ? "المالك" : "الأخصائي");
     const token = new AccessToken(livekitApiKey, livekitApiSecret, {
       identity: authUser.id,
       name: participantName,
