@@ -2671,6 +2671,35 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
  #installmentCalculator .inst-main-result .inst-payment-value,#installmentCalculator .inst-finance-main-card strong{max-width:100px!important;direction:ltr!important;text-align:center!important}
 }
 @media screen and (max-width:760px){#installmentCalculator .inst-main-result .inst-payment-value,#installmentCalculator .inst-finance-main-card strong{white-space:normal!important;unicode-bidi:isolate!important;width:100px!important}}
+</style><style id="installment-calculator-requested-enhancements">
+@media screen {
+  #installmentCalculator,#installmentCalculator *{font-family:Arial,sans-serif!important}
+  #installmentCalculator{font-size:18px!important;font-weight:700!important}
+  #installmentCalculator .inst-field>label{font-size:20px!important;font-weight:800!important}
+  #installmentCalculator .inst-type-switch{direction:rtl!important;flex-direction:row!important}
+  #installmentCalculator .inst-type-button{font-weight:800!important}
+  #installmentCalculator .inst-type-title{font-size:20px!important;font-weight:900!important}
+  #installmentCalculator .inst-type-desc{font-size:14px!important;font-weight:700!important}
+  #installmentCalculator #instPrincipal{font-size:30px!important;font-weight:900!important}
+  #installmentCalculator #instDuration,#installmentCalculator #instInterval{min-height:62px!important;font-size:24px!important;font-weight:900!important}
+  #installmentCalculator .inst-calculate-button{font-size:24px!important;font-weight:900!important}
+  #installmentCalculator .inst-result-top>strong{font-size:30px!important;font-weight:900!important}
+  #installmentCalculator .inst-main-result>span:first-child,#installmentCalculator .inst-finance-main-card>span:first-child{font-size:19px!important;font-weight:900!important}
+  #installmentCalculator .inst-main-result .inst-payment-value,#installmentCalculator .inst-finance-main-card strong{font-size:36px!important;font-weight:900!important}
+  #installmentCalculator .inst-main-result small,#installmentCalculator .inst-finance-main-card small{font-size:16px!important;font-weight:800!important}
+  #installmentCalculator .inst-summary-item span{font-size:15px!important;font-weight:800!important}
+  #installmentCalculator .inst-summary-item strong{font-size:23px!important;font-weight:900!important}
+  #installmentCalculator .inst-rate-pill{font-size:17px!important;font-weight:900!important}
+  #installmentCalculator .inst-help,#installmentCalculator .inst-bottom-note{font-size:14px!important;font-weight:700!important}
+}
+@media screen and (max-width:760px){
+  #installmentCalculator #instDuration,#installmentCalculator #instInterval{font-size:21px!important}
+  #installmentCalculator .inst-type-title{font-size:18px!important}
+  #installmentCalculator .inst-result-top>strong{font-size:26px!important}
+  #installmentCalculator .inst-main-result .inst-payment-value,#installmentCalculator .inst-finance-main-card strong{font-size:30px!important}
+  #installmentCalculator .inst-summary-item span{font-size:14px!important}
+  #installmentCalculator .inst-summary-item strong{font-size:20px!important}
+}
 </style></head>
 
 <body>
@@ -3360,7 +3389,7 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
           <select id="instDuration"><option value="6">6 أشهر</option><option value="12">12 شهرًا</option><option value="18">18 شهرًا</option><option value="24">24 شهرًا</option></select>
         </div>
         <div class="inst-field" id="instIntervalWrap" hidden>
-          <label for="instInterval">تكرار القسط الموسمي</label>
+          <label for="instInterval">فترة سماح القسط الموسمي</label>
           <select id="instInterval"><option value="3">كل 3 أشهر</option><option value="6">كل 6 أشهر</option></select>
           <small class="inst-help" id="instIntervalHelp">مدة القرض 6 أشهر لا تسمح بقسط كل 6 أشهر.</small>
         </div>
@@ -14512,44 +14541,70 @@ body.du-camera-open #mobileBottomNav,body.du-camera-open #mobileMorePanel,body.d
         ['الرسوم الإدارية (4%)', document.getElementById('instAdminFee').textContent],
         ['صافي المبلغ المحول للعميل', document.getElementById('instNetDisbursed').textContent]
       ];
-      const primaryCards = paymentType === 'seasonal'
-        ? `<div class="primary-grid"><div class="primary-card primary-feature"><span>قيمة القسط</span><strong>${escapeHtml(document.getElementById('instPayment').textContent)}</strong><small>${escapeHtml(document.getElementById('instCadence').textContent)}</small></div><div class="primary-card finance-feature"><span>تكلفة التمويل الشهرية</span><strong>${escapeHtml(document.getElementById('instMonthlyFinanceCostMain').textContent)}</strong><small>تكلفة تمويل شهر واحد</small></div></div>`
-        : `<div class="primary-grid single"><div class="primary-card primary-feature"><span>قيمة القسط</span><strong>${escapeHtml(document.getElementById('instPayment').textContent)}</strong><small>${escapeHtml(document.getElementById('instCadence').textContent)}</small></div></div>`;
-      const reportMarkup = `<header class="report-header"><div class="report-brand">تقرير حاسبة الأقساط</div><h1>ملخص حساب قرض بمبلغ <bdi dir="ltr">${escapeHtml(amount)}</bdi> جنيه</h1><p>${escapeHtml(typeLabel)} · تقرير حساب القرض</p><div class="report-meta"><div><span>اسم المستخدم</span><strong>${escapeHtml(userName)}</strong></div><div><span>تاريخ الإصدار</span><strong dir="ltr">${issuedDate}</strong></div><div><span>الوقت</span><strong dir="ltr">${issuedTime}</strong></div></div></header>${primaryCards}<section class="report-grid">${rows.map(([label,value])=>`<div class="report-item"><span>${escapeHtml(label)}</span><strong>${escapeHtml(value)}</strong></div>`).join('')}</section><footer class="report-footer">تقرير حاسبة الأقساط · القيم المالية مقربة إلى أقرب جنيه.</footer>`;
-      const reportCss = `*{box-sizing:border-box} .inst-report{width:190mm;min-height:250mm;padding:12mm;background:#fff;color:#111;font-family:Arial,Tahoma,sans-serif;direction:rtl} .report-header{border-bottom:3px solid #176b52;padding:0 0 15px;margin-bottom:17px}.report-brand{font-size:25px;font-weight:900;color:#124d3c;margin-bottom:10px}.report-header h1{font-size:28px;line-height:1.35;font-weight:900;margin:0 0 6px;color:#111}.report-header p{font-size:14px;margin:0;color:#47534e;font-weight:700}.report-meta{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:8px;margin-top:15px}.report-meta>div{border:1px solid #d6ded9;border-radius:8px;padding:9px}.report-meta span,.report-item span,.primary-card span{display:block;color:#52615b;font-size:12px;font-weight:700;margin-bottom:6px}.report-meta strong{font-size:14px;font-weight:800}.primary-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:0 0 14px}.primary-grid.single{grid-template-columns:1fr}.primary-card{border:2px solid #176b52;border-radius:12px;padding:16px;background:#f3faf7;min-height:105px}.finance-feature{border-color:#bd8b1d;background:#fffaf0}.primary-card span{font-size:14px;color:#263b32}.primary-card strong{display:block;font-size:27px;font-weight:900;direction:ltr;text-align:right;margin:8px 0}.primary-card small{display:block;font-size:11px;line-height:1.5;color:#47534e;font-weight:700}.report-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.report-item{border:1px solid #d6ded9;border-radius:8px;padding:10px;min-height:58px;break-inside:avoid}.report-item span{margin-bottom:4px;font-size:11px}.report-item strong{font-size:15px;font-weight:800;direction:rtl;unicode-bidi:plaintext}.report-footer{border-top:1px solid #d6ded9;margin-top:18px;padding-top:9px;font-size:10px;color:#64748b;font-weight:700}`;
+      const rootStyle = 'box-sizing:border-box!important;width:190mm!important;height:265mm!important;min-height:265mm!important;margin:0 auto!important;padding:0!important;display:flex!important;flex-direction:column!important;direction:rtl!important;background:#fff!important;color:#000!important;font-family:Arial,sans-serif!important;overflow:visible!important';
+      const headerStyle = 'box-sizing:border-box!important;border-bottom:3px solid #111!important;padding:0 0 6mm!important;margin:0 0 6mm!important;text-align:center!important;background:#fff!important;color:#000!important;font-family:Arial,sans-serif!important';
+      const brandStyle = 'display:block!important;margin:0 0 4mm!important;text-align:center!important;color:#000!important;font-family:Arial,sans-serif!important;font-size:21pt!important;font-weight:900!important';
+      const titleStyle = 'display:block!important;margin:0 0 3mm!important;text-align:center!important;color:#000!important;font-family:Arial,sans-serif!important;font-size:25pt!important;line-height:1.3!important;font-weight:900!important';
+      const primaryCardStyle = 'box-sizing:border-box!important;border:1.5pt solid #111!important;border-radius:3mm!important;padding:4mm!important;min-height:35mm!important;background:#f3faf7!important;color:#000!important;font-family:Arial,sans-serif!important;break-inside:avoid!important;display:flex!important;flex-direction:column!important;justify-content:center!important';
+      const financeCardStyle = 'box-sizing:border-box!important;border:1.5pt solid #111!important;border-radius:3mm!important;padding:4mm!important;min-height:35mm!important;background:#fffaf0!important;color:#000!important;font-family:Arial,sans-serif!important;break-inside:avoid!important;display:flex!important;flex-direction:column!important;justify-content:center!important';
+      const cardLabelStyle = 'display:block!important;margin:0 0 2mm!important;color:#000!important;font-family:Arial,sans-serif!important;font-size:15pt!important;font-weight:900!important';
+      const cardValueStyle = 'display:block!important;margin:1mm 0!important;color:#000!important;font-family:Arial,sans-serif!important;font-size:27pt!important;font-weight:900!important;direction:rtl!important;unicode-bidi:plaintext!important;text-align:right!important';
+      const cardNoteStyle = 'display:block!important;color:#000!important;font-family:Arial,sans-serif!important;font-size:12pt!important;line-height:1.4!important;font-weight:800!important';
+      const primaryCard = (label,value,note,finance=false) => `<div class="report-primary-card" style="${finance ? financeCardStyle : primaryCardStyle}"><span style="${cardLabelStyle}">${escapeHtml(label)}</span><strong style="${cardValueStyle}">${escapeHtml(value)}</strong><small style="${cardNoteStyle}">${escapeHtml(note)}</small></div>`;
+      const primaryCards = `<section class="report-primary-grid" style="display:grid!important;grid-template-columns:${paymentType === 'seasonal' ? '1fr 1fr' : '1fr'}!important;gap:5mm!important;margin:0 0 6mm!important">${primaryCard('قيمة القسط',document.getElementById('instPayment').textContent,document.getElementById('instCadence').textContent)}${paymentType === 'seasonal' ? primaryCard('تكلفة التمويل الشهرية',document.getElementById('instMonthlyFinanceCostMain').textContent,'تكلفة تمويل شهر واحد',true) : ''}</section>`;
+      const reportRows = rows.map(([label,value]) => `<div class="report-data-item" style="box-sizing:border-box!important;border:1.2pt solid #111!important;border-radius:2.5mm!important;padding:3mm!important;min-height:21mm!important;background:#fff!important;color:#000!important;font-family:Arial,sans-serif!important;break-inside:avoid!important;display:flex!important;flex-direction:column!important;justify-content:center!important"><span style="display:block!important;margin:0 0 2mm!important;color:#000!important;font-family:Arial,sans-serif!important;font-size:13pt!important;font-weight:900!important">${escapeHtml(label)}</span><strong style="display:block!important;color:#000!important;font-family:Arial,sans-serif!important;font-size:16pt!important;font-weight:900!important;direction:rtl!important;unicode-bidi:plaintext!important;text-align:right!important">${escapeHtml(value)}</strong></div>`).join('');
+      const reportMarkup = `<main class="inst-report" style="${rootStyle}"><header class="report-header" style="${headerStyle}"><div style="${brandStyle}">تقرير حاسبة الأقساط</div><h1 style="${titleStyle}">ملخص حاسبة القروض بمبلغ <bdi dir="ltr">${escapeHtml(amount)}</bdi> جنيه</h1><p style="display:block!important;margin:0!important;color:#000!important;font-family:Arial,sans-serif!important;font-size:14pt!important;font-weight:800!important">${escapeHtml(typeLabel)} · تقرير حساب القرض</p></header>${primaryCards}<section class="report-data-grid" style="display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:3mm!important">${reportRows}</section><footer class="report-footer" style="box-sizing:border-box!important;margin-top:auto!important;border-top:2pt solid #111!important;padding:5mm 0 0!important;background:#fff!important;color:#000!important;font-family:Arial,sans-serif!important;break-inside:avoid!important"><div style="display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:5mm!important;color:#000!important;font-family:Arial,sans-serif!important"><div style="text-align:center!important"><span style="display:block!important;margin:0 0 1.5mm!important;color:#000!important;font-size:12pt!important;font-weight:900!important">اسم المستخدم</span><strong style="display:block!important;color:#000!important;font-size:13pt!important;font-weight:900!important">${escapeHtml(userName)}</strong></div><div style="text-align:center!important"><span style="display:block!important;margin:0 0 1.5mm!important;color:#000!important;font-size:12pt!important;font-weight:900!important">تاريخ الإصدار</span><strong dir="ltr" style="display:block!important;color:#000!important;font-size:13pt!important;font-weight:900!important">${issuedDate}</strong></div><div style="text-align:center!important"><span style="display:block!important;margin:0 0 1.5mm!important;color:#000!important;font-size:12pt!important;font-weight:900!important">الوقت</span><strong dir="ltr" style="display:block!important;color:#000!important;font-size:13pt!important;font-weight:900!important">${issuedTime}</strong></div></div><div style="margin-top:3mm!important;text-align:center!important;color:#000!important;font-family:Arial,sans-serif!important;font-size:10pt!important;font-weight:800!important">تقرير حاسبة الأقساط · القيم المالية مقربة إلى أقرب جنيه.</div></footer></main>`;
+      const reportCss = `*{box-sizing:border-box}@page{size:A4;margin:10mm}html,body{margin:0;padding:0;background:#fff;color:#000;font-family:Arial,sans-serif}.inst-report{width:190mm;min-height:265mm;margin:0 auto;background:#fff;color:#000;font-family:Arial,sans-serif;direction:rtl;display:flex;flex-direction:column}`;
       return {markup: reportMarkup, css: reportCss, date: issuedDate};
     };
     const openCalculatorPrint = () => {
       if (resultContent.hidden) { showError('احسب القسط أولًا قبل الطباعة أو حفظ PDF.'); return; }
-      const reportWindow = window.open('', '_blank', 'width=900,height=720');
-      if (!reportWindow) { showError('اسمح بالنوافذ المنبثقة لفتح تقرير الطباعة.'); return; }
       const report = buildCalculatorReport();
-      reportWindow.document.open();
-      reportWindow.document.write(`<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>تقرير حاسبة الأقساط</title><style>@page{size:A4;margin:10mm}body{margin:0;background:#fff;font-family:Arial,Tahoma,sans-serif}.inst-report{margin:auto}@media print{.inst-report{width:190mm!important;min-height:0;padding:0!important}}</style><style>${report.css}</style></head><body><main class="inst-report">${report.markup}</main></body></html>`);
-      reportWindow.document.close();
-      setTimeout(() => { try { reportWindow.focus(); reportWindow.print(); } catch (_) {} }, 350);
+      const printFrame = document.createElement('iframe');
+      printFrame.title = 'تقرير حاسبة الأقساط';
+      printFrame.setAttribute('aria-hidden', 'true');
+      printFrame.style.cssText = 'position:fixed;left:-12000px;top:0;width:210mm;height:297mm;border:0;z-index:-1;background:#fff';
+      document.body.appendChild(printFrame);
+      const printDocument = printFrame.contentDocument || printFrame.contentWindow.document;
+      printDocument.open();
+      printDocument.write(`<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>تقرير حاسبة الأقساط</title><style>@page{size:A4;margin:10mm}html,body{margin:0;padding:0;background:#fff;font-family:Arial,sans-serif}.inst-report{width:190mm!important;min-height:277mm!important;margin:0 auto!important;padding:0!important;display:flex!important;flex-direction:column!important}</style><style>${report.css}</style></head><body>${report.markup}</body></html>`);
+      printDocument.close();
+      const cleanup = () => { if (printFrame.isConnected) printFrame.remove(); };
+      printFrame.contentWindow.addEventListener('afterprint', cleanup, {once:true});
+      setTimeout(() => {
+        try { printFrame.contentWindow.focus(); printFrame.contentWindow.print(); }
+        catch (_) { cleanup(); showError('تعذر فتح الطباعة. أعد المحاولة أو حمّل ملف PDF.'); }
+      }, 350);
+      setTimeout(cleanup, 120000);
     };
     const downloadCalculatorPdf = async () => {
       if (resultContent.hidden) { showError('احسب القسط أولًا قبل تحميل PDF.'); return; }
       if (typeof window.html2pdf !== 'function') { showError('تعذر تحميل أداة إنشاء PDF. تحقق من اتصال الإنترنت ثم أعد المحاولة.'); return; }
       const report = buildCalculatorReport();
-      const stage = document.createElement('div');
-      stage.className = 'inst-report';
-      stage.style.cssText = 'position:fixed;left:-10000px;top:0;width:190mm;background:#fff;z-index:-1';
-      stage.innerHTML = `<style>${report.css}</style>${report.markup}`;
-      document.body.appendChild(stage);
       const button = document.getElementById('instSavePdf');
+      const stage = document.createElement('iframe');
+      stage.title = 'تقرير PDF لحاسبة الأقساط';
+      stage.setAttribute('aria-hidden', 'true');
+      stage.style.cssText = 'position:fixed;left:-12000px;top:0;width:210mm;height:297mm;border:0';
       button.disabled = true;
       button.textContent = 'جارٍ تجهيز PDF…';
       try {
+        document.body.appendChild(stage);
+        const reportDocument = stage.contentDocument || stage.contentWindow.document;
+        reportDocument.open();
+        reportDocument.write(`<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>تقرير حاسبة الأقساط</title><style>${report.css}</style></head><body>${report.markup}</body></html>`);
+        reportDocument.close();
+        await new Promise(resolve => stage.contentWindow.requestAnimationFrame(() => stage.contentWindow.requestAnimationFrame(resolve)));
+        const reportNode = reportDocument.querySelector('.inst-report');
+        if (!reportNode || reportNode.getBoundingClientRect().height < 1) throw new Error('PDF report did not render');
+        const filename = `تقرير_حاسبة_القروض_${fmtCount(Number(amountInput.value))}_${report.date.replaceAll('/', '-')}.pdf`;
         await window.html2pdf().set({
           margin: [8, 8, 8, 8],
-          filename: `تقرير_قرض_${fmtCount(Number(amountInput.value))}_${report.date.replaceAll('/', '-')}.pdf`,
+          filename,
           image: {type:'jpeg',quality:0.98},
           html2canvas: {scale:2,backgroundColor:'#ffffff',useCORS:true,logging:false,scrollX:0,scrollY:0},
-          jsPDF: {unit:'mm',format:'a4',orientation:'portrait',compress:true},
-          pagebreak: {mode:['css','legacy'],avoid:['.report-item','.primary-card','.report-meta']}
-        }).from(stage).save();
+          jsPDF: {unit:'mm',format:'a4',orientation:'portrait',compress:true}
+        }).from(reportNode).save();
         showError('');
       } catch (error) {
         console.error('Calculator PDF generation failed:', error);
