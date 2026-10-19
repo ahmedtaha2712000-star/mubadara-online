@@ -2402,6 +2402,31 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
 #installmentCalculator .inst-seasonal-value strong{display:block;font-size:23px!important;overflow-wrap:anywhere}
 #installmentCalculator .inst-seasonal-value small{display:block;font-size:13px!important;margin-top:4px}
 @media(max-width:430px){#installmentCalculator .inst-seasonal-grid{grid-template-columns:1fr}#installmentCalculator .inst-hero h2{font-size:25px!important}#installmentCalculator .inst-payment-value{font-size:30px!important}}
+
+/* Calculator-only refinements: compact hierarchy, English numerals, print controls. */
+#installmentCalculator .inst-layout{gap:12px}
+#installmentCalculator .inst-panel,#installmentCalculator .inst-result-panel{padding:18px}
+#installmentCalculator .inst-empty-state{min-height:116px;padding:12px;gap:2px}
+#installmentCalculator .inst-empty-icon{width:40px;height:40px;margin-bottom:5px}
+#installmentCalculator .inst-empty-state strong{margin-bottom:1px}
+#installmentCalculator .inst-empty-state>span:last-child{line-height:1.4}
+#installmentCalculator .inst-field label{font-size:20px!important}
+#installmentCalculator .inst-form-grid select{font-size:20px!important;min-height:50px}
+#installmentCalculator .inst-input-wrap input{padding-left:94px!important;font-size:23px!important;direction:ltr;text-align:right}
+#installmentCalculator .inst-clear-amount{position:absolute;left:48px;top:50%;transform:translateY(-50%);display:grid;place-items:center;width:30px;height:30px;border:1px solid #9ca3af;border-radius:50%;background:#f3f4f6;color:#111;font:900 22px/1 Arial,sans-serif;cursor:pointer;z-index:2}
+#installmentCalculator .inst-clear-amount:hover{background:#fee2e2;border-color:#b91c1c}
+#installmentCalculator .inst-report-actions{display:flex;justify-content:flex-end;gap:8px;margin:-5px 0 12px}
+#installmentCalculator .inst-report-button{min-height:38px;padding:0 14px;border:1px solid #111;border-radius:9px;background:#f3f4f6;color:#111;font:700 15px Arial,sans-serif;cursor:pointer}
+#installmentCalculator .inst-report-button:hover{background:#e5e7eb}
+#installmentCalculator .inst-summary-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+#installmentCalculator .inst-summary-item{padding:10px}
+#installmentCalculator .inst-summary-item strong{direction:ltr;text-align:right;unicode-bidi:plaintext}
+#installmentCalculator .inst-seasonal-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+#installmentCalculator .inst-seasonal-value strong{direction:ltr;text-align:right;unicode-bidi:plaintext}
+#installmentCalculator .inst-payment-value{direction:ltr;text-align:right;unicode-bidi:plaintext}
+@media(max-width:760px){#installmentCalculator .inst-layout{grid-template-columns:minmax(0,1fr);gap:10px}#installmentCalculator .inst-summary-grid{grid-template-columns:repeat(2,minmax(0,1fr))}#installmentCalculator .inst-seasonal-grid{grid-template-columns:repeat(2,minmax(0,1fr))}#installmentCalculator .inst-panel,#installmentCalculator .inst-result-panel{padding:13px}#installmentCalculator .inst-empty-state{min-height:84px}}
+@media(max-width:380px){#installmentCalculator .inst-seasonal-grid{grid-template-columns:1fr}#installmentCalculator .inst-summary-item{padding:8px}#installmentCalculator .inst-summary-item strong{font-size:17px!important}#installmentCalculator .inst-report-button{padding:0 8px;font-size:13px}}
+@media print{#installmentCalculator{display:none!important}}
 </style></head>
 
 <body>
@@ -3075,8 +3100,8 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
     <div class="inst-panel">
       <div class="inst-field">
         <label for="instPrincipal">مبلغ القرض</label>
-        <div class="inst-input-wrap"><input id="instPrincipal" type="number" inputmode="numeric" min="5000" max="292000" step="1000" placeholder="مثال: 50,000" aria-describedby="instAmountHelp"><span class="inst-input-unit">جنيه</span></div>
-        <small class="inst-help" id="instAmountHelp">المبلغ من مضاعفات 5,000؛ والاستثناء الوحيد المسموح به هو 292,000.</small>
+        <div class="inst-input-wrap"><input id="instPrincipal" type="number" inputmode="numeric" min="5000" max="292000" step="1000" placeholder="Example: 50,000" aria-describedby="instAmountHelp"><button type="button" class="inst-clear-amount" id="instClearAmount" aria-label="مسح مبلغ القرض" title="مسح المبلغ">×</button><span class="inst-input-unit">جنيه</span></div>
+        <small class="inst-help" id="instAmountHelp">المبلغ من مضاعفات 5,000، والاستثناءان المسموحان: 262,000 و292,000.</small>
       </div>
       <div class="inst-field">
         <label>نوع السداد</label>
@@ -3110,6 +3135,7 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
       </div>
       <div id="instResultContent" hidden>
         <div class="inst-result-top"><strong>نتيجة الحساب</strong><span class="inst-rate-pill" id="instRate">—</span></div>
+        <div class="inst-report-actions no-print"><button type="button" id="instPrint" class="inst-report-button">طباعة النتيجة</button><button type="button" id="instSavePdf" class="inst-report-button">حفظ PDF</button></div>
         <div class="inst-main-result"><span>قيمة القسط الواحد</span><strong class="inst-payment-value" id="instPayment">—</strong><span class="inst-cadence" id="instCadence">—</span></div>
         <div class="inst-seasonal-details" id="instSeasonalDetails" hidden>
           <h3>تفاصيل الأقساط الموسمية</h3>
@@ -3123,6 +3149,8 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
           <div class="inst-summary-item"><span>إجمالي الفائدة</span><strong id="instInterest">—</strong></div>
           <div class="inst-summary-item"><span>إجمالي السداد</span><strong id="instTotal">—</strong></div>
           <div class="inst-summary-item"><span>عدد الأقساط</span><strong id="instCount">—</strong></div>
+          <div class="inst-summary-item"><span>الرسوم الإدارية (4%)</span><strong id="instAdminFee">—</strong></div>
+          <div class="inst-summary-item"><span>صافي المبلغ المحول للعميل</span><strong id="instNetDisbursed">—</strong></div>
         </div>
         <div class="inst-formula" id="instFormula"></div>
       </div>
@@ -14120,9 +14148,9 @@ body.du-camera-open #mobileBottomNav,body.du-camera-open #mobileMorePanel,body.d
     const buttons = [...root.querySelectorAll('[data-inst-type]')];
     let paymentType = 'monthly';
 
-    const formatter = new Intl.NumberFormat('ar-EG', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-    const rateFormatter = new Intl.NumberFormat('ar-EG', {maximumFractionDigits: 2});
-    const countFormatter = new Intl.NumberFormat('ar-EG', {maximumFractionDigits: 0});
+    const formatter = new Intl.NumberFormat('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    const rateFormatter = new Intl.NumberFormat('en-US', {maximumFractionDigits: 2});
+    const countFormatter = new Intl.NumberFormat('en-US', {maximumFractionDigits: 0});
     const fmt = value => formatter.format(Math.round((value + Number.EPSILON) * 100) / 100);
     const fmtRate = value => rateFormatter.format(value);
     const fmtCount = value => countFormatter.format(value);
@@ -14178,6 +14206,10 @@ body.du-camera-open #mobileBottomNav,body.du-camera-open #mobileMorePanel,body.d
       const installment = paymentType === 'monthly' ? roundedTotal / count : amount / count;
       const monthlyFinanceCost = interest / months;
       const roundedMonthlyFinanceCost = Math.round(monthlyFinanceCost);
+      const adminFee = Math.round(amount * 0.04);
+      const netDisbursed = amount - adminFee - Math.round(paymentType === 'monthly' ? installment : monthlyFinanceCost);
+      document.getElementById('instAdminFee').textContent = `${fmtCount(adminFee)} جنيه`;
+      document.getElementById('instNetDisbursed').textContent = `${fmtCount(netDisbursed)} جنيه`;
       document.getElementById('instRate').textContent = `${fmtRate(annualRate * 100)}٪ سنويًا`;
       document.getElementById('instPayment').textContent = `${fmtCount(Math.round(installment))} جنيه`;
       document.getElementById('instCadence').textContent = paymentType === 'monthly' ? `قسط شهري شامل أصل القرض والفائدة • ${fmtCount(count)} أقساط` : `قسط أصل القرض كل ${fmtCount(intervalMonths)} أشهر • الفائدة تُسدد شهريًا`;
@@ -14209,6 +14241,28 @@ body.du-camera-open #mobileBottomNav,body.du-camera-open #mobileMorePanel,body.d
     durationSelect.addEventListener('change', () => { updateFrequencyOptions(); calculate(false); });
     intervalSelect.addEventListener('change', () => calculate(false));
     document.getElementById('instCalculate').addEventListener('click', () => calculate(true));
+    const openCalculatorReport = () => {
+      if (resultContent.hidden) { showError('احسب القسط أولًا قبل الطباعة أو حفظ PDF.'); return; }
+      const reportWindow = window.open('', '_blank', 'width=900,height=720');
+      if (!reportWindow) { showError('اسمح بالنوافذ المنبثقة لفتح تقرير الطباعة.'); return; }
+      const escapeHtml = value => String(value).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+      const typeLabel = paymentType === 'monthly' ? 'أقساط شهرية' : 'أقساط موسمية';
+      const rows = [
+        ['نوع السداد', typeLabel], ['مبلغ القرض', document.getElementById('instPrincipalOut').textContent],
+        ['مدة القرض', `${durationSelect.value} شهرًا`], ['النسبة السنوية', document.getElementById('instRate').textContent],
+        ['إجمالي الفائدة', document.getElementById('instInterest').textContent], ['إجمالي السداد', document.getElementById('instTotal').textContent],
+        [paymentType === 'monthly' ? 'قيمة القسط الشهري' : 'قسط أصل القرض حسب المدة', document.getElementById(paymentType === 'monthly' ? 'instPayment' : 'instPrincipalInstallment').textContent],
+        ...(paymentType === 'seasonal' ? [['تكلفة التمويل الشهرية', document.getElementById('instMonthlyFinanceCost').textContent]] : []),
+        ['الرسوم الإدارية (4%)', document.getElementById('instAdminFee').textContent],
+        ['صافي المبلغ المحول للعميل', document.getElementById('instNetDisbursed').textContent]
+      ];
+      reportWindow.document.open();
+      reportWindow.document.write(`<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>تقرير حاسبة الأقساط</title><style>@page{size:A4;margin:16mm}*{box-sizing:border-box}body{font-family:Arial,Tahoma,sans-serif;color:#111;margin:0;padding:26px;direction:rtl}.head{border-bottom:3px solid #176b52;padding-bottom:16px;margin-bottom:22px}.brand{font-size:13px;color:#557064;margin-bottom:8px}.head h1{font-size:25px;margin:0 0 6px}.head p{font-size:13px;color:#555;margin:0}.date{font-size:12px;color:#555;margin-top:10px}.hero{border:1px solid #b8d5ca;background:#f1f8f5;border-radius:12px;padding:18px;margin-bottom:18px}.hero span{font-size:13px;color:#47534e}.hero strong{display:block;font-size:28px;margin-top:6px;direction:ltr;text-align:right}.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.item{border:1px solid #d6ded9;border-radius:9px;padding:12px;break-inside:avoid}.item span{display:block;color:#53615a;font-size:12px;margin-bottom:6px}.item strong{font-size:17px;direction:ltr;unicode-bidi:plaintext}.foot{border-top:1px solid #ddd;margin-top:24px;padding-top:10px;font-size:11px;color:#666}@media print{body{padding:0}}</style></head><body><header class="head"><div class="brand">تقرير مالي • حاسبة الأقساط</div><h1>ملخص حساب القرض</h1><p>${escapeHtml(typeLabel)} — احتساب وفق بيانات الحاسبة</p><div class="date">تاريخ الإصدار: ${escapeHtml(new Intl.DateTimeFormat('en-GB',{dateStyle:'long'}).format(new Date()))}</div></header><section class="hero"><span>قيمة القسط الواحد</span><strong>${escapeHtml(document.getElementById('instPayment').textContent)}</strong></section><section class="grid">${rows.map(([label,value])=>`<div class="item"><span>${escapeHtml(label)}</span><strong>${escapeHtml(value)}</strong></div>`).join('')}</section><footer class="foot">تم إعداد هذا التقرير من حاسبة الأقساط. القيم مقربة إلى أقرب جنيه حيث يلزم.</footer><script>window.addEventListener('load',()=>setTimeout(()=>window.print(),250));<\/script></body></html>`);
+      reportWindow.document.close();
+    };
+    document.getElementById('instPrint').addEventListener('click', openCalculatorReport);
+    document.getElementById('instSavePdf').addEventListener('click', openCalculatorReport);
+    document.getElementById('instClearAmount').addEventListener('click', () => { amountInput.value = ''; showError(''); clearResult(); amountInput.focus(); });
     document.getElementById('instReset').addEventListener('click', () => {
       amountInput.value = '';
       durationSelect.value = '6';
