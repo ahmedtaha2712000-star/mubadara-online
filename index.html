@@ -2551,6 +2551,17 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
 <section id="uploadTool" class="card screen no-print" data-screen-title="شاشة الرفع" aria-labelledby="docUploadTitle">
   <div class="du-hero"><div class="du-hero-icon" aria-hidden="true">▤</div><div><span class="du-eyebrow">أداة مستقلة — معالجة محلية</span><h2 id="docUploadTitle">شاشة الرفع</h2><p>صوّر البطاقة أو أضف صورًا وملفات PDF، رتّب الصفحات، ثم أنشئ ملف PDF واحدًا للتنزيل.</p></div></div>
   <div id="docUploadDraftNotice" class="du-draft-banner" hidden role="status" aria-live="polite"><div><strong>توجد مسودة محفوظة على هذا الجهاز</strong><small id="docUploadDraftWhen">يمكن استعادتها للمتابعة.</small></div><div class="du-inline"><button type="button" class="du-primary" id="docUploadDraftRestore">استعادة المسودة</button><button type="button" class="du-secondary" id="docUploadDraftDismiss">حذف المسودة</button></div></div>
+  <section id="docUploadLivePanel" aria-label="البث المباشر">
+    <div class="du-live-head"><div><span class="du-live-kicker">اتصال مباشر — التسجيل واللقطات تحفظ محليًا على جهازك فقط</span><h3>البث المباشر</h3><p>يمكن للأخصائي والمالك بدء البث. المشاهدة متاحة للمالكين فقط.</p></div><span id="docUploadLiveBadge" class="du-live-badge" hidden>مباشر</span></div>
+    <div class="du-live-actions"><button type="button" class="du-primary" id="docUploadLiveStart">بدء البث بالفيديو والصوت</button><button type="button" class="du-secondary" id="docUploadLiveWatch" hidden>مشاهدة البث</button><button type="button" class="du-secondary" id="docUploadLiveAudio" hidden>تفعيل صوت المشاهدة</button><button type="button" class="du-secondary" id="docUploadLiveCamera" hidden>تبديل الكاميرا</button><button type="button" class="du-secondary" id="docUploadLiveSnapshot" hidden>التقاط صورة</button><button type="button" class="du-primary" id="docUploadLiveRecord" hidden>بدء تسجيل الفيديو</button><button type="button" class="du-danger" id="docUploadLiveRecordStop" hidden>إيقاف التسجيل</button><button type="button" class="du-danger" id="docUploadLiveStop" hidden>إنهاء الاتصال</button></div>
+    <p id="docUploadLiveStatus" class="du-live-status" role="status" aria-live="polite">يتطلب البث اتصالًا بالإنترنت وإذن الكاميرا والميكروفون.</p>
+    <div id="docUploadLiveMetrics" class="du-live-metrics" aria-live="polite" hidden>
+      <span id="docUploadLiveConnection" class="du-live-metric" data-state="idle"><i></i><b>الاتصال</b><span>غير متصل</span></span>
+      <span id="docUploadLiveQuality" class="du-live-metric" data-quality="unknown"><i></i><b>جودة البث</b><span>بانتظار القياس</span></span>
+      <span id="docUploadLiveRecording" class="du-live-metric" data-state="off" hidden><i></i><b>التسجيل</b><span>محلي · 00:00</span></span>
+    </div>
+    <div id="docUploadLiveVideos" class="du-live-grid" hidden></div>
+  </section>
   <div class="du-privacy"><strong>خصوصيتك محفوظة</strong><span>تُحفظ مسودة العمل وملفات PDF وسجلاتها محليًا في متصفح هذا الجهاز فقط، ولا تُرسل إلى قاعدة البيانات ولا تتزامن بين الأجهزة. قد تُحمّل مكتبات PDF وOCR عند الحاجة من الإنترنت؛ لا تُرسل صورك إليها. احذف الملفات والمسودة بعد الانتهاء، وقد تُمسح عند حذف بيانات الموقع من إعدادات المتصفح. يمكن لمن لديه وصول إلى هذا المتصفح الاطلاع على الملفات المحلية.</span></div>
   <div class="du-steps" aria-label="خطوات العمل"><span><i>1</i> أضف الملفات</span><span><i>2</i> راجع ورتّب</span><span><i>3</i> أنشئ PDF</span></div>
   <div class="du-draft-status" role="status" aria-live="polite"><span>حفظ تلقائي محلي للمسودة</span><small id="docUploadDraftStatus">لا توجد تغييرات غير محفوظة.</small></div>
@@ -13237,5 +13248,566 @@ body.du-camera-open #mobileBottomNav,body.du-camera-open #mobileMorePanel,body.d
     render();void showDraftNotice();let draftNavBusy=false;document.addEventListener("click",async event=>{const link=event.target.closest?.('nav a[data-screen]');if(!link||!screen?.classList.contains("active"))return;if(link.dataset.duDraftNavigationAllowed==="1"){delete link.dataset.duDraftNavigationAllowed;return;}if(!pages.length||(!draftDirty&&!draftSaveFailed&&!draftPaused))return;event.preventDefault();event.stopImmediatePropagation();if(draftNavBusy)return;if(!confirm("لم تُحفظ تغييرات مساحة العمل في مسودة محلية بعد. هل تريد حفظها الآن ثم مغادرة شاشة الرفع؟"))return;draftNavBusy=true;await saveDraft();if(draftDirty&&!draftSaveFailed)await saveDraft();if(!draftSaveFailed&&!draftDirty){link.dataset.duDraftNavigationAllowed="1";link.click();setTimeout(()=>delete link.dataset.duDraftNavigationAllowed,0)}else say("تعذّر حفظ المسودة؛ ابقَ في الشاشة أو نزّل PDF قبل المغادرة.","error");draftNavBusy=false},true);document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="hidden"&&draftDirty){clearTimeout(draftTimer);void saveDraft()}});window.addEventListener("beforeunload",event=>{if(pages.length&&(draftDirty||draftSaveFailed||draftPaused)){event.preventDefault();event.returnValue=""}pages.forEach(x=>{if(x.kind==="image")URL.revokeObjectURL(x.url)});if(ocrWorker)void ocrWorker.terminate();stopCamera();closeVideoRecorder();if(recordedVideoUrl)URL.revokeObjectURL(recordedVideoUrl);if(previewUrl)URL.revokeObjectURL(previewUrl)});
   }
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
+})();
+</script>
+
+<script id="docUploadLiveKitClient">
+(function () {
+  const panel = document.getElementById("docUploadLivePanel");
+  if (!panel) return;
+
+  const startButton = document.getElementById("docUploadLiveStart");
+  const watchButton = document.getElementById("docUploadLiveWatch");
+  const audioButton = document.getElementById("docUploadLiveAudio");
+  const cameraButton = document.getElementById("docUploadLiveCamera");
+  const snapshotButton = document.getElementById("docUploadLiveSnapshot");
+  const recordButton = document.getElementById("docUploadLiveRecord");
+  const stopRecordingButton = document.getElementById("docUploadLiveRecordStop");
+  const connectionMetric = document.getElementById("docUploadLiveConnection");
+  const qualityMetric = document.getElementById("docUploadLiveQuality");
+  const recordingMetric = document.getElementById("docUploadLiveRecording");
+  const metrics = document.getElementById("docUploadLiveMetrics");
+  const stopButton = document.getElementById("docUploadLiveStop");
+  const statusElement = document.getElementById("docUploadLiveStatus");
+  const videoGrid = document.getElementById("docUploadLiveVideos");
+  const liveBadge = document.getElementById("docUploadLiveBadge");
+  const attachedTracks = new Map();
+  let activeRoom = null;
+  let activeAction = "";
+  let activeCameraDeviceId = "";
+  let mediaRecorder = null;
+  let recordingParts = [];
+  let recordingStartedAt = 0;
+  let recordingTimer = null;
+  let recordingStopResolver = null;
+  let sdkPromise = null;
+  let connecting = false;
+  let joinAttempt = 0;
+
+  const style = document.createElement("style");
+  style.id = "docUploadLiveKitStyle";
+  style.textContent = `
+    #docUploadLivePanel{margin:18px 0;padding:16px;border:1px solid #c7dfdc;border-radius:15px;background:linear-gradient(145deg,#f0fdfa,#fff 72%);box-shadow:0 6px 18px #0f766e0d}
+    #docUploadLivePanel[hidden],#docUploadLiveVideos[hidden],#docUploadLiveBadge[hidden],#docUploadLiveWatch[hidden],#docUploadLiveStop[hidden]{display:none!important}
+    #docUploadLivePanel .du-live-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+    #docUploadLivePanel h3{margin:3px 0 5px;color:#0f3d3a;font-size:18px}
+    #docUploadLivePanel p{margin:0;color:#52616b;font-size:12px;line-height:1.7}
+    #docUploadLivePanel .du-live-kicker{font-size:10px;color:#0f766e;font-weight:800}
+    #docUploadLivePanel .du-live-badge{padding:5px 10px;border-radius:99px;background:#fee2e2;color:#b91c1c;font-size:11px;font-weight:900}
+    #docUploadLivePanel .du-live-badge::before{content:"";display:inline-block;width:7px;height:7px;margin-inline-end:6px;border-radius:50%;background:#dc2626;animation:duLivePulse 1.2s infinite}
+    #docUploadLivePanel .du-live-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+    #docUploadLivePanel .du-live-status{margin-top:10px;padding:9px 11px;border-radius:9px;background:#f8fafc;color:#475569}
+    #docUploadLivePanel .du-live-status[data-state="error"]{background:#fff1f2;color:#be123c}
+    #docUploadLivePanel .du-live-status[data-state="active"]{background:#ecfdf5;color:#047857}
+    #docUploadLiveMetrics[hidden],#docUploadLiveRecording[hidden],#docUploadLiveSnapshot[hidden],#docUploadLiveRecord[hidden],#docUploadLiveRecordStop[hidden]{display:none!important}
+    #docUploadLivePanel .du-live-metrics{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+    #docUploadLivePanel .du-live-metric{display:inline-flex;align-items:center;gap:7px;padding:7px 10px;border:1px solid #dbe7e6;border-radius:999px;background:#fff;color:#334155;font-size:12px;box-shadow:0 2px 8px #0f766e0d}
+    #docUploadLivePanel .du-live-metric b{font-weight:800;color:#0f3d3a}
+    #docUploadLivePanel .du-live-metric i{display:block;width:9px;height:9px;border-radius:50%;background:#94a3b8;box-shadow:0 0 0 3px #94a3b822}
+    #docUploadLiveConnection[data-state="connected"] i{background:#10b981;box-shadow:0 0 0 3px #10b98126}
+    #docUploadLiveConnection[data-state="reconnecting"] i{background:#f59e0b;animation:duLivePulse .8s infinite}
+    #docUploadLiveConnection[data-state="disconnected"] i{background:#ef4444}
+    #docUploadLiveQuality[data-quality="excellent"] i,#docUploadLiveQuality[data-quality="good"] i{background:#10b981}
+    #docUploadLiveQuality[data-quality="poor"] i{background:#f59e0b}
+    #docUploadLiveQuality[data-quality="lost"] i{background:#ef4444;animation:duLivePulse .8s infinite}
+    #docUploadLiveRecording{border-color:#fecaca;background:#fff7f7;color:#b91c1c}
+    #docUploadLiveRecording i{background:#ef4444!important;animation:duLivePulse 1s infinite}
+    #docUploadLivePanel .du-live-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:10px;margin-top:12px}
+    #docUploadLivePanel .du-live-tile{position:relative;min-height:190px;overflow:hidden;border:1px solid #cbd5e1;border-radius:12px;background:#07111b}
+    #docUploadLivePanel .du-live-tile video{display:block;width:100%;height:100%;min-height:190px;max-height:55vh;object-fit:contain;background:#07111b}
+    #docUploadLivePanel .du-live-tile audio{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+    #docUploadLivePanel .du-live-tile-label{position:absolute;inset:auto 8px 8px auto;padding:5px 8px;border-radius:7px;background:#0f172acc;color:#fff;font-size:11px;font-weight:700}
+    @keyframes duLivePulse{50%{opacity:.35}}
+    @media(max-width:600px){#docUploadLivePanel{padding:12px}#docUploadLivePanel .du-live-actions{display:grid;grid-template-columns:1fr}#docUploadLivePanel .du-live-actions button{width:100%}}
+  `;
+  document.head.appendChild(style);
+
+  function currentRole() {
+    try {
+      return typeof session !== "undefined" && session ? String(session.role || "") : "";
+    } catch {
+      return "";
+    }
+  }
+
+  function isOwner() {
+    try {
+      return typeof isOwnerRole === "function" && isOwnerRole(currentRole());
+    } catch {
+      return false;
+    }
+  }
+
+  function currentSupabaseClient() {
+    try {
+      return typeof supabaseClient !== "undefined" ? supabaseClient : null;
+    } catch {
+      return null;
+    }
+  }
+
+  function updateButtons() {
+    const client = currentSupabaseClient();
+    const authenticated = Boolean(client && currentRole());
+    const owner = isOwner();
+    watchButton.hidden = !owner;
+    audioButton.hidden = !owner || !activeRoom;
+    cameraButton.hidden = !activeRoom || activeAction !== "publish";
+    cameraButton.disabled = connecting;
+    snapshotButton.hidden = !activeRoom;
+    recordButton.hidden = !activeRoom || Boolean(mediaRecorder?.state === "recording");
+    recordButton.disabled = !window.MediaRecorder;
+    stopRecordingButton.hidden = !activeRoom || mediaRecorder?.state !== "recording";
+    metrics.hidden = !activeRoom;
+    recordingMetric.hidden = mediaRecorder?.state !== "recording";
+    startButton.disabled = !authenticated || connecting || Boolean(activeRoom);
+    watchButton.disabled = !authenticated || connecting || Boolean(activeRoom);
+    stopButton.hidden = !activeRoom && !connecting;
+    liveBadge.hidden = !activeRoom;
+  }
+
+  function setStatus(message, state = "") {
+    statusElement.textContent = message;
+    if (state) statusElement.dataset.state = state;
+    else delete statusElement.dataset.state;
+  }
+
+  function updateLiveMetrics(stateOverride) {
+    if (!activeRoom) {
+      connectionMetric.dataset.state = "idle";
+      connectionMetric.querySelector("span").textContent = "غير متصل";
+      qualityMetric.dataset.quality = "unknown";
+      qualityMetric.querySelector("span").textContent = "بانتظار القياس";
+      return;
+    }
+    const rawState = String(stateOverride || activeRoom.state || "connecting").toLowerCase();
+    const stateMap = {
+      connected: ["connected", "متصل"],
+      connecting: ["connecting", "جارٍ الاتصال"],
+      reconnecting: ["reconnecting", "إعادة الاتصال"],
+      disconnected: ["disconnected", "انقطع الاتصال"],
+    };
+    const state = stateMap[rawState] || ["connecting", "جارٍ الاتصال"];
+    connectionMetric.dataset.state = state[0];
+    connectionMetric.querySelector("span").textContent = state[1];
+    const quality = String(activeRoom.localParticipant?.connectionQuality || "unknown").toLowerCase();
+    const qualityMap = {
+      excellent: ["excellent", "ممتازة"],
+      good: ["good", "جيدة"],
+      poor: ["poor", "ضعيفة"],
+      lost: ["lost", "ضعيفة جدًا"],
+      unknown: ["unknown", "بانتظار القياس"],
+    };
+    const qualityState = qualityMap[quality] || qualityMap.unknown;
+    qualityMetric.dataset.quality = qualityState[0];
+    qualityMetric.querySelector("span").textContent = qualityState[1];
+  }
+
+  function downloadBlob(blob, filename) {
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = filename;
+    link.style.display = "none";
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 30000);
+  }
+
+  function currentMediaTracks() {
+    if (!activeRoom) return [];
+    const participants = activeAction === "publish"
+      ? [activeRoom.localParticipant]
+      : Array.from(activeRoom.remoteParticipants.values());
+    const tracks = [];
+    for (const participant of participants) {
+      for (const publication of participant.trackPublications.values()) {
+        const mediaTrack = publication.track?.mediaStreamTrack;
+        if (mediaTrack && mediaTrack.readyState === "live" && (mediaTrack.kind === "audio" || mediaTrack.kind === "video")) {
+          tracks.push(mediaTrack);
+        }
+      }
+    }
+    return [...new Set(tracks)];
+  }
+
+  async function captureSnapshot() {
+    const video = videoGrid.querySelector("video");
+    if (!video || !video.videoWidth || !video.videoHeight) {
+      setStatus("لا يوجد إطار فيديو جاهز لالتقاطه الآن. انتظر ظهور الصورة ثم حاول مجددًا.", "error");
+      return;
+    }
+    const canvas = document.createElement("canvas");
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    const context = canvas.getContext("2d");
+    if (!context) throw new Error("تعذر تجهيز الصورة.");
+    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+    const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/jpeg", 0.92));
+    if (!blob) throw new Error("تعذر إنشاء الصورة.");
+    const stamp = new Date().toISOString().replace(/[:.]/g, "-");
+    downloadBlob(blob, `live-broadcast-${stamp}.jpg`);
+    setStatus("تم التقاط الصورة وتنزيلها على جهازك.", "active");
+  }
+
+  function updateRecordingTimer() {
+    if (!recordingStartedAt) return;
+    const totalSeconds = Math.floor((Date.now() - recordingStartedAt) / 1000);
+    const minutes = String(Math.floor(totalSeconds / 60)).padStart(2, "0");
+    const seconds = String(totalSeconds % 60).padStart(2, "0");
+    recordingMetric.querySelector("span").textContent = `محلي · ${minutes}:${seconds}`;
+  }
+
+  function finalizeRecording(recorder) {
+    if (mediaRecorder !== recorder) return;
+    const type = recorder.mimeType || "video/webm";
+    const blob = new Blob(recordingParts, { type });
+    recordingParts = [];
+    mediaRecorder = null;
+    recordingStartedAt = 0;
+    if (recordingTimer) clearInterval(recordingTimer);
+    recordingTimer = null;
+    if (blob.size) {
+      const stamp = new Date().toISOString().replace(/[:.]/g, "-");
+      const extension = type.includes("mp4") ? "mp4" : "webm";
+      downloadBlob(blob, `live-broadcast-${stamp}.${extension}`);
+      setStatus("انتهى التسجيل وتم تنزيل الفيديو محليًا على جهازك.", "active");
+    } else {
+      setStatus("انتهى التسجيل لكن لم يتوفر فيديو صالح للتنزيل.", "error");
+    }
+    updateButtons();
+    const resolve = recordingStopResolver;
+    recordingStopResolver = null;
+    if (resolve) resolve();
+  }
+
+  function finishRecording() {
+    const recorder = mediaRecorder;
+    if (!recorder) return Promise.resolve();
+    if (recorder.state === "inactive") {
+      finalizeRecording(recorder);
+      return Promise.resolve();
+    }
+    return new Promise(resolve => {
+      recordingStopResolver = resolve;
+      try { recorder.stop(); } catch { finalizeRecording(recorder); }
+    });
+  }
+
+  function startRecording() {
+    if (!activeRoom || mediaRecorder) return;
+    if (!window.MediaRecorder) {
+      setStatus("تسجيل الفيديو غير مدعوم في هذا المتصفح. جرّب متصفحًا حديثًا.", "error");
+      return;
+    }
+    const tracks = currentMediaTracks();
+    if (!tracks.some(track => track.kind === "video")) {
+      setStatus("لا يوجد فيديو مباشر جاهز للتسجيل بعد. انتظر ظهور الصورة ثم حاول.", "error");
+      return;
+    }
+    try {
+      const stream = new MediaStream(tracks);
+      const candidates = ["video/webm;codecs=vp9,opus", "video/webm;codecs=vp8,opus", "video/webm"];
+      const mimeType = candidates.find(type => MediaRecorder.isTypeSupported(type));
+      mediaRecorder = mimeType ? new MediaRecorder(stream, { mimeType }) : new MediaRecorder(stream);
+      recordingParts = [];
+      const recorder = mediaRecorder;
+      recorder.addEventListener("stop", () => finalizeRecording(recorder), { once: true });
+      recorder.addEventListener("dataavailable", event => {
+        if (event.data?.size) recordingParts.push(event.data);
+      });
+      mediaRecorder.addEventListener("error", () => {
+        setStatus("حدث خطأ أثناء تسجيل الفيديو.", "error");
+        updateButtons();
+      });
+      mediaRecorder.start(1000);
+      recordingStartedAt = Date.now();
+      updateRecordingTimer();
+      recordingTimer = setInterval(updateRecordingTimer, 1000);
+      updateButtons();
+      setStatus("بدأ التسجيل. سيُنزّل الملف إلى هذا الجهاز عند إيقافه؛ لا يُرفع إلى الخادم.", "active");
+    } catch (error) {
+      mediaRecorder = null;
+      setStatus(error?.message || "تعذر بدء التسجيل في هذا المتصفح.", "error");
+      updateButtons();
+    }
+  }
+
+  function loadLiveKitSdk() {
+    if (window.LivekitClient) return Promise.resolve(window.LivekitClient);
+    if (sdkPromise) return sdkPromise;
+    sdkPromise = new Promise((resolve, reject) => {
+      const script = document.createElement("script");
+      script.src = "https://cdn.jsdelivr.net/npm/livekit-client@2.22.4/dist/livekit-client.umd.min.js";
+      script.async = true;
+      script.onload = () => window.LivekitClient
+        ? resolve(window.LivekitClient)
+        : reject(new Error("تعذر تهيئة مكتبة البث."));
+      script.onerror = () => reject(new Error("تعذر تحميل مكتبة البث. تحقق من اتصال الإنترنت."));
+      document.head.appendChild(script);
+    }).catch(error => {
+      sdkPromise = null;
+      throw error;
+    });
+    return sdkPromise;
+  }
+
+  async function requestJoinToken(action) {
+    const client = currentSupabaseClient();
+    if (!client) throw new Error("اتصال الدخول غير متاح. أعد تسجيل الدخول ثم حاول مرة أخرى.");
+    const { data, error } = await client.auth.getSession();
+    if (error) throw new Error("تعذر التحقق من جلسة الدخول.");
+    const accessToken = data?.session?.access_token;
+    if (!accessToken) throw new Error("انتهت جلسة الدخول. أعد تسجيل الدخول ثم حاول مرة أخرى.");
+
+    const response = await fetch("/api/livekit-token", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json",
+      },
+      cache: "no-store",
+      body: JSON.stringify({ action }),
+    });
+    let payload = {};
+    try { payload = await response.json(); } catch {}
+    if (!response.ok) throw new Error(payload.error || "تعذر الحصول على صلاحية البث.");
+    if (!payload.url || !payload.token) throw new Error("استجابة خادم البث غير مكتملة.");
+    return payload;
+  }
+
+  function removeTrack(track) {
+    const tile = attachedTracks.get(track);
+    try { track.detach(); } catch {}
+    if (tile) tile.remove();
+    attachedTracks.delete(track);
+    if (!videoGrid.children.length) videoGrid.hidden = true;
+  }
+
+  function attachTrack(track, label) {
+    if (!track || attachedTracks.has(track)) return;
+    const tile = document.createElement("div");
+    tile.className = "du-live-tile";
+    const media = track.attach();
+    media.autoplay = true;
+    if (media.tagName === "VIDEO") {
+      media.playsInline = true;
+      media.muted = track.kind === "video" && label === "معاينة البث (أنت)";
+    } else if (media.tagName === "AUDIO") {
+      media.autoplay = true;
+    }
+    tile.appendChild(media);
+    const caption = document.createElement("span");
+    caption.className = "du-live-tile-label";
+    caption.textContent = label;
+    tile.appendChild(caption);
+    videoGrid.appendChild(tile);
+    videoGrid.hidden = false;
+    attachedTracks.set(track, tile);
+  }
+
+  function handleSubscribedTrack(track, publication, participant) {
+    const name = participant?.name || "مشارك في البث";
+    attachTrack(track, name);
+  }
+
+  async function disconnectRoom(message) {
+    joinAttempt += 1;
+    if (mediaRecorder?.state === "recording") await finishRecording();
+    const room = activeRoom;
+    activeRoom = null;
+    activeAction = "";
+    activeCameraDeviceId = "";
+    if (room) {
+      try { await room.localParticipant.setCameraEnabled(false); } catch {}
+      try { await room.localParticipant.setMicrophoneEnabled(false); } catch {}
+      try { await room.disconnect(); } catch {}
+    }
+    attachedTracks.forEach((tile, track) => {
+      try { track.detach(); } catch {}
+      tile.remove();
+    });
+    attachedTracks.clear();
+    videoGrid.replaceChildren();
+    videoGrid.hidden = true;
+    liveBadge.hidden = true;
+    metrics.hidden = true;
+    recordingMetric.hidden = true;
+    updateLiveMetrics("disconnected");
+    connecting = false;
+    stopButton.hidden = true;
+    startButton.hidden = false;
+    updateButtons();
+    if (message) setStatus(message);
+  }
+
+  async function join(action) {
+    if (connecting || activeRoom) return;
+    if (action === "watch" && !isOwner()) {
+      setStatus("المشاهدة متاحة للمالكين فقط.", "error");
+      return;
+    }
+    const attempt = ++joinAttempt;
+    connecting = true;
+    updateButtons();
+    setStatus(action === "publish" ? "جارٍ الاتصال وطلب إذن الكاميرا والميكروفون…" : "جارٍ الاتصال بالبث المباشر…");
+
+    try {
+      const [sdk, access] = await Promise.all([loadLiveKitSdk(), requestJoinToken(action)]);
+      if (attempt !== joinAttempt || !uploadScreenIsActive()) return;
+      if (!/^wss:\/\//i.test(access.url)) throw new Error("عنوان خادم البث غير صالح.");
+      const room = new sdk.Room({
+        adaptiveStream: true,
+        dynacast: true,
+        videoCaptureDefaults: { resolution: sdk.VideoPresets.h720.resolution },
+      });
+      activeRoom = room;
+      activeAction = action;
+      room.on(sdk.RoomEvent.TrackSubscribed, (track, publication, participant) => {
+        handleSubscribedTrack(track, publication, participant);
+        updateButtons();
+      });
+      room.on(sdk.RoomEvent.TrackUnsubscribed, track => {
+        removeTrack(track);
+        updateButtons();
+      });
+      room.on(sdk.RoomEvent.ConnectionStateChanged, state => updateLiveMetrics(state));
+      room.on(sdk.RoomEvent.ConnectionQualityChanged, () => updateLiveMetrics());
+      room.on(sdk.RoomEvent.LocalTrackUnpublished, publication => {
+        if (publication?.track) removeTrack(publication.track);
+      });
+      room.on(sdk.RoomEvent.ParticipantDisconnected, () => {
+        if (action === "watch" && room.remoteParticipants.size === 0) {
+          setStatus("تم الاتصال. جارٍ انتظار بدء البث…");
+        }
+      });
+      room.on(sdk.RoomEvent.Disconnected, () => {
+        if (activeRoom === room) {
+          activeRoom = null;
+          connecting = false;
+          updateLiveMetrics("disconnected");
+          updateButtons();
+          setStatus("انقطع الاتصال بالبث.", "error");
+        }
+      });
+      await room.connect(access.url, access.token);
+      updateLiveMetrics("connected");
+      if (attempt !== joinAttempt || !uploadScreenIsActive()) {
+        if (activeRoom === room) activeRoom = null;
+        try { await room.disconnect(); } catch {}
+        return;
+      }
+      if (action === "publish") {
+        await room.localParticipant.setCameraEnabled(true);
+        if (attempt !== joinAttempt || !uploadScreenIsActive()) {
+          if (activeRoom === room) activeRoom = null;
+          try { await room.disconnect(); } catch {}
+          return;
+        }
+        const camera = room.localParticipant.getTrackPublication(sdk.Track.Source.Camera);
+        if (camera?.track) {
+          attachTrack(camera.track, "معاينة البث (أنت)");
+          activeCameraDeviceId = camera.track.mediaStreamTrack?.getSettings?.().deviceId || "";
+        }
+        if (!activeCameraDeviceId && navigator.mediaDevices?.enumerateDevices) {
+          const initialDevices = (await navigator.mediaDevices.enumerateDevices()).filter(device => device.kind === "videoinput" && device.deviceId);
+          activeCameraDeviceId = initialDevices[0]?.deviceId || "";
+        }
+        await room.localParticipant.setMicrophoneEnabled(true);
+        if (attempt !== joinAttempt || !uploadScreenIsActive()) {
+          if (activeRoom === room) activeRoom = null;
+          try { await room.disconnect(); } catch {}
+          return;
+        }
+        setStatus("البث مباشر الآن. يمكن للمالكين مشاهدة الفيديو والصوت.", "active");
+      } else {
+        setStatus("أنت متصل كمشاهد. جارٍ انتظار الأخصائي…", "active");
+      }
+      connecting = false;
+      updateLiveMetrics("connected");
+      updateButtons();
+      startButton.hidden = true;
+      watchButton.hidden = true;
+      stopButton.hidden = false;
+    } catch (error) {
+      if (attempt !== joinAttempt) return;
+      await disconnectRoom("");
+      setStatus(error?.message || "تعذر بدء الاتصال بالبث.", "error");
+    }
+  }
+
+  startButton.addEventListener("click", () => void join("publish"));
+  watchButton.addEventListener("click", () => void join("watch"));
+  cameraButton.addEventListener("click", async () => {
+    if (!activeRoom || activeAction !== "publish" || connecting) return;
+    if (!navigator.mediaDevices?.enumerateDevices) {
+      setStatus("لا يمكن استعراض الكاميرات المتاحة في هذا المتصفح.", "error");
+      return;
+    }
+    cameraButton.disabled = true;
+    try {
+      const devices = (await navigator.mediaDevices.enumerateDevices())
+        .filter(device => device.kind === "videoinput" && device.deviceId);
+      if (devices.length < 2) {
+        setStatus("لم يعثر المتصفح على كاميرا أخرى. تحقق من إعدادات الكاميرا أو جرّب متصفحًا/جهازًا آخر.", "error");
+        return;
+      }
+      if (mediaRecorder?.state === "recording") await finishRecording();
+      const sdk = window.LivekitClient;
+      const publication = activeRoom.localParticipant.getTrackPublication(sdk.Track.Source.Camera);
+      const liveDeviceId = publication?.track?.mediaStreamTrack?.getSettings?.().deviceId || "";
+      const currentId = activeCameraDeviceId || liveDeviceId || devices[0].deviceId;
+      let currentIndex = devices.findIndex(device => device.deviceId === currentId);
+      if (currentIndex < 0) currentIndex = 0;
+      const next = devices[(currentIndex + 1) % devices.length];
+      if (next.deviceId === currentId) {
+        setStatus("لا توجد كاميرا أخرى متاحة للتبديل.", "error");
+        return;
+      }
+      await activeRoom.switchActiveDevice("videoinput", next.deviceId);
+      activeCameraDeviceId = next.deviceId;
+      const label = next.label || `الكاميرا ${((currentIndex + 1) % devices.length) + 1}`;
+      setStatus(`تم التبديل إلى ${label}.`, "active");
+    } catch (error) {
+      setStatus(error?.message || "تعذر تبديل الكاميرا. تحقق من أذونات الكاميرا.", "error");
+    } finally {
+      cameraButton.disabled = false;
+    }
+  });
+  snapshotButton.addEventListener("click", () => {
+    void captureSnapshot().catch(error => setStatus(error?.message || "تعذر التقاط الصورة.", "error"));
+  });
+  recordButton.addEventListener("click", startRecording);
+  stopRecordingButton.addEventListener("click", () => { void finishRecording(); });
+  audioButton.addEventListener("click", async () => {
+    if (!activeRoom || !isOwner()) return;
+    try {
+      await activeRoom.startAudio();
+      setStatus("تم تفعيل صوت البث.", "active");
+    } catch {
+      setStatus("تعذر تفعيل الصوت. تحقق من إعدادات الصوت في المتصفح.", "error");
+    }
+  });
+  stopButton.addEventListener("click", () => void disconnectRoom("تم إنهاء الاتصال بالبث."));
+
+  const uploadScreen = document.getElementById("uploadTool");
+  function uploadScreenIsActive() {
+    return Boolean(uploadScreen && uploadScreen.classList.contains("active"));
+  }
+  if (uploadScreen) {
+    const observer = new MutationObserver(() => {
+      const active = uploadScreen.classList.contains("active");
+      updateButtons();
+      if (!active && (activeRoom || connecting)) {
+        void disconnectRoom("تم إنهاء البث عند مغادرة شاشة الرفع.");
+      }
+    });
+    observer.observe(uploadScreen, { attributes: true, attributeFilter: ["class"] });
+  }
+  window.addEventListener("beforeunload", () => {
+    if (activeRoom) void activeRoom.disconnect();
+  });
+  updateButtons();
 })();
 </script>
