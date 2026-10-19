@@ -2348,6 +2348,60 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
 #installmentCalculator .inst-bottom-note{margin:15px 2px 0;color:#64748b;font-size:11px;line-height:1.7}
 @media(max-width:760px){#installmentCalculator .inst-layout{grid-template-columns:1fr}#installmentCalculator .inst-hero{padding:18px}#installmentCalculator .inst-hero-row{align-items:flex-start;flex-direction:column}#installmentCalculator .inst-fixed-badge{white-space:normal}}
 @media(max-width:430px){#installmentCalculator .inst-panel,#installmentCalculator .inst-result-panel{padding:15px}#installmentCalculator .inst-type-switch{grid-template-columns:1fr}#installmentCalculator .inst-form-grid{grid-template-columns:1fr}#installmentCalculator .inst-action-row{flex-direction:column}#installmentCalculator .inst-calculate-button,#installmentCalculator .inst-reset-button{min-height:44px}}
+
+/* Requested calculator typography: bold black Arial throughout this screen. */
+#installmentCalculator,
+#installmentCalculator *{font-family:Arial,Tahoma,sans-serif!important;color:#000!important;font-weight:700!important}
+#installmentCalculator .inst-hero{color:#000!important;background:#f1f5f9!important;border:1px solid #cbd5e1}
+#installmentCalculator .inst-hero:after{display:none}
+#installmentCalculator .inst-kicker,
+#installmentCalculator .inst-hero p,
+#installmentCalculator .inst-fixed-badge,
+#installmentCalculator .inst-type-desc,
+#installmentCalculator .inst-help,
+#installmentCalculator .inst-bottom-note,
+#installmentCalculator .inst-main-result span,
+#installmentCalculator .inst-cadence,
+#installmentCalculator .inst-summary-item span,
+#installmentCalculator .inst-summary-item strong .inst-unit{color:#000!important}
+#installmentCalculator .inst-kicker{font-size:16px!important}
+#installmentCalculator .inst-hero h2{font-size:30px!important;color:#000!important}
+#installmentCalculator .inst-hero p{font-size:18px!important}
+#installmentCalculator .inst-fixed-badge{background:#fff;border-color:#64748b;font-size:15px!important}
+#installmentCalculator .inst-panel,
+#installmentCalculator .inst-result-panel{background:#fff;border-color:#64748b}
+#installmentCalculator .inst-field label,
+#installmentCalculator .inst-result-top strong{font-size:18px!important}
+#installmentCalculator .inst-input-wrap input{font-size:22px!important;font-weight:800!important}
+#installmentCalculator .inst-input-unit{font-size:16px!important}
+#installmentCalculator .inst-type-title{font-size:18px!important}
+#installmentCalculator .inst-type-desc{font-size:14px!important}
+#installmentCalculator .inst-type-button[aria-pressed="true"]{background:#e5e7eb!important;border-color:#111!important;box-shadow:inset 0 0 0 1px #111!important}
+#installmentCalculator .inst-form-grid select{font-size:18px!important;font-weight:700!important}
+#installmentCalculator .inst-calculate-button,
+#installmentCalculator .inst-reset-button{font-size:18px!important;background:#e5e7eb!important;border:2px solid #111!important;color:#000!important;box-shadow:none!important}
+#installmentCalculator .inst-main-result{background:#f1f5f9!important;border:2px solid #111}
+#installmentCalculator .inst-main-result span{font-size:16px!important}
+#installmentCalculator .inst-payment-value{font-size:36px!important;color:#000!important}
+#installmentCalculator .inst-cadence{font-size:16px!important}
+#installmentCalculator .inst-summary-item{border-color:#64748b}
+#installmentCalculator .inst-summary-item span{font-size:15px!important}
+#installmentCalculator .inst-summary-item strong{font-size:20px!important}
+#installmentCalculator .inst-rate-pill{background:#e5e7eb!important;border:1px solid #111;font-size:16px!important}
+#installmentCalculator .inst-formula{background:#f1f5f9!important;border:1px solid #64748b;font-size:15px!important;color:#000!important}
+#installmentCalculator .inst-empty-state{font-size:17px!important;color:#000!important}
+#installmentCalculator .inst-empty-state strong{font-size:19px!important;color:#000!important}
+#installmentCalculator .inst-empty-icon{background:#e5e7eb!important;color:#000!important}
+#installmentCalculator .inst-error{background:#f3f4f6!important;border-color:#111!important;color:#000!important;font-size:17px!important}
+#installmentCalculator .inst-bottom-note{font-size:14px!important}
+#installmentCalculator .inst-seasonal-details{margin:0 0 13px;border:2px solid #111;border-radius:12px;padding:13px;background:#fff}
+#installmentCalculator .inst-seasonal-details h3{margin:0 0 10px;font-size:19px!important}
+#installmentCalculator .inst-seasonal-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+#installmentCalculator .inst-seasonal-value{border:1px solid #64748b;border-radius:10px;padding:11px;min-width:0}
+#installmentCalculator .inst-seasonal-value span{display:block;font-size:15px!important;margin-bottom:5px}
+#installmentCalculator .inst-seasonal-value strong{display:block;font-size:23px!important;overflow-wrap:anywhere}
+#installmentCalculator .inst-seasonal-value small{display:block;font-size:13px!important;margin-top:4px}
+@media(max-width:430px){#installmentCalculator .inst-seasonal-grid{grid-template-columns:1fr}#installmentCalculator .inst-hero h2{font-size:25px!important}#installmentCalculator .inst-payment-value{font-size:30px!important}}
 </style></head>
 
 <body>
@@ -3057,6 +3111,13 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
       <div id="instResultContent" hidden>
         <div class="inst-result-top"><strong>نتيجة الحساب</strong><span class="inst-rate-pill" id="instRate">—</span></div>
         <div class="inst-main-result"><span>قيمة القسط الواحد</span><strong class="inst-payment-value" id="instPayment">—</strong><span class="inst-cadence" id="instCadence">—</span></div>
+        <div class="inst-seasonal-details" id="instSeasonalDetails" hidden>
+          <h3>تفاصيل الأقساط الموسمية</h3>
+          <div class="inst-seasonal-grid">
+            <div class="inst-seasonal-value"><span>تكلفة التمويل الشهرية</span><strong id="instMonthlyFinanceCost">—</strong><small>إجمالي الفائدة ÷ مدة القرض بالأشهر</small></div>
+            <div class="inst-seasonal-value"><span>قسط أصل القرض حسب المدة</span><strong id="instPrincipalInstallment">—</strong><small id="instPrincipalInstallmentCadence">—</small></div>
+          </div>
+        </div>
         <div class="inst-summary-grid">
           <div class="inst-summary-item"><span>أصل القرض</span><strong id="instPrincipalOut">—</strong></div>
           <div class="inst-summary-item"><span>إجمالي الفائدة</span><strong id="instInterest">—</strong></div>
@@ -14066,7 +14127,7 @@ body.du-camera-open #mobileBottomNav,body.du-camera-open #mobileMorePanel,body.d
     const fmtRate = value => rateFormatter.format(value);
     const fmtCount = value => countFormatter.format(value);
     const showError = message => { errorBox.textContent = message || ''; errorBox.hidden = !message; };
-    const clearResult = () => { emptyState.hidden = false; resultContent.hidden = true; };
+    const clearResult = () => { emptyState.hidden = false; resultContent.hidden = true; const details = document.getElementById('instSeasonalDetails'); if (details) details.hidden = true; };
     const updateFrequencyOptions = () => {
       const isSixMonths = Number(durationSelect.value) === 6;
       intervalSix.disabled = isSixMonths;
@@ -14087,8 +14148,9 @@ body.du-camera-open #mobileBottomNav,body.du-camera-open #mobileMorePanel,body.d
       if (!Number.isFinite(amount) || amount < 5000 || amount > 292000) {
         clearResult(); showError('المبلغ يجب أن يكون من 5,000 إلى 292,000 جنيه.'); return;
       }
-      if (amount !== 292000 && amount % 5000 !== 0) {
-        clearResult(); showError('المبلغ يجب أن يكون من مضاعفات 5,000، والاستثناء الوحيد هو 292,000.'); return;
+      const allowedExceptions = [262000, 292000];
+      if (amount % 5000 !== 0 && !allowedExceptions.includes(amount)) {
+        clearResult(); showError('هذا المبلغ غير مسموح به على النظام. يجب أن يكون من مضاعفات 5,000، باستثناء 262,000 و292,000 جنيه.'); return;
       }
       const months = Number(durationSelect.value);
       if (![6, 12, 18, 24].includes(months)) {
@@ -14111,15 +14173,28 @@ body.du-camera-open #mobileBottomNav,body.du-camera-open #mobileMorePanel,body.d
       const count = months / intervalMonths;
       const interest = amount * annualRate * months / 12;
       const total = amount + interest;
-      const installment = total / count;
+      const roundedInterest = Math.round(interest);
+      const roundedTotal = amount + roundedInterest;
+      const installment = paymentType === 'monthly' ? roundedTotal / count : amount / count;
+      const monthlyFinanceCost = interest / months;
+      const roundedMonthlyFinanceCost = Math.round(monthlyFinanceCost);
       document.getElementById('instRate').textContent = `${fmtRate(annualRate * 100)}٪ سنويًا`;
-      document.getElementById('instPayment').textContent = `${fmt(installment)} جنيه`;
-      document.getElementById('instCadence').textContent = paymentType === 'monthly' ? `تُسدد شهريًا • ${fmtCount(count)} أقساط` : `تُسدد كل ${intervalMonths} أشهر • ${fmtCount(count)} أقساط`;
-      document.getElementById('instPrincipalOut').innerHTML = `${fmt(amount)} <span class="inst-unit">جنيه</span>`;
-      document.getElementById('instInterest').innerHTML = `${fmt(interest)} <span class="inst-unit">جنيه</span>`;
-      document.getElementById('instTotal').innerHTML = `${fmt(total)} <span class="inst-unit">جنيه</span>`;
+      document.getElementById('instPayment').textContent = `${fmtCount(Math.round(installment))} جنيه`;
+      document.getElementById('instCadence').textContent = paymentType === 'monthly' ? `قسط شهري شامل أصل القرض والفائدة • ${fmtCount(count)} أقساط` : `قسط أصل القرض كل ${fmtCount(intervalMonths)} أشهر • الفائدة تُسدد شهريًا`;
+      document.getElementById('instPrincipalOut').innerHTML = `${fmtCount(amount)} <span class="inst-unit">جنيه</span>`;
+      document.getElementById('instInterest').innerHTML = `${fmtCount(roundedInterest)} <span class="inst-unit">جنيه</span>`;
+      document.getElementById('instTotal').innerHTML = `${fmtCount(roundedTotal)} <span class="inst-unit">جنيه</span>`;
       document.getElementById('instCount').textContent = fmtCount(count);
-      document.getElementById('instFormula').textContent = `الفائدة الثابتة = أصل القرض × ${fmtRate(annualRate * 100)}٪ × ${fmtCount(months)} ÷ 12. إجمالي السداد يُقسم بالتساوي على ${fmtCount(count)} قسطًا.`;
+      const seasonalDetails = document.getElementById('instSeasonalDetails');
+      seasonalDetails.hidden = paymentType !== 'seasonal';
+      if (paymentType === 'seasonal') {
+        document.getElementById('instMonthlyFinanceCost').textContent = `${fmtCount(roundedMonthlyFinanceCost)} جنيه`;
+        document.getElementById('instPrincipalInstallment').textContent = `${fmtCount(Math.round(installment))} جنيه`;
+        document.getElementById('instPrincipalInstallmentCadence').textContent = `${fmtCount(intervalMonths)} أشهر • أصل القرض فقط (${fmtCount(amount)} ÷ ${fmtCount(count)})`;
+        document.getElementById('instFormula').textContent = `الفائدة الإجمالية الثابتة ${fmtCount(roundedInterest)} جنيه، وتكلفة التمويل الشهرية = الفائدة الإجمالية ÷ ${fmtCount(months)} شهرًا = ${fmtCount(roundedMonthlyFinanceCost)} جنيه تقريبًا. قسط أصل القرض = ${fmtCount(amount)} ÷ ${fmtCount(count)} دفعات = ${fmtCount(Math.round(installment))} جنيه؛ وتُدفع تكلفة التمويل شهريًا منفصلة.`;
+      } else {
+        document.getElementById('instFormula').textContent = `الفائدة الثابتة = أصل القرض × ${fmtRate(annualRate * 100)}٪ × ${fmtCount(months)} ÷ 12. إجمالي السداد ${fmtCount(roundedTotal)} جنيه، مقسم بالتساوي على ${fmtCount(count)} قسط شهري.`;
+      }
       emptyState.hidden = true;
       resultContent.hidden = false;
     };
