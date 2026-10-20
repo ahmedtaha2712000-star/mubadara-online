@@ -3768,7 +3768,7 @@ function showScreen(id){
   if(!enforceSession()) return;
   if(!SCREEN_IDS.includes(id)) id="import";
   if(id==="groupLeadFollowup"&&session.role!=="group_lead")id="search";
-  if(session.role==="group_lead"&&(id==="portfolio"||id==="users"||id==="audit"||id==="import"||id==="settings"))id="search";
+  if(session.role==="group_lead"&&(id==="users"||id==="audit"||id==="import"||id==="settings"))id="search";
   if((id==="users"||id==="audit")&&!isOwnerRole(session.role))id="search";
   if((id==="specialists"||id==="dash")&&!isOwnerRole(session.role)&&session.role!=="group_lead")id="search";
   if(id==="specialists"&&typeof loadSpecialistGroupManagement==="function")void loadSpecialistGroupManagement();
@@ -4094,8 +4094,8 @@ async function login(){
  applyPermissions();
 	 const preferredScreen=String(location.hash||"").replace(/^#/,"");
 	 const canRestoreScreen=SCREEN_IDS.includes(preferredScreen)&&!(["users","specialists","audit","dash"].includes(preferredScreen)&&!isOwnerRole(session.role));
-	 showScreen(session.role==="group_lead"?"groupLeadFollowup":canRestoreScreen?preferredScreen:(session.role==="officer"?"clients":"dash"));
-	 if(session.role==="group_lead"){if(typeof refreshOnOpen==="function")void refreshOnOpen();if(typeof loadGroupLeadFollowup==="function")void loadGroupLeadFollowup();}else if(typeof refreshOnOpen==="function")void refreshOnOpen();
+	 showScreen(canRestoreScreen?preferredScreen:(session.role==="officer"||session.role==="group_lead"?"clients":"dash"));
+	 if(typeof refreshOnOpen==="function")void refreshOnOpen();
 }
 let INACTIVITY_LIMIT=8*60*60*1000;
 let inactivityTimer=null;
@@ -12531,7 +12531,7 @@ function updateLocationOwnerView() { const card=document.getElementById("locatio
 async function refreshSharedLocations(isPoll=false,full=false) {
   if(!updateLocationOwnerView()) return;
   if(session?.role==="group_lead"){
-    try{if(isPoll)await loadCloud();const rawItems=Array.isArray(groupLeadLocations)?groupLeadLocations:[];const items=full?rawItems:rawItems.slice(0,20);const signature=items.map(x=>`${x.id}:${x.server_received_at}`).join("|");if(isPoll&&signature===locationLastSignature)return;locationLastSignature=signature;locationAllItems=items;populateLocationFilterOptions(items);applyLocationFilters();renderLocationFacts(items[0]||null);locationLoadedOnce=true;setLocationStatus(items.length?`${items.length} موقع ضمن مجموعتك`:"لا توجد مواقع مسجلة لأفراد المجموعة");}catch(e){setLocationStatus(e.message||"تعذر تحميل مواقع المجموعة","error");}return;
+    try{if(isPoll)await loadCloud();const rawItems=Array.isArray(groupLeadLocations)?groupLeadLocations:[];const items=full?rawItems:rawItems.slice(0,20);const signature=items.map(x=>`${x.id}:${x.server_received_at}`).join("|");if(isPoll&&signature===locationLastSignature)return;locationLastSignature=signature;locationAllItems=items;populateLocationFilterOptions(items);applyLocationFilters();renderLocationFacts(items[0]||null);locationLoadedOnce=true;if(isPoll&&!locationInitialLoad){items.filter(x=>x.id&&!locationKnownIds.has(x.id)).slice(0,5).reverse().forEach(notifyNewLocation);}locationKnownIds=new Set(items.map(x=>x.id));locationInitialLoad=false;setLocationStatus(items.length?`${items.length} موقع ضمن مجموعتك`:"لا توجد مواقع مسجلة لأفراد المجموعة");}catch(e){setLocationStatus(e.message||"تعذر تحميل مواقع المجموعة","error");}return;
   }
   try { const response=await fetch(LOCATION_FUNCTION_URL,{headers:{apikey:SUPABASE_PUBLISHABLE_KEY}}); const data=await response.json(); if(!response.ok)throw new Error(data.error||"تعذر تحميل المواقع"); const rawItems=Array.isArray(data.locations)?data.locations:[]; const items=(full?rawItems:rawItems.slice(0,20)); const signature=items.map(x=>`${x.id}:${x.server_received_at}`).join("|"); if(isPoll&&signature===locationLastSignature)return; locationLastSignature=signature; locationAllItems=items; populateLocationFilterOptions(items); applyLocationFilters(); renderLocationFacts(items[0]||null); locationLoadedOnce=true; if(isPoll&&!locationInitialLoad){items.filter(x=>x.id&&!locationKnownIds.has(x.id)).slice(0,5).reverse().forEach(notifyNewLocation);} locationKnownIds=new Set(items.map(x=>x.id)); locationInitialLoad=false; } catch(e) { setLocationStatus("تعذر تحميل المواقع حاليًا","error"); console.warn("locations load",e); }
 }
@@ -12580,7 +12580,7 @@ window.showScreen = function(id) { const result=previousShowScreen.apply(this,ar
 <style>
 .group-lead-scope-bar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:10px auto 14px;padding:12px 16px;max-width:1500px;border:1px solid #cbd5e1;border-radius:12px;background:#f8fafc;color:#0f172a;font:600 14px Arial,sans-serif;direction:rtl}
 .group-lead-scope-bar[hidden]{display:none!important}.group-lead-scope-bar label{display:flex;align-items:center;gap:7px}.group-lead-scope-bar select{min-height:36px;min-width:160px;border:1px solid #cbd5e1;border-radius:8px;background:#fff;padding:5px 9px;font:inherit;color:#111827}.group-lead-readonly-badge{padding:5px 9px;border-radius:99px;background:#e0f2fe;color:#075985;font-size:12px;font-weight:800}
-body.group-lead-mode nav a[data-screen="portfolio"],body.group-lead-mode nav a[data-screen="users"],body.group-lead-mode nav a[data-screen="import"],body.group-lead-mode nav a[data-screen="audit"]{display:none!important}
+body.group-lead-mode nav a[data-screen="users"],body.group-lead-mode nav a[data-screen="import"],body.group-lead-mode nav a[data-screen="audit"]{display:none!important}
 </style>
 <script>
 function updateGroupLeadScopeControls(){
@@ -13268,7 +13268,7 @@ document.addEventListener("DOMContentLoaded",()=>{document.getElementById("group
   const originalNotifyNewLocation=window.notifyNewLocation;
   let globalNoticeTimer=null;
   function showOwnerLocationGlobalNotice(item){
-    if(!window.session||typeof window.isOwnerRole!=="function"||!window.isOwnerRole(window.session.role))return;
+    if(!window.session||typeof window.isOwnerRole!=="function"||(!window.isOwnerRole(window.session.role)&&window.session.role!=="group_lead"))return;
     let box=document.getElementById("ownerLocationGlobalNotice");
     if(!box){box=document.createElement("div");box.id="ownerLocationGlobalNotice";box.setAttribute("role","status");box.setAttribute("aria-live","polite");box.innerHTML='<span class="owner-location-notice-icon" aria-hidden="true">●</span><span class="owner-location-notice-text"></span><button type="button" class="owner-location-notice-close" aria-label="إغلاق الإشعار">×</button>';document.body.appendChild(box);box.querySelector(".owner-location-notice-close").addEventListener("click",()=>{box.classList.remove("is-visible");});}
     const name=typeof window.locationText==="function"?window.locationText(item?.display_name,item?.username):String(item?.display_name||item?.username||"الأخصائي");
@@ -13297,7 +13297,7 @@ document.addEventListener("DOMContentLoaded",()=>{document.getElementById("group
 <!-- owner notification binding correction -->
 <script>
 (function(){
-  const ownerSession=()=>typeof session!=="undefined"&&session&&typeof isOwnerRole==="function"&&isOwnerRole(session.role);
+  const ownerSession=()=>typeof session!=="undefined"&&session&&typeof isOwnerRole==="function"&&(isOwnerRole(session.role)||session.role==="group_lead");
   const prior=window.notifyNewLocation;
   window.notifyNewLocation=function(item){if(!ownerSession())return;const sender=String(item?.username||"").trim().toLocaleLowerCase("ar"),current=String(session?.user||session?.name||"").trim().toLocaleLowerCase("ar");if(sender&&current&&sender===current)return;window.showOwnerLocationGlobalNotice?.(item);if(typeof prior==="function")prior(item)};
   window.locationPollStart=function(){
@@ -13319,7 +13319,7 @@ document.addEventListener("DOMContentLoaded",()=>{document.getElementById("group
 <script id="owner-login-notifications-logic">
 (function(){
   let loginSnapshot=null,loginPollTimer=null,loginNoticeBusy=false;
-  const ownerSession=()=>typeof session!=="undefined"&&session&&typeof isOwnerRole==="function"&&isOwnerRole(session.role);
+  const ownerSession=()=>typeof session!=="undefined"&&session&&typeof isOwnerRole==="function"&&(isOwnerRole(session.role)||session.role==="group_lead");
   const loginKey=item=>String(item?.username||item?.display_name||"").trim().toLocaleLowerCase("ar");
   const loginTime=item=>{const t=Date.parse(item?.last_login_at||item?.last_login||item?.login_at||"");return Number.isFinite(t)?t:0};
   const onlineValue=item=>item?.online===true||item?.online==="true"||item?.status==="online";
@@ -13355,7 +13355,9 @@ document.addEventListener("DOMContentLoaded",()=>{document.getElementById("group
   async function pollOwnerLogins(){
     if(!ownerSession()||typeof callUserPresenceApi!=="function")return;
     try{
-      const result=await callUserPresenceApi("list"),items=Array.isArray(result?.users)?result.users:[],next=new Map();
+      const result=await callUserPresenceApi("list"),allItems=Array.isArray(result?.users)?result.users:[];
+      const allowed=ownerSession()&&session.role==="group_lead"?new Set((groupLeadMembers||[]).map(m=>loginKey({username:m.username||m.user_name||m.officer_username,display_name:m.name||m.officer_name||m.display_name})).filter(Boolean)):null;
+      const items=allowed?allItems.filter(item=>allowed.has(loginKey(item))):allItems,next=new Map();
       items.forEach(item=>{const key=loginKey(item);if(key)next.set(key,item)});
       if(!loginSnapshot){loginSnapshot=next;return;}
       next.forEach((item,key)=>{
@@ -15066,5 +15068,5 @@ async function loadGroupLeadFollowup(){if(!session||session.role!=="group_lead")
 function renderGroupLeadFollowup(){const groupName=document.getElementById("groupLeadGroupName"),memberCount=document.getElementById("groupLeadMemberCount"),rowCount=document.getElementById("groupLeadRowCount"),updated=document.getElementById("groupLeadUpdated"),filter=document.getElementById("groupLeadMemberFilter"),body=document.getElementById("groupLeadRowsBody"),statusBody=document.getElementById("groupLeadSpecialistStatusBody");if(!body)return;if(statusBody)statusBody.innerHTML=groupLeadSpecialistStatuses.length?groupLeadSpecialistStatuses.map(x=>`<tr><td>${groupSafe(x.specialist_name||"—")}</td><td>${groupSafe(x.status||"—")}</td><td>${groupSafe(x.updated_at?new Date(x.updated_at).toLocaleString("ar-EG"):"—")}</td></tr>`).join(""):'<tr><td colspan="3">لا توجد حالة يدوية مسجلة لأخصائيي المجموعة.</td></tr>';if(groupName)groupName.textContent=groupLeadInfo?.name||"—";if(memberCount)memberCount.textContent=groupLeadMembers.length.toLocaleString("ar-EG");if(rowCount)rowCount.textContent=groupLeadRows.length.toLocaleString("ar-EG");if(updated)updated.textContent=groupLeadDataUpdatedAt?new Date(groupLeadDataUpdatedAt).toLocaleString("ar-EG"):"—";if(filter){const selected=filter.value;filter.innerHTML='<option value="">كل الأخصائيين</option>'+groupLeadMembers.map(m=>`<option value="${groupSafe(m.name)}">${groupSafe(m.name)}</option>`).join("");if(groupLeadMembers.some(m=>m.name===selected))filter.value=selected}const who=filter?.value||"",query=groupNorm(document.getElementById("groupLeadSearch")?.value||"");const selectedKey=who?groupOfficerKey(who):"";const matched=groupLeadRows.map((row,index)=>({row,index})).filter(({row})=>{const officer=groupOfficerKey(groupRowValue(row,["اسم الاخصائي","الأخصائي","اسم الأخصائي","اسم الموظف"]));if(selectedKey&&officer!==selectedKey)return false;if(query&&!groupNorm(JSON.stringify(row)).includes(query))return false;return true});if(!matched.length){body.innerHTML='<tr><td colspan="5">لا توجد سجلات مطابقة للفلاتر الحالية.</td></tr>';return}body.innerHTML=matched.map(({row,index})=>`<tr><td>${groupSafe(groupRowValue(row,["اسم العميل","اسم المستفيد","اسم العميل/المستفيد"])||"—")}</td><td>${groupSafe(groupRowValue(row,["رقم الملف","رقم القرض","رقم العميل","كود العميل","رقم الطلب"])||"—")}</td><td>${groupSafe(groupRowValue(row,["اسم الاخصائي","الأخصائي","اسم الأخصائي","اسم الموظف"])||"—")}</td><td>${groupSafe(groupRowValue(row,["حالة القرض","حالة العميل","الحالة"])||"—")}</td><td><button type="button" onclick="openGroupLeadRecord(${index})">عرض التفاصيل</button></td></tr>`).join("")}
 function openGroupLeadRecord(index){const row=groupLeadRows[index];if(!row)return;const target=document.getElementById("groupLeadRecordDetails");target.innerHTML='<div class="group-record-fields">'+Object.entries(row).map(([k,v])=>`<div class="group-record-field"><b>${groupSafe(k)}</b><span>${groupSafe(typeof v==="object"&&v!==null?JSON.stringify(v):v||"—")}</span></div>`).join("")+'</div>';const dialog=document.getElementById("groupLeadRecordDialog");if(dialog?.showModal)dialog.showModal();else dialog?.setAttribute("open","")}
 function closeGroupLeadRecord(){const dialog=document.getElementById("groupLeadRecordDialog");if(dialog?.close)dialog.close();else dialog?.removeAttribute("open")}
-if(typeof session!=="undefined"&&session?.role==="group_lead")void loadGroupLeadFollowup();
+if(typeof session!=="undefined"&&session?.role==="group_lead")void loadCloud();
 </script>
