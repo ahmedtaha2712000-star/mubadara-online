@@ -4225,12 +4225,12 @@ if(session){
 	initSupabase();
 	if(!supabaseClient)logout(true);
 	else supabaseClient.auth.getUser().then(async({data,error})=>{
-	 if(restoreTokenPrimary!==authFlowVersion)return;
-	 if(error||!data?.user||String(data.user.user_metadata?.username||"").normalize("NFKC").toLocaleLowerCase("en-US")!==String(session?.user||"").normalize("NFKC").toLocaleLowerCase("en-US")){logout(true);return;}
-	 const {data:profile,error:profileError}=await supabaseClient.from("app_user_profiles").select("username,display_name,app_role,owner_role,officer_name,is_active,is_blocked,is_linked").eq("user_id",data.user.id).maybeSingle();
-	 if(restoreTokenPrimary!==authFlowVersion)return;
-	 if(profileError||!profile||!profile.is_active||profile.is_blocked||!profile.is_linked){logout(true);return;}
-  const restoredUser={username:profile.username,name:profile.display_name||session.name,role:profile.app_role,ownerRole:profile.owner_role||session.ownerRole||"",officerName:profile.officer_name||session.officerName||"",active:profile.is_active!==false,blocked:profile.is_blocked===true,linked:profile.is_linked!==false};
+		 if(restoreTokenPrimary!==authFlowVersion)return;
+		 if(error||!data?.user||String(data.user.user_metadata?.username||"").normalize("NFKC").toLocaleLowerCase("en-US")!==String(session?.user||"").normalize("NFKC").toLocaleLowerCase("en-US")){logout(true);return;}
+		 const {data:profile,error:profileError}=await supabaseClient.from("app_user_profiles").select("username,display_name,app_role,owner_role,officer_name,is_group_supervisor,is_active,is_blocked,is_linked").eq("user_id",data.user.id).maybeSingle();
+		 if(restoreTokenPrimary!==authFlowVersion)return;
+		 if(profileError||!profile||!profile.is_active||profile.is_blocked||!profile.is_linked){logout(true);return;}
+	  const restoredUser={username:profile.username,name:profile.display_name||session.name,role:profile.is_group_supervisor===true?"group_lead":profile.app_role,ownerRole:profile.owner_role||session.ownerRole||"",officerName:profile.officer_name||session.officerName||"",active:profile.is_active!==false,blocked:profile.is_blocked===true,linked:profile.is_linked!==false};
   const localUser=users.find(user=>String(user.username).normalize("NFKC").toLocaleLowerCase("en-US")===String(profile.username).normalize("NFKC").toLocaleLowerCase("en-US"));
   if(localUser)Object.assign(localUser,restoredUser);else users.push(restoredUser);
   saveUsers();
