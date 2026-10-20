@@ -14780,6 +14780,16 @@ body.du-camera-open #mobileBottomNav,body.du-camera-open #mobileMorePanel,body.d
 #operatingDocuments .od-list{min-width:900px}
 #operatingDocuments .od-list th:last-child{font-size:14px!important;color:#24342b!important}
 @media(max-width:720px){#operatingDocuments .od-list{min-width:900px}#operatingDocuments .od-icon-btn{width:58px!important;min-width:58px;height:62px!important}}
+
+/* شارات نوع الملف ومحاذاة نصوص عمود المستند */
+#operatingDocuments .od-list td:first-child{text-align:right!important;direction:rtl!important}
+#operatingDocuments .od-list td:first-child .od-document-link{direction:rtl!important;display:flex!important;justify-content:flex-start!important;align-items:center!important;width:100%;text-align:right!important;white-space:normal}
+#operatingDocuments .od-list td:first-child .od-sub{text-align:right!important;direction:rtl!important;width:100%;unicode-bidi:plaintext}
+#operatingDocuments .od-file-badge{width:42px!important;height:46px!important;flex-basis:42px!important;margin-left:9px!important;margin-right:0!important;order:0}
+#operatingDocuments .od-file-badge svg{width:35px!important;height:42px!important}
+#operatingDocuments .od-file-badge b{left:1px;bottom:4px;min-width:29px;padding:3px 2px;font-size:9px}
+#operatingDocuments .od-file-badge.od-pdf b{background:#d9363e!important;color:#fff!important}
+#operatingDocuments .od-file-badge.od-word b{background:#185abd!important;color:#fff!important;font-size:12px}
 </style>
 <script id="operating-documents-logic">
 (()=>{
