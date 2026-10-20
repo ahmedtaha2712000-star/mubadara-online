@@ -4112,6 +4112,11 @@ function startActivityTracking(){
  ["click","keydown","mousemove","mousedown","touchstart","scroll"].forEach(type=>window.addEventListener(type,resetInactivityTimer,{passive:true}));
  resetInactivityTimer();
 }
+function blockGroupLeadWrite(){
+ if(session?.role!=="group_lead")return false;
+ if(typeof showMsg==="function")showMsg("صلاحية رئيس الأخصائيين تتيح العرض والبحث والفلترة والطباعة والتصدير فقط؛ تعديل السجلات متاح للمالك.","warn");
+ return true;
+}
 function applyPermissions(){
  const owner=enforceSession() && isOwnerRole(session.role);
  const groupLead=!!session&&session.role==="group_lead";
@@ -4120,6 +4125,9 @@ function applyPermissions(){
  if(groupLead){
   document.querySelectorAll('[data-owner-only],[data-manager-only]').forEach(e=>{if(e.id==="dash"||e.id==="specialists"||e.dataset.screen==="dash"||e.dataset.screen==="specialists")e.classList.remove("hidden")});
   document.getElementById("users")?.classList.add("hidden");document.getElementById("audit")?.classList.add("hidden");document.getElementById("portfolio")?.classList.add("hidden");document.getElementById("import")?.classList.add("hidden");
+  document.getElementById("specialistGroupAdmin")?.classList.add("hidden");
+  document.getElementById("specialistManualPanel")?.classList.add("hidden");
+  document.querySelector("#specialists .specialist-manual-launch")?.classList.add("hidden");
  }
  document.querySelectorAll('[data-group-lead-only]').forEach(e=>e.classList.toggle("hidden",!groupLead));
  const scope=document.getElementById("groupLeadScopeBar");if(scope)scope.hidden=!groupLead;
@@ -4352,6 +4360,7 @@ async function ensureXLSXLoaded(){
   throw new Error("تعذر تحميل مكتبة قراءة Excel من مصادرها. تحقق من اتصال الإنترنت أو حظر CDN ثم أعد المحاولة.");
 }
 async function importExcelFile(file){
+  if(blockGroupLeadWrite())throw new Error("الاستيراد متاح للمالك فقط.");
   if(!file)throw new Error("لم يتم اختيار ملف.");
   await ensureXLSXLoaded();
   if(!/\.(xlsx|xls)$/i.test(String(file.name||"")))throw new Error("صيغة الملف غير مدعومة؛ اختر ملفًا بامتداد .xlsx أو .xls.");
@@ -7835,6 +7844,7 @@ function contactLogCloudPayload(entry){
 }
 function cloudContactLogToLocal(row){return {cloudId:row.id,client:row.client_name||"",field:row.field_name||"",oldValue:row.old_value||"",newValue:row.new_value||"",user:row.username||"غير محدد",time:row.edited_at||new Date().toISOString()}}
 async function addClientContactLog(entry){
+ if(blockGroupLeadWrite())return false;
   const item={...entry,time:entry.time||new Date().toISOString(),user:entry.user||session?.name||session?.user||"غير محدد"};
   const list=readClientContactLog();list.unshift(item);writeClientContactLog(list);
   if(cloudReady&&supabaseClient){try{const {data,error}=await supabaseClient.from(CLIENT_CONTACT_LOG_TABLE).insert(contactLogCloudPayload(item)).select("id").single();if(error)throw error;if(data){item.cloudId=data.id;writeClientContactLog([item,...list.filter(x=>x!==item)])}}catch(e){console.warn("Supabase contact log insert:",e);showMsg("⚠️ تم حفظ السجل محليًا، وتعذر رفعه للسحابة مؤقتًا.","warn")}}
@@ -7869,6 +7879,7 @@ function profileContactRows(){
   return rows.filter(r=>norm(get(r,"client"))===key);
 }
 function toggleProfileContactEdit(editing){
+  if(editing&&blockGroupLeadWrite())return;
   const phone=document.getElementById("profilePhoneEdit"),address=document.getElementById("profileAddressEdit");
   if(!phone||!address)return;
   if(editing){window.profileContactSnapshot={phone:phone.value,address:address.value};}
@@ -7882,6 +7893,7 @@ function toggleProfileContactEdit(editing){
   if(editing)phone.focus();
 }
 async function saveProfileContactEdit(){
+  if(blockGroupLeadWrite())return;
   const phone=document.getElementById("profilePhoneEdit"),address=document.getElementById("profileAddressEdit"),status=document.getElementById("profileContactStatus");
   if(!phone||!address)return;
   const phoneValue=phone.value.trim(),addressValue=address.value.trim();
@@ -7908,6 +7920,7 @@ async function saveProfileContactEdit(){
 const GUARANTOR_PHONE_FIELDS={1:{key:"g1p",label:"هاتف الضامن الأول"},2:{key:"g2p",label:"هاتف الضامن الثاني"},3:{key:"g3p",label:"هاتف الضامن الثالث"}};
 function guarantorPhoneRows(){return profileContactRows()}
 function toggleGuarantorPhoneEdit(slot,editing){
+  if(editing&&blockGroupLeadWrite())return;
   const input=document.getElementById("guarantorPhone"+slot);if(!input)return;
   if(editing){input.dataset.original=input.value;input.disabled=false;input.focus()}else{input.value=input.dataset.original??input.value;input.disabled=true}
   document.getElementById("guarantorEdit"+slot)?.style.setProperty("display",editing?"none":"inline-flex");
@@ -7916,6 +7929,7 @@ function toggleGuarantorPhoneEdit(slot,editing){
   const status=document.getElementById("guarantorStatus"+slot);if(status)status.textContent=editing?"يمكنك تعديل الهاتف ثم الضغط على حفظ أو إلغاء.":"";
 }
 async function saveGuarantorPhoneEdit(slot){
+  if(blockGroupLeadWrite())return;
   const cfg=GUARANTOR_PHONE_FIELDS[slot],input=document.getElementById("guarantorPhone"+slot),status=document.getElementById("guarantorStatus"+slot);if(!cfg||!input)return;
   const newPhone=input.value.trim(),g=window.currentClientProfileGroup,r=g?.r;if(!r)return;
   const oldPhone=String(getAny(r,[H[cfg.key],cfg.label,"رقم هاتف "+cfg.label.replace("هاتف ","")])||"").trim();
@@ -8164,6 +8178,7 @@ function renderManualSpecialistList(){
  box.innerHTML=names.map((name,i)=>{const key=officerKey(name);window.manualSpecialistNames[key]=name;const value=saved[key]||manualSpecialistDefault(name);const count=specialistGroupsByName(name).length;return `<div class="specialist-manual-row"><div><b>${esc(name)}</b><small>${count.toLocaleString("en-US")} قرضًا في Excel</small></div><select data-specialist-manual-key="${escAttr(key)}" aria-label="الحالة اليدوية للأخصائي ${escAttr(name)}"><option value="active"${value==="active"?" selected":""}>نشط / حالي</option><option value="inactive"${value==="inactive"?" selected":""}>مستقيل / غير نشط</option></select></div>`}).join("");
 }
 async function saveManualSpecialistStatuses(){
+ if(blockGroupLeadWrite())return false;
  const next={};document.querySelectorAll("[data-specialist-manual-key]").forEach(el=>{next[el.dataset.specialistManualKey]=el.value});writeManualSpecialistStatuses(next);specialistCloudStatuses=next;
  let cloudSaved=false;
  if(cloudReady&&supabaseClient){try{const payload=Object.entries(next).map(([specialist_key,status])=>({specialist_key,specialist_name:window.manualSpecialistNames?.[specialist_key]||specialist_key,status,updated_by:session?.name||session?.user||"غير محدد",updated_at:new Date().toISOString()}));const {error}=await supabaseClient.from(SPECIALIST_STATUS_TABLE).upsert(payload,{onConflict:"specialist_key"});if(error)throw error;cloudSaved=true}catch(e){console.warn("Supabase specialist status save:",e)}}
@@ -8395,7 +8410,7 @@ async function relinkOfficerUser(username){
  applyUsersScreenOfficerUpdate(record,{linked:true,active:true,manualUnlink:false});renderUsers();auditLog("إعادة ربط أخصائي",`المستخدم: ${u.name}`);
 }
 
-function downloadBackup(){const payload={version:APP_VERSION,createdAt:new Date().toISOString(),rows};const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json;charset=utf-8"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`نسخة_احتياطية_جمعية_المبادرة_${new Date().toISOString().slice(0,10)}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);auditLog("تنزيل نسخة احتياطية",`${rows.length} صف`);showMsg("تم تنزيل النسخة الاحتياطية بنجاح.","ok")}
+function downloadBackup(){if(blockGroupLeadWrite())return;const payload={version:APP_VERSION,createdAt:new Date().toISOString(),rows};const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json;charset=utf-8"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`نسخة_احتياطية_جمعية_المبادرة_${new Date().toISOString().slice(0,10)}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);auditLog("تنزيل نسخة احتياطية",`${rows.length} صف`);showMsg("تم تنزيل النسخة الاحتياطية بنجاح.","ok")}
 
 /* v11: cloud persistent storage with Supabase + local fallback */
 const DB_NAME="mubadara_data", DB_VERSION=1, STORE="rows", LS_ROWS="mubadara_rows_backup", LS_ROWS_META="mub_rows_backup_meta_v1";
@@ -8556,7 +8571,7 @@ async function saveDB(data,progress){
  /* Large files may exceed browser/Supabase storage limits; they are still usable in memory. */
  return cloudSaved;
 }
-document.getElementById("restoreFile")?.addEventListener("change",e=>{const f=e.target.files[0];if(!f)return;const reader=new FileReader();reader.onload=async ev=>{try{const obj=JSON.parse(ev.target.result);const data=Array.isArray(obj)?obj:obj.rows;if(!Array.isArray(data)||!data.length)throw Error("ملف النسخة الاحتياطية غير صالح.");if(!confirm(`سيتم استبدال البيانات الحالية بـ ${data.length} صف. هل تريد المتابعة؟`))return;rows=data;await saveDB(rows);build();auditLog("استعادة نسخة احتياطية",`${rows.length} صف`);showMsg("تمت استعادة النسخة الاحتياطية بنجاح.","ok")}catch(err){showMsg("تعذر استعادة النسخة: "+err.message,"err")}};reader.readAsText(f,"utf-8")});
+document.getElementById("restoreFile")?.addEventListener("change",e=>{if(blockGroupLeadWrite()){e.target.value="";return}const f=e.target.files[0];if(!f)return;const reader=new FileReader();reader.onload=async ev=>{try{const obj=JSON.parse(ev.target.result);const data=Array.isArray(obj)?obj:obj.rows;if(!Array.isArray(data)||!data.length)throw Error("ملف النسخة الاحتياطية غير صالح.");if(!confirm(`سيتم استبدال البيانات الحالية بـ ${data.length} صف. هل تريد المتابعة؟`))return;rows=data;await saveDB(rows);build();auditLog("استعادة نسخة احتياطية",`${rows.length} صف`);showMsg("تمت استعادة النسخة الاحتياطية بنجاح.","ok")}catch(err){showMsg("تعذر استعادة النسخة: "+err.message,"err")}};reader.readAsText(f,"utf-8")});
 function cachedRowsForCurrentSession(){
  if(!session||!appSessionReady)return null;
  try{
@@ -9276,6 +9291,7 @@ document.addEventListener('DOMContentLoaded', function () {
     return dialog;
   }
   function pfOpenDeleteDialog(action){
+    if(blockGroupLeadWrite())return;
     const dialog=pfEnsureDeleteDialog(),title=dialog.querySelector("#paymentFollowupDeleteTitle"),copy=dialog.querySelector("#paymentFollowupDeleteCopy"),scope=dialog.querySelector("#paymentFollowupDeleteScope"),error=dialog.querySelector("#paymentFollowupDeleteError"),confirmButton=dialog.querySelector("[data-pf-delete-confirm]"),cancelButton=dialog.querySelector("[data-pf-delete-cancel]");
     pendingDeleteAction=action;error.textContent="";error.classList.remove("show");confirmButton.disabled=false;cancelButton.disabled=false;
     if(action.kind==="one"){
@@ -9442,6 +9458,7 @@ document.addEventListener('DOMContentLoaded', function () {
     return dialog;
   }
   function pfOpenEditDialog(log){
+    if(blockGroupLeadWrite())return;
     const dialog=pfEnsureEditDialog(),form=dialog.querySelector("[data-pf-edit-form]"),item=currentCases.find(x=>String(x.key)===String(log.caseKey));
     const parties=[...new Set([log.callParty,...(item?.contacts||[]).map(c=>c.label+(c.name&&c.name!==c.label?` — ${c.name}`:""))].filter(Boolean))];
     form.elements.callParty.innerHTML=parties.map(v=>`<option value="${escAttr(v)}">${esc(v)}</option>`).join("");
@@ -9736,6 +9753,7 @@ document.addEventListener('DOMContentLoaded', function () {
     return true;
   }
   async function pfSaveCall(form){
+    if(blockGroupLeadWrite())return false;
     const caseKey=decodeURIComponent(form.dataset.caseKey||"");
     const item=currentCases.find(x=>x.key===caseKey);if(!item)return;
     const data=new FormData(form),note=String(data.get("note")||"").trim(),status=String(data.get("status")||"").trim();
@@ -12423,7 +12441,7 @@ function populateLocationFilterOptions(items){const users=[...new Set(items.map(
 function applyLocationFilters(){const user=document.getElementById("locationFilterUser")?.value||"",status=document.getElementById("locationFilterStatus")?.value||"",from=document.getElementById("locationFilterFrom")?.value||"",to=document.getElementById("locationFilterTo")?.value||"",latest=document.getElementById("locationLatestOnly")?.checked;let items=locationAllItems.filter(x=>(!user||x.username===user)&&(!status||x.validation_status===status)&&(!from||String(x.captured_at).slice(0,10)>=from)&&(!to||String(x.captured_at).slice(0,10)<=to));if(latest){const seen=new Set();items=items.filter(x=>{if(seen.has(x.username))return false;seen.add(x.username);return true;});}locationFilteredItems=items;renderLocationRows(items);renderAllLocationsMap(items);renderLocationGeofences();}
 function clearLocationFilters(){for(const id of ["locationFilterUser","locationFilterStatus","locationFilterFrom","locationFilterTo","locationRouteUser"]){const e=document.getElementById(id);if(e)e.value="";}const latest=document.getElementById("locationLatestOnly");if(latest)latest.checked=false;applyLocationFilters();}
 function csvCell(value){return `"${String(value??"").replaceAll('"','""')}"`;}
-function exportLocationsCsv(){if(!locationIsOwner())return;const rows=locationFilteredItems.length?locationFilteredItems:locationAllItems;const head=["المستخدم","وقت القراءة","خط العرض","خط الطول","الدقة","الحالة","رابط الخريطة"];const csv="\ufeff"+[head,...rows.map(x=>[x.display_name||x.username,x.captured_at,x.latitude,x.longitude,x.accuracy_m,locationStatusLabel(x.validation_status),x.maps_url])].map(r=>r.map(csvCell).join(",")).join("\r\n");const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));a.download=`locations-${new Date().toISOString().slice(0,10)}.csv`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);}
+function exportLocationsCsv(){if(!locationIsOwner()&&session?.role!=="group_lead")return;const rows=locationFilteredItems;const head=["المستخدم","وقت القراءة","خط العرض","خط الطول","الدقة","الحالة","رابط الخريطة"];const csv="\ufeff"+[head,...rows.map(x=>[x.display_name||x.username,x.captured_at,x.latitude,x.longitude,x.accuracy_m,locationStatusLabel(x.validation_status),x.maps_url])].map(r=>r.map(csvCell).join(",")).join("\r\n");const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));a.download=`locations-${new Date().toISOString().slice(0,10)}.csv`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);}
 async function loadLocationAudit(){if(!locationIsOwner())return;const panel=document.getElementById("locationAuditPanel"),rows=document.getElementById("locationAuditRows");try{const response=await fetch(`${LOCATION_FUNCTION_URL}?view=audit`,{headers:{apikey:SUPABASE_PUBLISHABLE_KEY,"x-actor-role":session.role,"x-actor-username":session.user||session.name||""}}),data=await response.json();if(!response.ok)throw new Error(data.error||"تعذر تحميل سجل التدقيق");panel.hidden=false;const items=Array.isArray(data.audit)?data.audit:[];rows.innerHTML=items.length?`<table class="location-audit-table"><thead><tr><th>العملية</th><th>المنفذ</th><th>العدد</th><th>الوقت</th></tr></thead><tbody>${items.map(x=>`<tr><td>${x.action==="delete_all"?"حذف الكل":"حذف صف"}</td><td>${locationEscapeHtml(x.actor_username)}</td><td>${x.deleted_count}</td><td>${locationEscapeHtml(locationDate(x.created_at))}</td></tr>`).join("")}</tbody></table>`:"لا توجد عمليات حذف مسجلة.";}catch(e){ownerToast(e.message||"تعذر تحميل سجل التدقيق");}}
 function ownerToast(text){setLocationStatus(text);const el=document.getElementById("locationNotificationStatus");if(el){el.textContent=text;el.dataset.active="1";setTimeout(()=>{el.textContent="التنبيه داخل البرنامج فعال"},3500);}}
 async function enableOwnerNotifications(){if(!locationIsOwner())return;if(!("Notification" in window)){ownerToast("المتصفح لا يدعم الإشعارات");return;}const result=await Notification.requestPermission();ownerToast(result==="granted"?"تم تفعيل تنبيه المواقع":"لم يتم السماح بالتنبيه");}
@@ -14757,6 +14775,16 @@ body.du-camera-open #mobileBottomNav,body.du-camera-open #mobileMorePanel,body.d
         const reportDocument = stage.contentDocument || stage.contentWindow.document;
         reportDocument.open();
         reportDocument.write(`<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>تقرير حاسبة الأقساط</title><style>${report.css}</style></head><body>${report.markup}
+<style id="group-lead-operational-readonly-tools">
+body.group-lead-mode #specialistGroupAdmin,
+body.group-lead-mode #specialistManualPanel,
+body.group-lead-mode #specialists .specialist-manual-launch,
+body.group-lead-mode #specialists button[onclick="showScreen('users')"],
+body.group-lead-mode .profile-contact-actions,
+body.group-lead-mode #paymentFollowup .pf-form,
+body.group-lead-mode #paymentFollowup .pf-log-actions,
+body.group-lead-mode #paymentFollowup .pf-log-tools-actions {display:none!important}
+</style>
 </body></html>`);
         reportDocument.close();
         await new Promise(resolve => stage.contentWindow.requestAnimationFrame(() => stage.contentWindow.requestAnimationFrame(resolve)));
