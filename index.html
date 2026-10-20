@@ -14662,7 +14662,7 @@ body.du-camera-open #mobileBottomNav,body.du-camera-open #mobileMorePanel,body.d
 #operatingDocuments input,#operatingDocuments select,#operatingDocuments textarea{border:1px solid #aaa;border-radius:7px;background:#fff;padding:9px;font-size:13px}
 #operatingDocuments #odSearch{flex:1;min-width:180px}
 #operatingDocuments .od-main{display:grid;grid-template-columns:minmax(180px,240px) minmax(0,1fr);gap:14px}
-#operatingDocuments .od-categories{border:1px solid #ddd;border-radius:9px;padding:10px;background:#fff;align-self:start}
+#operatingDocuments .od-categories{display:block!important;visibility:visible!important;min-width:0;border:1px solid #ddd;border-radius:9px;padding:10px;background:#fff;align-self:start}
 #operatingDocuments .od-categories h3{font-size:14px;margin:2px 0 9px}
 #operatingDocuments .od-cat{display:block;width:100%;text-align:right;margin:4px 0;border:0!important}
 #operatingDocuments .od-cat.active{background:#eee!important}
@@ -14710,7 +14710,7 @@ body.du-camera-open #mobileBottomNav,body.du-camera-open #mobileMorePanel,body.d
 #operatingDocuments .od-owner-inline{display:none}
 #operatingDocuments .od-tabs{display:flex;gap:7px;flex-wrap:wrap}
 #operatingDocuments .od-tabs button.active{background:#111!important;color:#fff!important}
-@media(max-width:720px){#operatingDocuments .od-main{grid-template-columns:1fr}#operatingDocuments .od-categories{display:flex;gap:5px;overflow:auto;align-items:center}#operatingDocuments .od-categories h3{display:none}#operatingDocuments .od-cat{white-space:nowrap;width:auto}.od-list-wrap{overflow:auto}#operatingDocuments .od-list{min-width:650px}}
+@media(max-width:720px){#operatingDocuments .od-main{grid-template-columns:1fr}#operatingDocuments .od-categories{display:block!important;visibility:visible!important;overflow-y:auto;overflow-x:hidden;max-height:240px;align-items:initial}#operatingDocuments .od-categories h3{display:block!important;font-size:15px;margin:2px 0 8px}#operatingDocuments .od-cat-item{display:flex;width:100%;min-width:0;flex:0 0 auto}#operatingDocuments .od-cat{white-space:normal;width:100%}.od-list-wrap{overflow:auto}#operatingDocuments .od-list{min-width:650px}}
 #operatingDocuments .od-file-picker{display:flex;align-items:center;gap:7px}
 #operatingDocuments .od-file-picker input{flex:1;min-width:0}
 #operatingDocuments .od-clear-file{width:34px;height:34px;padding:0!important;display:inline-grid;place-items:center;border:1px solid #aaa!important;border-radius:50%!important;background:#fff!important;color:#111!important;font-size:22px!important;line-height:1}
