@@ -4097,7 +4097,7 @@ async function login(){
 	 const preferredScreen=String(location.hash||"").replace(/^#/,"");
 	 const canRestoreScreen=SCREEN_IDS.includes(preferredScreen)&&!(["users","specialists","audit","dash"].includes(preferredScreen)&&!isOwnerRole(session.role));
 	 showScreen(session.role==="group_lead"?"groupLeadFollowup":canRestoreScreen?preferredScreen:(session.role==="officer"?"clients":"dash"));
-	 if(session.role==="group_lead"){if(typeof loadGroupLeadFollowup==="function")void loadGroupLeadFollowup();}else if(typeof refreshOnOpen==="function")void refreshOnOpen();
+	 if(session.role==="group_lead"){if(typeof refreshOnOpen==="function")void refreshOnOpen();if(typeof loadGroupLeadFollowup==="function")void loadGroupLeadFollowup();}else if(typeof refreshOnOpen==="function")void refreshOnOpen();
 }
 let INACTIVITY_LIMIT=8*60*60*1000;
 let inactivityTimer=null;
