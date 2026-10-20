@@ -2700,7 +2700,29 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
   #installmentCalculator .inst-summary-item span{font-size:14px!important}
   #installmentCalculator .inst-summary-item strong{font-size:20px!important}
 }
-</style></head>
+</style>
+<style>
+#loginGroupLeadWrap input{width:100%;box-sizing:border-box}
+.group-admin-panel{margin:22px 0;padding:20px;border:1px solid #dbe4f0;border-radius:18px;background:#f8fafc;color:#152033;direction:rtl}
+.group-admin-head,.group-admin-list-head,.group-followup-header{display:flex;align-items:center;justify-content:space-between;gap:14px}
+.group-admin-eyebrow,.group-followup-eyebrow{font-size:12px;font-weight:800;color:#536f9b;letter-spacing:.03em}
+.group-admin-head h3,.group-followup-header h2{margin:5px 0;color:#101828;font-size:21px}.group-admin-head p,.group-followup-header p{margin:0;color:#64748b;font-size:14px}
+.group-admin-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:17px}
+.group-admin-form{display:grid;gap:11px;padding:16px;border:1px solid #e2e8f0;border-radius:14px;background:#fff}
+.group-admin-form h4,.group-admin-list-head h4{margin:0;color:#18253a;font-size:16px}.group-admin-form label,.group-followup-filters label{display:grid;gap:6px;font-size:13px;font-weight:700;color:#334155}
+.group-admin-form input,.group-admin-form select,.group-followup-filters input,.group-followup-filters select{min-height:40px;border:1px solid #cbd5e1;border-radius:9px;padding:8px 10px;font:inherit;color:#111827;background:#fff}
+.group-admin-form small{color:#64748b;line-height:1.6}.group-admin-form-actions{display:flex;gap:8px;flex-wrap:wrap}
+.group-admin-primary,.group-admin-secondary,.group-admin-refresh,.group-followup-refresh{border:0;border-radius:9px;padding:10px 15px;font-weight:800;cursor:pointer}
+.group-admin-primary,.group-followup-refresh{color:#fff;background:#1d4ed8}.group-admin-secondary,.group-admin-refresh{color:#1e293b;background:#e2e8f0}
+.group-admin-list-head{margin:20px 0 10px}.group-admin-list-head span{font-size:12px;color:#64748b}
+.group-admin-list{display:grid;gap:10px}.group-admin-card{background:#fff;border:1px solid #dce4ef;border-radius:14px;padding:14px}.group-admin-card-head{display:flex;justify-content:space-between;gap:10px;align-items:center}.group-admin-card h5{margin:0;color:#172033;font-size:16px}.group-admin-card p{margin:5px 0;color:#64748b;font-size:13px}.group-admin-actions{display:flex;gap:7px;flex-wrap:wrap}.group-admin-actions button,.group-admin-member button{border:1px solid #cbd5e1;background:#fff;border-radius:8px;padding:7px 10px;cursor:pointer;font-weight:700;color:#334155}.group-admin-members{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}.group-admin-member{display:inline-flex;align-items:center;gap:7px;background:#eff6ff;border:1px solid #dbeafe;border-radius:999px;padding:5px 8px 5px 5px;font-size:12px;color:#1e3a8a}.group-admin-member button{border:0;border-radius:50%;padding:2px 7px;color:#991b1b}.group-admin-add-member{display:flex;gap:8px;max-width:650px}.group-admin-add-member select{flex:1;min-height:38px;border:1px solid #cbd5e1;border-radius:8px;padding:6px}.group-admin-status,.group-followup-status{margin:12px 0;padding:10px 12px;border-radius:9px;background:#eff6ff;color:#1e3a8a;font-size:13px}.group-admin-empty{padding:22px;text-align:center;color:#64748b;background:#fff;border-radius:12px}
+.group-lead-screen{direction:rtl;color:#111827!important;font-family:Arial,sans-serif!important;padding:22px}.group-followup-header{margin-bottom:16px}.group-followup-header h2{font-size:25px}.group-followup-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:16px 0}.group-followup-kpis>div{background:#f8fafc;border:1px solid #e2e8f0;border-radius:13px;padding:13px}.group-followup-kpis span{display:block;color:#64748b;font-size:12px}.group-followup-kpis b{display:block;margin-top:7px;color:#111827;font-size:17px}.group-specialist-statuses{margin:18px 0}.group-specialist-status-head{display:flex;align-items:center;justify-content:space-between;margin:10px 2px}.group-specialist-status-head h3{margin:0;font-size:17px;color:#111827}.group-specialist-status-head span{font-size:12px;color:#166534;background:#dcfce7;border-radius:20px;padding:5px 10px}.group-followup-filters{display:flex;align-items:end;gap:12px;flex-wrap:wrap;margin:16px 0}.group-followup-filters label{min-width:190px}.group-readonly-badge{color:#166534;background:#dcfce7;border-radius:20px;padding:9px 12px;font-size:12px;font-weight:800}.group-followup-table-wrap{overflow:auto;border:1px solid #e2e8f0;border-radius:13px}.group-followup-table{width:100%;border-collapse:collapse;min-width:720px;background:#fff}.group-followup-table th,.group-followup-table td{padding:12px 13px;text-align:right;border-bottom:1px solid #e5e7eb;font-size:14px;color:#111827}.group-followup-table th{background:#f1f5f9;font-weight:800}.group-followup-table button{border:1px solid #bfdbfe;background:#eff6ff;color:#1d4ed8;padding:7px 11px;border-radius:8px;font-weight:700;cursor:pointer}.group-record-dialog{width:min(760px,94vw);max-height:82vh;border:0;border-radius:16px;padding:18px;box-shadow:0 18px 60px #0f172a44}.group-record-dialog::backdrop{background:#0f172a77}.group-record-dialog-head{display:flex;align-items:center;justify-content:space-between}.group-record-dialog-head h3{margin:0}.group-record-dialog-head button{border:0;background:#f1f5f9;border-radius:50%;font-size:22px;cursor:pointer;width:38px;height:38px}.group-record-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:12px}.group-record-field{border:1px solid #e5e7eb;border-radius:9px;padding:9px;overflow-wrap:anywhere}.group-record-field b{display:block;color:#64748b;font-size:11px;margin-bottom:4px}.group-record-field span{color:#111827;font-size:13px}
+body.group-lead-mode .layout>nav a[data-screen]:not([data-group-lead-only]){display:none!important}
+body.group-lead-mode .layout>main>.screen:not(#groupLeadFollowup){display:none!important}
+@media(max-width:760px){.group-admin-grid{grid-template-columns:1fr}.group-followup-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.group-admin-head,.group-followup-header{align-items:flex-start;flex-direction:column}.group-record-fields{grid-template-columns:1fr}.group-lead-screen{padding:14px}}
+</style>
+
+</head>
 
 <body>
 <div id="loginScreen" class="login-screen">
@@ -2711,6 +2733,7 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
     <select id="loginRole" onchange="refreshLoginUsers()">
       <option value="owner">مالك</option>
       <option value="officer">أخصائي</option>
+    <option value="group_lead">رئيس الأخصائيين</option>
     </select>
     <div id="loginOwnerWrap">
       <label>اسم المستخدم</label>
@@ -2719,6 +2742,10 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
     <div id="loginOfficerWrap" style="display:none">
       <label>اسم الأخصائي</label>
       <select id="loginOfficerUser" autocomplete="username"></select>
+    </div>
+    <div id="loginGroupLeadWrap" style="display:none">
+      <label for="loginGroupLeadUser">اسم المستخدم لرئيس الأخصائيين</label>
+      <input id="loginGroupLeadUser" type="text" autocomplete="username" placeholder="أدخل اسم المستخدم">
     </div>
     <label>كلمة المرور</label>
     <div class="login-password-wrap">
@@ -2767,6 +2794,7 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
 <a href="#import" data-screen="import" data-owner-only><span class="nav-icon nav-icon-import" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3v11m0 0 4-4m-4 4-4-4M5 15v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4"/></svg></span><span class="nav-label">بيانات Excel</span><small>رفع وتحديث البيانات</small></a>
 <a href="#uploadTool" data-screen="uploadTool"><span class="nav-icon nav-icon-import" aria-hidden="true">▧</span><span class="nav-label">شاشة الرفع</span><small>تصوير وتحويل الملفات</small></a>
 <a href="#location" data-screen="location"><span class="nav-icon nav-icon-location" aria-hidden="true">⌖</span><span class="nav-label">الموقع</span><small>إرسال وعرض المواقع</small></a>
+<a href="#groupLeadFollowup" data-screen="groupLeadFollowup" data-group-lead-only class="hidden"><span class="nav-icon" aria-hidden="true">◉</span><span class="nav-label">متابعة مجموعتي</span><small>سجلات الأخصائيين</small></a>
 <a href="#settings" data-screen="settings"><span class="nav-icon nav-icon-settings" aria-hidden="true">⚙</span><span class="nav-label">الإعدادات</span><small>تخصيص البرنامج</small></a>
 </nav>
 
@@ -2855,7 +2883,43 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
 <div class="specialists-filters no-print"><div><label>حالة الأخصائي</label><select id="specialistStatus" data-app-specialist-state-select onchange="setAppSpecialistStatus(this.value)"><option value="active">الأخصائيون النشطون</option><option value="inactive">غير النشطين / المستقيلين</option><option value="all">كل الأخصائيين</option></select></div><div><label>البحث باسم الأخصائي</label><select id="specialistOfficer"><option value="">كل الأخصائيين</option></select></div><div><label>حالة القرض</label><select id="specialistLoanStatus"><option value="open">القروض القائمة</option><option value="closed">القروض المغلقة</option><option value="all">كل القروض</option></select></div><div><label>من تاريخ منح القرض</label><input id="specialistsFrom" type="date" value="1990-01-01"></div><div><label>إلى تاريخ منح القرض</label><input id="specialistsTo" type="date" value="2050-12-31"></div><div class="specialists-filter-actions"><button class="light" type="button" onclick="clearSpecialistFilters()">🧹 مسح الفلاتر</button></div></div>
 <div class="specialists-table-wrap"><table class="specialists-table"><thead><tr><th>الأخصائي</th><th>الهاتف</th><th>العملاء</th><th>القروض</th><th>المحفظة</th><th>المتأخرات</th><th>نسبة تحصيل المتأخرات</th><th>الحالة</th><th class="no-print">الإجراءات</th></tr></thead><tbody id="specialistsBody"></tbody></table></div>
 <div id="specialistProfile" class="specialist-profile" style="display:none"></div>
+
+<div class="group-admin-panel no-print" id="specialistGroupAdmin">
+  <div class="group-admin-head"><div><span class="group-admin-eyebrow">إدارة مستقلة — للمالك فقط</span><h3>إدارة مجموعات الأخصائيين</h3><p>أنشئ حساب رئيس المجموعة، ثم اربطه بمجموعة وأضف الأخصائيين. حساب الرئيس منفصل عن حسابه كأخصائي.</p></div><button type="button" class="group-admin-refresh" onclick="loadSpecialistGroupManagement()">↻ تحديث</button></div>
+  <div id="sgAdminStatus" class="group-admin-status" role="status"></div>
+  <div class="group-admin-grid">
+    <form class="group-admin-form" id="sgLeadForm" onsubmit="createSpecialistGroupLead(event)">
+      <h4>إضافة حساب رئيس أخصائيين</h4>
+      <label>الاسم الظاهر<input id="sgLeadDisplayName" maxlength="120" required placeholder="اسم رئيس المجموعة"></label>
+      <label>اسم المستخدم<input id="sgLeadUsername" maxlength="80" required autocomplete="off" placeholder="اسم الدخول"></label>
+      <label>كلمة المرور المؤقتة<input id="sgLeadPassword" type="password" minlength="6" maxlength="128" required autocomplete="new-password" placeholder="6 أحرف على الأقل"></label>
+      <button type="submit" class="group-admin-primary">إنشاء حساب رئيس</button>
+      <small>إذا كان الرئيس أخصائيًا أيضًا، أنشئ له حساب أخصائي منفصل من آلية الحسابات الحالية، ثم اربطه في إعداد المجموعة.</small>
+    </form>
+    <form class="group-admin-form" id="sgGroupForm" onsubmit="saveSpecialistGroup(event)">
+      <h4 id="sgGroupFormTitle">إنشاء مجموعة</h4><input type="hidden" id="sgGroupId">
+      <label>اسم المجموعة<input id="sgGroupName" maxlength="120" required placeholder="مثال: مجموعة شمال الفرع"></label>
+      <label>رئيس الأخصائيين<select id="sgLeader" required><option value="">حمّل بيانات الإدارة أولًا</option></select></label>
+      <label>حساب الأخصائي المرتبط بالرئيس — اختياري<select id="sgLeaderOfficer"><option value="">الرئيس ليس أخصائيًا / لم يُربط بعد</option></select></label>
+      <div class="group-admin-form-actions"><button type="submit" class="group-admin-primary">حفظ المجموعة</button><button type="button" class="group-admin-secondary" onclick="resetSpecialistGroupForm()">إلغاء التعديل</button></div>
+      <small>الحساب المرتبط اختياري؛ لا يُدرج الرئيس ضمن الأخصائيين الذين يتابعهم.</small>
+    </form>
+  </div>
+  <div class="group-admin-list-head"><h4>المجموعات والأعضاء</h4><span>الأخصائي لا يرتبط بأكثر من مجموعة</span></div>
+  <div id="sgGroupsList" class="group-admin-list"><div class="group-admin-empty">جارٍ تحميل المجموعات…</div></div>
+</div>
 </section>
+
+<section id="groupLeadFollowup" class="card screen group-lead-screen" aria-label="متابعة المجموعة">
+  <div class="group-followup-header"><div><span class="group-followup-eyebrow">عرض للقراءة فقط</span><h2>متابعة أعمال المجموعة</h2><p id="groupLeadIntro">تظهر هنا السجلات المسندة إلى الأخصائيين المرتبطين بمجموعتك فقط.</p></div><button type="button" class="group-followup-refresh" onclick="loadGroupLeadFollowup()">↻ تحديث السجلات</button></div>
+  <div class="group-followup-status" id="groupLeadStatus" role="status">جارٍ تحميل بيانات المجموعة…</div>
+  <div class="group-followup-kpis"><div><span>المجموعة</span><b id="groupLeadGroupName">—</b></div><div><span>الأخصائيون</span><b id="groupLeadMemberCount">0</b></div><div><span>السجلات</span><b id="groupLeadRowCount">0</b></div><div><span>آخر تحديث للبيانات</span><b id="groupLeadUpdated">—</b></div></div>
+  <div class="group-specialist-statuses"><div class="group-specialist-status-head"><h3>حالة الأخصائيين</h3><span>قراءة فقط</span></div><div class="group-followup-table-wrap"><table class="group-followup-table"><thead><tr><th>الأخصائي</th><th>الحالة المسجلة</th><th>آخر تعديل للحالة</th></tr></thead><tbody id="groupLeadSpecialistStatusBody"><tr><td colspan="3">جارٍ التحميل…</td></tr></tbody></table></div></div>
+  <div class="group-followup-filters"><label>الأخصائي<select id="groupLeadMemberFilter" onchange="renderGroupLeadFollowup()"><option value="">كل الأخصائيين</option></select></label><label>بحث في السجلات<input id="groupLeadSearch" type="search" placeholder="اسم العميل أو رقم الملف أو الحالة" oninput="renderGroupLeadFollowup()"></label><span class="group-readonly-badge">🔒 قراءة فقط — لا تعديل ولا حذف</span></div>
+  <div class="group-followup-table-wrap"><table class="group-followup-table"><thead><tr><th>اسم العميل</th><th>رقم الملف</th><th>الأخصائي</th><th>حالة القرض</th><th>التفاصيل</th></tr></thead><tbody id="groupLeadRowsBody"><tr><td colspan="5">جارٍ التحميل…</td></tr></tbody></table></div>
+  <dialog id="groupLeadRecordDialog" class="group-record-dialog"><div class="group-record-dialog-head"><h3>تفاصيل السجل</h3><button type="button" onclick="closeGroupLeadRecord()" aria-label="إغلاق">×</button></div><div id="groupLeadRecordDetails"></div></dialog>
+</section>
+
 <section id="users" class="card screen" data-owner-only>
 <div class="users-hero">
   <div class="users-hero-copy"><div class="users-eyebrow">مركز التحكم المؤسسي</div><h2>👤 إدارة المستخدمين والصلاحيات</h2><p>إدارة آمنة ومركزية للحسابات، الصلاحيات، كلمات المرور، والارتباط الوظيفي — بتجربة احترافية مستوحاة من الأنظمة المصرفية.</p><div class="users-security-line"><span>●</span> نظام الصلاحيات نشط</div></div>
@@ -3690,12 +3754,15 @@ programSettings=readProgramSettings();
 window.addEventListener("storage",e=>{if(e.key===PROGRAM_SETTINGS_KEY){programSettings=readProgramSettings();applyProgramSettings()}});
 if(settingsChannel)settingsChannel.onmessage=()=>{programSettings=readProgramSettings();applyProgramSettings()};
 window.addEventListener("resize",()=>{if(programSettings.orientation==="auto")applyProgramSettings()});
- const SCREEN_IDS=["clients","search","dash","collection","risk","dueInstallments","installmentCalculator","paymentFollowup","paymentFollowupArchive","location","portfolio","issuedLoans","dropoutClients","print","users","specialists","audit","import","uploadTool","settings"];
+ const SCREEN_IDS=["clients","search","dash","collection","risk","dueInstallments","installmentCalculator","paymentFollowup","paymentFollowupArchive","location","portfolio","issuedLoans","dropoutClients","print","users","specialists","audit","import","uploadTool","settings","groupLeadFollowup"];
 let screenDataVersion=0;const screenRenderVersion=Object.create(null);
 function showScreen(id){
   if(!enforceSession()) return;
   if(!SCREEN_IDS.includes(id)) id="import";
+  if(session.role==="group_lead"&&id!=="groupLeadFollowup")id="groupLeadFollowup";
+  if(id==="groupLeadFollowup"&&session.role!=="group_lead")id="search";
   if((id==="users"||id==="specialists"||id==="audit"||id==="dash") && !isOwnerRole(session.role)) id="search";
+  if(id==="specialists"&&typeof loadSpecialistGroupManagement==="function")void loadSpecialistGroupManagement();
   const screens=showScreen._screens||(showScreen._screens=[...document.querySelectorAll(".screen")]);
   screens.forEach(s=>{s.classList.remove("active");s.setAttribute("aria-hidden","true")});
   const target=document.getElementById(id);if(target){target.classList.add("active");target.setAttribute("aria-hidden","false")}if(id==="collection"&&typeof window.loadSharedCollectionDifferences==="function")void window.loadSharedCollectionDifferences();if(id==='dueInstallments'&&typeof ensureDueDefaultSpecialistOption==='function')ensureDueDefaultSpecialistOption();if(typeof renderLastImportNotices==="function")renderLastImportNotices();if(typeof syncSharedLastImportNotice==="function")syncSharedLastImportNotice();
@@ -3859,9 +3926,10 @@ function toggleResetPasswordVisibility(inputId,button){const input=document.getE
  function refreshLoginUsers(){
  const role=document.getElementById("loginRole")?.value||"owner";
  const roleChanged=lastLoginRole!==role;lastLoginRole=role;
- const ow=document.getElementById("loginOwnerWrap"),of=document.getElementById("loginOfficerWrap");
+ const ow=document.getElementById("loginOwnerWrap"),of=document.getElementById("loginOfficerWrap"),gl=document.getElementById("loginGroupLeadWrap");
  if(ow)ow.style.display=role==="owner"?"block":"none";
  if(of)of.style.display=role==="officer"?"block":"none";
+ if(gl)gl.style.display=role==="group_lead"?"block":"none";
  const input=document.getElementById("loginOwnerUser");
  if(input&&role==="owner"){
   const owners=users.filter(u=>isOwnerRole(u.role)&&u.active!==false&&!u.blocked);
@@ -3931,7 +3999,8 @@ async function submitSelfPasswordChange(event){
 async function callSupabaseAccountAdmin(body){
  if(!supabaseClient)initSupabase();if(!supabaseClient)throw new Error("تعذر تهيئة اتصال Supabase.");
  const {data,error}=await supabaseClient.auth.getSession();if(error||!data?.session?.access_token)throw new Error("انتهت الجلسة؛ سجّل الدخول مرة أخرى.");
- const response=await fetch(`${SUPABASE_URL}/functions/v1/manage-user-password`,{method:"POST",headers:{"apikey":SUPABASE_PUBLISHABLE_KEY,"Authorization":`Bearer ${data.session.access_token}`,"Content-Type":"application/json"},body:JSON.stringify(body)});
+ const endpoint=(body?.action==="self_password_change"&&session?.role==="group_lead")?"manage-specialist-groups":"manage-user-password";
+ const response=await fetch(`${SUPABASE_URL}/functions/v1/${endpoint}`,{method:"POST",headers:{"apikey":SUPABASE_PUBLISHABLE_KEY,"Authorization":`Bearer ${data.session.access_token}`,"Content-Type":"application/json"},body:JSON.stringify(body)});
  let payload={};try{payload=await response.json()}catch(e){}if(!response.ok)throw new Error(payload.error||"تعذر تنفيذ عملية الحساب على الخادم.");return true;
 }
 async function resetSupabaseAccountPassword(username,newPassword){return callSupabaseAccountAdmin({action:"password_reset",username,new_password:newPassword});}
@@ -3944,7 +4013,7 @@ async function login(){
 	 const officerSelect=document.getElementById("loginOfficerUser");
 	 const selectedOfficerToken=(selectedRole==="officer"?officerSelect?.value||"":"").trim();
 	 const selectedOfficerName=(selectedRole==="officer"?officerSelect?.selectedOptions?.[0]?.dataset?.officerName||selectedOfficerToken:"").trim();
-	 const uname=(selectedRole==="owner"?document.getElementById("loginOwnerUser")?.value||"":selectedOfficerToken).trim();
+	 const uname=(selectedRole==="owner"?(document.getElementById("loginOwnerUser")?.value||""):selectedRole==="officer"?selectedOfficerToken:(document.getElementById("loginGroupLeadUser")?.value||"")).trim();
 	 const pass=document.getElementById("loginPass").value;
 	 let localUser=users.find(x=>String(x.username).normalize("NFKC").toLocaleLowerCase("en-US")===uname.normalize("NFKC").toLocaleLowerCase("en-US"));
 	 const fail=text=>{if(msg){msg.textContent=text;msg.style.display="block";}};
@@ -3959,8 +4028,9 @@ async function login(){
 	  if(!response.ok||!payload.session||!payload.profile)throw new Error(payload.error||"بيانات الدخول غير صحيحة.");
 	  const profile=payload.profile;
 	  if(profile.is_active===false||profile.is_blocked===true||profile.is_linked===false)throw new Error("هذا الحساب غير نشط أو غير مسموح له بالدخول.");
-	  const expected=selectedRole==="officer"?"officer":"owner";
-	  if(expected==="officer"?profile.app_role!=="officer":!( ["owner","manager"].includes(profile.app_role)))throw new Error("نوع الحساب لا يطابق شاشة الدخول المحددة.");
+	  const expected=selectedRole==="officer"?"officer":selectedRole==="group_lead"?"group_lead":"owner";
+	  const roleMatches=expected==="officer"?profile.app_role==="officer":expected==="group_lead"?profile.app_role==="group_lead":["owner","manager"].includes(profile.app_role);
+	  if(!roleMatches)throw new Error("نوع الحساب لا يطابق شاشة الدخول المحددة.");
 	  if(!supabaseClient)initSupabase();if(!supabaseClient)throw new Error("تعذر تهيئة اتصال Supabase.");
 	  localUser=users.find(x=>String(x.username).normalize("NFKC").toLocaleLowerCase("en-US")===String(profile.username||"").normalize("NFKC").toLocaleLowerCase("en-US"))||null;
 	  const localProfile={username:profile.username,name:profile.display_name||selectedOfficerName||profile.username,role:profile.app_role,ownerRole:profile.owner_role||localUser?.ownerRole||"",officerName:profile.officer_name||selectedOfficerName||"",active:profile.is_active!==false,blocked:profile.is_blocked===true,linked:profile.is_linked!==false};
@@ -3990,12 +4060,12 @@ async function login(){
  document.getElementById("loginScreen").style.display="none";
  document.getElementById("app").style.display="block";
  document.getElementById("currentUser").textContent=session.name;
- document.getElementById("currentRole").textContent=isOwnerRole(session.role)?(session.ownerRole||"مالك / إدارة"):"أخصائي تمويل";
+ document.getElementById("currentRole").textContent=isOwnerRole(session.role)?(session.ownerRole||"مالك / إدارة"):session.role==="group_lead"?"رئيس الأخصائيين":"أخصائي تمويل";
  applyPermissions();
 	 const preferredScreen=String(location.hash||"").replace(/^#/,"");
 	 const canRestoreScreen=SCREEN_IDS.includes(preferredScreen)&&!(["users","specialists","audit","dash"].includes(preferredScreen)&&!isOwnerRole(session.role));
-	 showScreen(canRestoreScreen?preferredScreen:(session.role==="officer"?"clients":"dash"));
-	 if(typeof refreshOnOpen==="function")void refreshOnOpen();
+	 showScreen(session.role==="group_lead"?"groupLeadFollowup":canRestoreScreen?preferredScreen:(session.role==="officer"?"clients":"dash"));
+	 if(session.role==="group_lead"){if(typeof loadGroupLeadFollowup==="function")void loadGroupLeadFollowup();}else if(typeof refreshOnOpen==="function")void refreshOnOpen();
 }
 let INACTIVITY_LIMIT=8*60*60*1000;
 let inactivityTimer=null;
@@ -4012,7 +4082,10 @@ function startActivityTracking(){
 }
 function applyPermissions(){
  const owner=enforceSession() && isOwnerRole(session.role);
+ const groupLead=!!session&&session.role==="group_lead";
+ document.body.classList.toggle("group-lead-mode",groupLead);
  document.querySelectorAll('[data-owner-only],[data-manager-only]').forEach(e=>e.classList.toggle("hidden",!owner));
+ document.querySelectorAll('[data-group-lead-only]').forEach(e=>e.classList.toggle("hidden",!groupLead));
  if(!owner){document.getElementById("users")?.classList.add("hidden");document.getElementById("audit")?.classList.add("hidden");document.getElementById("dash")?.classList.add("hidden");}
  if(owner && document.getElementById("users"))document.getElementById("users").classList.remove("hidden");
  renderUsers();
@@ -14849,3 +14922,32 @@ init();
 <script id="operating-documents-navigation-cache-refresh">
 document.addEventListener('DOMContentLoaded',()=>{if(window.showScreen){window.showScreen._screens=null;window.showScreen._navLinks=null}},{once:true});
 </script>
+
+
+<script>
+let specialistGroupAdminData={groups:[],leads:[],officers:[]};
+let groupLeadRows=[],groupLeadMembers=[],groupLeadSpecialistStatuses=[],groupLeadInfo=null,groupLeadDataUpdatedAt="";
+function groupSafe(value){return String(value??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;")}
+function groupNorm(value){return String(value??"").replace(/\u00a0/g," ").replace(/\n/g," ").replace(/[ًٌٍَُِّْـ]/g,"").replace(/[أإآ]/g,"ا").replace(/ى/g,"ي").replace(/ة/g,"ه").replace(/[\u200e\u200f]/g,"").replace(/[.,،؛;:_\-/\\()[\]{}]/g," ").replace(/\s+/g," ").trim().toLowerCase()}
+function groupOfficerKey(value){return groupNorm(value).replace(/^(ال)?\s*اخصائي(\s+تمويل)?\s*/i,"").replace(/\s+/g," ").trim()}
+function groupRowValue(row,names){const wanted=new Set(names.map(groupNorm));const found=Object.entries(row||{}).find(([k])=>wanted.has(groupNorm(k)));return found?.[1]??""}
+function groupSetStatus(text,error=false){const el=document.getElementById("sgAdminStatus");if(el){el.textContent=text;el.style.background=error?"#fef2f2":"#eff6ff";el.style.color=error?"#991b1b":"#1e3a8a"}}
+async function groupApi(body){if(!supabaseClient&&!initSupabase())throw new Error("تعذر الاتصال بالخادم.");const {data,error}=await supabaseClient.auth.getSession();if(error||!data?.session?.access_token)throw new Error("انتهت الجلسة؛ سجّل الدخول مرة أخرى.");const response=await fetch(`${SUPABASE_URL}/functions/v1/manage-specialist-groups`,{method:"POST",headers:{"apikey":SUPABASE_PUBLISHABLE_KEY,"Authorization":`Bearer ${data.session.access_token}`,"Content-Type":"application/json"},body:JSON.stringify(body)});let payload={};try{payload=await response.json()}catch(e){}if(!response.ok)throw new Error(payload.error||`تعذر إتمام العملية (HTTP ${response.status}).`);return payload}
+async function loadSpecialistGroupManagement(){if(!session||!isOwnerRole(session.role))return;const target=document.getElementById("sgGroupsList");if(target)target.innerHTML='<div class="group-admin-empty">جارٍ تحميل المجموعات…</div>';try{specialistGroupAdminData=await groupApi({action:"list_management"});populateGroupAdminSelects();renderSpecialistGroupManagement();groupSetStatus("تم تحميل المجموعات والحسابات النشطة.")}catch(error){if(target)target.innerHTML='<div class="group-admin-empty">'+groupSafe(error.message||"تعذر تحميل المجموعات")+'</div>';groupSetStatus(error.message||"تعذر تحميل المجموعات.",true)}}
+function populateGroupAdminSelects(){const data=specialistGroupAdminData;const lead=document.getElementById("sgLeader"),off=document.getElementById("sgLeaderOfficer");if(lead){const used=new Set(data.groups.map(g=>g.leader_user_id));const options=data.leads.filter(x=>x.is_active&&!x.is_blocked&&x.is_linked).map(x=>`<option value="${groupSafe(x.user_id)}">${groupSafe(x.display_name||x.username)} — ${groupSafe(x.username)}${used.has(x.user_id)&&x.user_id!==document.getElementById("sgLeader")?.value?" (مرتبط بمجموعة)":""}</option>`).join("");lead.innerHTML='<option value="">— اختر الرئيس —</option>'+options}if(off){off.innerHTML='<option value="">الرئيس ليس أخصائيًا / لم يُربط بعد</option>'+data.officers.map(x=>`<option value="${groupSafe(x.user_id)}">${groupSafe(x.officer_name||x.display_name)} — ${groupSafe(x.username)}</option>`).join("")}}
+function renderSpecialistGroupManagement(){const box=document.getElementById("sgGroupsList");if(!box)return;const data=specialistGroupAdminData;if(!data.groups?.length){box.innerHTML='<div class="group-admin-empty">لا توجد مجموعات بعد. أنشئ حساب رئيس ثم أضف أول مجموعة.</div>';return}const assigned=new Set(data.groups.flatMap(g=>g.members.map(m=>m.officer_user_id)));box.innerHTML=data.groups.map(g=>{const leader=g.leader||{}, linked=g.linked_officer;const members=g.members||[];const chips=members.length?members.map(m=>`<span class="group-admin-member">${groupSafe(m.officer?.officer_name||m.officer?.display_name||"أخصائي")}${m.officer?.username?` — ${groupSafe(m.officer.username)}`:""}<button type="button" title="إزالة من المجموعة" onclick="removeGroupOfficer('${groupSafe(g.id)}','${groupSafe(m.officer_user_id)}')">×</button></span>`).join(""):'<span class="group-admin-empty">لا يوجد أخصائيون مضافون بعد.</span>';const options=data.officers.filter(o=>!assigned.has(o.user_id)).map(o=>`<option value="${groupSafe(o.user_id)}">${groupSafe(o.officer_name||o.display_name)} — ${groupSafe(o.username)}</option>`).join("");return `<article class="group-admin-card"><div class="group-admin-card-head"><div><h5>${groupSafe(g.name)}</h5><p>الرئيس: ${groupSafe(leader.display_name||leader.username||"—")}${leader.username?` (${groupSafe(leader.username)})`:""}${linked?` · حسابه كأخصائي: ${groupSafe(linked.officer_name||linked.display_name)}`:""}</p></div><div class="group-admin-actions"><button type="button" onclick="editSpecialistGroup('${groupSafe(g.id)}')">تعديل المجموعة</button><button type="button" onclick="deleteSpecialistGroup('${groupSafe(g.id)}')">حذف المجموعة</button></div></div><div class="group-admin-members">${chips}</div><div class="group-admin-add-member"><select id="sgmember-${groupSafe(g.id)}"><option value="">— اختر أخصائيًا نشطًا —</option>${options}</select><button type="button" class="group-admin-primary" onclick="assignGroupOfficer('${groupSafe(g.id)}')">إضافة للمجموعة</button></div></article>`}).join("")}
+async function createSpecialistGroupLead(event){event.preventDefault();const form=event.currentTarget;const button=form.querySelector('button[type="submit"]');if(button)button.disabled=true;try{await groupApi({action:"create_lead",display_name:document.getElementById("sgLeadDisplayName").value.trim(),username:document.getElementById("sgLeadUsername").value.trim(),password:document.getElementById("sgLeadPassword").value});form.reset();await loadSpecialistGroupManagement();groupSetStatus("تم إنشاء حساب رئيس الأخصائيين. أنشئ مجموعة واربط الحساب بها.")}catch(error){groupSetStatus(error.message||"تعذر إنشاء الحساب.",true)}finally{if(button)button.disabled=false}}
+function resetSpecialistGroupForm(){document.getElementById("sgGroupForm")?.reset();document.getElementById("sgGroupId").value="";document.getElementById("sgGroupFormTitle").textContent="إنشاء مجموعة";populateGroupAdminSelects()}
+function editSpecialistGroup(id){const g=specialistGroupAdminData.groups.find(x=>x.id===id);if(!g)return;document.getElementById("sgGroupId").value=g.id;document.getElementById("sgGroupName").value=g.name;populateGroupAdminSelects();document.getElementById("sgLeader").value=g.leader_user_id;document.getElementById("sgLeaderOfficer").value=g.leader_officer_user_id||"";document.getElementById("sgGroupFormTitle").textContent="تعديل بيانات المجموعة";document.getElementById("sgGroupName").scrollIntoView({behavior:"smooth",block:"center"})}
+async function saveSpecialistGroup(event){event.preventDefault();const button=event.currentTarget.querySelector('button[type="submit"]');if(button)button.disabled=true;try{await groupApi({action:"save_group",id:document.getElementById("sgGroupId").value||undefined,name:document.getElementById("sgGroupName").value.trim(),leader_user_id:document.getElementById("sgLeader").value,leader_officer_user_id:document.getElementById("sgLeaderOfficer").value||null});resetSpecialistGroupForm();await loadSpecialistGroupManagement();groupSetStatus("تم حفظ المجموعة وتحديث ربط الرئيس.")}catch(error){groupSetStatus(error.message||"تعذر حفظ المجموعة.",true)}finally{if(button)button.disabled=false}}
+async function deleteSpecialistGroup(id){const g=specialistGroupAdminData.groups.find(x=>x.id===id);if(!g||!confirm(`سيتم حذف مجموعة «${g.name}» وفك ربط أعضائها. سيبقى حساب الرئيس نشطًا ويمكن ربطه بمجموعة أخرى. هل تريد المتابعة؟`))return;try{await groupApi({action:"delete_group",id});await loadSpecialistGroupManagement();resetSpecialistGroupForm();groupSetStatus("حُذفت المجموعة وفُك ارتباط أعضائها؛ لم تُحذف حساباتهم.")}catch(error){groupSetStatus(error.message||"تعذر حذف المجموعة.",true)}}
+async function assignGroupOfficer(groupId){const select=document.getElementById(`sgmember-${groupId}`),officerId=select?.value;if(!officerId)return groupSetStatus("اختر أخصائيًا أولًا.",true);try{await groupApi({action:"assign_member",group_id:groupId,officer_user_id:officerId});await loadSpecialistGroupManagement();groupSetStatus("تمت إضافة الأخصائي إلى المجموعة.")}catch(error){groupSetStatus(error.message||"تعذر إضافة الأخصائي.",true)}}
+async function removeGroupOfficer(groupId,officerId){if(!confirm("هل تريد إزالة هذا الأخصائي من المجموعة؟ لن يُحذف حسابه أو سجلاته."))return;try{await groupApi({action:"remove_member",group_id:groupId,officer_user_id:officerId});await loadSpecialistGroupManagement();groupSetStatus("تمت إزالة الأخصائي من المجموعة فقط.")}catch(error){groupSetStatus(error.message||"تعذر إزالة الأخصائي.",true)}}
+function groupLeadStatus(text,error=false){const el=document.getElementById("groupLeadStatus");if(el){el.textContent=text;el.style.background=error?"#fef2f2":"#eff6ff";el.style.color=error?"#991b1b":"#1e3a8a"}}
+async function loadGroupLeadFollowup(){if(!session||session.role!=="group_lead")return;groupLeadStatus("جارٍ جلب سجلات مجموعتك بشكل آمن…");const body=document.getElementById("groupLeadRowsBody");if(body)body.innerHTML='<tr><td colspan="5">جارٍ التحميل…</td></tr>';try{const payload=await groupApi({action:"load_group_data"});groupLeadInfo=payload.group;groupLeadMembers=Array.isArray(payload.members)?payload.members:[];groupLeadSpecialistStatuses=Array.isArray(payload.specialist_statuses)?payload.specialist_statuses:[];groupLeadRows=Array.isArray(payload.rows)?payload.rows:await unpackCloudRows(payload.rows);groupLeadDataUpdatedAt=payload.updated_at||"";renderGroupLeadFollowup();groupLeadStatus(`تم تحميل ${groupLeadRows.length.toLocaleString("ar-EG")} سجلًا من مجموعتك — عرض فقط.`)}catch(error){groupLeadRows=[];groupLeadMembers=[];groupLeadSpecialistStatuses=[];if(body)body.innerHTML=`<tr><td colspan="5">${groupSafe(error.message||"تعذر تحميل السجلات")}</td></tr>`;groupLeadStatus(error.message||"تعذر تحميل سجلات المجموعة.",true)}}
+function renderGroupLeadFollowup(){const groupName=document.getElementById("groupLeadGroupName"),memberCount=document.getElementById("groupLeadMemberCount"),rowCount=document.getElementById("groupLeadRowCount"),updated=document.getElementById("groupLeadUpdated"),filter=document.getElementById("groupLeadMemberFilter"),body=document.getElementById("groupLeadRowsBody"),statusBody=document.getElementById("groupLeadSpecialistStatusBody");if(!body)return;if(statusBody)statusBody.innerHTML=groupLeadSpecialistStatuses.length?groupLeadSpecialistStatuses.map(x=>`<tr><td>${groupSafe(x.specialist_name||"—")}</td><td>${groupSafe(x.status||"—")}</td><td>${groupSafe(x.updated_at?new Date(x.updated_at).toLocaleString("ar-EG"):"—")}</td></tr>`).join(""):'<tr><td colspan="3">لا توجد حالة يدوية مسجلة لأخصائيي المجموعة.</td></tr>';if(groupName)groupName.textContent=groupLeadInfo?.name||"—";if(memberCount)memberCount.textContent=groupLeadMembers.length.toLocaleString("ar-EG");if(rowCount)rowCount.textContent=groupLeadRows.length.toLocaleString("ar-EG");if(updated)updated.textContent=groupLeadDataUpdatedAt?new Date(groupLeadDataUpdatedAt).toLocaleString("ar-EG"):"—";if(filter){const selected=filter.value;filter.innerHTML='<option value="">كل الأخصائيين</option>'+groupLeadMembers.map(m=>`<option value="${groupSafe(m.name)}">${groupSafe(m.name)}</option>`).join("");if(groupLeadMembers.some(m=>m.name===selected))filter.value=selected}const who=filter?.value||"",query=groupNorm(document.getElementById("groupLeadSearch")?.value||"");const selectedKey=who?groupOfficerKey(who):"";const matched=groupLeadRows.map((row,index)=>({row,index})).filter(({row})=>{const officer=groupOfficerKey(groupRowValue(row,["اسم الاخصائي","الأخصائي","اسم الأخصائي","اسم الموظف"]));if(selectedKey&&officer!==selectedKey)return false;if(query&&!groupNorm(JSON.stringify(row)).includes(query))return false;return true});if(!matched.length){body.innerHTML='<tr><td colspan="5">لا توجد سجلات مطابقة للفلاتر الحالية.</td></tr>';return}body.innerHTML=matched.map(({row,index})=>`<tr><td>${groupSafe(groupRowValue(row,["اسم العميل","اسم المستفيد","اسم العميل/المستفيد"])||"—")}</td><td>${groupSafe(groupRowValue(row,["رقم الملف","رقم القرض","رقم العميل","كود العميل","رقم الطلب"])||"—")}</td><td>${groupSafe(groupRowValue(row,["اسم الاخصائي","الأخصائي","اسم الأخصائي","اسم الموظف"])||"—")}</td><td>${groupSafe(groupRowValue(row,["حالة القرض","حالة العميل","الحالة"])||"—")}</td><td><button type="button" onclick="openGroupLeadRecord(${index})">عرض التفاصيل</button></td></tr>`).join("")}
+function openGroupLeadRecord(index){const row=groupLeadRows[index];if(!row)return;const target=document.getElementById("groupLeadRecordDetails");target.innerHTML='<div class="group-record-fields">'+Object.entries(row).map(([k,v])=>`<div class="group-record-field"><b>${groupSafe(k)}</b><span>${groupSafe(typeof v==="object"&&v!==null?JSON.stringify(v):v||"—")}</span></div>`).join("")+'</div>';const dialog=document.getElementById("groupLeadRecordDialog");if(dialog?.showModal)dialog.showModal();else dialog?.setAttribute("open","")}
+function closeGroupLeadRecord(){const dialog=document.getElementById("groupLeadRecordDialog");if(dialog?.close)dialog.close();else dialog?.removeAttribute("open")}
+if(typeof session!=="undefined"&&session?.role==="group_lead")void loadGroupLeadFollowup();
+</script>
+
