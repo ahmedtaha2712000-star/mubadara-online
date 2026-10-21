@@ -15258,3 +15258,56 @@ if(typeof session!=="undefined"&&session?.role==="group_lead")void loadCloud();
 /* بطاقة نطاق المجموعة مخفية لرئيس الأخصائيين فقط؛ التصفية الداخلية تبقى فعالة. */
 body.group-lead-mode #groupLeadScopeBar{display:none!important;visibility:hidden!important;height:0!important;min-height:0!important;margin:0!important;padding:0!important;overflow:hidden!important}
 </style>
+
+<style id="all-screens-mobile-density-final">
+/* تحسين الهاتف لجميع الشاشات الداخلية فقط — لا يشمل الدخول أو الكمبيوتر أو الطباعة. */
+@media screen and (max-width:760px){
+  main{width:100%!important;max-width:none!important;margin:0!important;padding:0!important;min-width:0!important}
+  .screen{width:100%!important;max-width:none!important;min-width:0!important;margin:0 0 7px!important;padding:8px!important;border-radius:0!important;box-shadow:none!important}
+  .screen.active>h2,.screen.active .dashboard-title h2,.screen.active .issued-loans-header h2,.screen.active .section-heading h2{font-size:18px!important;line-height:1.25!important;margin:4px 0 7px!important}
+  .screen.active .sub,.screen.active .section-subtitle,.screen.active p.sub{font-size:10px!important;line-height:1.35!important}
+  .screen.active>.card,.screen.active .card:not(.screen){padding:9px!important;margin-bottom:7px!important;border-radius:8px!important}
+  .screen.active .toolbar,.screen.active .date-tools,.screen.active .collection-tools,.screen.active .export-toolbar{display:flex!important;flex-wrap:nowrap!important;overflow-x:auto!important;gap:5px!important;padding:5px!important;margin:0 0 6px!important;white-space:nowrap!important}
+  .screen.active .toolbar>* ,.screen.active .date-tools>* ,.screen.active .collection-tools>* ,.screen.active .export-toolbar>*{flex:0 0 auto!important;min-height:30px!important;padding:5px 7px!important;font-size:9px!important}
+  .screen.active .filter-row,.screen.active .advanced-filters,.screen.active .collection-filter-grid,.screen.active .issued-loan-filters,.screen.active .dashboard-control-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:6px!important;padding:7px!important;margin:0 0 7px!important}
+  .screen.active .filter-row>div:first-child,.screen.active .filter-row>div:last-child{min-width:0!important}
+  .screen.active .filter-label,.screen.active label,.screen.active .field-label{font-size:9px!important;line-height:1.2!important}
+  .screen.active input:not([type=radio]):not([type=checkbox]),.screen.active select{height:32px!important;min-height:32px!important;padding:5px 7px!important;margin-top:3px!important;font-size:11px!important}
+  .screen.active .status-control,.screen.active .specialist-status-control,.screen.active .app-shared-specialist-status-control{display:flex!important;flex-direction:row!important;align-items:center!important;flex-wrap:nowrap!important;overflow-x:auto!important;gap:5px!important;white-space:nowrap!important;padding:4px!important}
+  .screen.active .status-control label,.screen.active .specialist-status-control label,.screen.active .app-shared-specialist-status-control label{display:inline-flex!important;flex-direction:row!important;align-items:center!important;flex:0 0 auto!important;width:auto!important;min-width:max-content!important;gap:3px!important;font-size:8px!important;white-space:nowrap!important}
+  .screen.active .status-control input,.screen.active .specialist-status-control input,.screen.active .app-shared-specialist-status-control input{width:12px!important;min-width:12px!important;height:12px!important;margin:0!important}
+  .kpi-grid,.dashboard-summary,.clients-summary,.collection-kpis,.risk-summary-cards,.specialists-kpis,.users-kpi-grid,.portfolio-summary-cards,.issued-loans-summary,.due-quick-summary,.due-risk-parity-cards,.collection-risk-parity-cards,.group-followup-kpis,.inst-summary-grid,.pf-summary,.pfa-summary,.audit-summary,.dropout-date-summary,.pro-kpis,.loan-summary-cards,.report-summary-cards{display:flex!important;flex-wrap:nowrap!important;overflow-x:auto!important;gap:6px!important;padding:2px 2px 6px!important;margin:0 0 7px!important;-webkit-overflow-scrolling:touch}
+  .kpi-grid>*,.dashboard-summary>*,.clients-summary>*,.collection-kpis>*,.risk-summary-cards>*,.specialists-kpis>*,.users-kpi-grid>*,.portfolio-summary-cards>*,.issued-loans-summary>*,.due-quick-summary>*,.due-risk-parity-cards>*,.collection-risk-parity-cards>*,.group-followup-kpis>*,.inst-summary-grid>*,.pf-summary>*,.pfa-summary>*,.audit-summary>*,.dropout-date-summary>*,.pro-kpis>*,.loan-summary-cards>*,.report-summary-cards>*{flex:0 0 140px!important;min-width:140px!important;padding:7px!important;min-height:0!important}
+  .kpi-grid b,.dashboard-summary b,.clients-summary b,.collection-kpis b,.risk-summary-cards b,.specialists-kpis b,.users-kpi-grid b,.portfolio-summary-cards b,.issued-loans-summary b,.due-quick-summary b,.due-risk-parity-cards b,.collection-risk-parity-cards b{font-size:14px!important;line-height:1.15!important}
+  .kpi-grid span,.dashboard-summary span,.clients-summary span,.collection-kpis span,.risk-summary-cards span,.specialists-kpis span,.users-kpi-grid span,.portfolio-summary-cards span,.issued-loans-summary span,.due-quick-summary span,.due-risk-parity-cards span,.collection-risk-parity-cards span{font-size:8px!important;line-height:1.2!important}
+  .screen.active .wrap,.screen.active .table-wrap,.screen.active .table-container,.screen.active .location-table-wrap{width:100%!important;max-width:100%!important;overflow-x:auto!important;margin:0!important}
+  .screen.active table{font-size:10px!important;min-width:650px!important}
+  .screen.active table th,.screen.active table td{padding:6px 5px!important;font-size:10px!important;line-height:1.15!important}
+  .screen.active .profile,.screen.active .field,.screen.active .search-card-summary,.screen.active .profile-loan-card{padding:7px!important}
+  .screen.active .fields{gap:6px!important}
+  .screen.active .fields .field small,.screen.active .field small{font-size:8px!important}
+  .screen.active .fields .field b,.screen.active .field b{font-size:10px!important}
+  .screen.active .modal-content,.screen.active dialog{max-width:calc(100vw - 12px)!important;width:calc(100vw - 12px)!important;padding:9px!important}
+  .screen.active .date-range{gap:4px!important}
+  .screen.active .date-tools{justify-content:flex-start!important}
+}
+@media screen and (max-width:520px){
+  .screen{padding:6px!important}
+  .screen.active .filter-row,.screen.active .advanced-filters,.screen.active .collection-filter-grid,.screen.active .issued-loan-filters,.screen.active .dashboard-control-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  .kpi-grid>*,.dashboard-summary>*,.clients-summary>*,.collection-kpis>*,.risk-summary-cards>*,.specialists-kpis>*,.users-kpi-grid>*,.portfolio-summary-cards>*,.issued-loans-summary>*,.due-quick-summary>*,.due-risk-parity-cards>*,.collection-risk-parity-cards>*,.group-followup-kpis>*,.inst-summary-grid>*,.pf-summary>*,.pfa-summary>*,.audit-summary>*,.dropout-date-summary>*,.pro-kpis>*,.loan-summary-cards>*,.report-summary-cards>*{flex-basis:128px!important;min-width:128px!important}
+  .screen.active table th,.screen.active table td{padding:5px 4px!important;font-size:9px!important}
+}
+</style>
+
+<style id="all-screens-mobile-edge-to-edge-final">
+@media screen and (max-width:760px){
+  body main{padding:0!important;margin:0!important;width:100%!important;max-width:none!important}
+  body .screen{margin-left:0!important;margin-right:0!important}
+}
+</style>
+
+<style id="all-screens-mobile-main-specific-final">
+@media screen and (max-width:760px){
+  #app .layout > main{padding:0!important;margin:0!important;width:100%!important;max-width:none!important}
+}
+</style>
