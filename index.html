@@ -15682,7 +15682,7 @@ body.group-lead-mode #groupLeadScopeBar{display:none!important;visibility:hidden
  ];
  const $=id=>document.getElementById(id), root=()=>$(SIDEBAR_ID), sourceNav=()=>document.querySelector('.layout>nav[aria-label="التنقل الرئيسي"]');
  let sourceById=new Map(), defaultOrder=[], savedOrder=[], editOrder=[], editing=false, dragging=null, loading=false, syncStarted=false;
- function owner(){return typeof session!=="undefined"&&!!session&&typeof window.isOwnerRole==="function"&&window.isOwnerRole(session.role)}
+ function owner(){return typeof session!=="undefined"&&!!session&&session.role==="owner"}
  function allowed(source){if(!source||source.classList.contains("hidden")||source.hidden)return false;if(source.hasAttribute("data-owner-only")&&!owner())return false;if(source.hasAttribute("data-manager-only")&&!(typeof session!=="undefined"&&session&&["owner","manager"].includes(session.role)))return false;if(source.hasAttribute("data-group-lead-only")&&!(typeof session!=="undefined"&&session?.role==="group_lead"))return false;return true}
  function setStatus(text,kind=""){const el=$("dssStatus");if(el){el.textContent=text;el.dataset.kind=kind}}
  function sanitizeOrder(value){const valid=new Set(defaultOrder);const seen=new Set();const result=[];for(const id of Array.isArray(value)?value:[]){const key=String(id||"");if(valid.has(key)&&!seen.has(key)){seen.add(key);result.push(key)}}for(const id of defaultOrder)if(!seen.has(id))result.push(id);return result}
