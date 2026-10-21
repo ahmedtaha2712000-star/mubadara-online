@@ -12898,19 +12898,34 @@ document.addEventListener("DOMContentLoaded",()=>{document.getElementById("group
  const diffState={mode:DIFF_MODE,items:[],counts:{previous:0,current:0,new:0,changed:0,customerCount:0,totalNewAmount:0,unchanged:0},error:false};
  function text(v){return String(v??"").trim()}
  function first(r,names){for(const name of names){const k=normFast(name);if(Object.prototype.hasOwnProperty.call(r||{},k)&&text(r[k]))return r[k]}return ""}
+ function canonicalCollectionNationalId(value){
+   let raw=String(value??"").normalize("NFKC").trim();
+   raw=raw.replace(/[٠-٩]/g,d=>String("٠١٢٣٤٥٦٧٨٩".indexOf(d))).replace(/[۰-۹]/g,d=>String("۰۱۲۳۴۵۶۷۸۹".indexOf(d)));
+   raw=raw.replace(/\.0+$/," ").trim();
+   if(/^[+-]?\d+(?:\.\d+)?e[+-]?\d+$/i.test(raw)){const numeric=Number(raw);if(Number.isFinite(numeric)&&Number.isInteger(numeric)&&Math.abs(numeric)<1e21)raw=numeric.toFixed(0)}
+   const digits=raw.replace(/[^0-9]/g,"");
+   return digits||normFast(raw);
+ }
+ function collectionPaymentDateValue(value){
+   if(value instanceof Date)return value;
+   if(typeof value==="number")return value;
+   return String(value??"").normalize("NFKC").trim().replace(/[٠-٩]/g,d=>String("٠١٢٣٤٥٦٧٨٩".indexOf(d))).replace(/[۰-۹]/g,d=>String("۰۱۲۳۴۵۶۷۸۹".indexOf(d)));
+ }
  function paymentGroupInfo(r){
    const nameValue=typeof get==="function"?get(r,"client"):first(r,[H.client,"اسم العميل","العميل"]);
-   const nationalId=text((typeof get==="function"?get(r,"nid"):"")||first(r,[H.nid,"الرقم القومي","الرقم القومى","رقم قومي"]));
+   const nationalId=text((typeof get==="function"?get(r,"nid"):"")||first(r,[H.nid,"الرقم القومي","الرقم القومى","رقم قومي","الرقم القومي للعميل","رقم قومي للعميل","رقم الهوية"]));
    const client=text(nameValue)||(nationalId?`عميل بدون اسم — ${nationalId}`:"");
    if(!client)return null;
-   const rawDate=typeof rowPaymentDate==="function"?rowPaymentDate(r):first(r,[H.paymentDate,"تاريخ دفع القسط","تاريخ الدفع","تاريخ التحصيل","تاريخ تحصيل القسط","تاريخ السداد الفعلي"]);
+   const rawDate=typeof rowPaymentDate==="function"?rowPaymentDate(r):first(r,[H.paymentDate,"تاريخ دفع القسط","تاريخ الدفع","تاريخ دفع","تاريخ التحصيل","تاريخ تحصيل القسط","تاريخ السداد الفعلي"]);
    if(!text(rawDate))return null;
-   const parsedDate=typeof parseExcelDate==="function"?parseExcelDate(rawDate):null;
-   const dateKey=parsedDate&&typeof isoDate==="function"?isoDate(parsedDate):normFast(rawDate);
-   const dateLabel=parsedDate?parsedDate.toLocaleDateString("ar-EG"):text(rawDate);
-   const amount=typeof rowPaidAmount==="function"?rowPaidAmount(r):num(first(r,[H.paid,"المبلغ المدفوع","المبلغ المحصل","قيمة المسدد","المسدد","المدفوع"]));
+   const normalizedDate=collectionPaymentDateValue(rawDate);
+   const parsedDate=typeof parseExcelDate==="function"?parseExcelDate(normalizedDate):null;
+   const dateKey=parsedDate&&typeof isoDate==="function"?isoDate(parsedDate):normFast(normalizedDate);
+   const dateLabel=parsedDate?parsedDate.toLocaleDateString("ar-EG"):text(normalizedDate);
+   const amount=num(first(r,[H.paid,"المبلغ المدفوع","المبلغ المحصل","قيمة المسدد","المبلغ المسدد","المسدد","المدفوع","قيمة المدفوع"]));
    if(!(amount>0))return null;
-   const clientKey=nationalId?"nid:"+normFast(nationalId):"name:"+normFast(text(nameValue)||client);
+   const canonicalId=nationalId?canonicalCollectionNationalId(nationalId):"";
+   const clientKey=canonicalId?"nid:"+canonicalId:"name:"+normFast(text(nameValue)||client);
    return {key:clientKey+"|"+dateKey,clientKey,client,dateKey,dateLabel,amount};
  }
  function compareCollectionSheetRows(previous,current,onProgress){
