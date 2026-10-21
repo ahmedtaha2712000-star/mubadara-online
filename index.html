@@ -4628,8 +4628,31 @@ async function importExcelFile(file){
   }
   if(cloudSaved)try{recordSuccessfulImportNotice()}catch(importNoticeErr){console.warn("تعذر حفظ ملاحظة آخر استيراد:",importNoticeErr)}
 }
+const collectionExcelFileInput=document.getElementById("file");
+collectionExcelFileInput?.addEventListener("click",()=>{
+ mubCollectionExcelPickerOpen=true;
+ updateMubCollectionExcelRefreshLock();
+ clearTimeout(mubCollectionExcelPickerTimer);
+ mubCollectionExcelPickerTimer=setTimeout(()=>{
+  if(mubCollectionExcelPickerOpen&&!mubCollectionExcelImportInProgress){
+   mubCollectionExcelPickerOpen=false;
+   updateMubCollectionExcelRefreshLock();
+   if(document.visibilityState==="visible"&&session&&appSessionReady)void refreshOnOpen();
+  }
+ },300000);
+});
+collectionExcelFileInput?.addEventListener("cancel",()=>{
+ clearTimeout(mubCollectionExcelPickerTimer);
+ mubCollectionExcelPickerOpen=false;
+ updateMubCollectionExcelRefreshLock();
+ if(document.visibilityState==="visible"&&session&&appSessionReady)setTimeout(()=>void refreshOnOpen(),0);
+});
 document.getElementById("file").addEventListener("change",async e=>{
  const f=e.target.files[0];
+ clearTimeout(mubCollectionExcelPickerTimer);
+ mubCollectionExcelPickerOpen=false;
+ mubCollectionExcelImportInProgress=!!f;
+ updateMubCollectionExcelRefreshLock();
  const importStatus=document.getElementById("importConfirmStatus");
  if(!f){
    if(importStatus){importStatus.textContent="⚠️ لم يتم تحميل الملف.";importStatus.style.background="#fff7ed";importStatus.style.borderColor="#fdba74";importStatus.style.color="#9a3412";}
@@ -4653,6 +4676,9 @@ document.getElementById("file").addEventListener("change",async e=>{
      importStatus.style.background="#fef2f2";importStatus.style.borderColor="#fca5a5";importStatus.style.color="#991b1b";
    }
    document.getElementById("status").textContent="❌ لم يتم تحميل الملف — "+failedAt;
+ }finally{
+   mubCollectionExcelImportInProgress=false;
+   updateMubCollectionExcelRefreshLock();
  }
  /* السماح بإعادة اختيار الملف نفسه بعد نجاح الاستيراد أو فشله. */
  e.target.value="";
@@ -8802,8 +8828,22 @@ async function loadDB(){
 	 showMsg((lastCloudLoadError||"تعذر تحميل البيانات الآن. تحقق من الاتصال ثم حاول مرة أخرى.")+" لم يتم عرض النسخة المحفوظة.","warn");
 	 return false;
 }
+let mubCollectionExcelPickerOpen=false;
+let mubCollectionExcelImportInProgress=false;
+let mubCollectionExcelPickerTimer=null;
+let mubCollectionExcelRefreshWasDisabled=false;
+let mubCollectionExcelRefreshLockHeld=false;
+function updateMubCollectionExcelRefreshLock(){
+ const button=document.getElementById("manualRefreshButton");
+ if(!button)return;
+ const busy=mubCollectionExcelPickerOpen||mubCollectionExcelImportInProgress;
+ if(busy&&!mubCollectionExcelRefreshLockHeld){mubCollectionExcelRefreshWasDisabled=button.disabled;mubCollectionExcelRefreshLockHeld=true;}
+ if(busy)button.disabled=true;
+ else if(mubCollectionExcelRefreshLockHeld){button.disabled=mubCollectionExcelRefreshWasDisabled;mubCollectionExcelRefreshLockHeld=false;}
+}
 let openingRefreshInProgress=false;
 async function refreshOnOpen(){
+ if(mubCollectionExcelPickerOpen||mubCollectionExcelImportInProgress)return true;
  if(!session||!appSessionReady||openingRefreshInProgress)return;
  openingRefreshInProgress=true;
  try{
