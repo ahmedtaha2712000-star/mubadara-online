@@ -4433,11 +4433,12 @@ g3:"اسم الضامن الثالث",g3p:"تلبفون الضامن الثال�
 let rows=[], groups=[];
 /* لا تبدأ مقارنة شيت جديد قبل التأكد من تحميل الشيت السابق من الخادم. هذا قفل واجهة فقط ولا يغيّر قاعدة البيانات. */
 let collectionPreviousDataState="loading";
+let collectionPreviousDataLoadPromise=Promise.resolve(false);
 function setCollectionPreviousDataState(state){
   collectionPreviousDataState=state;
-  const input=document.getElementById("file"),note=document.getElementById("importDataReadiness"),ready=state==="ready";
-  if(input){input.disabled=!ready;input.setAttribute("aria-busy",ready?"false":"true");}
-  if(note){note.dataset.state=state;note.textContent=ready?"تم تحميل بيانات الشيت السابق بنجاح؛ يمكنك رفع الشيت الجديد للمقارنة.":state==="loading"?"جارٍ تحميل الشيت السابق من الخادم. سيتاح الرفع بعد اكتمال التحميل.":"تعذر تحميل الشيت السابق من الخادم. أعد المحاولة من زر تحديث البيانات قبل رفع الشيت الجديد حتى لا يُحسب كامل المبلغ كتحصيل جديد.";}
+  const input=document.getElementById("file"),note=document.getElementById("importDataReadiness"),ready=state==="ready",selectable=ready||state==="loading",importing=typeof mubCollectionExcelImportInProgress!=="undefined"&&mubCollectionExcelImportInProgress;
+  if(input){input.disabled=!selectable||!!importing;input.setAttribute("aria-busy",state==="loading"?"true":"false");}
+  if(note){note.dataset.state=state;note.textContent=ready?"تم تحميل بيانات الشيت السابق بنجاح؛ يمكنك رفع الشيت الجديد للمقارنة.":state==="loading"?"جارٍ تحميل الشيت السابق في الخلفية. يمكنك اختيار الشيت الحالي الآن؛ ستتم المقارنة والحفظ بعد اكتمال التحميل.":"تعذر تحميل الشيت السابق من الخادم. أعد المحاولة من زر تحديث البيانات قبل رفع الشيت الجديد حتى لا يُحسب كامل المبلغ كتحصيل جديد.";}
 }
 // Caches reduce repeated Arabic normalization/property lookups during filtering and rendering.
 const rowValueCache=new WeakMap();
@@ -4541,10 +4542,11 @@ async function ensureXLSXLoaded(){
 }
 async function importExcelFile(file){
   if(blockGroupLeadWrite())throw new Error("الاستيراد متاح للمالك فقط.");
-  if(collectionPreviousDataState!=="ready")throw new Error(collectionPreviousDataState==="loading"?"انتظر اكتمال تحميل الشيت السابق من الخادم قبل رفع الشيت الجديد.":"تعذر تحميل الشيت السابق من الخادم. اضغط تحديث البيانات وحاول مرة أخرى قبل استيراد الشيت الجديد.");
+  if(collectionPreviousDataState==="error")throw new Error("تعذر تحميل الشيت السابق من الخادم. اضغط تحديث البيانات وحاول مرة أخرى قبل استيراد الشيت الجديد.");
+  if(collectionPreviousDataState!=="ready"&&collectionPreviousDataState!=="loading")throw new Error("حالة تحميل الشيت السابق غير معروفة. اضغط تحديث البيانات ثم حاول مرة أخرى.");
   if(!file)throw new Error("لم يتم اختيار ملف.");
-  /* ثبّت لقطة الشيت السابق قبل أي await؛ نافذة اختيار الملف أو تحديث التركيز قد تبدأ تحميلًا جديدًا أثناء قراءة Excel. */
-  const previousRows=Array.isArray(rows)?rows:[];
+  /* إذا كان السابق جاهزًا نثبّت لقطته قبل أي await؛ أما عند التحميل، فنقرأ الحالي أولًا ثم ننتظر السابق في الخلفية. */
+  let previousRows=collectionPreviousDataState==="ready"&&Array.isArray(rows)?rows:null;
   await ensureXLSXLoaded();
   if(!/\.(xlsx|xls)$/i.test(String(file.name||"")))throw new Error("صيغة الملف غير مدعومة؛ اختر ملفًا بامتداد .xlsx أو .xls.");
   const displayFileName=safeExcelFileName(file.name);
@@ -4570,7 +4572,15 @@ async function importExcelFile(file){
   if(!raw.length)throw Error("لا توجد بيانات في أول ورقة.");
   setImportProgress(48,"اكتملت قراءة الملف",`${raw.length.toLocaleString("en-US")} صفًا — جاري تجهيز البيانات والضغط.`);
   /* previousRows لقطة ثابتة أُخذت قبل انتظار قراءة الملف، فلا تتأثر بتحديث البيانات أثناء الاستيراد. */
-  rows=await normalizeImportedRowsFast(raw,(percent,stage)=>setImportProgress(percent,stage,`${raw.length.toLocaleString("en-US")} صف`));
+  const parsedRows=await normalizeImportedRowsFast(raw,(percent,stage)=>setImportProgress(percent,stage,`${raw.length.toLocaleString("en-US")} صف`));
+  /* إذا كان تحميل السابق جاريًا، نحتفظ بالحالي مستقلًا في الذاكرة وننتظر دون إيقاف القراءة أو استبدال rows. */
+  if(!previousRows){
+    setImportProgress(54,"الشيت الحالي جاهز؛ انتظار السابق بالخلفية",`${parsedRows.length.toLocaleString("en-US")} صفًا قُرئ. ستبدأ المقارنة والحفظ فور اكتمال تحميل الشيت السابق.`);
+    const previousLoaded=await collectionPreviousDataLoadPromise;
+    if(!previousLoaded||collectionPreviousDataState!=="ready")throw new Error("تمت قراءة الشيت الحالي، لكن تعذر تحميل الشيت السابق. لم يتم حفظ الشيت الجديد أو استبدال البيانات الحالية. اضغط تحديث البيانات ثم أعد المحاولة.");
+    previousRows=Array.isArray(rows)?rows:[];
+  }
+  rows=parsedRows;
   /* Excel data is intentionally kept in memory only; no IndexedDB/localStorage persistence. */
   setImportProgress(58,"تجهيز البيانات",`${rows.length.toLocaleString("en-US")} صفًا جاهز للضغط والرفع.`);
   /* اعتماد البيانات محليًا أولًا؛ تعذر الاتصال السحابي لا يفشل الاستيراد. */
@@ -4652,6 +4662,7 @@ document.getElementById("file").addEventListener("change",async e=>{
  clearTimeout(mubCollectionExcelPickerTimer);
  mubCollectionExcelPickerOpen=false;
  mubCollectionExcelImportInProgress=!!f;
+ if(f)e.target.disabled=true;
  updateMubCollectionExcelRefreshLock();
  const importStatus=document.getElementById("importConfirmStatus");
  if(!f){
@@ -4678,6 +4689,7 @@ document.getElementById("file").addEventListener("change",async e=>{
    document.getElementById("status").textContent="❌ لم يتم تحميل الملف — "+failedAt;
  }finally{
    mubCollectionExcelImportInProgress=false;
+   if(e.target)e.target.disabled=collectionPreviousDataState==="error";
    updateMubCollectionExcelRefreshLock();
  }
  /* السماح بإعادة اختيار الملف نفسه بعد نجاح الاستيراد أو فشله. */
@@ -8850,7 +8862,9 @@ async function refreshOnOpen(){
 	 if(!cloudReady)initSupabase();
 	 const statusEl=document.getElementById("status");
 	 if(statusEl)statusEl.textContent="🔄 جاري تحميل/تحديث البيانات المصرح بها لهذا الحساب…";
-	 return await loadDB()===true;
+	 const previousLoadPromise=loadDB();
+	 collectionPreviousDataLoadPromise=previousLoadPromise;
+	 return await previousLoadPromise===true;
 	}catch(e){
 	 setCollectionPreviousDataState("error");
 	 console.error("Refresh data failed:",e);
