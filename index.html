@@ -4580,6 +4580,12 @@ async function importExcelFile(file){
     if(!previousLoaded||collectionPreviousDataState!=="ready")throw new Error("تمت قراءة الشيت الحالي، لكن تعذر تحميل الشيت السابق. لم يتم حفظ الشيت الجديد أو استبدال البيانات الحالية. اضغط تحديث البيانات ثم أعد المحاولة.");
     previousRows=Array.isArray(rows)?rows:[];
   }
+  /* لا نسمح باعتبار قائمة فارغة شيتًا سابقًا إذا كان هذا الجهاز يعرف أن شيتًا محفوظًا موجودًا. */
+  if(previousRows.length===0){
+    let expectedPreviousCount=0;
+    try{const meta=JSON.parse(localStorage.getItem("mub_current_sheet_meta_v1")||"null");expectedPreviousCount=Number(meta?.rowCount)||0}catch(e){}
+    if(expectedPreviousCount>0)throw new Error("لم تكتمل استعادة الشيت السابق رغم وجود نسخة محفوظة على هذا الجهاز. لم تتم المقارنة أو الأرشفة أو استبدال البيانات. اضغط «تحديث البيانات» وانتظر اكتمال التحميل، ثم أعد رفع الشيت.");
+  }
   rows=parsedRows;
   /* Excel data is intentionally kept in memory only; no IndexedDB/localStorage persistence. */
   setImportProgress(58,"تجهيز البيانات",`${rows.length.toLocaleString("en-US")} صفًا جاهز للضغط والرفع.`);
@@ -4599,41 +4605,43 @@ async function importExcelFile(file){
   try{build();renderCollectionDifferences()}catch(buildErr){console.error("build after import:",buildErr);throw new Error("تمت قراءة الملف لكن تعذر تجهيز صفوفه: "+(buildErr.message||buildErr))}
   const archiveRequired=previousRows.length>0&&cloudReady&&!!supabaseClient;
   let archiveResult={saved:false,skipped:!archiveRequired};
-  if(archiveRequired)archiveResult=await archivePreviousSheetSnapshot(previousRows);
-  const archiveWarning=archiveRequired&&!archiveResult.saved;
   let cloudSaved=false;
-	  if(!archiveWarning)try{cloudSaved=await saveDB(importedRows,(percent,stage,note)=>setImportProgress(percent,stage,note))}catch(cloudErr){console.warn("cloud import save:",cloudErr)}
-	  let sharedDifferenceSaved=false;
-	  if(cloudSaved)sharedDifferenceSaved=await window.saveSharedCollectionDifferences(comparison);
-	  const sharedDifferenceWarning=cloudSaved&&!sharedDifferenceSaved;
-	  const loadedAt=new Date().toLocaleString("en-US",{dateStyle:"full",timeStyle:"medium"});
-	  safeLocalSet("mub_current_sheet_meta_v1",JSON.stringify({fileName:displayFileName,sheetName:name,uploadedAt:new Date().toISOString(),rowCount:rows.length,fileSize:file.size}));
+  try{cloudSaved=await saveDB(importedRows,(percent,stage,note)=>setImportProgress(percent,stage,note))}catch(cloudErr){console.warn("cloud import save:",cloudErr)}
+  let sharedDifferenceSaved=false;
+  if(cloudSaved)sharedDifferenceSaved=await window.saveSharedCollectionDifferences(comparison);
+  const sharedDifferenceWarning=cloudSaved&&!sharedDifferenceSaved;
+  /* الأرشفة لا تبدأ إلا بعد تأكيد حفظ الشيت الجديد والمقارنة؛ الإغلاق قبل ذلك لا يكتب أي أرشيف. */
+  if(cloudSaved&&archiveRequired)archiveResult=await archivePreviousSheetSnapshot(previousRows);
+  const archiveWarning=cloudSaved&&archiveRequired&&!archiveResult.saved;
+  const loadedAt=new Date().toLocaleString("en-US",{dateStyle:"full",timeStyle:"medium"});
+  safeLocalSet("mub_current_sheet_meta_v1",JSON.stringify({fileName:displayFileName,sheetName:name,uploadedAt:new Date().toISOString(),rowCount:rows.length,fileSize:file.size}));
   if(typeof renderCurrentSheetInfo==="function")renderCurrentSheetInfo();
   try{auditLog("رفع Excel",`${rows.length} صف — ورقة: ${name}`)}catch(auditErr){console.warn("audit import:",auditErr)}
+  const cloudWarnings=[archiveWarning?"تعذر أرشفة الشيت السابق بعد حفظ الشيت الجديد":"",sharedDifferenceWarning?"تعذر مزامنة ملخص المقارنة إلى بقية الأجهزة":""].filter(Boolean);
   showMsg(cloudSaved
-    ? sharedDifferenceWarning
-      ? "⚠️ تم حفظ الشيت الجديد سحابيًا، لكن تعذر مشاركة ملخص الفروقات مع بقية الملاك."
-      : "✅ تم حفظ الملف سحابيًا لجميع المستخدمين — "+rows.length.toLocaleString("en-US")+" صف من ورقة: "+name+(previousRows.length?" — حُفظت النسخة السابقة في الأرشيف.":" — لا توجد نسخة سابقة لأرشفتها.")
-    : archiveWarning
-      ? "⚠️ لم يتم استبدال الشيت السحابي لأن حفظ النسخة السابقة في الأرشيف تعذر. تبقى البيانات الجديدة محلية في هذه الجلسة فقط."
-      : rows.length>50000
-      ? "⚠️ تمت قراءة الملف، لكن لم ينجح حفظه سحابيًا؛ البيانات متاحة في هذه الجلسة فقط."
+    ? cloudWarnings.length
+      ? `⚠️ تم حفظ الشيت الجديد. ${cloudWarnings.join(" — ")}؛ المقارنة باقية على هذا الجهاز.`
+      : "✅ تم حفظ الملف سحابيًا لجميع المستخدمين — "+rows.length.toLocaleString("en-US")+" صف من ورقة: "+name+(archiveResult.saved?" — حُفظ الشيت السابق في الأرشيف بعد اكتمال الحفظ.":" — لا توجد نسخة سابقة لأرشفتها.")
+    : rows.length>50000
+      ? "⚠️ تمت قراءة الملف، لكن لم ينجح حفظه سحابيًا؛ البيانات متاحة في هذه الجلسة فقط. لم تتم الأرشفة."
       : localSaved
-        ? "⚠️ حُفظ الملف على هذا الجهاز فقط؛ لم يتم تأكيد حفظه في السحابة."
-        : "⚠️ تمت قراءة الملف في هذه الجلسة فقط؛ لم تُحفظ نسخة محلية أو سحابية.",cloudSaved&&!archiveWarning?"ok":"warn");
+        ? "⚠️ حُفظ الملف على هذا الجهاز فقط؛ لم يتم تأكيد حفظه في السحابة. لم تتم الأرشفة."
+        : "⚠️ تمت قراءة الملف في هذه الجلسة فقط؛ لم تُحفظ نسخة محلية أو سحابية. لم تتم الأرشفة.",cloudSaved&&!cloudWarnings.length?"ok":"warn");
   const importStatus=document.getElementById("importConfirmStatus");
   if(importStatus){
     importStatus.textContent=cloudSaved
-      ? (sharedDifferenceWarning?"⚠️ تم حفظ الشيت، لكن لم تتم مشاركة ملخص الفروقات مع بقية الملاك":"✅ تم تأكيد حفظ الملف ومزامنته سحابيًا"+(previousRows.length?" وحُفظت النسخة السابقة في الأرشيف":""))+" — التاريخ والوقت: "+loadedAt
-      : archiveWarning?"⚠️ لم يتم استبدال بيانات الخادم لأن أرشفة النسخة السابقة تعذرت — "+loadedAt:"⚠️ تمت قراءة الملف، لكن لم يتم تأكيد حفظه في السحابة — التاريخ والوقت: "+loadedAt;
-    importStatus.style.background=cloudSaved&&!archiveWarning&&!sharedDifferenceWarning?"#ecfdf5":"#fff7ed";
-    importStatus.style.borderColor=cloudSaved&&!archiveWarning&&!sharedDifferenceWarning?"#86efac":"#fdba74";
-    importStatus.style.color=cloudSaved&&!archiveWarning&&!sharedDifferenceWarning?"#166534":"#9a3412";
+      ? (cloudWarnings.length?"⚠️ تم حفظ الشيت الجديد والمقارنة محليًا. "+cloudWarnings.join(" — "):"✅ تم تأكيد حفظ الملف ومزامنته سحابيًا"+(archiveResult.saved?" وأُرشف الشيت السابق بعد نجاح الحفظ":""))+" — التاريخ والوقت: "+loadedAt
+      : "⚠️ تمت قراءة الملف، لكن لم يتم تأكيد حفظه في السحابة؛ لم تبدأ الأرشفة — "+loadedAt;
+    importStatus.style.background=cloudSaved&&!cloudWarnings.length?"#ecfdf5":"#fff7ed";
+    importStatus.style.borderColor=cloudSaved&&!cloudWarnings.length?"#86efac":"#fdba74";
+    importStatus.style.color=cloudSaved&&!cloudWarnings.length?"#166534":"#9a3412";
   }
-  document.getElementById("status").textContent=cloudSaved?(sharedDifferenceWarning?"⚠️ تم حفظ الشيت، لكن ملخص الفروقات لم يصل لبقية الملاك":"☁️ تم تأكيد حفظ البيانات في السحابة"):archiveWarning?"⚠️ لم يتم استبدال الشيت السحابي لأن الأرشيف لم يُحدّث":"⚠️ لم يكتمل الحفظ السحابي — النسخة محلية فقط";
-  if(cloudSaved)finishImportProgress(true,sharedDifferenceWarning?"تم حفظ الشيت، لكن تعذر مشاركة ملخص الفروقات.":"تم ضغط البيانات ورفعها ومزامنتها مع جميع المستخدمين.");
+  document.getElementById("status").textContent=cloudSaved
+    ? (archiveWarning?"⚠️ حُفظ الشيت الجديد والمقارنة، لكن لم يُحفظ الشيت السابق في الأرشيف":sharedDifferenceWarning?"⚠️ تم حفظ الشيت، لكن ملخص المقارنة لم يصل لبقية الأجهزة":"☁️ تم تأكيد حفظ البيانات في السحابة")
+    : "⚠️ لم يكتمل الحفظ السحابي — لم تتم الأرشفة";
+  if(cloudSaved)finishImportProgress(true,cloudWarnings.length?"تم حفظ الشيت الجديد والمقارنة. "+cloudWarnings.join(" — "):(archiveResult.saved?"تم حفظ الشيت والمقارنة، ثم أُرشف الشيت السابق.":"تم حفظ الشيت والمقارنة؛ لا توجد نسخة سابقة للأرشفة."));
   else{
-    setImportProgress(100,"المزامنة السحابية غير مكتملة",archiveWarning?"لم يتم استبدال الشيت السحابي؛ تعذر حفظ النسخة السابقة في الأرشيف.":(localSaved?"حُفظت النسخة على هذا الجهاز فقط؛ لا تتم إعادة المحاولة تلقائيًا.":"البيانات باقية في الجلسة فقط؛ لا تتم إعادة المحاولة تلقائيًا."));
+    setImportProgress(100,"المزامنة السحابية غير مكتملة",localSaved?"حُفظت النسخة على هذا الجهاز فقط؛ لم تبدأ الأرشفة.":"لم يُؤكد الحفظ السحابي؛ لم تبدأ الأرشفة.");
     const progressBar=document.getElementById("importProgressBar");if(progressBar)progressBar.style.background="#f59e0b";
   }
   if(cloudSaved)try{recordSuccessfulImportNotice()}catch(importNoticeErr){console.warn("تعذر حفظ ملاحظة آخر استيراد:",importNoticeErr)}
@@ -12893,8 +12901,8 @@ document.addEventListener("DOMContentLoaded",()=>{document.getElementById("group
 </style>
 <script id="collection-differences-logic">
 (function(){
- const STORAGE_KEY="mub_collection_latest_payment_deltas_v3";
- const DIFF_MODE="latest-payment-by-client-in-filter-v3";
+ const STORAGE_KEY="mub_collection_cumulative_last_payment_deltas_v4";
+ const DIFF_MODE="cumulative-last-payment-by-client-v4";
  const diffState={mode:DIFF_MODE,items:[],counts:{previous:0,current:0,new:0,changed:0,customerCount:0,totalNewAmount:0,unchanged:0},error:false};
  function text(v){return String(v??"").trim()}
  function first(r,names){for(const name of names){const k=normFast(name);if(Object.prototype.hasOwnProperty.call(r||{},k)&&text(r[k]))return r[k]}return ""}
@@ -12929,54 +12937,58 @@ document.addEventListener("DOMContentLoaded",()=>{document.getElementById("group
    return {key:clientKey+"|"+dateKey,clientKey,client,dateKey,dateLabel,amount};
  }
  function latestPaymentItemsFromHistory(history,from="",to=""){
-   const latestPrevious=new Map(),latestCurrent=new Map();
+   const items=[];
    for(const customer of Array.isArray(history)?history:[]){
      const key=String(customer?.key||"");if(!key)continue;
-     for(const payment of Array.isArray(customer?.payments)?customer.payments:[]){
-       const dateKey=String(payment?.[0]||""),dateLabel=String(payment?.[1]||dateKey);
-       if((from||to)&&!/^\d{4}-\d{2}-\d{2}$/.test(dateKey))continue;
+     let latestCurrent=null;
+     for(const payment of Array.isArray(customer?.current)?customer.current:[]){
+       const dateKey=String(payment?.[0]||"");
+       if(!/^\d{4}-\d{2}-\d{2}$/.test(dateKey))continue;
        if(from&&dateKey<from)continue;if(to&&dateKey>to)continue;
-       const previousPaid=Number(payment?.[2])||0,currentPaid=Number(payment?.[3])||0;
-       if(previousPaid>0){const prior=latestPrevious.get(key);if(!prior||dateKey>prior.dateKey)latestPrevious.set(key,{clientKey:key,client:customer.client||"",dateKey,dateLabel,amount:previousPaid})}
-       if(currentPaid>0){const prior=latestCurrent.get(key);if(!prior||dateKey>prior.dateKey)latestCurrent.set(key,{clientKey:key,client:customer.client||"",dateKey,dateLabel,amount:currentPaid})}
+       const order=Number(payment?.[3])||0;
+       if(!latestCurrent||dateKey>latestCurrent.dateKey||(dateKey===latestCurrent.dateKey&&order>=latestCurrent.order))
+         latestCurrent={dateKey,dateLabel:String(payment?.[1]||dateKey),amount:Number(payment?.[2])||0,order,client:String(payment?.[4]||customer.client||"")};
      }
-   }
-   const items=[];
-   for(const [key,now] of latestCurrent){
-     const before=latestPrevious.get(key),oldAmount=before?.amount||0,delta=Math.round((now.amount-oldAmount+Number.EPSILON)*100)/100;
+     if(!latestCurrent||!(latestCurrent.amount>0))continue;
+     let latestPrevious=null;
+     for(const payment of Array.isArray(customer?.previous)?customer.previous:[]){
+       const dateKey=String(payment?.[0]||"");
+       if(!/^\d{4}-\d{2}-\d{2}$/.test(dateKey)||dateKey>latestCurrent.dateKey)continue;
+       const order=Number(payment?.[3])||0;
+       if(!latestPrevious||dateKey>latestPrevious.dateKey||(dateKey===latestPrevious.dateKey&&order>=latestPrevious.order))
+         latestPrevious={dateKey,dateLabel:String(payment?.[1]||dateKey),amount:Number(payment?.[2])||0,order};
+     }
+     const oldAmount=latestPrevious?.amount||0,delta=Math.round((latestCurrent.amount-oldAmount+Number.EPSILON)*100)/100;
      if(delta<=0.009)continue;
-     items.push({type:before?"changed":"new",current:{client:now.client,clientKey:key,paymentDate:now.dateLabel,dateKey:now.dateKey,paid:delta,previousPaid:oldAmount,totalPaid:now.amount,previousPaymentDate:before?.dateLabel||""},details:before?"فرق آخر سداد للعميل داخل الفترة المحددة":"آخر سداد للعميل؛ غير موجود في الشيت السابق ضمن الفترة المحددة"});
+     items.push({type:latestPrevious?"changed":"new",current:{client:latestCurrent.client||customer.client||"—",clientKey:key,paymentDate:latestCurrent.dateLabel,dateKey:latestCurrent.dateKey,paid:delta,previousPaid:oldAmount,totalPaid:latestCurrent.amount,previousPaymentDate:latestPrevious?.dateLabel||""},details:latestPrevious?"فرق آخر مسدد تراكمي عن آخر سجل سابق":"تحصيل جديد؛ لا يوجد سجل سابق للعميل"});
    }
    items.sort((a,b)=>String(a.current.dateKey).localeCompare(String(b.current.dateKey))||String(a.current.client).localeCompare(String(b.current.client),"ar"));
    return items;
  }
  function compareCollectionSheetRows(previous,current,onProgress){
    return new Promise(async resolve=>{
-     const oldRows=Array.isArray(previous)?previous:[],newRows=Array.isArray(current)?current:[],oldTotals=new Map(),newTotals=new Map();
+     const oldRows=Array.isArray(previous)?previous:[],newRows=Array.isArray(current)?current:[],byCustomer=new Map();
      const total=oldRows.length+newRows.length;let processed=0;
-     const addRows=async(source,target)=>{
+     const addRows=async(source,field)=>{
        for(let i=0;i<source.length;i++){
          const info=paymentGroupInfo(source[i]);
-         if(info){const item=target.get(info.key)||{...info,amount:0};item.amount+=info.amount;target.set(info.key,item)}
+         if(info&&/^\d{4}-\d{2}-\d{2}$/.test(info.dateKey)){
+           let customer=byCustomer.get(info.clientKey);
+           if(!customer){customer={key:info.clientKey,client:info.client,previous:[],current:[]};byCustomer.set(info.clientKey,customer)}
+           customer[field].push([info.dateKey,info.dateLabel,info.amount,i,info.client]);
+         }
          processed++;
-         if(processed%1000===0){onProgress?.(60+Math.round((processed/Math.max(1,total))*12),"تجميع آخر سداد لكل عميل",`${processed.toLocaleString("en-US")} / ${total.toLocaleString("en-US")}`);await new Promise(requestAnimationFrame)}
+         if(processed%1000===0){onProgress?.(60+Math.round((processed/Math.max(1,total))*12),"تحديد آخر مسدد لكل عميل",`${processed.toLocaleString("en-US")} / ${total.toLocaleString("en-US")}`);await new Promise(requestAnimationFrame)}
        }
      };
-     await addRows(oldRows,oldTotals);await addRows(newRows,newTotals);
-     const byCustomer=new Map(),keys=new Set([...oldTotals.keys(),...newTotals.keys()]);
-     for(const key of keys){
-       const before=oldTotals.get(key),now=newTotals.get(key),info=now||before;
-       if(!info)continue;
-       let customer=byCustomer.get(info.clientKey);
-       if(!customer){customer={key:info.clientKey,client:info.client,payments:[]};byCustomer.set(info.clientKey,customer)}
-       customer.payments.push([info.dateKey,info.dateLabel,before?.amount||0,now?.amount||0]);
-     }
+     await addRows(oldRows,"previous");await addRows(newRows,"current");
      const paymentHistory=Array.from(byCustomer.values());
      const items=latestPaymentItemsFromHistory(paymentHistory);
      const newCount=items.filter(x=>x.type==="new").length,changed=items.filter(x=>x.type==="changed").length;
      const totalNewAmount=Math.round((items.reduce((sum,item)=>sum+Number(item.current.paid||0),0)+Number.EPSILON)*100)/100;
      const customerCount=new Set(items.map(item=>item.current.clientKey)).size;
-     resolve({mode:DIFF_MODE,items,paymentHistory,counts:{previous:oldRows.length,current:newRows.length,new:newCount,changed,customerCount,totalNewAmount,unchanged:Math.max(0,new Set(Array.from(newTotals.values(),info=>info.clientKey)).size-items.length)},createdAt:new Date().toISOString()});
+     const currentCustomerCount=new Set(paymentHistory.filter(x=>x.current.length).map(x=>x.key)).size;
+     resolve({mode:DIFF_MODE,items,paymentHistory,counts:{previous:oldRows.length,current:newRows.length,new:newCount,changed,customerCount,totalNewAmount,unchanged:Math.max(0,currentCustomerCount-items.length)},createdAt:new Date().toISOString()});
    });
  }
  function storeCollectionDifferences(result){const payload={...result,mode:DIFF_MODE};Object.assign(diffState,payload);try{localStorage.setItem(STORAGE_KEY,JSON.stringify(payload))}catch(e){console.warn("collection payment summary storage:",e)}}
@@ -13772,17 +13784,48 @@ document.addEventListener("DOMContentLoaded",()=>{document.getElementById("notif
 <script id="previous-sheet-archive-card-logic">
 (function(){
   const TABLE="mubadara_data_archive";
-  let archivedRows=null,loading=false,lastLoadedAt=0,archiveDate="";
+  let archivedRows=null,loading=false,lastLoadedAt=0,archiveDate="",archiveTimestamp=0,recoveringComparison=false,comparisonRecoveryAttempted=false;
   const el=id=>document.getElementById(id);
   const status=(text,kind="")=>{const node=el("previousSheetArchiveStatus");if(!node)return;node.textContent=text;node.classList.toggle("is-error",kind==="error");node.classList.toggle("is-ok",kind==="ok")};
   function setMeta(data){
     const at=data?.archived_at?new Date(data.archived_at):null;
-    archiveDate=at&&!Number.isNaN(at.getTime())?at.toISOString().slice(0,10):"";
+    archiveDate=at&&!Number.isNaN(at.getTime())?at.toISOString().slice(0,10):"";archiveTimestamp=at&&!Number.isNaN(at.getTime())?at.getTime():0;
     el("previousSheetArchiveName").textContent="الشيت السابق المؤرشف";
     el("previousSheetArchiveSheetName").textContent="غير محفوظ في بيانات هذه النسخة";
     el("previousSheetArchiveAt").textContent=at&&!Number.isNaN(at.getTime())?at.toLocaleString("ar-EG",{dateStyle:"full",timeStyle:"medium"}):"غير مسجل";
     el("previousSheetArchiveBy").textContent=String(data?.archived_by||"غير مسجل");
     el("previousSheetArchiveCount").textContent=Number(data?.row_count||archivedRows?.length||0).toLocaleString("ar-EG");
+  }
+  function currentSheetTimestamp(){
+    let stamp=0;
+    try{const meta=JSON.parse(localStorage.getItem("mub_current_sheet_meta_v1")||"null");const value=Date.parse(meta?.uploadedAt||"");if(Number.isFinite(value))stamp=Math.max(stamp,value)}catch(e){}
+    try{const value=Date.parse(typeof lastCloudUpdatedAt!=="undefined"?lastCloudUpdatedAt:"");if(Number.isFinite(value))stamp=Math.max(stamp,value)}catch(e){}
+    return stamp;
+  }
+  async function recoverComparisonFromArchiveIfNeeded(){
+    if(recoveringComparison||comparisonRecoveryAttempted||!archivedRows?.length)return;
+    recoveringComparison=true;
+    try{
+      const waitStarted=Date.now();
+      while(typeof collectionPreviousDataState!=="undefined"&&collectionPreviousDataState==="loading"&&Date.now()-waitStarted<60000)await new Promise(resolve=>setTimeout(resolve,150));
+      if(typeof collectionPreviousDataState!=="undefined"&&collectionPreviousDataState!=="ready")return;
+      const currentRows=Array.isArray(rows)?rows:[];
+      if(!currentRows.length){status("تم تحميل الأرشيف، لكن الشيت الحالي لم يكتمل تحميله؛ لم تُنشأ مقارنة أو كتابة بيانات. اضغط تحديث البيانات.","error");return}
+      const currentStamp=currentSheetTimestamp();
+      if(archiveTimestamp&&currentStamp&&archiveTimestamp>currentStamp+1000){comparisonRecoveryAttempted=true;status("الأرشيف أحدث من الشيت الحالي؛ لم أستخدمه للمقارنة حتى لا أعرض فرقًا غير صحيح.","error");return}
+      let saved=null;try{saved=JSON.parse(localStorage.getItem("mub_collection_cumulative_last_payment_deltas_v4")||"null")}catch(e){}
+      const savedStamp=Date.parse(saved?.createdAt||"");
+      const savedIsCurrent=saved?.mode==="cumulative-last-payment-by-client-v4"&&Array.isArray(saved.paymentHistory)&&Number(saved.counts?.previous)>0&&(!currentStamp||!savedStamp||savedStamp>=currentStamp-120000);
+      if(savedIsCurrent){comparisonRecoveryAttempted=true;return}
+      if(typeof window.compareCollectionSheetRows!=="function"||typeof window.storeCollectionDifferences!=="function")return;
+      const result=await window.compareCollectionSheetRows(archivedRows,currentRows);
+      if(!result||!Array.isArray(result.paymentHistory))return;
+      window.storeCollectionDifferences(result);
+      window.renderCollectionDifferences?.();
+      comparisonRecoveryAttempted=true;
+      status("تم استعادة المقارنة محليًا من الشيت السابق المؤرشف. لم يتم إنشاء أرشيف جديد أو تعديل قاعدة البيانات.","ok");
+    }catch(error){console.warn("Recover collection comparison from archive:",error);status("تعذر استعادة المقارنة من الأرشيف؛ لم يتم تعديل الأرشيف أو قاعدة البيانات.","error")}
+    finally{recoveringComparison=false}
   }
   async function loadPreviousSheetArchive(force=false){
     const button=el("previousSheetArchiveRefresh");
@@ -13799,7 +13842,7 @@ document.addEventListener("DOMContentLoaded",()=>{document.getElementById("notif
       if(!Array.isArray(decoded))throw new Error("صيغة بيانات الشيت المؤرشف غير صالحة.");
       archivedRows=decoded;setMeta(data);el("previousSheetArchiveDownload").disabled=!archivedRows.length;
       let sameAsCurrent=false;try{sameAsCurrent=Array.isArray(rows)&&JSON.stringify(rows)===JSON.stringify(archivedRows)}catch(e){}
-      status(!archivedRows.length?"سجل الأرشيف موجود لكنه لا يحتوي على صفوف.":sameAsCurrent?"تنبيه: النسخة المؤرشفة مطابقة لمحتوى الشيت الحالي، لذلك تظهر البيانات نفسها.":"تم تحميل بيانات الشيت السابق من الأرشيف.",archivedRows.length?"ok":"");lastLoadedAt=Date.now();
+      status(!archivedRows.length?"سجل الأرشيف موجود لكنه لا يحتوي على صفوف.":sameAsCurrent?"تنبيه: النسخة المؤرشفة مطابقة لمحتوى الشيت الحالي، لذلك تظهر البيانات نفسها.":"تم تحميل بيانات الشيت السابق من الأرشيف.",archivedRows.length?"ok":"");lastLoadedAt=Date.now();void recoverComparisonFromArchiveIfNeeded();
     }catch(error){archivedRows=null;el("previousSheetArchiveDownload").disabled=true;status(error?.message||"تعذر تحميل بيانات الشيت السابق.","error");console.warn("Previous sheet archive load:",error)}
     finally{loading=false;if(button)button.disabled=false}
   }
@@ -13823,6 +13866,7 @@ document.addEventListener("DOMContentLoaded",()=>{document.getElementById("notif
     const screen=el("import");if(!screen)return;
     const observer=new MutationObserver(()=>{if(screen.classList.contains("active"))void loadPreviousSheetArchive()});
     observer.observe(screen,{attributes:true,attributeFilter:["class"]});
+    window.addEventListener("focus",()=>{if(archivedRows?.length)void recoverComparisonFromArchiveIfNeeded()});
     if(screen.classList.contains("active"))void loadPreviousSheetArchive(true);
   }
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
