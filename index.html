@@ -2949,7 +2949,7 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
   <div id="dssGroups" class="dss-groups" aria-live="polite"></div>
   <div id="dssEditFooter" class="dss-edit-footer" hidden>
     <button id="dssSave" class="dss-save" type="button">حفظ الترتيب</button>
-    <button id="dssReset" class="dss-reset" type="button">الترتيب الافتراضي</button>
+    <button id="dssReset" class="dss-reset" type="button" aria-label="إلغاء التغييرات غير المحفوظة">إلغاء</button>
   </div>
   <div id="dssStatus" class="dss-status" role="status" aria-live="polite">جارٍ تجهيز القائمة…</div>
 </aside>
@@ -15678,10 +15678,7 @@ body.group-lead-mode #groupLeadScopeBar{display:none!important;visibility:hidden
 (function(){
  const TABLE="app_shared_ui_preferences", PREF_KEY="desktop_screen_order", SIDEBAR_ID="desktopScreenSidebar";
  const GROUPS=[
-  {id:"daily",title:"التشغيل اليومي",screens:["dash","clients","collection","search"]},
-  {id:"followup",title:"متابعة التحصيل",screens:["risk","dueInstallments","installmentCalculator","paymentFollowup"]},
-  {id:"portfolio",title:"المحفظة والتقارير",screens:["portfolio","issuedLoans","dropoutClients","print"]},
-  {id:"admin",title:"الإدارة والبيانات",screens:["specialists","users","audit","import","uploadTool","iskorCodes","location","groupLeadFollowup","settings"]}
+  {id:"all",title:"",screens:["dash","clients","collection","search","risk","dueInstallments","installmentCalculator","paymentFollowup","portfolio","issuedLoans","dropoutClients","print","specialists","users","audit","import","uploadTool","iskorCodes","location","groupLeadFollowup","settings"]}
  ];
  const $=id=>document.getElementById(id), root=()=>$(SIDEBAR_ID), sourceNav=()=>document.querySelector('.layout>nav[aria-label="التنقل الرئيسي"]');
  let sourceById=new Map(), defaultOrder=[], savedOrder=[], editOrder=[], editing=false, dragging=null, loading=false, syncStarted=false;
@@ -15700,7 +15697,7 @@ body.group-lead-mode #groupLeadScopeBar{display:none!important;visibility:hidden
  function applyOrder(order){editOrder=sanitizeOrder(order);sortItems(editOrder);render()}
  async function loadShared(){if(loading||!sourceNav()||!session||!supabaseClient||!cloudReady)return false;loading=true;try{const {data,error}=await supabaseClient.from(TABLE).select("pref_value,updated_at").eq("pref_key",PREF_KEY).maybeSingle();if(error)throw error;if(data&&Array.isArray(data.pref_value)){savedOrder=sanitizeOrder(data.pref_value);applyOrder(savedOrder);setStatus("تم تحميل ترتيب الشاشات المشترك.","ok")}else{savedOrder=defaultOrder.slice();applyOrder(savedOrder);setStatus("الترتيب الافتراضي — يمكنك تخصيصه وحفظه للجميع.")}return true}catch(error){console.warn("Desktop navigation preference load:",error);savedOrder=defaultOrder.slice();applyOrder(savedOrder);setStatus("تعذر تحميل الترتيب المشترك؛ عُرض الترتيب الافتراضي.","error");return false}finally{loading=false}}
  async function saveShared(){if(!owner()){setStatus("تعديل الترتيب متاح لمالك النظام فقط.","error");return}if(!cloudReady||!supabaseClient){setStatus("الاتصال بالخادم غير جاهز؛ لم يتم حفظ ترتيب مشترك.","error");return}const order=sanitizeOrder(collectOrder());const button=$("dssSave");button.disabled=true;button.textContent="جارٍ الحفظ…";setStatus("جارٍ حفظ الترتيب لجميع المستخدمين…","pending");try{const {error}=await supabaseClient.from(TABLE).upsert({pref_key:PREF_KEY,pref_value:order,updated_at:new Date().toISOString()},{onConflict:"pref_key"});if(error)throw error;savedOrder=order.slice();editOrder=order.slice();editing=false;applyOrder(savedOrder);setStatus("تم حفظ آخر ترتيب وأصبح ظاهرًا لجميع المستخدمين.","ok")}catch(error){console.error("Desktop navigation preference save:",error);setStatus("تعذر حفظ الترتيب المشترك. تحقق من إعداد جدول التفضيلات.","error")}finally{button.disabled=false;button.textContent="حفظ الترتيب";syncRows()}}
- function init(){const nav=sourceNav(),el=root();if(!nav||!el)return;const layout=el.closest(".layout");const updateHeaderOffset=()=>{const header=document.querySelector("#app>header.pro-header")||document.querySelector("#app>header");const rect=header?.getBoundingClientRect();const bottom=rect?Math.max(0,rect.bottom):0;el.style.setProperty("--dss-sticky-top",`${Math.ceil(bottom+8)}px`);el.style.setProperty("--dss-header-height",`${Math.ceil(rect?.height||100)}px`)};const setLayoutState=()=>{const collapsed=el.classList.contains("is-collapsed"),width=collapsed?"68px":"278px";layout?.classList.toggle("dss-navigation-collapsed",collapsed);el.style.setProperty("width",width,"important");el.style.setProperty("min-width",width,"important");el.style.setProperty("flex-basis",width,"important")};updateHeaderOffset();setLayoutState();if(typeof ResizeObserver==="function"){const header=document.querySelector("#app>header.pro-header")||document.querySelector("#app>header");if(header)new ResizeObserver(updateHeaderOffset).observe(header)}window.addEventListener("resize",updateHeaderOffset,{passive:true});window.addEventListener("scroll",updateHeaderOffset,{passive:true});[...nav.querySelectorAll("a[data-screen]")].forEach(a=>sourceById.set(a.dataset.screen,a));defaultOrder=[...sourceById.keys()];savedOrder=defaultOrder.slice();render();$("dssSearch")?.addEventListener("input",e=>applySearch(e.target.value));$("dssEditToggle")?.addEventListener("click",()=>{if(!owner())return;editing=!editing;if(editing){editOrder=collectOrder();setStatus("اسحب الشاشة داخل مجموعتها ثم احفظ الترتيب.","pending")}else{applyOrder(savedOrder);setStatus("تم إلغاء التعديلات غير المحفوظة.")}syncRows()});$("dssSave")?.addEventListener("click",saveShared);$("dssReset")?.addEventListener("click",()=>{if(!owner())return;applyOrder(defaultOrder);editing=true;setStatus("عُرض الترتيب الافتراضي — اضغط حفظ الترتيب لتعميمه.","pending");syncRows()});$("dssCollapseAll")?.addEventListener("click",()=>{el.classList.toggle("is-collapsed");setLayoutState();const collapsed=el.classList.contains("is-collapsed");const button=$("dssCollapseAll");button.setAttribute("aria-expanded",String(!collapsed));button.setAttribute("aria-label",collapsed?"توسيع الشريط الجانبي":"طي الشريط الجانبي");button.title=collapsed?"توسيع الشريط الجانبي":"طي الشريط الجانبي";button.textContent=collapsed?"›":"‹"});const observer=new MutationObserver(()=>syncRows());observer.observe(nav,{subtree:true,attributes:true,attributeFilter:["class","hidden","style"]});document.addEventListener("keydown",e=>{if(!editing||!e.target?.classList?.contains("dss-item"))return;if(e.key==="ArrowUp"||e.key==="ArrowDown"){e.preventDefault();const a=e.target, sibling=e.key==="ArrowUp"?a.previousElementSibling:a.nextElementSibling;if(sibling?.classList.contains("dss-item")){a.parentElement.insertBefore(a,e.key==="ArrowUp"?sibling:a.nextElementSibling);editOrder=collectOrder();setStatus("تم تغيير الترتيب — احفظ لمشاركته مع الجميع.","pending")}}});window.addEventListener("focus",()=>{if(!editing)void loadShared()});let tries=0;const timer=setInterval(()=>{tries++;ensureActiveScreen();syncRows();if(session&&supabaseClient&&cloudReady){clearInterval(timer);if(!syncStarted){syncStarted=true;void loadShared()}}else if(tries>=45)clearInterval(timer)},1000);if(session&&supabaseClient&&cloudReady){syncStarted=true;void loadShared()}}
+ function init(){const nav=sourceNav(),el=root();if(!nav||!el)return;const layout=el.closest(".layout");const updateHeaderOffset=()=>{const header=document.querySelector("#app>header.pro-header")||document.querySelector("#app>header");const rect=header?.getBoundingClientRect();const bottom=rect?Math.max(0,rect.bottom):0;el.style.setProperty("--dss-sticky-top",`${Math.ceil(bottom+8)}px`);el.style.setProperty("--dss-header-height",`${Math.ceil(rect?.height||100)}px`)};const setLayoutState=()=>{const collapsed=el.classList.contains("is-collapsed"),width=collapsed?"68px":"278px";layout?.classList.toggle("dss-navigation-collapsed",collapsed);el.style.setProperty("width",width,"important");el.style.setProperty("min-width",width,"important");el.style.setProperty("flex-basis",width,"important")};updateHeaderOffset();setLayoutState();if(typeof ResizeObserver==="function"){const header=document.querySelector("#app>header.pro-header")||document.querySelector("#app>header");if(header)new ResizeObserver(updateHeaderOffset).observe(header)}window.addEventListener("resize",updateHeaderOffset,{passive:true});window.addEventListener("scroll",updateHeaderOffset,{passive:true});[...nav.querySelectorAll("a[data-screen]")].forEach(a=>sourceById.set(a.dataset.screen,a));defaultOrder=[...sourceById.keys()];savedOrder=defaultOrder.slice();render();$("dssSearch")?.addEventListener("input",e=>applySearch(e.target.value));$("dssEditToggle")?.addEventListener("click",()=>{if(!owner())return;editing=!editing;if(editing){editOrder=collectOrder();setStatus("اسحب الشاشة داخل مجموعتها ثم احفظ الترتيب.","pending")}else{applyOrder(savedOrder);setStatus("تم إلغاء التعديلات غير المحفوظة.")}syncRows()});$("dssSave")?.addEventListener("click",saveShared);$("dssReset")?.addEventListener("click",()=>{if(!owner())return;editing=false;applyOrder(savedOrder);setStatus("تم إلغاء التغييرات غير المحفوظة واستعادة آخر ترتيب محفوظ.");syncRows()});$("dssCollapseAll")?.addEventListener("click",()=>{el.classList.toggle("is-collapsed");setLayoutState();const collapsed=el.classList.contains("is-collapsed");const button=$("dssCollapseAll");button.setAttribute("aria-expanded",String(!collapsed));button.setAttribute("aria-label",collapsed?"توسيع الشريط الجانبي":"طي الشريط الجانبي");button.title=collapsed?"توسيع الشريط الجانبي":"طي الشريط الجانبي";button.textContent=collapsed?"›":"‹"});const observer=new MutationObserver(()=>syncRows());observer.observe(nav,{subtree:true,attributes:true,attributeFilter:["class","hidden","style"]});document.addEventListener("keydown",e=>{if(!editing||!e.target?.classList?.contains("dss-item"))return;if(e.key==="ArrowUp"||e.key==="ArrowDown"){e.preventDefault();const a=e.target, sibling=e.key==="ArrowUp"?a.previousElementSibling:a.nextElementSibling;if(sibling?.classList.contains("dss-item")){a.parentElement.insertBefore(a,e.key==="ArrowUp"?sibling:a.nextElementSibling);editOrder=collectOrder();setStatus("تم تغيير الترتيب — احفظ لمشاركته مع الجميع.","pending")}}});window.addEventListener("focus",()=>{if(!editing)void loadShared()});let tries=0;const timer=setInterval(()=>{tries++;ensureActiveScreen();syncRows();if(session&&supabaseClient&&cloudReady){clearInterval(timer);if(!syncStarted){syncStarted=true;void loadShared()}}else if(tries>=45)clearInterval(timer)},1000);if(session&&supabaseClient&&cloudReady){syncStarted=true;void loadShared()}}
  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
 })();
 </script>
@@ -15747,5 +15744,63 @@ body.group-lead-mode #groupLeadScopeBar{display:none!important;visibility:hidden
 }
 @media print{
  html,body,#app,#app .layout,#app .layout>main,#app .layout>#desktopScreenSidebar{height:auto!important;min-height:0!important;max-height:none!important;overflow:visible!important;position:static!important}
+}
+</style>
+
+<style id="desktop-navigation-flat-list-polish-v16">
+@media screen and (min-width:801px){
+ #app .layout>#desktopScreenSidebar{
+  background:#142235!important;
+  border-inline-start:1px solid #2a4054!important;
+  box-shadow:-7px 0 22px rgba(9,20,34,.12)!important;
+  color:#eef3f7!important;
+  min-height:0!important;
+ }
+ #desktopScreenSidebar .dss-head{border-bottom-color:rgba(255,255,255,.11)!important;flex:0 0 auto!important}
+ #desktopScreenSidebar .dss-brand-mark{background:linear-gradient(145deg,#33c8b5,#0f9f91)!important;box-shadow:0 5px 14px rgba(15,159,145,.2)!important}
+ #desktopScreenSidebar .dss-search-wrap{background:#1b2c41!important;border-color:#344a60!important;color:#c4d1dc!important;flex:0 0 auto!important}
+ #desktopScreenSidebar .dss-search-wrap input{color:#f4f7f9!important}
+ #desktopScreenSidebar .dss-search-wrap input::placeholder{color:#a8b7c5!important}
+ #desktopScreenSidebar .dss-toolbar{flex:0 0 auto!important}
+ #desktopScreenSidebar .dss-groups{
+  flex:1 1 auto!important;min-height:0!important;max-height:none!important;
+  overflow-x:hidden!important;overflow-y:auto!important;
+  overscroll-behavior:contain!important;scrollbar-gutter:stable!important;
+  scrollbar-width:thin!important;scrollbar-color:#527087 #142235!important;
+  padding:2px 1px 10px 5px!important;
+ }
+ #desktopScreenSidebar .dss-groups::-webkit-scrollbar{width:8px!important}
+ #desktopScreenSidebar .dss-groups::-webkit-scrollbar-track{background:#142235!important;border-radius:8px}
+ #desktopScreenSidebar .dss-groups::-webkit-scrollbar-thumb{background:#527087!important;border:2px solid #142235!important;border-radius:8px}
+ #desktopScreenSidebar .dss-groups::-webkit-scrollbar-thumb:hover{background:#33c8b5!important}
+ #desktopScreenSidebar .dss-group{margin:0!important;padding:0!important;border:0!important;background:transparent!important}
+ #desktopScreenSidebar .dss-group-title{display:none!important}
+ #desktopScreenSidebar .dss-group-items{display:flex!important;flex-direction:column!important;gap:6px!important;padding:3px 0 8px!important}
+ #desktopScreenSidebar .dss-item{
+  min-height:43px!important;padding:6px 8px!important;gap:10px!important;
+  border:1px solid transparent!important;border-radius:10px!important;
+  color:#e1e9ef!important;background:transparent!important;
+  transition:background .16s ease,border-color .16s ease,color .16s ease!important;
+ }
+ #desktopScreenSidebar .dss-item:hover{background:#1b2c41!important;border-color:#2b4259!important;color:#fff!important}
+ #desktopScreenSidebar .dss-item.is-active{
+  background:linear-gradient(90deg,rgba(15,159,145,.27),rgba(51,200,181,.10))!important;
+  border-color:rgba(51,200,181,.22)!important;color:#fff!important;
+  box-shadow:inset -3px 0 #33c8b5!important
+ }
+ #desktopScreenSidebar .dss-item.is-active:before{background:#33c8b5!important}
+ #desktopScreenSidebar .dss-icon{background:rgba(225,236,243,.07)!important;border-color:rgba(190,211,224,.18)!important;color:#d0dce5!important}
+ #desktopScreenSidebar .dss-item.is-active .dss-icon{background:rgba(15,159,145,.2)!important;border-color:rgba(51,200,181,.45)!important;color:#63dfd0!important}
+ #desktopScreenSidebar .dss-grip{color:#9aafbe!important}
+ #desktopScreenSidebar.is-editing .dss-grip{color:#b5e8e2!important}
+ #desktopScreenSidebar .dss-edit-footer{flex:0 0 auto!important;border-top-color:rgba(255,255,255,.1)!important}
+ #desktopScreenSidebar .dss-save{background:#0f9f91!important;border-color:#0f9f91!important;color:#fff!important}
+ #desktopScreenSidebar .dss-save:hover{background:#0b887d!important;border-color:#0b887d!important}
+ #desktopScreenSidebar .dss-reset{background:#1b2c41!important;border-color:#3a5268!important;color:#e3ebf1!important}
+ #desktopScreenSidebar .dss-reset:hover{background:#243a50!important}
+ #desktopScreenSidebar .dss-status{flex:0 0 auto!important;color:#9eb1bf!important;border-top-color:rgba(255,255,255,.08)!important}
+}
+@media print{
+ #desktopScreenSidebar,#desktopScreenSidebar *{display:none!important}
 }
 </style>
