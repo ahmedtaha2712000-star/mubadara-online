@@ -2748,6 +2748,34 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
 }
 @media (max-width:520px){.mobile-quick-nav{padding:7px 8px}.mobile-quick-nav label{display:none}.mobile-quick-nav select{font-size:11px}.kpi-grid,.users-kpi-grid,.group-followup-kpis{grid-template-columns:1fr 1fr!important}.screen-header h2{font-size:16px!important}}
 </style>
+
+<style id="mobile-content-density-only">
+/* Content-density layer: mobile only. No desktop or print selectors are changed. */
+@media (max-width:800px){
+  .dashboard-summary,.clients-summary,.collection-kpis,.risk-summary-cards,.specialists-kpis,.users-kpi-grid,.portfolio-summary-cards,.issued-loans-summary,.due-quick-summary,.due-risk-parity-cards,.collection-risk-parity-cards,.group-followup-kpis,.inst-summary-grid,.pf-summary,.pfa-summary,.audit-summary,.dropout-date-summary,.pro-kpis{
+    display:flex!important;flex-wrap:nowrap!important;overflow-x:auto!important;gap:8px!important;padding:2px 2px 7px!important;margin-bottom:10px!important;-webkit-overflow-scrolling:touch;scroll-snap-type:x proximity
+  }
+  .dashboard-summary>*,.clients-summary>*,.collection-kpis>*,.risk-summary-cards>*,.specialists-kpis>*,.users-kpi-grid>*,.portfolio-summary-cards>*,.issued-loans-summary>*,.due-quick-summary>*,.due-risk-parity-cards>*,.collection-risk-parity-cards>*,.group-followup-kpis>*,.inst-summary-grid>*,.pf-summary>*,.pfa-summary>*,.audit-summary>*,.dropout-date-summary>*,.pro-kpis>*{
+    flex:0 0 152px!important;min-width:152px!important;scroll-snap-align:start
+  }
+  .kpi,.users-kpi,.pro-kpi,.specialist-kpi,.risk-summary-card,.pf-summary-card,.portfolio-total-card,.issued-loan-stat,.installment-stat,.specialist-profile-stat{padding:9px!important;min-height:0!important}
+  .kpi b,.users-kpi b,.pro-kpi b{font-size:17px!important;line-height:1.2!important}
+  .kpi small,.users-kpi small,.pro-kpi small,.specialist-kpi small{font-size:10px!important;line-height:1.35!important}
+  .screen>.card,.screen>.users-section-card,.screen>.group-admin-card{margin-bottom:9px!important;padding:11px!important}
+  .profile,.field,.profile-loan-card,.search-card-summary,.search-customer-summary-card{padding:8px!important}
+  .profile-loan-grid,.specialist-data-grid,.report-data-grid,.group-record-fields{gap:6px!important}
+  .profile-loan-card small,.field small{font-size:9px!important;margin-bottom:3px!important}
+  .profile-loan-card b,.field b{font-size:11px!important;line-height:1.25!important}
+  .table-wrap,.table-container,.wrap,.location-table-wrap,.collection-differences-table-wrap,.du-table-wrap,.pf-table-wrap,.pfa-table-wrap{border-radius:8px!important}
+  table th,table td{padding:7px 6px!important;font-size:11px!important}
+  .toolbar{margin-bottom:8px!important}
+  .toolbar button,.user-actions button,.group-admin-actions button{min-height:36px!important}
+}
+@media (max-width:520px){
+  .dashboard-summary>*,.clients-summary>*,.collection-kpis>*,.risk-summary-cards>*,.specialists-kpis>*,.users-kpi-grid>*,.portfolio-summary-cards>*,.issued-loans-summary>*,.due-quick-summary>*,.due-risk-parity-cards>*,.collection-risk-parity-cards>*,.group-followup-kpis>*,.inst-summary-grid>*,.pf-summary>*,.pfa-summary>*,.audit-summary>*,.dropout-date-summary>*,.pro-kpis>*{flex-basis:136px!important;min-width:136px!important}
+  .kpi,.users-kpi,.pro-kpi,.specialist-kpi,.risk-summary-card,.pf-summary-card,.portfolio-total-card,.issued-loan-stat,.installment-stat,.specialist-profile-stat{padding:8px!important}
+}
+</style>
 </head>
 
 <body>
