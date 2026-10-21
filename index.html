@@ -2880,6 +2880,11 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
  #iskorCodes .ik-results-head>div{align-items:flex-start;flex-direction:column;gap:4px}
 }
 </style>
+<style id="collection-previous-data-readiness-style">
+#importDataReadiness{display:block;margin-top:8px;padding:8px 10px;border-radius:8px;background:#f1f5f9;color:#334155;line-height:1.55;font-weight:700}
+#importDataReadiness[data-state="ready"]{background:#ecfdf3;color:#166534}
+#importDataReadiness[data-state="error"]{background:#fef2f2;color:#991b1b}
+</style>
 </head>
 
 <body>
@@ -3150,7 +3155,7 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
 <h2>📥 رفع ملف Excel</h2>
 <p>رفع البيانات واستبدال قاعدة البيانات المحلية الحالية. يُفضل أخذ نسخة احتياطية قبل الاستبدال.</p>
 <div class="import-control-grid">
-  <div class="import-box"><b>1. رفع ملف Excel</b><input id="file" type="file" accept=".xlsx,.xls"><small>يتم قراءة أول ورقة من الملف وحفظها محليًا.</small></div>
+  <div class="import-box"><b>1. رفع ملف Excel</b><input id="file" type="file" accept=".xlsx,.xls" disabled aria-describedby="importDataReadiness"><small id="importDataReadiness" role="status" aria-live="polite" data-state="loading">جارٍ تحميل الشيت السابق من الخادم. سيتاح الرفع بعد اكتمال التحميل.</small></div>
   <div class="import-box"><b>2. نسخة احتياطية</b><button class="blue" onclick="downloadBackup()">⬇️ تنزيل نسخة احتياطية</button><small>ملف JSON يمكن استخدامه لاستعادة البيانات.</small></div>
   <div class="import-box"><b>3. استعادة نسخة</b><input id="restoreFile" type="file" accept=".json"><small>اختر نسخة JSON محفوظة سابقًا.</small></div>
 </div>
@@ -4426,6 +4431,14 @@ g1:"أسم الضامن",g1p:"رقم موبيل الضامن",g2:"اسم الض�
 g3:"اسم الضامن الثالث",g3p:"تلبفون الضامن الثالث",address:"العنوان",paymentDate:"تاريخ السداد",delayDays:"ايام التاخير",carry:"عدد الأقساط المرحلة",term:"مدة القرض",phone2:"رقم الهاتف الثاني",phone3:"رقم الهاتف الثالث",loanCode:"كود القرض",loanAmount:"مبلغ القرض",product:"اسم المنتج"
 };
 let rows=[], groups=[];
+/* لا تبدأ مقارنة شيت جديد قبل التأكد من تحميل الشيت السابق من الخادم. هذا قفل واجهة فقط ولا يغيّر قاعدة البيانات. */
+let collectionPreviousDataState="loading";
+function setCollectionPreviousDataState(state){
+  collectionPreviousDataState=state;
+  const input=document.getElementById("file"),note=document.getElementById("importDataReadiness"),ready=state==="ready";
+  if(input){input.disabled=!ready;input.setAttribute("aria-busy",ready?"false":"true");}
+  if(note){note.dataset.state=state;note.textContent=ready?"تم تحميل بيانات الشيت السابق بنجاح؛ يمكنك رفع الشيت الجديد للمقارنة.":state==="loading"?"جارٍ تحميل الشيت السابق من الخادم. سيتاح الرفع بعد اكتمال التحميل.":"تعذر تحميل الشيت السابق من الخادم. أعد المحاولة من زر تحديث البيانات قبل رفع الشيت الجديد حتى لا يُحسب كامل المبلغ كتحصيل جديد.";}
+}
 // Caches reduce repeated Arabic normalization/property lookups during filtering and rendering.
 const rowValueCache=new WeakMap();
 const normCache=new Map();
@@ -4528,6 +4541,7 @@ async function ensureXLSXLoaded(){
 }
 async function importExcelFile(file){
   if(blockGroupLeadWrite())throw new Error("الاستيراد متاح للمالك فقط.");
+  if(collectionPreviousDataState!=="ready")throw new Error(collectionPreviousDataState==="loading"?"انتظر اكتمال تحميل الشيت السابق من الخادم قبل رفع الشيت الجديد.":"تعذر تحميل الشيت السابق من الخادم. اضغط تحديث البيانات وحاول مرة أخرى قبل استيراد الشيت الجديد.");
   if(!file)throw new Error("لم يتم اختيار ملف.");
   await ensureXLSXLoaded();
   if(!/\.(xlsx|xls)$/i.test(String(file.name||"")))throw new Error("صيغة الملف غير مدعومة؛ اختر ملفًا بامتداد .xlsx أو .xls.");
@@ -8762,6 +8776,7 @@ function refreshActiveScreenAfterDataLoad(){
 }
 async function loadDB(){
 	 if(!session||!appSessionReady)return;
+	 setCollectionPreviousDataState("loading");
 	 const statusEl=document.getElementById("status");
 	 if(statusEl)statusEl.textContent="🔄 جارٍ تحميل البيانات الحالية من الخادم؛ لن تُعرض النسخة المحفوظة…";
 	 rows=[];build();refreshActiveScreenAfterDataLoad();
@@ -8778,8 +8793,10 @@ async function loadDB(){
   if(statusEl)statusEl.textContent=`☁️ تم تحديث البيانات من الخادم — ${data.length.toLocaleString("ar-EG")} سجل`;
 	  if(lastCloudDataScope==="officer"&&data.length===0)showMsg("تم الاتصال بالخادم، لكن لا توجد سجلات مرتبطة بهذا الأخصائي. تحقق من تطابق اسم الأخصائي بين الحساب وملف البيانات.","warn");
 	  else showMsg(lastCloudDataScope==="officer"?`تم تحميل ${data.length.toLocaleString("ar-EG")} سجلًا للأخصائي المصرح به.`:`تم تحميل ${data.length.toLocaleString("ar-EG")} سجلًا من الخادم.`,`ok`);
+	  setCollectionPreviousDataState("ready");
 	  return true;
 	 }
+	 setCollectionPreviousDataState("error");
 	 if(statusEl)statusEl.textContent="⚠️ لم يتم تحميل البيانات الحالية؛ لم يتم عرض النسخة المحفوظة. اضغط تحديث وحاول مرة أخرى.";
 	 showMsg((lastCloudLoadError||"تعذر تحميل البيانات الآن. تحقق من الاتصال ثم حاول مرة أخرى.")+" لم يتم عرض النسخة المحفوظة.","warn");
 	 return false;
@@ -8794,6 +8811,7 @@ async function refreshOnOpen(){
 	 if(statusEl)statusEl.textContent="🔄 جاري تحميل/تحديث البيانات المصرح بها لهذا الحساب…";
 	 return await loadDB()===true;
 	}catch(e){
+	 setCollectionPreviousDataState("error");
 	 console.error("Refresh data failed:",e);
 	 const statusEl=document.getElementById("status");if(statusEl)statusEl.textContent="⚠️ تعذر تحديث البيانات؛ حاول مرة أخرى.";
 	 return false;
