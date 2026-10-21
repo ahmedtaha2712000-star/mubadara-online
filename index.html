@@ -4543,6 +4543,8 @@ async function importExcelFile(file){
   if(blockGroupLeadWrite())throw new Error("الاستيراد متاح للمالك فقط.");
   if(collectionPreviousDataState!=="ready")throw new Error(collectionPreviousDataState==="loading"?"انتظر اكتمال تحميل الشيت السابق من الخادم قبل رفع الشيت الجديد.":"تعذر تحميل الشيت السابق من الخادم. اضغط تحديث البيانات وحاول مرة أخرى قبل استيراد الشيت الجديد.");
   if(!file)throw new Error("لم يتم اختيار ملف.");
+  /* ثبّت لقطة الشيت السابق قبل أي await؛ نافذة اختيار الملف أو تحديث التركيز قد تبدأ تحميلًا جديدًا أثناء قراءة Excel. */
+  const previousRows=Array.isArray(rows)?rows:[];
   await ensureXLSXLoaded();
   if(!/\.(xlsx|xls)$/i.test(String(file.name||"")))throw new Error("صيغة الملف غير مدعومة؛ اختر ملفًا بامتداد .xlsx أو .xls.");
   const displayFileName=safeExcelFileName(file.name);
@@ -4567,8 +4569,7 @@ async function importExcelFile(file){
   if(!name)throw Error("ملف Excel لا يحتوي على أوراق عمل قابلة للقراءة.");
   if(!raw.length)throw Error("لا توجد بيانات في أول ورقة.");
   setImportProgress(48,"اكتملت قراءة الملف",`${raw.length.toLocaleString("en-US")} صفًا — جاري تجهيز البيانات والضغط.`);
-  /* خذ لقطة من البيانات الحالية قبل استبدالها، حتى تتم المقارنة مع الشيت السابق فعلًا. */
-  const previousRows=Array.isArray(rows)?rows:[];
+  /* previousRows لقطة ثابتة أُخذت قبل انتظار قراءة الملف، فلا تتأثر بتحديث البيانات أثناء الاستيراد. */
   rows=await normalizeImportedRowsFast(raw,(percent,stage)=>setImportProgress(percent,stage,`${raw.length.toLocaleString("en-US")} صف`));
   /* Excel data is intentionally kept in memory only; no IndexedDB/localStorage persistence. */
   setImportProgress(58,"تجهيز البيانات",`${rows.length.toLocaleString("en-US")} صفًا جاهز للضغط والرفع.`);
