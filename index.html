@@ -2720,6 +2720,34 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
 @media(max-width:760px){.group-admin-grid{grid-template-columns:1fr}.group-followup-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.group-admin-head,.group-followup-header{align-items:flex-start;flex-direction:column}.group-record-fields{grid-template-columns:1fr}.group-lead-screen{padding:14px}}
 </style>
 
+
+<style id="mobile-first-navigation-only">
+.mobile-quick-nav{display:none}
+@media (max-width:800px){
+ body{overflow-x:hidden}
+ .layout>nav{display:none!important}
+ .mobile-quick-nav{display:flex;position:sticky;top:0;z-index:1200;align-items:center;gap:8px;padding:8px 10px;background:linear-gradient(135deg,#071827,#0c3b3a);border-bottom:2px solid #c99332;box-shadow:0 4px 14px rgba(7,27,43,.18);direction:rtl}
+ .mobile-quick-nav label{flex:1;min-width:0;color:#d8fff3;font-size:11px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+ .mobile-quick-nav select{width:100%;min-height:40px;border:1px solid #6fa99c;border-radius:9px;background:#173749;color:#fff;padding:7px 9px;font:inherit;font-size:12px;outline:0}
+ .mobile-quick-nav button{flex:0 0 40px;width:40px;height:40px;padding:0;border:1px solid #6fa99c;border-radius:9px;background:#0b8060;color:#fff;font-size:18px;font-weight:900}
+ .layout>main{padding:10px 8px!important}
+ .card{padding:12px!important;margin-bottom:10px!important;border-radius:12px!important}
+ .screen-header{gap:7px;margin-bottom:10px!important;align-items:flex-start!important}
+ .screen-header h2{font-size:18px!important;line-height:1.35!important}
+ .screen-header p{font-size:11px!important;line-height:1.5!important}
+ .toolbar,.users-toolbar,.group-admin-head,.group-followup-header{gap:8px!important}
+ .toolbar button,.user-actions button,.group-admin-actions button{min-height:38px!important;padding:8px 10px!important}
+ .fields,.form-grid,.user-management-grid,.profile-contact-fields{grid-template-columns:1fr!important}
+ .kpi-grid,.users-kpi-grid,.group-followup-kpis{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:7px!important}
+ .kpi,.users-kpi{min-width:0!important;padding:10px!important}
+ .kpi b{font-size:18px!important}
+ .wrap,.table-wrap,.table-container,.specialists-table-wrap,.group-followup-table-wrap,.group-admin-table-wrap,.users-status-block .wrap{max-width:100%;overflow-x:auto!important;-webkit-overflow-scrolling:touch}
+ table{min-width:650px}
+ .user-actions{display:flex!important;flex-wrap:wrap!important;gap:5px!important}
+ input,select,textarea,button{font-size:13px}
+}
+@media (max-width:520px){.mobile-quick-nav{padding:7px 8px}.mobile-quick-nav label{display:none}.mobile-quick-nav select{font-size:11px}.kpi-grid,.users-kpi-grid,.group-followup-kpis{grid-template-columns:1fr 1fr!important}.screen-header h2{font-size:16px!important}}
+</style>
 </head>
 
 <body>
@@ -15074,4 +15102,13 @@ function renderGroupLeadFollowup(){const groupName=document.getElementById("grou
 function openGroupLeadRecord(index){const row=groupLeadRows[index];if(!row)return;const target=document.getElementById("groupLeadRecordDetails");target.innerHTML='<div class="group-record-fields">'+Object.entries(row).map(([k,v])=>`<div class="group-record-field"><b>${groupSafe(k)}</b><span>${groupSafe(typeof v==="object"&&v!==null?JSON.stringify(v):v||"—")}</span></div>`).join("")+'</div>';const dialog=document.getElementById("groupLeadRecordDialog");if(dialog?.showModal)dialog.showModal();else dialog?.setAttribute("open","")}
 function closeGroupLeadRecord(){const dialog=document.getElementById("groupLeadRecordDialog");if(dialog?.close)dialog.close();else dialog?.removeAttribute("open")}
 if(typeof session!=="undefined"&&session?.role==="group_lead")void loadCloud();
+</script>
+
+<script id="mobile-quick-navigation-runtime">
+(function(){
+ function allowed(a){if(a.classList.contains("hidden"))return false;if(a.hasAttribute("data-owner-only")&&!(typeof session!=="undefined"&&session&&typeof window.isOwnerRole==="function"&&window.isOwnerRole(session.role)))return false;if(a.hasAttribute("data-manager-only")&&!(typeof session!=="undefined"&&session&&["owner","manager"].includes(session.role)))return false;if(a.hasAttribute("data-group-lead-only")&&(typeof session==="undefined"||session?.role!=="group_lead"))return false;return true}
+ function sync(id){const bar=document.querySelector(".mobile-quick-nav"),sel=bar?.querySelector("select");if(!sel)return;const links=[...document.querySelectorAll("nav a[data-screen]")].filter(allowed),cur=id||document.querySelector("nav a.active")?.dataset.screen||location.hash.slice(1),old=sel.value;sel.innerHTML="";links.forEach(a=>{const o=document.createElement("option");o.value=a.dataset.screen;o.textContent=(a.querySelector(".nav-label")?.textContent||a.textContent||a.dataset.screen).trim();sel.appendChild(o)});if(links.some(a=>a.dataset.screen===cur))sel.value=cur;else if(links.some(a=>a.dataset.screen===old))sel.value=old}
+ function init(){if(document.querySelector(".mobile-quick-nav"))return;const layout=document.querySelector(".layout"),main=layout?.querySelector("main");if(!layout||!main)return;const bar=document.createElement("div");bar.className="mobile-quick-nav";bar.innerHTML='<label>الشاشة الحالية</label><select aria-label="اختيار الشاشة"></select><button type="button" aria-label="العودة إلى أعلى الشاشة" title="أعلى الصفحة">↑</button>';layout.insertBefore(bar,main);bar.querySelector("select").addEventListener("change",e=>window.showScreen?.(e.target.value));bar.querySelector("button").addEventListener("click",()=>window.scrollTo({top:0,behavior:"smooth"}));sync();if(typeof window.showScreen==="function"){const old=window.showScreen;window.showScreen=function(id){const r=old.apply(this,arguments);sync(id);return r}}setTimeout(sync,600);setTimeout(sync,1600)}
+ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
+})();
 </script>
