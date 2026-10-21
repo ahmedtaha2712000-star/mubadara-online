@@ -12644,7 +12644,7 @@ body.group-lead-mode nav a[data-screen="users"],body.group-lead-mode nav a[data-
 </style>
 <script>
 function updateGroupLeadScopeControls(){
- const box=document.getElementById("groupLeadScopeBar");if(!box)return;const isLead=session?.role==="group_lead";box.hidden=!isLead;if(!isLead)return;
+ const box=document.getElementById("groupLeadScopeBar");if(!box)return;const isLead=session?.role==="group_lead";box.hidden=isLead;if(!isLead)return;
  const title=document.getElementById("groupLeadScopeName");if(title)title.textContent=groupLeadInfo?.name||"مجموعة الأخصائيين";
  const state=document.getElementById("groupLeadMemberState"),filter=document.getElementById("groupLeadMemberFilter");if(!state||!filter)return;
  const selected=filter.value;const status=state.value||"active";const members=(groupLeadMembers||[]).filter(m=>status==="all"||(status==="active"?groupLeadMemberActive(m):!groupLeadMemberActive(m)));
@@ -15252,4 +15252,9 @@ if(typeof session!=="undefined"&&session?.role==="group_lead")void loadCloud();
   #dueInstallments table.risk-installments-table td:nth-child(n),
   #dueInstallments table.risk-installments-table td:nth-child(n) *{font-size:8px!important;line-height:1.05!important;padding:4px 3px!important}
 }
+</style>
+
+<style id="group-lead-hide-scope-card-final">
+/* بطاقة نطاق المجموعة مخفية لرئيس الأخصائيين فقط؛ التصفية الداخلية تبقى فعالة. */
+body.group-lead-mode #groupLeadScopeBar{display:none!important;visibility:hidden!important;height:0!important;min-height:0!important;margin:0!important;padding:0!important;overflow:hidden!important}
 </style>
