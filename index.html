@@ -3360,7 +3360,12 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
   </div>
 </div>
 
-<section id="collectionDifferencesPanel" class="collection-differences-panel no-print" aria-label="ملخص مبالغ التحصيل الجديدة">
+<label id="collectionMobileDifferencesToggle" class="collection-mobile-differences-toggle no-print" for="collectionMobileDifferencesSwitch">
+  <input id="collectionMobileDifferencesSwitch" type="checkbox" role="switch" aria-controls="collectionDifferencesPanel">
+  <span class="collection-mobile-differences-copy"><strong>ملخص التحصيلات الجديدة</strong><small>إظهار أو إخفاء البطاقة</small></span>
+  <span class="collection-mobile-switch-track" aria-hidden="true"></span>
+</label>
+<section id="collectionDifferencesPanel" class="collection-differences-panel no-print collection-mobile-hidden" aria-label="ملخص مبالغ التحصيل الجديدة">
   <div class="collection-differences-head">
     <div><h3>التحصيلات الجديدة منذ آخر تحديث</h3><p id="collectionDifferencesIntro">تعرض كل الزيادات منذ آخر رفع. استخدم تاريخ البطاقة للبحث أو انسخ نطاق شاشة التحصيل عند الحاجة.</p></div>
     <div class="collection-differences-actions"><button type="button" class="light" id="collectionDifferencesToggle">عرض ملخص التحصيل الجديد</button><button type="button" class="light collection-diff-export" id="collectionDifferencesPrint" hidden>طباعة</button><button type="button" class="light collection-diff-export" id="collectionDifferencesOpenPdf" hidden>فتح PDF</button><button type="button" class="light collection-diff-export" id="collectionDifferencesPdf" hidden>تنزيل PDF</button><button type="button" class="light collection-diff-export" id="collectionDifferencesWhatsapp" hidden>مشاركة PDF عبر واتساب</button><button type="button" class="light collection-diff-export" id="collectionDifferencesExcel" hidden>Excel</button><button type="button" class="light" id="collectionDifferencesClose" hidden>إخفاء</button></div>
@@ -3385,22 +3390,22 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
 <details id="collectionMobileCardPrefs" class="collection-mobile-card-prefs no-print" aria-label="تخصيص بطاقات شاشة التحصيل">
   <summary>تخصيص البطاقات</summary>
   <div class="collection-mobile-card-options" role="group" aria-label="إظهار أو إخفاء ملخصات شاشة التحصيل">
-    <label><input type="checkbox" data-mobile-pref="period" checked> مؤشرات الفترة</label>
-    <label><input type="checkbox" data-mobile-pref="financial" checked> ملخص التحصيل المالي</label>
-    <label><input type="checkbox" data-mobile-pref="differences" checked> التحصيلات الجديدة</label>
-    <button type="button" id="collectionMobileCardsReset">إظهار الكل</button>
+    <label><input type="checkbox" data-mobile-pref="period"> مؤشرات الفترة</label>
+    <label><input type="checkbox" data-mobile-pref="financial"> ملخص التحصيل المالي</label>
+    <label><input type="checkbox" data-mobile-pref="cumulative"> معيار النسبة التراكمي</label>
+    <button type="button" id="collectionMobileCardsReset">إظهار بطاقات التخصيص</button>
     <span id="collectionMobilePrefsStatus" role="status" aria-live="polite"></span>
   </div>
 </details>
 
-<div id="collectionMobileKpis" class="grid collection-kpis" data-mobile-card-group="period">
+<div id="collectionMobileKpis" class="grid collection-kpis collection-mobile-hidden" data-mobile-card-group="period">
   <div class="kpi"><span>عدد الأقساط المسددة</span><b id="collectionCount">0</b></div>
   <div class="kpi"><span>إجمالي المطلوب للفترة</span><b id="collectionDue">0</b></div>
   <div class="kpi"><span>إجمالي المسدد للفترة</span><b id="collectionPaid">0</b></div>
   <div class="kpi"><span>إجمالي غير المسدد</span><b id="collectionUnpaid">0</b></div>
   <div class="kpi collection-rate-kpi"><span>نسبة التحصيل</span><b id="collectionScreenRate">0%</b></div>
 </div>
-<div id="collectionMobileFinancialCards" class="collection-risk-parity-cards no-print" aria-label="ملخص التحصيل المالي" data-mobile-card-group="financial">
+<div id="collectionMobileFinancialCards" class="collection-risk-parity-cards no-print collection-mobile-hidden" aria-label="ملخص التحصيل المالي" data-mobile-card-group="financial">
   <div class="risk-summary-card risk-summary-overdue"><span>إجمالي المتأخرات</span><b id="collectionParityArrears">0</b><small>من عمود المبلغ غير المسدد ضمن الفترة</small></div>
   <div class="risk-summary-card risk-summary-due"><span>إجمالي المستحق</span><b id="collectionParityDue">0</b><small>قيم عمود القسط ضمن الفترة، دون اعتبار السداد</small></div>
   <div class="risk-summary-card risk-summary-paid"><span>إجمالي المسدد</span><b id="collectionParityPaid">0</b><small>من عمود المسدد ضمن الفترة</small></div>
@@ -3445,7 +3450,7 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
       <option value="all" selected>كل القروض</option>
     </select>
   </div>
-</div></div><div id="collectionCumulativeCriterion" class="collection-cumulative-criterion no-print" aria-label="معيار النسبة التراكمي"><div class="collection-cumulative-title"><span class="collection-cumulative-dot"></span><span>معيار النسبة التراكمي</span></div><label><span>من</span><input id="cumulativeCriterionFrom" type="date" value="2023-01-01" aria-label="بداية معيار النسبة التراكمي"></label><span class="collection-cumulative-arrow">←</span><label><span>إلى</span><input id="cumulativeCriterionTo" type="date" aria-label="نهاية معيار النسبة التراكمي"></label><button type="button" class="light" onclick="saveCumulativeCriterion()">حفظ المعيار</button><span id="cumulativeCriterionStatus" class="collection-cumulative-status" aria-live="polite"></span></div><div class="collection-filter-actions"><button type="button" class="light" onclick="clearCollectionFilters()">مسح البحث</button></div></div> <div class="wrap">
+</div></div><div id="collectionCumulativeCriterion" class="collection-cumulative-criterion no-print collection-mobile-hidden" aria-label="معيار النسبة التراكمي"><div class="collection-cumulative-title"><span class="collection-cumulative-dot"></span><span>معيار النسبة التراكمي</span></div><label><span>من</span><input id="cumulativeCriterionFrom" type="date" value="2023-01-01" aria-label="بداية معيار النسبة التراكمي"></label><span class="collection-cumulative-arrow">←</span><label><span>إلى</span><input id="cumulativeCriterionTo" type="date" aria-label="نهاية معيار النسبة التراكمي"></label><button type="button" class="light" onclick="saveCumulativeCriterion()">حفظ المعيار</button><span id="cumulativeCriterionStatus" class="collection-cumulative-status" aria-live="polite"></span></div><div class="collection-filter-actions"><button type="button" class="light" onclick="clearCollectionFilters()">مسح البحث</button></div></div> <div class="wrap">
 <table class="collection-main-table">
 <thead><tr>
 <th class="collection-screen-only">م</th>
@@ -15858,7 +15863,7 @@ body.group-lead-mode #groupLeadScopeBar{display:none!important;visibility:hidden
 </style>
 
 
-<script id="collection-mobile-compact-cards-logic-v18">
+<script id="collection-mobile-compact-cards-logic-v20">
 (function(){
  const panel=document.getElementById("collectionMobileCardPrefs");
  if(!panel)return;
@@ -15866,9 +15871,25 @@ body.group-lead-mode #groupLeadScopeBar{display:none!important;visibility:hidden
  const targets={
   period:document.getElementById("collectionMobileKpis"),
   financial:document.getElementById("collectionMobileFinancialCards"),
-  differences:document.getElementById("collectionDifferencesPanel")
+  cumulative:document.getElementById("collectionCumulativeCriterion")
  };
- const storagePrefix="mubadara.collection.mobile-cards.v1:";
+ const storagePrefix="mubadara.collection.mobile-cards.v3:";
+ const differencesToggle=document.getElementById("collectionMobileDifferencesSwitch");
+ const differencesTarget=document.getElementById("collectionDifferencesPanel");
+ const differencesStoragePrefix="mubadara.collection.mobile-new-payments.v1:";
+ const differencesStorageKey=()=>differencesStoragePrefix+encodeURIComponent(userName()||"local-device");
+ function applyDifferencesPreference(){
+  let visible=false;try{visible=localStorage.getItem(differencesStorageKey())==="1"}catch(e){}
+  if(differencesToggle)differencesToggle.checked=visible;
+  if(differencesTarget)differencesTarget.classList.toggle("collection-mobile-hidden",!visible);
+ }
+ if(differencesToggle)differencesToggle.addEventListener("change",()=>{
+  const visible=differencesToggle.checked;
+  try{localStorage.setItem(differencesStorageKey(),visible?"1":"0")}catch(e){}
+  if(differencesTarget)differencesTarget.classList.toggle("collection-mobile-hidden",!visible);
+ });
+ applyDifferencesPreference();
+
  const normalize=value=>String(value||"").normalize("NFKC").trim().toLocaleLowerCase("en-US");
  const userName=()=>{try{return typeof session!=="undefined"&&session?normalize(session.user):""}catch(e){return ""}};
  const storageKey=()=>storagePrefix+encodeURIComponent(userName()||"local-device");
@@ -15876,7 +15897,7 @@ body.group-lead-mode #groupLeadScopeBar{display:none!important;visibility:hidden
  function apply(values=read()){
   controls.forEach(control=>{
    const name=control.dataset.mobilePref;
-   const visible=typeof values[name]==="boolean"?values[name]:true;
+   const visible=typeof values[name]==="boolean"?values[name]:false;
    control.checked=visible;
    const target=targets[name];
    if(target)target.classList.toggle("collection-mobile-hidden",!visible);
@@ -15892,7 +15913,7 @@ body.group-lead-mode #groupLeadScopeBar{display:none!important;visibility:hidden
  }
  controls.forEach(control=>control.addEventListener("change",save));
  const reset=document.getElementById("collectionMobileCardsReset");
- if(reset)reset.addEventListener("click",()=>{try{localStorage.removeItem(storageKey())}catch(e){};apply({});const status=document.getElementById("collectionMobilePrefsStatus");if(status)status.textContent="تم إظهار جميع البطاقات"});
+ if(reset)reset.addEventListener("click",()=>{const all=Object.fromEntries(controls.map(control=>[control.dataset.mobilePref,true]));try{localStorage.setItem(storageKey(),JSON.stringify(all))}catch(e){};apply(all);const status=document.getElementById("collectionMobilePrefsStatus");if(status)status.textContent="تم إظهار بطاقات التخصيص"});
  apply();
  const sync=()=>apply();
  if(typeof MutationObserver!=="undefined"){
@@ -15902,7 +15923,56 @@ body.group-lead-mode #groupLeadScopeBar{display:none!important;visibility:hidden
   if(currentUser)observer.observe(currentUser,{subtree:true,childList:true,characterData:true});
   if(app)observer.observe(app,{attributes:true,attributeFilter:["style"]});
  }
- window.addEventListener("storage",event=>{if(event.key&&event.key.startsWith(storagePrefix))sync()});
+ window.addEventListener("storage",event=>{if(event.key&&event.key.startsWith(storagePrefix))sync();if(event.key&&event.key.startsWith(differencesStoragePrefix))applyDifferencesPreference()});
 })();
 </script>
+
+<style id="collection-mobile-date-and-default-hidden-v19">
+#collection .collection-mobile-card-prefs{display:none!important}
+@media screen and (max-width:760px){
+ #collection .collection-mobile-card-prefs{display:block!important}
+ #collection .collection-mobile-hidden{display:none!important}
+ #collection .collection-kpis.collection-mobile-hidden,#collection .collection-risk-parity-cards.collection-mobile-hidden,#collection #collectionDifferencesPanel.collection-mobile-hidden,#collection .collection-cumulative-criterion.collection-mobile-hidden{display:none!important}
+ #collection #collectionDatePanel .date-tools{display:flex!important;flex-wrap:nowrap!important;align-items:center!important;justify-content:flex-start!important;gap:4px!important;overflow:visible!important;margin:4px 0 0!important;padding:4px!important;border:1px solid #e1e9ed!important;border-radius:8px!important;background:#f8fafb!important;white-space:nowrap!important}
+ #collection #collectionDatePanel .date-tools>button{flex:0 1 auto!important;min-width:0!important;min-height:25px!important;height:25px!important;padding:3px 5px!important;border-radius:6px!important;font-family:Arial,sans-serif!important;font-size:8px!important;line-height:1!important;font-weight:700!important;white-space:nowrap!important}
+ #collection #collectionDatePanel .date-range{margin-bottom:4px!important;gap:4px!important}
+}
+</style>
+
+<style id="collection-mobile-independent-toggle-horizontal-specialist-v20">
+#collection .collection-mobile-differences-toggle{display:none!important}
+@media screen and (max-width:760px){
+ #collection .collection-mobile-differences-toggle{display:flex!important;align-items:center!important;gap:8px!important;min-height:42px!important;box-sizing:border-box!important;margin:0 0 6px!important;padding:6px 9px!important;border:1px solid #d6e2e7!important;border-radius:9px!important;background:#f8fbfc!important;color:#17334a!important;cursor:pointer!important;direction:rtl!important}
+ #collection .collection-mobile-differences-toggle>input{position:absolute!important;opacity:0!important;width:1px!important;height:1px!important;pointer-events:none!important}
+ #collection .collection-mobile-differences-copy{display:grid!important;gap:2px!important;min-width:0!important;flex:1 1 auto!important}
+ #collection .collection-mobile-differences-copy strong{font:800 9px/1.2 Arial,sans-serif!important;color:#17334a!important}
+ #collection .collection-mobile-differences-copy small{font:600 7px/1.2 Arial,sans-serif!important;color:#6b7e89!important}
+ #collection .collection-mobile-switch-track{position:relative!important;flex:0 0 34px!important;width:34px!important;height:19px!important;border-radius:99px!important;background:#cbd5dc!important;transition:background .15s ease!important}
+ #collection .collection-mobile-switch-track:after{content:""!important;position:absolute!important;top:3px!important;right:3px!important;width:13px!important;height:13px!important;border-radius:50%!important;background:#fff!important;box-shadow:0 1px 3px #0003!important;transition:transform .15s ease!important}
+ #collection .collection-mobile-differences-toggle:has(input:checked){background:#f0faf7!important;border-color:#8fcdbd!important}
+ #collection .collection-mobile-differences-toggle:has(input:checked) .collection-mobile-switch-track{background:#0f9f91!important}
+ #collection .collection-mobile-differences-toggle:has(input:checked) .collection-mobile-switch-track:after{transform:translateX(-15px)!important}
+ #collection .collection-filter-grid>#collectionOfficerPanel{grid-column:1/-1!important;min-width:0!important}
+ #collection #collectionOfficerPanel .due-specialist-status-control.app-shared-specialist-status-control{display:flex!important;flex-direction:row!important;flex-wrap:nowrap!important;align-items:center!important;justify-content:flex-start!important;gap:5px!important;width:100%!important;min-width:0!important;min-height:30px!important;box-sizing:border-box!important;overflow-x:auto!important;overflow-y:hidden!important;margin:0 0 5px!important;padding:4px 5px!important;border:1px solid #dce6eb!important;border-radius:8px!important;background:#f8fbfc!important;white-space:nowrap!important;scrollbar-width:none!important}
+ #collection #collectionOfficerPanel .due-specialist-status-control.app-shared-specialist-status-control::-webkit-scrollbar{display:none!important}
+ #collection #collectionOfficerPanel .due-specialist-status-control .due-specialist-status-title{display:inline-flex!important;flex:0 0 auto!important;width:auto!important;margin:0!important;font-size:8px!important;line-height:1!important;white-space:nowrap!important}
+ #collection #collectionOfficerPanel .due-specialist-status-control .collection-specialist-status-clear{display:inline-flex!important;flex:0 0 17px!important;width:17px!important;min-width:17px!important;height:17px!important;min-height:17px!important;margin:0!important;padding:0!important;align-items:center!important;justify-content:center!important;font-size:11px!important;line-height:1!important}
+ #collection #collectionOfficerPanel .due-specialist-status-control>label{display:inline-flex!important;flex:0 0 auto!important;flex-direction:row!important;align-items:center!important;justify-content:flex-start!important;gap:3px!important;width:auto!important;min-width:max-content!important;min-height:18px!important;margin:0!important;padding:0!important;font-size:7px!important;line-height:1!important;white-space:nowrap!important}
+ #collection #collectionOfficerPanel .due-specialist-status-control>label input[type=radio]{display:inline-block!important;flex:0 0 11px!important;width:11px!important;min-width:11px!important;height:11px!important;min-height:11px!important;margin:0!important;padding:0!important}
+}
+</style>
+
+<style id="collection-table-uniform-14px-v21">
+@media screen{
+ #collection .wrap table.collection-main-table > thead > tr > th:nth-child(n),
+ #collection .wrap table.collection-main-table > tbody > tr > td:nth-child(n),
+ #collection .wrap table.collection-main-table > tfoot > tr > th:nth-child(n),
+ #collection .wrap table.collection-main-table > thead > tr > th:nth-child(n) *,
+ #collection .wrap table.collection-main-table > tbody > tr > td:nth-child(n) *,
+ #collection .wrap table.collection-main-table > tfoot > tr > th:nth-child(n) *{
+  font-family:Arial,sans-serif!important;
+  font-size:14px!important;
+ }
+}
+</style>
 
