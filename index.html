@@ -12963,6 +12963,26 @@ document.addEventListener("DOMContentLoaded",()=>{document.getElementById("group
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
 </script>
+<style id="nav-icon-customization-style">
+#navIconCustomizationFeature{display:grid;gap:6px;margin-top:10px;padding-top:10px;border-top:1px solid #294052}
+#navIconCustomizationFeature button{font:inherit;font-size:13px;font-weight:700;color:#e5edf3;background:#17354a;border:1px solid #35566d;border-radius:8px;padding:9px 10px;cursor:pointer}
+#navIconCustomizationFeature button:hover{background:#20516b}
+#navIconCustomizeHint{color:#d7e5ee;font-size:12px;line-height:1.6;padding:3px 4px}
+nav.icon-customize-mode a .nav-icon{outline:2px dashed #f0c96a;outline-offset:3px;border-radius:4px;cursor:pointer}
+</style>
+<script id="nav-icon-customization-script">
+(()=>{
+ const key='mub_nav_icons_v1',nav=document.querySelector('nav');if(!nav)return;
+ const toggle=document.getElementById('navIconCustomizeToggle'),reset=document.getElementById('navIconCustomizeReset'),hint=document.getElementById('navIconCustomizeHint');
+ const icons=[...nav.querySelectorAll('a[data-screen] .nav-icon')].map(el=>({el,screen:el.closest('a[data-screen]')?.dataset.screen,html:el.innerHTML})).filter(x=>x.screen);
+ const read=()=>{try{const x=JSON.parse(localStorage.getItem(key)||'{}');return x&&typeof x==='object'?x:{}}catch(e){return {}}};
+ const apply=()=>{const saved=read();icons.forEach(x=>{if(Object.prototype.hasOwnProperty.call(saved,x.screen)){x.el.textContent=saved[x.screen];x.el.classList.add('nav-icon-customized')}else{x.el.innerHTML=x.html;x.el.classList.remove('nav-icon-customized')}})};
+ let editing=false;apply();
+ toggle.addEventListener('click',()=>{editing=!editing;nav.classList.toggle('icon-customize-mode',editing);toggle.setAttribute('aria-pressed',String(editing));toggle.textContent=editing?'✓ إنهاء تخصيص الأيقونات':'✎ تخصيص أيقونات التنقل';hint.hidden=!editing});
+ nav.addEventListener('click',e=>{if(!editing)return;const link=e.target.closest('a[data-screen]');if(!link)return;e.preventDefault();e.stopImmediatePropagation();const icon=link.querySelector('.nav-icon');if(!icon)return;const name=link.querySelector('.nav-label')?.textContent?.trim()||'الشاشة';const value=window.prompt('اكتب رمزًا أو إيموجي ليظهر بجانب «'+name+'»:',read()[link.dataset.screen]||'');if(value===null)return;const cleaned=value.trim();if(!cleaned){window.alert('أدخل رمزًا غير فارغ.');return}const saved=read();saved[link.dataset.screen]=cleaned;try{localStorage.setItem(key,JSON.stringify(saved));apply()}catch(err){window.alert('تعذر حفظ الأيقونة في هذا المتصفح.')}},true);
+ reset.addEventListener('click',()=>{if(!window.confirm('هل تريد إعادة جميع أيقونات التنقل إلى شكلها الأصلي؟'))return;try{localStorage.removeItem(key);apply()}catch(e){window.alert('تعذر إعادة الأيقونات.')}});
+})();
+</script>
 </body>
 </html>
 
@@ -15229,26 +15249,6 @@ body.group-lead-mode #paymentFollowup .pf-log-actions,
 body.group-lead-mode #paymentFollowup .pf-log-tools-actions {display:none!important}
 </style>
 
-<style id="nav-icon-customization-style">
-#navIconCustomizationFeature{display:grid;gap:6px;margin-top:10px;padding-top:10px;border-top:1px solid #294052}
-#navIconCustomizationFeature button{font:inherit;font-size:13px;font-weight:700;color:#e5edf3;background:#17354a;border:1px solid #35566d;border-radius:8px;padding:9px 10px;cursor:pointer}
-#navIconCustomizationFeature button:hover{background:#20516b}
-#navIconCustomizeHint{color:#d7e5ee;font-size:12px;line-height:1.6;padding:3px 4px}
-nav.icon-customize-mode a .nav-icon{outline:2px dashed #f0c96a;outline-offset:3px;border-radius:4px;cursor:pointer}
-</style>
-<script id="nav-icon-customization-script">
-(()=>{
- const key='mub_nav_icons_v1',nav=document.querySelector('nav');if(!nav)return;
- const toggle=document.getElementById('navIconCustomizeToggle'),reset=document.getElementById('navIconCustomizeReset'),hint=document.getElementById('navIconCustomizeHint');
- const icons=[...nav.querySelectorAll('a[data-screen] .nav-icon')].map(el=>({el,screen:el.closest('a[data-screen]')?.dataset.screen,html:el.innerHTML})).filter(x=>x.screen);
- const read=()=>{try{const x=JSON.parse(localStorage.getItem(key)||'{}');return x&&typeof x==='object'?x:{}}catch(e){return {}}};
- const apply=()=>{const saved=read();icons.forEach(x=>{if(Object.prototype.hasOwnProperty.call(saved,x.screen)){x.el.textContent=saved[x.screen];x.el.classList.add('nav-icon-customized')}else{x.el.innerHTML=x.html;x.el.classList.remove('nav-icon-customized')}})};
- let editing=false;apply();
- toggle.addEventListener('click',()=>{editing=!editing;nav.classList.toggle('icon-customize-mode',editing);toggle.setAttribute('aria-pressed',String(editing));toggle.textContent=editing?'✓ إنهاء تخصيص الأيقونات':'✎ تخصيص أيقونات التنقل';hint.hidden=!editing});
- nav.addEventListener('click',e=>{if(!editing)return;const link=e.target.closest('a[data-screen]');if(!link)return;e.preventDefault();e.stopImmediatePropagation();const icon=link.querySelector('.nav-icon');if(!icon)return;const name=link.querySelector('.nav-label')?.textContent?.trim()||'الشاشة';const value=window.prompt('اكتب رمزًا أو إيموجي ليظهر بجانب «'+name+'»:',read()[link.dataset.screen]||'');if(value===null)return;const cleaned=value.trim();if(!cleaned){window.alert('أدخل رمزًا غير فارغ.');return}const saved=read();saved[link.dataset.screen]=cleaned;try{localStorage.setItem(key,JSON.stringify(saved));apply()}catch(err){window.alert('تعذر حفظ الأيقونة في هذا المتصفح.')}},true);
- reset.addEventListener('click',()=>{if(!window.confirm('هل تريد إعادة جميع أيقونات التنقل إلى شكلها الأصلي؟'))return;try{localStorage.removeItem(key);apply()}catch(e){window.alert('تعذر إعادة الأيقونات.')}});
-})();
-</script>
 
 </body></html>`);
         reportDocument.close();
