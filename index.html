@@ -3045,6 +3045,34 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
  body.dailyOpsPrinting #dailyOpsPrintHolder table{table-layout:fixed!important;width:100%!important;max-width:100%!important}
 }
 </style>
+
+<style id="daily-ops-final-export-tweaks">
+/* عناصر واجهة الشاشة التي لا تظهر في الطباعة أو PDF */
+#dailyOperations.daily-ops-export-clone .daily-ops-export-filter-list{display:none!important}
+#dailyOperations.daily-ops-export-clone #dailyOpsDueTodayDetail ~ .daily-ops-note{display:none!important}
+#dailyOperations.daily-ops-export-clone .daily-ops-delta-cell.daily-ops-delta-positive{background:#e8f5e9!important;color:#1d4ed8!important}
+#dailyOperations.daily-ops-export-clone .daily-ops-delta-cell.daily-ops-delta-negative{background:#ffebee!important;color:#dc2626!important}
+#dailyOperations.daily-ops-export-clone .daily-ops-delta-inline.daily-ops-delta-positive,
+#dailyOperations.daily-ops-export-clone .daily-ops-delta-inline.daily-ops-delta-positive .daily-ops-delta-sign,
+#dailyOperations.daily-ops-export-clone .daily-ops-delta-inline.daily-ops-delta-positive .daily-ops-delta-number{color:#1d4ed8!important}
+#dailyOperations.daily-ops-export-clone .daily-ops-delta-inline.daily-ops-delta-negative,
+#dailyOperations.daily-ops-export-clone .daily-ops-delta-inline.daily-ops-delta-negative .daily-ops-delta-sign,
+#dailyOperations.daily-ops-export-clone .daily-ops-delta-inline.daily-ops-delta-negative .daily-ops-delta-number{color:#dc2626!important}
+#dailyOperations.daily-ops-export-clone .daily-ops-delta-zero{color:#000!important}
+@media print{
+ body.dailyOpsPrinting #dailyOpsPrintHolder .daily-ops-export-filter-list{display:none!important}
+ body.dailyOpsPrinting #dailyOpsPrintHolder #dailyOpsDueTodayDetail ~ .daily-ops-note{display:none!important}
+ body.dailyOpsPrinting #dailyOpsPrintHolder .daily-ops-delta-cell.daily-ops-delta-positive{background:#e8f5e9!important;color:#1d4ed8!important}
+ body.dailyOpsPrinting #dailyOpsPrintHolder .daily-ops-delta-cell.daily-ops-delta-negative{background:#ffebee!important;color:#dc2626!important}
+ body.dailyOpsPrinting #dailyOpsPrintHolder .daily-ops-delta-inline.daily-ops-delta-positive,
+ body.dailyOpsPrinting #dailyOpsPrintHolder .daily-ops-delta-inline.daily-ops-delta-positive .daily-ops-delta-sign,
+ body.dailyOpsPrinting #dailyOpsPrintHolder .daily-ops-delta-inline.daily-ops-delta-positive .daily-ops-delta-number{color:#1d4ed8!important}
+ body.dailyOpsPrinting #dailyOpsPrintHolder .daily-ops-delta-inline.daily-ops-delta-negative,
+ body.dailyOpsPrinting #dailyOpsPrintHolder .daily-ops-delta-inline.daily-ops-delta-negative .daily-ops-delta-sign,
+ body.dailyOpsPrinting #dailyOpsPrintHolder .daily-ops-delta-inline.daily-ops-delta-negative .daily-ops-delta-number{color:#dc2626!important}
+ body.dailyOpsPrinting #dailyOpsPrintHolder .daily-ops-delta-zero{color:#000!important}
+}
+</style>
 </head>
 
 <body>
