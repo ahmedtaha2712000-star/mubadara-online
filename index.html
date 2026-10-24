@@ -2886,13 +2886,19 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
 #importDataReadiness[data-state="ready"]{background:#ecfdf3;color:#166534}
 #importDataReadiness[data-state="error"]{background:#fef2f2;color:#991b1b}
 </style>
-<style id="desktop-navigation-label-22px">
-/* تكبير أسماء الشاشات في شريط التنقل على الكمبيوتر فقط؛ لا يشمل الطباعة أو الهواتف */
-@media screen and (min-width:801px){
-  .layout>nav a{font-size:22px!important}
-  .layout>nav a .nav-label{font-size:22px!important}
-}
-</style>
+<script id="desktop-navigation-label-22px-apply">
+(function(){
+  function applyDesktopNavigationFont(){
+    if(document.getElementById("desktop-navigation-label-22px-runtime"))return;
+    const style=document.createElement("style");
+    style.id="desktop-navigation-label-22px-runtime";
+    style.textContent="@media screen and (min-width:801px){#app .layout>nav a{font-size:22px!important}#app .layout>nav a .nav-label{font-size:22px!important}}";
+    (document.body||document.documentElement).appendChild(style);
+  }
+  if(document.readyState==="complete")applyDesktopNavigationFont();
+  else window.addEventListener("load",applyDesktopNavigationFont,{once:true});
+})();
+</script>
 </head>
 
 <body>
@@ -2929,6 +2935,31 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
     <div class="role-note">يتم الدخول حسب الصلاحية واسم المستخدم وكلمة المرور المحددة له.</div>
   </div>
 </div>
+<script id="login-enter-login-only">
+(function(){
+  const loginScreen=document.getElementById("loginScreen");
+  const passwordInput=document.getElementById("loginPass");
+  const loginButton=loginScreen?.querySelector('button[onclick="login()"]');
+  if(!loginScreen||!passwordInput||!loginButton)return;
+  const usernameSelectIds=["loginOwnerUser","loginOfficerUser","loginGroupLeadUser"];
+  const enterKeys=new Set(["Enter","NumpadEnter","Go","Done","Send","Next"]);
+  let lastActionAt=0;
+  function handleLoginKeyboardAction(event){
+    const isEnter=enterKeys.has(event.key)||event.keyCode===13||event.which===13;
+    if(!isEnter||event.repeat||(event.isComposing&&event.keyCode!==13))return;
+    const now=Date.now();if(now-lastActionAt<350)return;lastActionAt=now;
+    if(usernameSelectIds.includes(event.target?.id)){
+      event.preventDefault();event.stopPropagation();passwordInput.focus();return;
+    }
+    if(event.target===passwordInput){
+      event.preventDefault();event.stopPropagation();
+      if(!loginButton.disabled)loginButton.click();
+    }
+  }
+  loginScreen.addEventListener("keydown",handleLoginKeyboardAction,true);
+  loginScreen.addEventListener("keyup",handleLoginKeyboardAction,true);
+})();
+</script>
 <div id="app">
 
 <header class="no-print pro-header">
