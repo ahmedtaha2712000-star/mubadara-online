@@ -15299,7 +15299,15 @@ body.du-camera-open #mobileBottomNav,body.du-camera-open #mobileMorePanel,body.d
         document.body.appendChild(stage);
         const reportDocument = stage.contentDocument || stage.contentWindow.document;
         reportDocument.open();
-        reportDocument.write(`<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>تقرير حاسبة الأقساط</title><style>${report.css}</style></head><body>${report.markup}
+        reportDocument.write(`<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>تقرير حاسبة الأقساط</title><style>${report.css}</style>
+<style id="desktop-navigation-label-22px">
+/* تكبير أسماء الشاشات في شريط التنقل على الكمبيوتر فقط؛ لا يشمل الطباعة أو الهواتف */
+@media screen and (min-width:801px){
+  .layout>nav a{font-size:22px!important}
+  .layout>nav a .nav-label{font-size:22px!important}
+}
+</style>
+</head><body>${report.markup}
 <style id="group-lead-operational-readonly-tools">
 body.group-lead-mode #specialistGroupAdmin,
 body.group-lead-mode #specialistManualPanel,
