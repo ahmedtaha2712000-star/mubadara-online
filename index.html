@@ -2899,6 +2899,28 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
   else window.addEventListener("load",applyDesktopNavigationFont,{once:true});
 })();
 </script>
+<style id="dailyOperationsStyles">
+#dailyOperations{direction:rtl}
+#dailyOperations .daily-ops-intro{margin:10px 0 18px;color:#526176;line-height:1.8}
+#dailyOperations .daily-ops-period-box{display:grid;grid-template-columns:repeat(2,minmax(220px,1fr));gap:12px;margin:14px 0 22px}
+#dailyOperations .daily-ops-period{padding:14px 16px;border:1px solid #dbe5ef;border-radius:12px;background:#f8fbff}
+#dailyOperations .daily-ops-period b{display:block;margin-bottom:5px;color:#18324f}
+#dailyOperations .daily-ops-section{margin:18px 0 26px;padding:16px;border:1px solid #e2e8f0;border-radius:14px;background:#fff}
+#dailyOperations .daily-ops-section h3{margin:0 0 12px;color:#18324f}
+#dailyOperations .daily-ops-filters{display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:10px;padding:12px;margin:12px 0 16px;border:1px solid #e2e8f0;border-radius:10px;background:#f8fafc}
+#dailyOperations .daily-ops-filters label{display:flex;flex-direction:column;gap:5px;font-size:13px;font-weight:700;color:#334155}
+#dailyOperations .daily-ops-filters input,#dailyOperations .daily-ops-filters select{width:100%;min-height:38px;padding:7px 9px;border:1px solid #cbd5e1;border-radius:8px;background:#fff;color:#172033;box-sizing:border-box}
+#dailyOperations .daily-ops-table-wrap{overflow:auto;border:1px solid #dce5ef;border-radius:10px}
+#dailyOperations table{width:100%;min-width:860px;border-collapse:collapse;background:#fff}
+#dailyOperations th,#dailyOperations td{padding:9px 10px;border:1px solid #e2e8f0;text-align:center;white-space:nowrap}
+#dailyOperations th{background:#eff6ff;color:#19324d;font-size:13px}
+#dailyOperations td{font-size:13px;color:#1f2937}
+#dailyOperations tr.daily-ops-branch-total td{font-weight:800;background:#f1f5f9;border-top:2px solid #64748b}
+#dailyOperations .daily-ops-delta-positive{color:#047857}
+#dailyOperations .daily-ops-delta-negative{color:#b91c1c}
+#dailyOperations .daily-ops-note{font-size:12px;color:#64748b;line-height:1.7;margin:10px 2px 0}
+@media(max-width:760px){#dailyOperations .daily-ops-period-box{grid-template-columns:1fr}#dailyOperations .daily-ops-section{padding:11px}}
+</style>
 </head>
 
 <body>
@@ -2991,6 +3013,7 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
 <nav class="no-print" aria-label="التنقل الرئيسي">
 <div class="nav-section-title">التشغيل اليومي</div>
 <a href="#dash" data-screen="dash" data-manager-only><span class="nav-icon nav-icon-dashboard" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 13h6V4H4v9Zm0 7h6v-4H4v4Zm10 0h6v-9h-6v9Zm0-16v4h6V4h-6Z"/></svg></span><span class="nav-label">لوحة التحكم</span><small>ملخص سريع</small></a>
+<a href="#dailyOperations" data-screen="dailyOperations" data-manager-only><span class="nav-icon nav-icon-dashboard" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 13h6V4H4v9Zm0 7h6v-4H4v4Zm10 0h6v-9h-6v9Zm0-16v4h6V4h-6Z"/></svg></span><span class="nav-label">شاشة التشغيل اليومية</span><small>مقارنة الأداء الشهري</small></a>
 <a href="#clients" data-screen="clients"><span class="nav-icon nav-icon-clients" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M16 20v-1.5a4.5 4.5 0 0 0-4.5-4.5h-3A4.5 4.5 0 0 0 4 18.5V20m6-10a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Zm5.5 1a3 3 0 1 0 0-6m1.5 10h3v-1.2a3.8 3.8 0 0 0-2.8-3.7"/></svg></span><span class="nav-label">العملاء</span><small>عرض ومتابعة</small></a>
 <a href="#collection" data-screen="collection"><span class="nav-icon nav-icon-collection" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 3v3m10-3v3M4 9h16M6 5h12a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Zm2 8h3m2 0h3m-8 4h3m2 0h3"/></svg></span><span class="nav-label">التحصيل</span><small>الأقساط المستحقة</small></a>
 <a href="#search" data-screen="search"><span class="nav-icon nav-icon-search" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 5 5"/></svg></span><span class="nav-label">البحث السريع</span><small>الوصول لأي سجل</small></a>
@@ -3965,6 +3988,83 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
   <section id="iskorSearchControls" class="ik-search-card" aria-labelledby="iskorSearchHeading"><div class="ik-search-title-row"><div><h3 id="iskorSearchHeading" class="ik-section-heading">البحث</h3><p class="ik-help">اكتب الاسم أو الكود في خانة واحدة. لنتائج أدق، افتح البحث المتقدم واستخدم الكود والاسم معًا.</p></div></div><div class="ik-quick-row"><div class="ik-field"><label for="iskorQuick">بحث بالاسم أو الكود</label><div class="ik-autocomplete"><input id="iskorQuick" class="ik-search-input" type="search" autocomplete="off" placeholder="اكتب اسمًا أو كودًا..." aria-autocomplete="list" aria-controls="iskorQuickSuggestions" aria-expanded="false"><div id="iskorQuickSuggestions" class="ik-suggest-menu" role="listbox" hidden></div></div></div></div><details id="iskorAdvanced" class="ik-advanced"><summary><span>بحث متقدم</span><small>تحديد الكود والاسم معًا</small></summary><div class="ik-advanced-body"><div class="ik-search-grid"><div class="ik-field"><label for="iskorCode">الكود</label><div class="ik-autocomplete"><input id="iskorCode" class="ik-search-input" type="search" autocomplete="off" placeholder="اكتب الكود أو جزءًا منه..." aria-autocomplete="list" aria-controls="iskorCodeSuggestions" aria-expanded="false"><div id="iskorCodeSuggestions" class="ik-suggest-menu" role="listbox" hidden></div></div></div><div class="ik-field"><label for="iskorName">الاسم</label><div class="ik-autocomplete"><input id="iskorName" class="ik-search-input" type="search" autocomplete="off" placeholder="اكتب الاسم أو جزءًا منه..." aria-autocomplete="list" aria-controls="iskorNameSuggestions" aria-expanded="false"><div id="iskorNameSuggestions" class="ik-suggest-menu" role="listbox" hidden></div></div></div></div><p class="ik-search-hint">عند إدخال الكود والاسم معًا، يجب أن يطابق الصف الشرطين.</p></div></details><div class="ik-search-actions"><button id="iskorClearSearch" type="button" class="ik-secondary">مسح البحث</button></div></section>
   <section id="iskorResults" class="ik-results-card" aria-labelledby="iskorResultsHeading" hidden><div class="ik-results-head"><div><h3 id="iskorResultsHeading">النتائج</h3><span id="iskorResultCount" class="ik-result-count"></span></div><button id="iskorPrint" type="button" class="ik-primary">طباعة النتائج</button></div><div class="ik-results-table-wrap"><table class="ik-results-table"><thead><tr><th>الكود</th><th>الاسم</th><th>بيانات إضافية</th></tr></thead><tbody id="iskorRows"><tr><td colspan="3">حمّل ملف Excel لبدء البحث.</td></tr></tbody></table></div><div id="iskorPagination" class="ik-pagination" hidden><button id="iskorPrev" type="button" class="ik-page-btn">السابق</button><span id="iskorPageInfo"></span><button id="iskorNext" type="button" class="ik-page-btn">التالي</button></div></section>
 </section>
+<section id="dailyOperations" class="card screen" aria-label="شاشة التشغيل اليومية">
+  <div class="screen-header"><div><h2>📊 شاشة التشغيل اليومية</h2><div class="sub">مقارنة مؤشرات الشهر الحالي حتى اليوم بالشهر السابق كاملًا، مع فصل كل مصدر وفلاتره.</div></div></div>
+  <p class="daily-ops-intro">تستخدم هذه الشاشة بيانات الشاشات المصدر وقواعدها، وتُبقي فلاتر كل قسم مستقلة. إجمالي الفرع محسوب داخل هذا التقرير وفق المرشحات المختارة. لا تحتوي الشاشة على أوامر طباعة أو تعديل للشاشات الأخرى.</p>
+  <div class="daily-ops-period-box"><div class="daily-ops-period"><b>الشهر الحالي حتى اليوم</b><span id="dailyOpsCurrentPeriod">—</span></div><div class="daily-ops-period"><b>الشهر السابق كاملًا</b><span id="dailyOpsPreviousPeriod">—</span></div></div>
+
+  <section class="daily-ops-section" aria-labelledby="dailyOpsCollectionTitle"><h3 id="dailyOpsCollectionTitle">نسبة التحصيل</h3>
+    <div class="daily-ops-filters">
+      <label>حالة الأخصائي<select id="dailyOpsColState" onchange="renderDailyOperationsComparison()"><option value="active">الأخصائيون النشطون</option><option value="inactive">أخصائي مستقيل</option><option value="all">جميع الأخصائيين</option></select></label>
+      <label>الأخصائي<input id="dailyOpsColOfficer" type="search" placeholder="كل الأخصائيين" oninput="renderDailyOperationsComparison()"></label>
+      <label>اسم العميل<input id="dailyOpsColClient" type="search" placeholder="كل العملاء" oninput="renderDailyOperationsComparison()"></label>
+      <label>حالة القرض<select id="dailyOpsColStatus" onchange="renderDailyOperationsComparison()"><option value="all">كل القروض</option><option value="open">القروض القائمة</option><option value="closed">القروض المغلقة</option></select></label>
+    </div>
+    <div class="daily-ops-table-wrap"><table><thead><tr><th rowspan="2">الأخصائي</th><th colspan="4">نسبة التحصيل</th></tr><tr><th>الحالي</th><th>السابق</th><th>الفرق (نقطة مئوية)</th><th>نسبة التغيير</th></tr></thead><tbody id="dailyOpsCollectionBody"></tbody></table></div>
+    <p class="daily-ops-note">تطابق نسبة التحصيل مع شاشة التحصيل: إجمالي المسدد ÷ إجمالي المطلوب، وفق تاريخ السداد والفلاتر المختارة.</p>
+  </section>
+
+  <section class="daily-ops-section" aria-labelledby="dailyOpsCumulativeTitle"><h3 id="dailyOpsCumulativeTitle">نسبة السداد التراكمية</h3>
+    <div class="daily-ops-filters">
+      <label>بداية معيار التراكمي<input id="dailyOpsCumFrom" type="date" onchange="renderDailyOperationsComparison()"></label>
+      <label>حالة الأخصائي<select id="dailyOpsCumState" onchange="renderDailyOperationsComparison()"><option value="active">الأخصائيون النشطون</option><option value="inactive">أخصائي مستقيل</option><option value="all">جميع الأخصائيين</option></select></label>
+      <label>الأخصائي<input id="dailyOpsCumOfficer" type="search" placeholder="كل الأخصائيين" oninput="renderDailyOperationsComparison()"></label>
+      <label>اسم العميل<input id="dailyOpsCumClient" type="search" placeholder="كل العملاء" oninput="renderDailyOperationsComparison()"></label>
+    </div>
+    <div class="daily-ops-table-wrap"><table><thead><tr><th rowspan="2">الأخصائي</th><th colspan="4">نسبة السداد التراكمية</th></tr><tr><th>الحالي</th><th>السابق</th><th>الفرق (نقطة مئوية)</th><th>نسبة التغيير</th></tr></thead><tbody id="dailyOpsCumulativeBody"></tbody></table></div>
+    <p class="daily-ops-note">يُستخدم تاريخ بداية معيار التراكمي نفسه للفترتين، وتكون نهاية كل حساب نهاية فترة المقارنة، مع صيغة شاشة التحصيل.</p>
+  </section>
+
+  <section class="daily-ops-section" aria-labelledby="dailyOpsLoansTitle"><h3 id="dailyOpsLoansTitle">القروض المصدرة</h3>
+    <div class="daily-ops-filters">
+      <label>حالة الأخصائي<select id="dailyOpsLoansState" onchange="renderDailyOperationsComparison()"><option value="active">الأخصائيون النشطون</option><option value="inactive">أخصائي مستقيل</option><option value="all">جميع الأخصائيين</option></select></label>
+      <label>الأخصائي<input id="dailyOpsLoansOfficer" type="search" placeholder="كل الأخصائيين" oninput="renderDailyOperationsComparison()"></label>
+      <label>اسم العميل<input id="dailyOpsLoansClient" type="search" placeholder="كل العملاء" oninput="renderDailyOperationsComparison()"></label>
+      <label>حالة القرض<select id="dailyOpsLoansStatus" onchange="renderDailyOperationsComparison()"><option value="open">القرض قائم</option><option value="closed">مغلق / منتهٍ</option><option value="all">كل الحالات</option></select></label>
+      <label>نوع المنتج<input id="dailyOpsLoansProduct" type="search" placeholder="كل الأنواع" oninput="renderDailyOperationsComparison()"></label>
+      <label>قيمة القرض من<input id="dailyOpsLoansMin" type="number" min="0" step="any" oninput="renderDailyOperationsComparison()"></label>
+      <label>قيمة القرض إلى<input id="dailyOpsLoansMax" type="number" min="0" step="any" oninput="renderDailyOperationsComparison()"></label>
+    </div>
+    <div class="daily-ops-table-wrap"><table><thead><tr><th rowspan="2">الأخصائي</th><th colspan="4">عدد القروض</th><th colspan="4">قيمة القروض</th></tr><tr><th>الحالي</th><th>السابق</th><th>الفرق</th><th>التغيير</th><th>الحالي</th><th>السابق</th><th>الفرق</th><th>التغيير</th></tr></thead><tbody id="dailyOpsLoansBody"></tbody></table></div>
+  </section>
+
+  <section class="daily-ops-section" aria-labelledby="dailyOpsDropoutTitle"><h3 id="dailyOpsDropoutTitle">العملاء المتسربون</h3>
+    <div class="daily-ops-filters">
+      <label>حالة الأخصائي<select id="dailyOpsDropState" onchange="renderDailyOperationsComparison()"><option value="all">جميع الأخصائيين</option><option value="active">الأخصائيون النشطون</option><option value="inactive">أخصائي مستقيل</option></select></label>
+      <label>الأخصائي<input id="dailyOpsDropOfficer" type="search" placeholder="كل الأخصائيين" oninput="renderDailyOperationsComparison()"></label>
+      <label>اسم العميل<input id="dailyOpsDropClient" type="search" placeholder="كل العملاء" oninput="renderDailyOperationsComparison()"></label>
+      <label>الرقم القومي<input id="dailyOpsDropNid" type="search" placeholder="كل الأرقام" oninput="renderDailyOperationsComparison()"></label>
+      <label>حالة القرض<select id="dailyOpsDropStatus"><option value="closed">القروض المغلقة</option><option value="open">القروض القائمة</option><option value="all">كل الحالات</option></select></label>
+      <label>بحث في حالة القرض<input id="dailyOpsDropStatusText" type="search" placeholder="كل الحالات" oninput="renderDailyOperationsComparison()"></label>
+    </div>
+    <div class="daily-ops-table-wrap"><table><thead><tr><th rowspan="2">الأخصائي</th><th colspan="4">عدد العملاء المتسربين</th></tr><tr><th>الحالي</th><th>السابق</th><th>الفرق</th><th>نسبة التغيير</th></tr></thead><tbody id="dailyOpsDropoutBody"></tbody></table></div>
+    <p class="daily-ops-note">يعتمد التاريخ على تاريخ الإغلاق، ويُحتسب العميل مرة واحدة كما في شاشة العملاء المتسربين.</p>
+  </section>
+
+  <section class="daily-ops-section" aria-labelledby="dailyOpsRiskTitle"><h3 id="dailyOpsRiskTitle">المتأخرات</h3>
+    <div class="daily-ops-filters">
+      <label>حالة الأخصائي<select id="dailyOpsRiskState" onchange="renderDailyOperationsComparison()"><option value="active">الأخصائيون النشطون</option><option value="inactive">أخصائي مستقيل</option><option value="all">جميع الأخصائيين</option></select></label>
+      <label>الأخصائي<input id="dailyOpsRiskOfficer" type="search" placeholder="جميع الأخصائيين" oninput="renderDailyOperationsComparison()"></label>
+      <label>اسم العميل<input id="dailyOpsRiskClient" type="search" placeholder="كل العملاء" oninput="renderDailyOperationsComparison()"></label>
+      <label>حالة القرض<select id="dailyOpsRiskStatus" onchange="renderDailyOperationsComparison()"><option value="open">القروض القائمة</option><option value="closed">القروض المغلقة</option><option value="all">كل القروض</option></select></label>
+    </div>
+    <div class="daily-ops-table-wrap"><table><thead><tr><th rowspan="2">الأخصائي</th><th colspan="4">مبلغ المتأخرات</th><th colspan="4">عدد العملاء</th></tr><tr><th>الحالي</th><th>السابق</th><th>الفرق</th><th>نسبة التغيير</th><th>الحالي</th><th>السابق</th><th>الفرق</th><th>نسبة التغيير</th></tr></thead><tbody id="dailyOpsRiskBody"></tbody></table></div>
+    <p class="daily-ops-note">تستخدم الفترة كتاريخ استحقاق، وتُحسب المتأخرات وفق إجمالي المستحق ناقص إجمالي المسدد، كما في بطاقة شاشة المتأخرات.</p>
+  </section>
+
+  <section class="daily-ops-section" aria-labelledby="dailyOpsDueTitle"><h3 id="dailyOpsDueTitle">الأقساط المستحقة</h3>
+    <div class="daily-ops-filters">
+      <label>حالة الأخصائي<select id="dailyOpsDueState" onchange="renderDailyOperationsComparison()"><option value="active">الأخصائيون النشطون</option><option value="inactive">أخصائي مستقيل</option><option value="all">جميع الأخصائيين</option></select></label>
+      <label>الأخصائي<input id="dailyOpsDueOfficer" type="search" placeholder="جميع الأخصائيين" oninput="renderDailyOperationsComparison()"></label>
+      <label>اسم العميل<input id="dailyOpsDueClient" type="search" placeholder="كل العملاء" oninput="renderDailyOperationsComparison()"></label>
+      <label>العنوان<input id="dailyOpsDueAddress" type="search" placeholder="كل العناوين" oninput="renderDailyOperationsComparison()"></label>
+      <label>حالة القرض<select id="dailyOpsDueStatus" onchange="renderDailyOperationsComparison()"><option value="open">القروض القائمة</option><option value="closed">القروض المغلقة</option><option value="all">كل القروض</option></select></label>
+      <label>نوع العرض<select id="dailyOpsDueView" onchange="renderDailyOperationsComparison()"><option value="due">المستحق</option><option value="upcoming">القادم</option><option value="partial">المسدد جزئيًا</option><option value="paid">المسدد</option><option value="overdue">المتأخر</option></select></label>
+    </div>
+    <div class="daily-ops-table-wrap"><table><thead><tr><th rowspan="2">الأخصائي</th><th colspan="4">عدد العملاء</th><th colspan="4">قيمة الأقساط وفق شاشة المصدر</th></tr><tr><th>الحالي</th><th>السابق</th><th>الفرق</th><th>نسبة التغيير</th><th>الحالي</th><th>السابق</th><th>الفرق</th><th>نسبة التغيير</th></tr></thead><tbody id="dailyOpsDueBody"></tbody></table></div>
+    <p class="daily-ops-note">يُحتسب العميل مرة واحدة وتُستخدم طريقة اختيار صف العميل وإجماليات شاشة الأقساط المستحقة.</p>
+  </section>
+</section>
 </main></div>
 
 <script>
@@ -4014,7 +4114,7 @@ programSettings=readProgramSettings();
 window.addEventListener("storage",e=>{if(e.key===PROGRAM_SETTINGS_KEY){programSettings=readProgramSettings();applyProgramSettings()}});
 if(settingsChannel)settingsChannel.onmessage=()=>{programSettings=readProgramSettings();applyProgramSettings()};
 window.addEventListener("resize",()=>{if(programSettings.orientation==="auto")applyProgramSettings()});
- const SCREEN_IDS=["clients","search","dash","collection","risk","dueInstallments","installmentCalculator","paymentFollowup","paymentFollowupArchive","location","portfolio","issuedLoans","dropoutClients","print","users","specialists","audit","import","uploadTool","iskorCodes","settings","groupLeadFollowup"];
+ const SCREEN_IDS=["clients","search","dash","dailyOperations","collection","risk","dueInstallments","installmentCalculator","paymentFollowup","paymentFollowupArchive","location","portfolio","issuedLoans","dropoutClients","print","users","specialists","audit","import","uploadTool","iskorCodes","settings","groupLeadFollowup"];
 let screenDataVersion=0;const screenRenderVersion=Object.create(null);
 function showScreen(id){
   if(!enforceSession()) return;
@@ -4022,7 +4122,7 @@ function showScreen(id){
   if(id==="groupLeadFollowup"&&session.role!=="group_lead")id="search";
   if(session.role==="group_lead"&&(id==="users"||id==="audit"||id==="import"||id==="settings"))id="search";
   if((id==="users"||id==="audit")&&!isOwnerRole(session.role))id="search";
-  if((id==="specialists"||id==="dash")&&!isOwnerRole(session.role)&&session.role!=="group_lead")id="search";
+  if((id==="specialists"||id==="dash"||id==="dailyOperations")&&!isOwnerRole(session.role)&&session.role!=="group_lead")id="search";
   if(id==="specialists"&&typeof loadSpecialistGroupManagement==="function")void loadSpecialistGroupManagement();
   const screens=showScreen._screens||(showScreen._screens=[...document.querySelectorAll(".screen")]);
   screens.forEach(s=>{s.classList.remove("active");s.setAttribute("aria-hidden","true")});
@@ -4960,6 +5060,7 @@ function build(){
 function renderScreenData(id){
  switch(id){
   case "dash": renderDash(); break;
+  case "dailyOperations": renderDailyOperationsComparison(); break;
   case "clients": renderClients(); break;
   case "search": renderSearch(); break;
   case "collection": renderCollection(); break;
@@ -13077,6 +13178,54 @@ nav.icon-customize-mode a .nav-icon{outline:2px dashed #f0c96a;outline-offset:3p
  toggle.addEventListener('click',()=>{editing=!editing;nav.classList.toggle('icon-customize-mode',editing);toggle.setAttribute('aria-pressed',String(editing));toggle.textContent=editing?'✓ إنهاء تخصيص الأيقونات':'✎ تخصيص أيقونات التنقل';hint.hidden=!editing});
  nav.addEventListener('click',e=>{if(!editing)return;const link=e.target.closest('a[data-screen]');if(!link)return;e.preventDefault();e.stopImmediatePropagation();const icon=link.querySelector('.nav-icon');if(!icon)return;const name=link.querySelector('.nav-label')?.textContent?.trim()||'الشاشة';const value=window.prompt('اكتب رمزًا أو إيموجي ليظهر بجانب «'+name+'»:',read()[link.dataset.screen]||'');if(value===null)return;const cleaned=value.trim();if(!cleaned){window.alert('أدخل رمزًا غير فارغ.');return}const saved=read();saved[link.dataset.screen]=cleaned;try{localStorage.setItem(key,JSON.stringify(saved));apply()}catch(err){window.alert('تعذر حفظ الأيقونة في هذا المتصفح.')}},true);
  reset.addEventListener('click',()=>{if(!window.confirm('هل تريد إعادة جميع أيقونات التنقل إلى شكلها الأصلي؟'))return;try{localStorage.removeItem(key);apply()}catch(e){window.alert('تعذر إعادة الأيقونات.')}});
+})();
+</script>
+<script>
+(function(){
+"use strict";
+const byId=id=>document.getElementById(id);
+const val=id=>String(byId(id)?.value??"").trim();
+const normText=x=>typeof norm==="function"?norm(String(x??"")):String(x??"").trim().toLocaleLowerCase("ar");
+function periodBounds(){const now=new Date(),todayEnd=new Date(now.getFullYear(),now.getMonth(),now.getDate(),23,59,59,999),thisStart=new Date(now.getFullYear(),now.getMonth(),1),prevStart=new Date(now.getFullYear(),now.getMonth()-1,1),prevEnd=new Date(now.getFullYear(),now.getMonth(),0,23,59,59,999);return{current:{from:thisStart,to:todayEnd},previous:{from:prevStart,to:prevEnd}}}
+function fmtDate(d){return typeof clientsDateText==="function"?clientsDateText(d):`${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,"0")}/${String(d.getDate()).padStart(2,"0")}`}
+function fmtNum(n){return num(n).toLocaleString("en-US",{maximumFractionDigits:2})}
+function fmtPercent(n){return `${num(n).toLocaleString("en-US",{maximumFractionDigits:2})}%`}
+function dateIn(value,range){const d=parseExcelDate(value);return !!d&&d>=range.from&&d<=range.to}
+function specialistAllowedLocal(name,state){return !String(name||"").trim()||specialistMatchesState(String(name||""),state||"all")}
+function officerOf(g,r){return String(get(r||g?.r||{},"officer")||get(g?.r||{},"officer")||"غير محدد").trim()||"غير محدد"}
+function clientOf(g,r){return String(get(r||g?.r||{},"client")||get(g?.r||{},"client")||"").trim()}
+function localFilter(prefix,officer,client){const state=val(prefix+"State")||"all",qOfficer=normText(val(prefix+"Officer")),qClient=normText(val(prefix+"Client"));return{name:officer,state,qOfficer,qClient,ok:(g,r)=>specialistAllowedLocal(officer,state)&&(!qOfficer||normText(officer).includes(qOfficer))&&(!qClient||normText(clientOf(g,r)).includes(qClient))}}
+function putOptionLists(){const groups=visibleGroups(),specialists=[...new Set(groups.map(g=>officerOf(g,g.r)).filter(x=>x&&x!=="غير محدد"))].sort((a,b)=>a.localeCompare(b,"ar")),clients=[...new Set(groups.map(g=>clientOf(g,g.r)).filter(Boolean))].sort((a,b)=>a.localeCompare(b,"ar"));document.querySelectorAll("#dailyOperations input[data-daily-list]").forEach(input=>{const type=input.dataset.dailyList,list=byId(input.getAttribute("list"));if(list)list.innerHTML=(type==="officer"?specialists:clients).map(x=>`<option value="${escAttr(x)}"></option>`).join("")})}
+function addToMap(map,name,init){const key=normText(name)||"غير محدد";if(!map.has(key))map.set(key,{name:String(name||"غير محدد"),...init});return map.get(key)}
+function totalPair(map){let due=0,paid=0;map.forEach(x=>{due+=num(x.due);paid+=num(x.paid)});return{due,paid,rate:due>0?paid/due*100:0}}
+function valMetric(x,key){return num(x?.[key])}
+function displayChange(current,previous,format="num",rate=false){const diff=current-previous,pct=previous===0?(current===0?0:null):(diff/Math.abs(previous))*100;const diffText=rate?`${diff.toLocaleString("en-US",{maximumFractionDigits:2})} نقطة مئوية`:format(diff);const pctText=pct===null?"—":`${pct.toLocaleString("en-US",{maximumFractionDigits:2})}%`;const cls=diff>0?"daily-ops-delta-positive":diff<0?"daily-ops-delta-negative":"";return`<td>${format(current)}</td><td>${format(previous)}</td><td class="${cls}">${diffText}</td><td class="${cls}">${pctText}</td>`}
+function renderOneMetricTable(bodyId,current,previous,metric,format=fmtNum,rate=false){const keys=[...new Set([...current.keys(),...previous.keys()])].filter(k=>k!=="__branch__"),names=keys.map(k=>({key:k,name:current.get(k)?.name||previous.get(k)?.name||"غير محدد"})).sort((a,b)=>a.name.localeCompare(b.name,"ar"));const rows=names.map(x=>{const a=metric(current.get(x.key)),b=metric(previous.get(x.key));return`<tr><td>${esc(x.name)}</td>${displayChange(a,b,format,rate)}</tr>`});const ta=metric(current.get("__branch__")||null),tb=metric(previous.get("__branch__")||null);rows.push(`<tr class="daily-ops-branch-total"><td>إجمالي الفرع</td>${displayChange(ta,tb,format,rate)}</tr>`);const body=byId(bodyId);if(body)body.innerHTML=rows.join("")}
+function makeRateMap(period,prefix){const map=new Map(),filter=localFilter(prefix);const status=val(prefix+"Status")||"all",clientQ=normText(val(prefix+"Client")),officerQ=normText(val(prefix+"Officer"));visibleGroups().forEach(g=>(g.items||[g.r]).forEach(r=>{const name=officerOf(g,r),client=clientOf(g,r);if(!filter.ok(g,r)||!statusMatch(g,status)||!dateIn(rowPaymentDate(r),period))return;const m=addToMap(map,name,{due:0,paid:0});m.due+=num(get(r,"total"));m.paid+=rowPaidAmount(r)}));let due=0,paid=0;map.forEach(x=>{due+=x.due;paid+=x.paid});map.set("__branch__",{name:"إجمالي الفرع",due,paid});return map}
+function makeCumulativeMap(period){const map=new Map(),fromRaw=val("dailyOpsCumFrom")||getCumulativeCriterionRange().from||"2023-01-01",from=parseExcelDate(fromRaw)||new Date(2023,0,1),prefix="dailyOpsCum",f=localFilter(prefix),start=new Date(from.getFullYear(),from.getMonth(),from.getDate());visibleGroups().forEach(g=>(g.items||[g.r]).forEach(r=>{const dueDate=parseExcelDate(riskDueDateValue(r)),name=officerOf(g,r),client=clientOf(g,r);if(!dueDate||dueDate<start||dueDate>period.to||!f.ok(g,r)||!riskCardsIncludeLoanStatus(g,r))return;const m=addToMap(map,name,{due:0,paid:0});m.due+=num(get(r,"value"));m.paid+=rowPaidAmount(r)}));let due=0,paid=0;map.forEach(x=>{due+=x.due;paid+=x.paid});map.set("__branch__",{name:"إجمالي الفرع",due,paid});return map}
+function rateMetric(x){return x&&x.due>0?x.paid/x.due*100:0}
+function makeIssuedMap(period){const map=new Map(),state=val("dailyOpsLoansState")||"active",off=normText(val("dailyOpsLoansOfficer")),client=normText(val("dailyOpsLoansClient")),product=normText(val("dailyOpsLoansProduct")),status=val("dailyOpsLoansStatus")||"open",min=val("dailyOpsLoansMin"),max=val("dailyOpsLoansMax");visibleGroups().map(issuedLoanRecord).forEach(item=>{if(!item.date||item.date<period.from||item.date>period.to||!specialistAllowedLocal(item.officer,state)||off&&!normText(item.officer).includes(off)||client&&!normText(item.client).includes(client)||product&&!normText(item.product).includes(product)||status!=="all"&&(status==="open"?!isOpen(item.g):isOpen(item.g))||min!==""&&item.amount<num(min)||max!==""&&item.amount>num(max))return;const m=addToMap(map,item.officer,{count:0,amount:0});m.count++;m.amount+=num(item.amount)});let count=0,amount=0;map.forEach(x=>{count+=x.count;amount+=x.amount});map.set("__branch__",{name:"إجمالي الفرع",count,amount});return map}
+function makeDropoutMap(period){const map=new Map(),state=val("dailyOpsDropState")||"all",loanStatus=val("dailyOpsDropStatus")||"closed",q=normText(val("dailyOpsDropClient")),nidQ=normText(val("dailyOpsDropNid")),offQ=normText(val("dailyOpsDropOfficer")),statusQ=normText(val("dailyOpsDropStatusText"));const records=visibleGroups().filter(g=>specialistAllowedLocal(getAny(g.r,[H.officer,"اسم الأخصائي","الأخصائي","اسم الاخصائي"]),state)&&clientLoanMatchesStatusFilter(g,g.r,loanStatus)).map(dropoutRecord).filter(x=>x.closeDate&&x.closeDate>=period.from&&x.closeDate<=period.to&&(!q||normText(x.client).includes(q))&&(!nidQ||normText(x.nid).includes(nidQ))&&(!offQ||normText(x.officer).includes(offQ))&&(!statusQ||normText(x.status).includes(statusQ))).sort(dropoutLatestFirst);const seen=new Set();records.forEach(x=>{const key=dropoutClientNameKey(x);if(!key||seen.has(key))return;seen.add(key);addToMap(map,x.officer,{clients:new Set()}).clients.add(key)});const total=new Set();map.forEach(x=>x.clients.forEach(k=>total.add(k)));map.set("__branch__",{name:"إجمالي الفرع",clients:total});return map}
+function makeRiskMap(period){const map=new Map(),state=val("dailyOpsRiskState")||"active",status=val("dailyOpsRiskStatus")||"open",offQ=normText(val("dailyOpsRiskOfficer")),clientQ=normText(val("dailyOpsRiskClient"));visibleGroups().forEach(g=>(g.items||[g.r]).forEach(r=>{const name=officerOf(g,r),client=clientOf(g,r);if(!dateIn(riskDueDateValue(r),period)||!specialistAllowedLocal(name,state)||offQ&&!normText(name).includes(offQ)||clientQ&&!normText(client).includes(clientQ)||!riskStatusMatches(g,r,status)||!riskCardsIncludeLoanStatus(g,r))return;const m=addToMap(map,name,{due:0,paid:0,clients:new Set()});m.due+=num(getAny(r,[H.value,"قيمة القسط","قيمة القسط الشهري","قيمة القسط من الشيت"])||get(r,"value"));m.paid+=rowPaidAmount(r);if(installmentUnpaid(r)>0&&client)m.clients.add(normText(client))}));let due=0,paid=0,clients=new Set();map.forEach(x=>{due+=x.due;paid+=x.paid;x.clients.forEach(k=>clients.add(k))});map.set("__branch__",{name:"إجمالي الفرع",due,paid,clients});return map}
+function dueViewMatches(r,view){const paid=rowPaidAmount(r),remaining=dueRemainingForScreen(r),unpaid=remaining>0,partial=paid>0&&unpaid,paidView=paid>0&&remaining<=0,type=dueDayType(r);return view==="due"?unpaid:view==="upcoming"?unpaid&&type==="upcoming":view==="partial"?partial:view==="paid"?paidView:unpaid&&type==="overdue"}
+function dailyOpsDueRepresentative(allRows){
+ const byInstallment=new Map();(allRows||[]).forEach(x=>{const rawNo=String(get(x.r,"installment")??"").trim(),number=num(rawNo),loanKey=normText(get(x.r,"loan")||get(x.g?.r,"loan"))+"|"+normText(get(x.r,"nid")||get(x.g?.r,"nid")),key=`${loanKey}|${number>0?`n:${number}`:(rawNo?`t:${normText(rawNo)}`:`row:${byInstallment.size}`)}`;if(!byInstallment.has(key))byInstallment.set(key,{number,rows:[]});byInstallment.get(key).rows.push(x)});
+ const orderedRows=item=>item.rows.map((x,index)=>({x,index,time:parseExcelDate(rowPaymentDate(x.r))?.getTime()||0})).sort((a,b)=>b.time-a.time||b.index-a.index).map(z=>z.x);
+ const rawRemaining=item=>{const source=orderedRows(item).find(x=>String(getAny(x.r,[H.unpaid,"المتبقي","المبلغ المتبقي","الرصيد المتبقي","المبلغ الغير مسدد"])??"").trim()!=="");return source?num(getAny(source.r,[H.unpaid,"المتبقي","المبلغ المتبقي","الرصيد المتبقي","المبلغ الغير مسدد"])):null};
+ const value=item=>Math.max(0,...item.rows.map(x=>{const raw=String(get(x.r,"value")??"").trim();return raw===""?num(get(x.r,"total")):num(raw)}));
+ const paid=item=>item.rows.reduce((sum,x)=>sum+rowPaidAmount(x.r),0);
+ const incomplete=item=>{const v=value(item),p=paid(item),explicit=rawRemaining(item);if(v>0)return p<v-0.01;if(explicit!==null)return explicit>0;return item.rows.some(x=>dueRemainingForScreen(x.r)>0)};
+ const installments=[...byInstallment.values()].sort((a,b)=>{if(a.number>0&&b.number>0&&a.number!==b.number)return a.number-b.number;if(a.number>0&&b.number<=0)return-1;if(b.number>0&&a.number<=0)return 1;return(parseExcelDate(riskDueDateValue(a.rows[0]?.r))?.getTime()||0)-(parseExcelDate(riskDueDateValue(b.rows[0]?.r))?.getTime()||0)});
+ const target=installments.find(incomplete);if(!target)return null;
+ const explicitSource=orderedRows(target).find(x=>String(getAny(x.r,[H.unpaid,"المتبقي","المبلغ المتبقي","الرصيد المتبقي","المبلغ الغير مسدد"])??"").trim()!=="");
+ const representative=explicitSource&&num(getAny(explicitSource.r,[H.unpaid,"المتبقي","المبلغ المتبقي","الرصيد المتبقي","المبلغ الغير مسدد"]))>0?explicitSource:target.rows.map((x,index)=>({x,index,remaining:dueRemainingForScreen(x.r),filled:Object.values(x.r||{}).filter(v=>String(v??"").trim()!=="").length,time:parseExcelDate(rowPaymentDate(x.r))?.getTime()||0})).sort((a,b)=>(Number(b.remaining>0)-Number(a.remaining>0))||(b.filled-a.filled)||(b.time-a.time)||b.index-a.index)[0]?.x;
+ return representative||null;
+}
+function makeDueMap(period){const map=new Map(),state=val("dailyOpsDueState")||"active",status=val("dailyOpsDueStatus")||"open",view=val("dailyOpsDueView")||"due",offQ=normText(val("dailyOpsDueOfficer")),clientQ=normText(val("dailyOpsDueClient")),addrQ=normText(val("dailyOpsDueAddress"));const base=dueInstallmentRows().filter(x=>{const name=officerOf(x.g,x.r),client=clientOf(x.g,x.r),address=String(rowAddress(x.r)||rowAddress(x.g?.r)||"");return statusMatch(x.g,status)&&specialistAllowedLocal(name,state)&&(!offQ||normText(name).includes(offQ))&&(!clientQ||normText(client).includes(clientQ))&&(!addrQ||normText(address).includes(addrQ))});const periodRows=base.filter(x=>dateIn(riskDueDateValue(x.r),period)&&dueViewMatches(x.r,view));const clients=new Map();periodRows.forEach(x=>{const key=normText(clientOf(x.g,x.r))||"row:"+clients.size;if(!clients.has(key))clients.set(key,{name:officerOf(x.g,x.r),client:key,eligible:[]});clients.get(key).eligible.push(x)});const branchClients=new Set();clients.forEach((entry,key)=>{const allForClient=base.filter(x=>normText(clientOf(x.g,x.r))===key);const selected=dailyOpsDueRepresentative(allForClient);if(!selected)return;const officer=officerOf(selected.g,selected.r),m=addToMap(map,officer,{clients:new Set(),amount:0});m.clients.add(key);m.amount+=num(String(get(selected.r,"value")??"").trim()===""?get(selected.r,"total"):get(selected.r,"value"));branchClients.add(key)});let amount=0;map.forEach(x=>amount+=x.amount);map.set("__branch__",{name:"إجمالي الفرع",clients:branchClients,amount});return map}
+function refreshDailyOpsRiskStatuses(){const select=byId("dailyOpsRiskStatus");if(!select)return;const chosen=select.value||"open",statuses=new Map();visibleGroups().forEach(g=>(g.items||[g.r]).forEach(r=>{const text=riskLoanStatusText(g,r);if(text)statuses.set(normText(text),text)}));select.innerHTML='<option value="open">القروض القائمة</option><option value="closed">القروض المغلقة</option><option value="all">كل القروض</option>'+[...statuses.values()].sort((a,b)=>a.localeCompare(b,"ar")).filter(x=>normText(x)!==normText("قرض قائم")).map(x=>`<option value="${escAttr("status:"+x)}">${esc(x)}</option>`).join("");if([...select.options].some(x=>x.value===chosen))select.value=chosen;else select.value="open"}
+function renderDailyOperationsComparison(){refreshDailyOpsRiskStatuses();const section=byId("dailyOperations");if(!section)return;const p=periodBounds();const c=byId("dailyOpsCurrentPeriod"),pr=byId("dailyOpsPreviousPeriod");if(c)c.textContent=`من ${fmtDate(p.current.from)} إلى ${fmtDate(p.current.to)}`;if(pr)pr.textContent=`من ${fmtDate(p.previous.from)} إلى ${fmtDate(p.previous.to)}`;putOptionLists();const colC=makeRateMap(p.current,"dailyOpsCol"),colP=makeRateMap(p.previous,"dailyOpsCol");renderOneMetricTable("dailyOpsCollectionBody",colC,colP,rateMetric,fmtPercent,true);const cumC=makeCumulativeMap(p.current),cumP=makeCumulativeMap(p.previous);renderOneMetricTable("dailyOpsCumulativeBody",cumC,cumP,rateMetric,fmtPercent,true);const loansC=makeIssuedMap(p.current),loansP=makeIssuedMap(p.previous);renderTwoMetricTable("dailyOpsLoansBody",loansC,loansP,"count","amount");const dropC=makeDropoutMap(p.current),dropP=makeDropoutMap(p.previous);renderOneMetricTable("dailyOpsDropoutBody",dropC,dropP,x=>x?.clients?.size||0,fmtNum,false);const riskC=makeRiskMap(p.current),riskP=makeRiskMap(p.previous);renderTwoMetricTable("dailyOpsRiskBody",riskC,riskP,"arrears","clients");const dueC=makeDueMap(p.current),dueP=makeDueMap(p.previous);renderTwoMetricTable("dailyOpsDueBody",dueC,dueP,"clients","amount")}
+function renderTwoMetricTable(bodyId,current,previous,first,second){const keys=[...new Set([...current.keys(),...previous.keys()])].filter(k=>k!=="__branch__"),names=keys.map(key=>({key,name:current.get(key)?.name||previous.get(key)?.name||"غير محدد"})).sort((a,b)=>a.name.localeCompare(b.name,"ar"));const metric=(x,k)=>k==="clients"?(x?.clients?.size||0):k==="arrears"?num(x?.due)-num(x?.paid):num(x?.[k]);const format=k=>k==="amount"||k==="arrears"?fmtNum:fmtNum;const rows=names.map(x=>{const a=current.get(x.key),b=previous.get(x.key);return`<tr><td>${esc(x.name)}</td>${displayChange(metric(a,first),metric(b,first),format(first))}${displayChange(metric(a,second),metric(b,second),format(second))}</tr>`});const a=current.get("__branch__"),b=previous.get("__branch__");rows.push(`<tr class="daily-ops-branch-total"><td>إجمالي الفرع</td>${displayChange(metric(a,first),metric(b,first),format(first))}${displayChange(metric(a,second),metric(b,second),format(second))}</tr>`);const body=byId(bodyId);if(body)body.innerHTML=rows.join("")}
+window.renderDailyOperationsComparison=renderDailyOperationsComparison;
 })();
 </script>
 </body>
