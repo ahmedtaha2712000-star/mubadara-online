@@ -2943,21 +2943,17 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
   if(!loginScreen||!passwordInput||!loginButton)return;
   const usernameSelectIds=["loginOwnerUser","loginOfficerUser","loginGroupLeadUser"];
   const enterKeys=new Set(["Enter","NumpadEnter","Go","Done","Send","Next"]);
-  let lastActionAt=0;
-  function handleLoginKeyboardAction(event){
+  loginScreen.addEventListener("keydown",function(event){
     const isEnter=enterKeys.has(event.key)||event.keyCode===13||event.which===13;
     if(!isEnter||event.repeat||(event.isComposing&&event.keyCode!==13))return;
-    const now=Date.now();if(now-lastActionAt<350)return;lastActionAt=now;
     if(usernameSelectIds.includes(event.target?.id)){
-      event.preventDefault();event.stopPropagation();passwordInput.focus();return;
+      event.preventDefault();event.stopImmediatePropagation();passwordInput.focus();return;
     }
     if(event.target===passwordInput){
-      event.preventDefault();event.stopPropagation();
+      event.preventDefault();event.stopImmediatePropagation();
       if(!loginButton.disabled)loginButton.click();
     }
-  }
-  loginScreen.addEventListener("keydown",handleLoginKeyboardAction,true);
-  loginScreen.addEventListener("keyup",handleLoginKeyboardAction,true);
+  },true);
 })();
 </script>
 <div id="app">
