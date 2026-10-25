@@ -16957,3 +16957,35 @@ body.group-lead-mode #groupLeadScopeBar{display:none!important;visibility:hidden
  const observer=new MutationObserver(ensure);observer.observe(document.documentElement,{childList:true,subtree:true});if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ensure,{once:true});else ensure();
 })();
 </script>
+<style id="shared-files-bulk-delete-style">
+#sharedFilesPanel .sf-bulk-tools{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 10px}
+#sharedFilesPanel .sf-bulk-tools button{background:#fff;border-color:#e6c7c7;color:#a13d3d}
+#sharedFilesPanel .sf-select-cell{width:38px;text-align:center!important}
+#sharedFilesPanel .sf-select-checkbox{width:18px;height:18px;accent-color:#176b52;cursor:pointer}
+#sharedFilesPanel .sf-bulk-tools button:disabled{opacity:.45}
+/* نافذة قص كاملة الشاشة مع إظهار الصورة الأصلية والحواف قبل تحديد القص */
+#docUploadCropModal{position:fixed!important;inset:0!important;z-index:2147482000!important;padding:0!important;place-items:stretch!important;background:rgba(7,17,27,.94)!important}
+#docUploadCropModal .du-modal-card{box-sizing:border-box!important;width:100vw!important;height:100vh!important;height:100dvh!important;max-width:none!important;max-height:none!important;margin:0!important;border-radius:0!important;overflow:hidden!important;padding:max(8px,env(safe-area-inset-top,0px)) max(10px,env(safe-area-inset-left,0px)) max(8px,env(safe-area-inset-bottom,0px)) max(10px,env(safe-area-inset-right,0px))!important;gap:6px!important}
+#docUploadCropModal .du-crop-stage{display:grid!important;place-items:center!important;flex:1 1 auto!important;min-height:0!important;width:100%!important;max-height:none!important;overflow:auto!important;background:#111827!important;border:1px solid #334155!important;border-radius:10px!important;padding:6px!important;box-sizing:border-box!important}
+#docUploadCropModal .du-crop-stage canvas{display:block!important;max-width:calc(100vw - 32px)!important;max-height:calc(100dvh - 190px)!important;width:auto!important;height:auto!important;object-fit:contain!important}
+#docUploadCropModal .du-crop-stage[data-zoomed="true"]{place-items:start!important}
+@media(max-width:650px){#docUploadCropModal .du-modal-card{padding:calc(4px + env(safe-area-inset-top,0px)) 6px calc(4px + env(safe-area-inset-bottom,0px))!important}#docUploadCropModal .du-crop-stage{padding:3px!important}#docUploadCropModal .du-crop-stage canvas{max-width:calc(100vw - 18px)!important;max-height:calc(100dvh - 170px)!important}}
+</style>
+<script id="shared-files-bulk-delete-logic">
+(()=>{
+ 'use strict';
+ const BUCKET='shared-files',TABLE='shared_files';
+ let ready=false,observer=null;
+ const $=id=>document.getElementById(id);
+ const owner=()=>typeof session!=='undefined'&&session&&typeof isOwnerRole==='function'&&isOwnerRole(session.role);
+ const client=()=>typeof supabaseClient!=='undefined'&&supabaseClient?supabaseClient:null;
+ const status=(text,state='')=>{const e=$('sharedFilesStatus');if(e){e.textContent=text;e.dataset.state=state}};
+ function decorate(){const panel=$('sharedFilesPanel');if(!panel)return;const list=panel.querySelector('#sharedFilesList'),table=list?.querySelector('table'),head=table?.querySelector('thead tr'),body=$('sharedFilesRows');if(!table||!head||!body)return;if(!panel.querySelector('#sharedFilesBulkTools')){const tools=document.createElement('div');tools.id='sharedFilesBulkTools';tools.className='sf-bulk-tools';tools.innerHTML='<button type="button" id="sharedFilesDeleteSelected">حذف المحدد</button><button type="button" id="sharedFilesDeleteAll">حذف الكل</button>';const toolbar=panel.querySelector('.sf-toolbar');toolbar?.insertAdjacentElement('afterend',tools);$('sharedFilesDeleteSelected')?.addEventListener('click',()=>void deleteSelected());$('sharedFilesDeleteAll')?.addEventListener('click',()=>void deleteAll())}const tools=$('sharedFilesBulkTools');if(tools)tools.hidden=!owner();if(!head.querySelector('.sf-select-cell')){const th=document.createElement('th');th.className='sf-select-cell';th.innerHTML='<input id="sharedFilesSelectAll" class="sf-select-checkbox" type="checkbox" aria-label="تحديد كل الملفات">';head.insertBefore(th,head.firstChild);$('sharedFilesSelectAll').addEventListener('change',e=>{body.querySelectorAll('input[data-sf-select]').forEach(x=>{x.checked=e.target.checked})})}body.querySelectorAll('tr').forEach(row=>{if(row.querySelector('.sf-empty'))return;if(!row.querySelector('input[data-sf-select]')){const id=row.querySelector('[data-sf-id]')?.dataset.sfId;if(!id)return;const td=document.createElement('td');td.className='sf-select-cell';td.innerHTML=`<input class="sf-select-checkbox" type="checkbox" data-sf-select="${id}" aria-label="تحديد الملف">`;row.insertBefore(td,row.firstChild)}});ready=true}
+ async function getRows(){const c=client();if(!c)throw Error('اتصال Supabase غير متاح.');const {data,error}=await c.from(TABLE).select('id,storage_path,original_name').order('created_at',{ascending:false}).limit(1000);if(error)throw error;return data||[]}
+ async function removeRows(rows){const c=client();for(const row of rows){const db=await c.from(TABLE).delete().eq('id',row.id);if(db.error)throw db.error;if(row.storage_path){const storage=await c.storage.from(BUCKET).remove([row.storage_path]);if(storage.error)throw storage.error}}}
+ async function deleteSelected(){if(!owner())return status('الحذف متاح للمالك فقط.','error');decorate();const ids=[...document.querySelectorAll('#sharedFilesRows input[data-sf-select]:checked')].map(x=>x.dataset.sfSelect).filter(Boolean);if(!ids.length)return status('حدد ملفًا واحدًا على الأقل أولًا.','error');if(!confirm(`سيتم حذف ${ids.length} ملف نهائيًا من السحابة. هل تريد المتابعة؟`))return;try{const rows=(await getRows()).filter(row=>ids.includes(row.id));await removeRows(rows);status(`تم حذف ${rows.length} ملفًا محددًا نهائيًا.`,'ok');$('sharedFilesRefresh')?.click()}catch(error){status(error?.message||'تعذر حذف الملفات المحددة.','error')}}
+ async function deleteAll(){if(!owner())return status('الحذف متاح للمالك فقط.','error');if(!confirm('سيتم حذف جميع الملفات المشتركة نهائيًا من السحابة. لا يمكن التراجع. هل تريد المتابعة؟'))return;try{const rows=await getRows();if(!rows.length)return status('لا توجد ملفات لحذفها.','ok');await removeRows(rows);status(`تم حذف جميع الملفات (${rows.length}) نهائيًا.`,'ok');$('sharedFilesRefresh')?.click()}catch(error){status(error?.message||'تعذر حذف جميع الملفات.','error')}}
+ function watch(){if(observer)return;observer=new MutationObserver(decorate);observer.observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['hidden','class']});decorate()}
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',watch,{once:true});else watch();
+})();
+</script>
