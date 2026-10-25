@@ -3526,7 +3526,7 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
 <h2>📥 رفع ملف Excel</h2>
 <p>رفع البيانات واستبدال قاعدة البيانات المحلية الحالية. يُفضل أخذ نسخة احتياطية قبل الاستبدال.</p>
 <div class="import-control-grid">
-  <div class="import-box"><b>1. رفع ملف Excel</b><input id="file" type="file" accept=".xlsx,.xls" disabled aria-describedby="importDataReadiness"><small id="importDataReadiness" role="status" aria-live="polite" data-state="loading">جارٍ تحميل الشيت السابق من الخادم. سيتاح الرفع بعد اكتمال التحميل.</small></div>
+  <div class="import-box"><b>1. رفع ملف Excel</b><input id="file" type="file" accept=".xlsx,.xls" aria-describedby="importDataReadiness"><small id="importDataReadiness" role="status" aria-live="polite" data-state="loading">جارٍ تحميل الشيت السابق من الخادم. سيتاح الرفع بعد اكتمال التحميل.</small></div>
   <div class="import-box"><b>2. نسخة احتياطية</b><button class="blue" onclick="downloadBackup()">⬇️ تنزيل نسخة احتياطية</button><small>ملف JSON يمكن استخدامه لاستعادة البيانات.</small></div>
   <div class="import-box"><b>3. استعادة نسخة</b><input id="restoreFile" type="file" accept=".json"><small>اختر نسخة JSON محفوظة سابقًا.</small></div>
 </div>
@@ -9442,7 +9442,7 @@ async function refreshOnOpen(){
  try{
   if(!cloudReady)initSupabase();
   const data=await loadCloud();
-  if(!Array.isArray(data))return false;
+  if(!Array.isArray(data)){setCollectionPreviousDataState("error");return false;}
   // Refresh shared indexes and caches, but do not clear or redraw the active screen.
   const previousSilent=!!window.__mubSilentDataRefresh;
   window.__mubSilentDataRefresh=true;
@@ -9453,6 +9453,7 @@ async function refreshOnOpen(){
    safeLocalSet(LS_ROWS_META,JSON.stringify({scope:lastCloudDataScope==="officer"?"officer":"all",officer_key:officerCacheKey,updated_at:lastCloudUpdatedAt}));
   }
   safeLocalSet("mub_time",new Date().toLocaleString("en-US"));updateLastDataUpdate();
+  setCollectionPreviousDataState("ready");
   return true;
  }catch(e){console.warn("Passive tab-return refresh failed:",e);return false}
  finally{openingRefreshInProgress=false}
