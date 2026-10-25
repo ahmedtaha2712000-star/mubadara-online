@@ -3526,7 +3526,7 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
 <h2>📥 رفع ملف Excel</h2>
 <p>رفع البيانات واستبدال قاعدة البيانات المحلية الحالية. يُفضل أخذ نسخة احتياطية قبل الاستبدال.</p>
 <div class="import-control-grid">
-  <div class="import-box"><b>1. رفع ملف Excel</b><input id="file" type="file" accept=".xlsx,.xls" aria-describedby="importDataReadiness"><small id="importDataReadiness" role="status" aria-live="polite" data-state="loading">جارٍ تحميل الشيت السابق من الخادم. سيتاح الرفع بعد اكتمال التحميل.</small></div>
+  <div class="import-box"><b>1. رفع ملف Excel</b><input id="file" type="file" accept=".xlsx,.xls" disabled aria-describedby="importDataReadiness"><small id="importDataReadiness" role="status" aria-live="polite" data-state="loading">جارٍ تحميل الشيت السابق من الخادم. سيتاح الرفع بعد اكتمال التحميل.</small></div>
   <div class="import-box"><b>2. نسخة احتياطية</b><button class="blue" onclick="downloadBackup()">⬇️ تنزيل نسخة احتياطية</button><small>ملف JSON يمكن استخدامه لاستعادة البيانات.</small></div>
   <div class="import-box"><b>3. استعادة نسخة</b><input id="restoreFile" type="file" accept=".json"><small>اختر نسخة JSON محفوظة سابقًا.</small></div>
 </div>
@@ -5431,20 +5431,18 @@ function build(){
   g.closed=isClosed(g);
  });
  groups=[...map.values()];
- if(!window.__mubSilentDataRefresh){
-  syncOfficerUserLinks();
-  populateOfficerList();
-  populateCollectionLists();
-  populateClientsLists();
-  populatePortfolioLists();
-  populateSpecialistList();
-  updateRiskFilterLists();
-  setTimeout(()=>refreshDataQuality(),0);
-  refreshLoginUsers();
-  // Do not render all large tables during startup. They will be rendered
-  // only when the user opens the corresponding screen.
-  renderDash();
- }
+ syncOfficerUserLinks();
+ populateOfficerList();
+ populateCollectionLists();
+ populateClientsLists();
+ populatePortfolioLists();
+ populateSpecialistList();
+ updateRiskFilterLists();
+ setTimeout(()=>refreshDataQuality(),0);
+ refreshLoginUsers();
+ // Do not render all large tables during startup. They will be rendered
+ // only when the user opens the corresponding screen.
+ renderDash();
 }
 
 function renderScreenData(id){
@@ -6640,8 +6638,7 @@ function printPortfolioReport(event){
  const launchPrint=()=>{if(started||!printFrame.isConnected)return;started=true;try{printFrame.contentWindow.focus();printFrame.contentWindow.print()}catch(error){console.error("Portfolio print:",error);cleanup();alert("تعذرت طباعة تقرير المحفظة. حاول مرة أخرى.")}};
  try{
   printDocument.open();
-  printDocument.write(`<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(title)}</title><style>${printStyles}</style></head><body>${layer.outerHTML}
-</body></html>`);
+  printDocument.write(`<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(title)}</title><style>${printStyles}</style></head><body>${layer.outerHTML}</body></html>`);
   printDocument.close();
   printFrame.contentWindow.addEventListener("afterprint",cleanup,{once:true});
   setTimeout(launchPrint,350);
@@ -9304,7 +9301,7 @@ async function loadCloud(){
     const accessToken=authData?.session?.access_token;
     if(authError||!accessToken)throw new Error("لم يكتمل التحقق من جلسة الدخول.");
     const controller=new AbortController();
-    timer=setTimeout(()=>controller.abort(),30000);
+    timer=setTimeout(()=>controller.abort(),60000);
     const response=await fetch(`${SUPABASE_URL}/functions/v1/secure-client-data`,{
       method:"POST",
       headers:{"apikey":SUPABASE_PUBLISHABLE_KEY,"Authorization":`Bearer ${accessToken}`,"Content-Type":"application/json"},
@@ -9432,58 +9429,23 @@ function updateMubCollectionExcelRefreshLock(){
  else if(mubCollectionExcelRefreshLockHeld){button.disabled=mubCollectionExcelRefreshWasDisabled;mubCollectionExcelRefreshLockHeld=false;}
 }
 let openingRefreshInProgress=false;
-let lastPassiveRefreshAt=0;
-async function refreshOnOpenInternal(){
+async function refreshOnOpen(){
  if(mubCollectionExcelPickerOpen||mubCollectionExcelImportInProgress)return true;
  if(!session||!appSessionReady||openingRefreshInProgress)return;
- const now=Date.now();
- // Avoid repeated network work when Android fires focus/visibility events together.
- if(now-lastPassiveRefreshAt<60000)return true;
- openingRefreshInProgress=true;lastPassiveRefreshAt=now;
+ openingRefreshInProgress=true;
  try{
-  if(!cloudReady)initSupabase();
-  const data=await loadCloud();
-  if(!Array.isArray(data)){
-   const cached=typeof cachedRowsForCurrentSession==="function"?cachedRowsForCurrentSession():null;
-   if(Array.isArray(cached)){
-    rows=cached;build();setCollectionPreviousDataState("ready");
-    const status=document.getElementById("status");
-    if(status)status.textContent=`⚠️ تعذر الاتصال مؤقتًا؛ تم عرض النسخة المحلية — ${cached.length.toLocaleString("ar-EG")} سجل`;
-    return true;
-   }
-   setCollectionPreviousDataState("error");return false;
-  }
-  // Refresh shared indexes and caches, but do not clear or redraw the active screen.
-  const previousSilent=!!window.__mubSilentDataRefresh;
-  window.__mubSilentDataRefresh=true;
-  try{rows=data;build()}finally{window.__mubSilentDataRefresh=previousSilent}
-  const officerCacheKey=lastCloudDataScope==="officer"?officerKey(currentUserRecord()?.officerName||session.officerName||""):"";
-  if(data.length<=50000&&session?.role!=="group_lead"){
-   safeLocalSet(LS_ROWS,JSON.stringify(data));
-   safeLocalSet(LS_ROWS_META,JSON.stringify({scope:lastCloudDataScope==="officer"?"officer":"all",officer_key:officerCacheKey,updated_at:lastCloudUpdatedAt}));
-  }
-  safeLocalSet("mub_time",new Date().toLocaleString("en-US"));updateLastDataUpdate();
-  setCollectionPreviousDataState("ready");
-  return true;
- }catch(e){
-  console.warn("Passive tab-return refresh failed:",e);
-  const cached=typeof cachedRowsForCurrentSession==="function"?cachedRowsForCurrentSession():null;
-  if(Array.isArray(cached)){
-   rows=cached;build();setCollectionPreviousDataState("ready");
-   const status=document.getElementById("status");
-   if(status)status.textContent=`⚠️ تعذر الاتصال مؤقتًا؛ تم عرض النسخة المحلية — ${cached.length.toLocaleString("ar-EG")} سجل`;
-   return true;
-  }
-  setCollectionPreviousDataState("error");return false;
- }finally{openingRefreshInProgress=false}
-}
-let openingRefreshPromise=null;
-async function refreshOnOpen(){
- if(!session||!appSessionReady)return false;
- if(openingRefreshPromise)return openingRefreshPromise;
- openingRefreshPromise=refreshOnOpenInternal();
- try{return await openingRefreshPromise}
- finally{openingRefreshPromise=null}
+	 if(!cloudReady)initSupabase();
+	 const statusEl=document.getElementById("status");
+	 if(statusEl)statusEl.textContent="🔄 جاري تحميل/تحديث البيانات المصرح بها لهذا الحساب…";
+	 const previousLoadPromise=loadDB();
+	 collectionPreviousDataLoadPromise=previousLoadPromise;
+	 return await previousLoadPromise===true;
+	}catch(e){
+	 setCollectionPreviousDataState("error");
+	 console.error("Refresh data failed:",e);
+	 const statusEl=document.getElementById("status");if(statusEl)statusEl.textContent="⚠️ تعذر تحديث البيانات؛ حاول مرة أخرى.";
+	 return false;
+	}finally{openingRefreshInProgress=false}
 }
 initSupabase();
 subscribeCloud();
@@ -11701,10 +11663,9 @@ function dueFilterValue(id){return document.getElementById(id)?.value||""}
 function dueFilterSnapshot(){return {officer:dueFilterValue("dueOfficer"),client:dueFilterValue("dueClient"),address:dueFilterValue("dueAddress"),from:dueFilterValue("dueFrom"),to:dueFilterValue("dueTo"),status:dueFilterValue("dueStatus")||"open",all:document.getElementById("dueAllSpecialists")?.checked===true,excelMode:document.getElementById("dueExcelRowMode")?.checked===true,month:dueFilterValue("dueSpecificMonth"),year:dueFilterValue("dueSpecificYear"),view:window.dueView||"due",aging:dueAgingRange}}
 function dueFilterStatus(text){const el=document.getElementById("dueFilterSaveStatus");if(!el)return;el.textContent=text;clearTimeout(window.__dueFilterStatusTimer);window.__dueFilterStatusTimer=setTimeout(()=>{el.textContent=""},2400)}
 function saveDueFilters(){try{localStorage.setItem(DUE_FILTER_STORAGE_KEY,JSON.stringify(dueFilterSnapshot()));dueFilterStatus("تم حفظ الفلاتر")}catch(e){dueFilterStatus("تعذر حفظ الفلاتر")}}
-function dueDefaultDateRange(){const now=new Date(),last=new Date(now.getFullYear(),now.getMonth()+1,0);return ["2026/01/01",`${last.getFullYear()}/${String(last.getMonth()+1).padStart(2,"0")}/${String(last.getDate()).padStart(2,"0")}`]}
-function restoreDueFilters(showStatus=true){let saved=null;try{saved=JSON.parse(localStorage.getItem(DUE_FILTER_STORAGE_KEY)||"null")}catch(e){}if(!saved){const input=document.getElementById("dueOfficer"),all=document.getElementById("dueAllSpecialists"),range=dueDefaultDateRange();if(input&&!input.value.trim())input.value=DUE_ALL_SPECIALISTS_LABEL;if(input&&norm(input.value)===norm(DUE_ALL_SPECIALISTS_LABEL)&&all)all.checked=true;const from=document.getElementById("dueFrom"),to=document.getElementById("dueTo");if(from)from.value=range[0];if(to)to.value=range[1];try{updateDueFilterLists();renderDueInstallments()}catch(e){console.warn("تعذر تطبيق نطاق تاريخ الأقساط الافتراضي:",e)}if(showStatus)dueFilterStatus("لا توجد فلاتر محفوظة");return false}
+function restoreDueFilters(showStatus=true){let saved=null;try{saved=JSON.parse(localStorage.getItem(DUE_FILTER_STORAGE_KEY)||"null")}catch(e){}if(!saved){const input=document.getElementById("dueOfficer"),all=document.getElementById("dueAllSpecialists");if(input&&!input.value.trim())input.value=DUE_ALL_SPECIALISTS_LABEL;if(input&&norm(input.value)===norm(DUE_ALL_SPECIALISTS_LABEL)&&all)all.checked=true;if(showStatus)dueFilterStatus("لا توجد فلاتر محفوظة");return false}
  [["dueOfficer",String(saved.officer||"").trim()?saved.officer:DUE_ALL_SPECIALISTS_LABEL],["dueClient",saved.client],["dueAddress",saved.address],["dueFrom",saved.from],["dueTo",saved.to],["dueStatus",saved.status||"open"],["dueSpecificMonth",saved.month],["dueSpecificYear",saved.year]].forEach(([id,value])=>{const el=document.getElementById(id);if(el&&value!==undefined)el.value=value});const all=document.getElementById("dueAllSpecialists");if(all)all.checked=saved.all===true||norm(document.getElementById("dueOfficer")?.value||"")===norm(DUE_ALL_SPECIALISTS_LABEL);const mode=document.getElementById("dueExcelRowMode");if(mode)mode.checked=saved.excelMode===true;const month=document.getElementById("dueSpecificMonth"),year=document.getElementById("dueSpecificYear");if(month)month.disabled=!mode?.checked;if(year)year.disabled=!mode?.checked;dueAgingRange=RISK_AGING_BANDS.some(band=>band.id===saved.aging)?saved.aging:"";window.dueView=dueAgingRange?"overdue":(saved.view||"due");document.querySelectorAll('#dueInstallments .due-nav-btn').forEach(x=>x.classList.toggle('active',x.dataset.dueView===window.dueView));try{updateDueFilterLists();renderDueInstallments()}catch(e){console.warn("تعذر استعادة فلاتر الأقساط:",e)}if(showStatus)dueFilterStatus("تم استعادة الفلاتر المحفوظة");return true}
-function resetDueFiltersToDefault(){try{localStorage.removeItem(DUE_FILTER_STORAGE_KEY)}catch(e){}window.dueView="due";dueAgingRange="";[["dueOfficer",DUE_ALL_SPECIALISTS_LABEL],["dueClient",""],["dueAddress",""],["dueFrom",dueDefaultDateRange()[0]],["dueTo",dueDefaultDateRange()[1]],["dueSpecificMonth",""],["dueTableQuickSearch",""]].forEach(([id,value])=>{const el=document.getElementById(id);if(el)el.value=value});const st=document.getElementById("dueStatus");if(st)st.value="open";const all=document.getElementById("dueAllSpecialists");if(all)all.checked=true;const mode=document.getElementById("dueExcelRowMode");if(mode)mode.checked=false;const year=document.getElementById("dueSpecificYear");if(year)year.value=String(new Date().getFullYear());if(typeof toggleDueMonthMode==="function")toggleDueMonthMode();document.querySelectorAll('#dueInstallments .due-nav-btn').forEach(x=>x.classList.toggle('active',x.dataset.dueView==='due'));updateDueFilterLists();renderDueInstallments();dueFilterStatus("تمت استعادة الإعدادات الافتراضية")}
+function resetDueFiltersToDefault(){try{localStorage.removeItem(DUE_FILTER_STORAGE_KEY)}catch(e){}window.dueView="due";dueAgingRange="";[["dueOfficer",DUE_ALL_SPECIALISTS_LABEL],["dueClient",""],["dueAddress",""],["dueFrom",""],["dueTo",""],["dueSpecificMonth",""],["dueTableQuickSearch",""]].forEach(([id,value])=>{const el=document.getElementById(id);if(el)el.value=value});const st=document.getElementById("dueStatus");if(st)st.value="open";const all=document.getElementById("dueAllSpecialists");if(all)all.checked=true;const mode=document.getElementById("dueExcelRowMode");if(mode)mode.checked=false;const year=document.getElementById("dueSpecificYear");if(year)year.value=String(new Date().getFullYear());if(typeof toggleDueMonthMode==="function")toggleDueMonthMode();document.querySelectorAll('#dueInstallments .due-nav-btn').forEach(x=>x.classList.toggle('active',x.dataset.dueView==='due'));updateDueFilterLists();renderDueInstallments();dueFilterStatus("تمت استعادة الإعدادات الافتراضية")}
 document.addEventListener("DOMContentLoaded",()=>{setTimeout(()=>restoreDueFilters(false),0)},{once:true});
 </script>
 <style id="due-filter-persistence-style">#dueInstallments .due-filter-persistence-toolbar{display:flex;align-items:center;gap:6px;flex-wrap:wrap}#dueInstallments #dueFilterSaveStatus{font-size:12px;color:#087957;font-weight:900;min-height:20px;display:inline-flex;align-items:center}</style>
@@ -15116,7 +15077,7 @@ body.du-camera-open #mobileBottomNav,body.du-camera-open #mobileMorePanel,body.d
     $("docUploadCopyText").addEventListener("click",async()=>{const ok=await copyToClipboard($("docUploadOcrText").value);$("docUploadOcrStatus").textContent=ok?"تم نسخ النص الكامل.":"تعذر النسخ."});$("docUploadSaveText").addEventListener("click",saveTextFile);$("docUploadCopyFields").addEventListener("click",()=>void copyFields());document.querySelector(".du-field-copy-row").addEventListener("click",async e=>{const button=e.target.closest("button[data-copy-field]");if(!button)return;const value=$(button.dataset.copyField)?.value?.trim();if(!value)return;const ok=await copyToClipboard(value);$("docUploadFieldsStatus").textContent=ok?`تم نسخ ${button.textContent.replace("نسخ ","")}.`:"تعذر النسخ."});$("docUploadFields").addEventListener("input",()=>{$("docUploadCopyFields").disabled=!currentFieldText();scheduleDraftSave()});$("docUploadOcrText").addEventListener("input",scheduleDraftSave);
     const canvas=els.cropCanvas;canvas.addEventListener("pointerdown",e=>{if(!cropImage||cropPreviewMode==="auto"||cropZoomed)return;cropManualTouched=true;e.preventDefault();const p=cropPoint(e),handles=cropRect?cropHandles(cropRect):{},near=Object.entries(handles).find(([,q])=>Math.hypot(p.x-q.x,p.y-q.y)<Math.max(24,canvas.width/45));cropStart=p;cropDragRect=cropRect?{...cropRect}:null;if(near)cropDragMode=near[0];else if(cropRect&&p.x>=cropRect.x&&p.x<=cropRect.x+cropRect.w&&p.y>=cropRect.y&&p.y<=cropRect.y+cropRect.h)cropDragMode="move";else cropDragMode="new";if(cropDragMode==="new")cropRect={x:p.x,y:p.y,w:0,h:0};canvas.setPointerCapture(e.pointerId);drawCrop()});canvas.addEventListener("pointermove",e=>{if(!cropStart||!cropDragMode)return;const p=cropPoint(e),ratio=cropAspect();if(cropDragMode==="new"){cropRect=buildCropRect(cropStart,p,ratio)}else if(cropDragMode==="move"){const r=cropDragRect,dx=p.x-cropStart.x,dy=p.y-cropStart.y;cropRect={x:Math.max(0,Math.min(canvas.width-r.w,r.x+dx)),y:Math.max(0,Math.min(canvas.height-r.h,r.y+dy)),w:r.w,h:r.h}}else{const r=cropDragRect,anchor={nw:{x:r.x+r.w,y:r.y+r.h},ne:{x:r.x,y:r.y+r.h},se:{x:r.x,y:r.y},sw:{x:r.x+r.w,y:r.y}}[cropDragMode];cropRect=buildCropRect(anchor,p,ratio)}drawCrop()});const endCrop=()=>{cropStart=null;cropDragMode="";cropDragRect=null;$('docUploadCropApply').disabled=!(cropRect&&cropRect.w>18&&cropRect.h>18)};canvas.addEventListener("pointerup",endCrop);canvas.addEventListener("pointercancel",endCrop);$("docUploadCropApply").addEventListener("click",applyCrop);$("docUploadCropAcceptAuto").addEventListener("click",applyAutoCrop);$("docUploadCropSuggest").addEventListener("click",requestAutoCrop);$("docUploadCropManual").addEventListener("click",()=>setCropPreviewMode(cropPreviewMode==="auto"?"manual":"auto"));$("docUploadCropZoom").addEventListener("click",()=>setCropZoom(!cropZoomed));$("docUploadCropRatio").addEventListener("change",()=>{setCropZoom(false);cropRect=initialCropRect();drawCrop()});$("docUploadCropReset").addEventListener("click",()=>{setCropZoom(false);cropRect={x:0,y:0,w:canvas.width,h:canvas.height};drawCrop();$("docUploadCropApply").disabled=false});$("docUploadCropClose").addEventListener("click",closeCrop);els.cropModal.addEventListener("click",e=>{if(e.target===els.cropModal)closeCrop()});
     $("docUploadHistoryBody").addEventListener("click",e=>void handleHistoryAction(e));$("docUploadHistoryRefresh").addEventListener("click",()=>void renderLocalHistory());$("docUploadHistoryClear").addEventListener("click",()=>void clearLocalHistory());$("docUploadHistorySearch").addEventListener("input",()=>void renderLocalHistory());$("docUploadPreviewOpen").addEventListener("click",()=>{if(previewBlob)openPdf(previewBlob,$("docUploadPreviewName").textContent||"file.pdf")});$("docUploadPreviewShare").addEventListener("click",()=>{if(previewBlob)void sharePdf(previewFile||previewBlob,$("docUploadPreviewName").textContent||"file.pdf").catch(error=>{if(error?.name==="AbortError"){say("أُلغيت المشاركة.");return}say(error?.message||"تعذرت مشاركة الملف.","error")})});$("docUploadPreviewDownload").addEventListener("click",()=>{if(previewBlob)downloadBlob(previewBlob,$("docUploadPreviewName").textContent||"file.pdf")});$("docUploadPreviewClose").addEventListener("click",closePdfPreview);$("docUploadDraftRestore").addEventListener("click",()=>void restoreDraft());$("docUploadDraftDismiss").addEventListener("click",()=>void deleteDraft(true));
-    document.addEventListener("keydown",e=>{if(e.key==="Escape"){if(!els.cropModal.hidden)closeCrop();if(!$('docUploadCameraModal').hidden)stopCamera()}});const screen=$("uploadTool");if(screen){let wasActive=screen.classList.contains("active"),historyTimer=0;const scheduleHistory=()=>{clearTimeout(historyTimer);historyTimer=setTimeout(()=>{historyTimer=0;if(screen.classList.contains("active"))void renderLocalHistory()},180)};const observer=new MutationObserver(()=>{const active=screen.classList.contains("active");if(active===wasActive)return;wasActive=active;if(active){scheduleHistory()}else{clearTimeout(historyTimer);historyTimer=0;/* Release active media resources while preserving camera/crop behavior on the screen. */if(typeof stopCamera==="function")stopCamera();if(typeof closeVideoRecorder==="function")closeVideoRecorder();if(typeof closeCrop==="function")closeCrop()}});observer.observe(screen,{attributes:true,attributeFilter:["class"]});if(wasActive)scheduleHistory()}
+    document.addEventListener("keydown",e=>{if(e.key==="Escape"){if(!els.cropModal.hidden)closeCrop();if(!$('docUploadCameraModal').hidden)stopCamera()}});const screen=$("uploadTool");if(screen){const observer=new MutationObserver(()=>{if(screen.classList.contains("active"))void renderLocalHistory()});observer.observe(screen,{attributes:true,attributeFilter:["class"]});if(screen.classList.contains("active"))void renderLocalHistory()}
     render();void showDraftNotice();let draftNavBusy=false;document.addEventListener("click",async event=>{const link=event.target.closest?.('nav a[data-screen]');if(!link||!screen?.classList.contains("active"))return;if(link.dataset.duDraftNavigationAllowed==="1"){delete link.dataset.duDraftNavigationAllowed;return;}if(!pages.length||(!draftDirty&&!draftSaveFailed&&!draftPaused))return;event.preventDefault();event.stopImmediatePropagation();if(draftNavBusy)return;if(!confirm("لم تُحفظ تغييرات مساحة العمل في مسودة محلية بعد. هل تريد حفظها الآن ثم مغادرة شاشة الرفع؟"))return;draftNavBusy=true;await saveDraft();if(draftDirty&&!draftSaveFailed)await saveDraft();if(!draftSaveFailed&&!draftDirty){link.dataset.duDraftNavigationAllowed="1";link.click();setTimeout(()=>delete link.dataset.duDraftNavigationAllowed,0)}else say("تعذّر حفظ المسودة؛ ابقَ في الشاشة أو نزّل PDF قبل المغادرة.","error");draftNavBusy=false},true);document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="hidden"&&draftDirty){clearTimeout(draftTimer);void saveDraft()}});window.addEventListener("beforeunload",event=>{if(pages.length&&(draftDirty||draftSaveFailed||draftPaused)){event.preventDefault();event.returnValue=""}pages.forEach(x=>{if(x.kind==="image")URL.revokeObjectURL(x.url)});if(ocrWorker)void ocrWorker.terminate();stopCamera();closeVideoRecorder();if(recordedVideoUrl)URL.revokeObjectURL(recordedVideoUrl);if(previewUrl)URL.revokeObjectURL(previewUrl)});
   }
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
@@ -16004,24 +15965,6 @@ body.group-lead-mode #paymentFollowup .pf-log-tools-actions {display:none!import
 </style>
 
 
-<style id="due-date-fields-readable-final">
-/* شاشة الأقساط المستحقة فقط: مساحة كافية لعرض التاريخ كاملًا. */
-@media screen and (min-width:701px){
-  #dueInstallments>.filter-row{grid-template-columns:repeat(6,minmax(150px,1fr))!important}
-  #dueInstallments>.filter-row>div:has(.due-date-range){grid-column:span 2!important}
-  #dueInstallments .due-date-range{gap:10px!important;flex-wrap:nowrap!important}
-  #dueInstallments .due-date-range input#dueFrom,
-  #dueInstallments .due-date-range input#dueTo{flex:1 1 185px!important;width:185px!important;min-width:175px!important;height:42px!important;min-height:42px!important;padding:7px 10px!important;font-size:16px!important;letter-spacing:.15px!important;direction:ltr!important;text-align:center!important;white-space:nowrap!important}
-  #dueInstallments .due-date-range>span{font-size:14px!important;white-space:nowrap!important}
-}
-@media screen and (max-width:700px){
-  #dueInstallments>.filter-row>div:has(.due-date-range){grid-column:1/-1!important}
-  #dueInstallments .due-date-range{gap:8px!important;flex-wrap:wrap!important}
-  #dueInstallments .due-date-range input#dueFrom,
-  #dueInstallments .due-date-range input#dueTo{flex:1 1 100%!important;width:100%!important;min-width:0!important;height:42px!important;min-height:42px!important;padding:7px 10px!important;font-size:16px!important;direction:ltr!important;text-align:center!important;white-space:nowrap!important}
-  #dueInstallments .due-date-range>span{font-size:14px!important;width:100%!important;text-align:center!important}
-}
-</style>
 </body></html>`);
         reportDocument.close();
         await new Promise(resolve => stage.contentWindow.requestAnimationFrame(() => stage.contentWindow.requestAnimationFrame(resolve)));
@@ -16992,8 +16935,7 @@ body.group-lead-mode #groupLeadScopeBar{display:none!important;visibility:hidden
   async function uploadFiles(){const input=document.getElementById('sharedFilesInput'),files=[...(input?.files||[])];if(!files.length)return setStatus('اختر ملفًا واحدًا على الأقل.','error');if(!session||!['owner','manager','officer'].includes(String(session.role||'')))return setStatus('هذا الإجراء متاح للمالك أو الأخصائي المسجل فقط.','error');const c=client();if(!c)return setStatus('اتصال Supabase غير متاح.','error');const u=await user();const button=document.getElementById('sharedFilesUpload');button.disabled=true;let done=0;try{for(const file of files){if(file.size>MAX_SIZE)throw Error(`الملف «${file.name}» أكبر من 40 ميجابايت.`);const id=crypto.randomUUID?crypto.randomUUID():`${Date.now()}_${Math.random().toString(36).slice(2)}`;const storagePath=`${u.id}/${id}_${safeName(file.name)}`;setStatus(`جارٍ رفع ${file.name}…`);const up=await c.storage.from(BUCKET).upload(storagePath,file,{contentType:file.type||'application/octet-stream',upsert:false});if(up.error)throw up.error;const payload={storage_path:storagePath,original_name:file.name,mime_type:file.type||'application/octet-stream',size_bytes:file.size,uploader_user_id:u.id,uploader_username:String(session.user||u.user_metadata?.username||''),uploader_display_name:String(session.name||session.user||u.user_metadata?.username||''),uploader_role:String(session.role||'')};const ins=await c.from(TABLE).insert(payload);if(ins.error){await c.storage.from(BUCKET).remove([storagePath]);throw ins.error}done++}input.value='';setStatus(`تم رفع ${done} ملف بنجاح.`, 'ok');if(isOwner())await refresh(true)}catch(error){setStatus(error?.message||'تعذر رفع الملفات.','error')}finally{button.disabled=false}}
   async function refresh(force=false){ensure();updateVisibility();if(!active()||!isOwner())return;const c=client();if(!c)return setStatus('اتصال Supabase غير متاح.','error');const {data,error}=await c.from(TABLE).select('id,storage_path,original_name,mime_type,size_bytes,uploader_username,uploader_display_name,uploader_role,created_at').order('created_at',{ascending:false}).limit(1000);if(error)return setStatus(error.message||'تعذر تحميل الملفات المشتركة.','error');rowsById=new Map((data||[]).map(row=>[row.id,row]));const body=document.getElementById('sharedFilesRows');if(!body)return;if(!data?.length){body.innerHTML='<tr><td class="sf-empty" colspan="5">لا توجد ملفات مرفوعة حتى الآن.</td></tr>';return}body.innerHTML=data.map(row=>`<tr><td><div class="sf-file-name">${esc(row.original_name)}</div><div class="sf-muted">${esc(row.mime_type||'ملف')}</div></td><td>${esc(row.uploader_display_name||row.uploader_username||'—')}<div class="sf-muted">${esc(roleLabel(row.uploader_role))}</div></td><td>${esc(fmtDate(row.created_at))}</td><td>${esc(fmtSize(row.size_bytes))}</td><td><div class="sf-actions"><button type="button" data-sf-action="open" data-sf-id="${esc(row.id)}">فتح / تنزيل</button><button type="button" class="sf-danger" data-sf-action="delete" data-sf-id="${esc(row.id)}">حذف</button></div></td></tr>`).join('');}
   async function action(event){const button=event.target.closest?.('[data-sf-action]');if(!button)return;const row=rowsById.get(button.dataset.sfId);if(!row)return;const c=client();if(!c||!isOwner())return setStatus('الحذف والعرض متاحان للمالك فقط.','error');button.disabled=true;try{if(button.dataset.sfAction==='open'){const signed=await c.storage.from(BUCKET).createSignedUrl(row.storage_path,300);if(signed.error)throw signed.error;window.open(signed.data.signedUrl,'_blank','noopener,noreferrer');return}if(!confirm(`هل تريد حذف الملف «${row.original_name}» نهائيًا؟`))return;const removed=await c.from(TABLE).delete().eq('id',row.id);if(removed.error)throw removed.error;const storage=await c.storage.from(BUCKET).remove([row.storage_path]);setStatus(storage.error?'تم حذف سجل الملف، لكن تعذر حذف النسخة من التخزين.':'تم حذف الملف نهائيًا.','ok');await refresh(true)}catch(error){setStatus(error?.message||'تعذر تنفيذ العملية.','error')}finally{button.disabled=false}}
-  let refreshInFlight=false;async function refreshOnce(){if(refreshInFlight)return;refreshInFlight=true;try{await refresh(false)}finally{refreshInFlight=false}}
-  function observe(){const upload=document.getElementById('uploadTool');if(!upload)return;let wasActive=active();const observer=new MutationObserver(()=>{const nowActive=active();ensure();updateVisibility();if(nowActive===wasActive)return;wasActive=nowActive;if(nowActive&&isOwner()){void refreshOnce();if(!refreshTimer)refreshTimer=setInterval(()=>{if(active()&&isOwner())void refreshOnce()},30000)}else if(!nowActive&&refreshTimer){clearInterval(refreshTimer);refreshTimer=null}});observer.observe(upload,{attributes:true,attributeFilter:['class']});ensure();if(wasActive&&isOwner())void refreshOnce()}
+  function observe(){const upload=document.getElementById('uploadTool');if(!upload)return;const observer=new MutationObserver(()=>{ensure();updateVisibility();if(active()&&isOwner()){void refresh(false);if(!refreshTimer)refreshTimer=setInterval(()=>{if(active()&&isOwner())void refresh(false)},30000)}else if(refreshTimer){clearInterval(refreshTimer);refreshTimer=null}});observer.observe(upload,{attributes:true,attributeFilter:['class']});ensure();if(active())void refresh(false)}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',observe,{once:true});else observe();
 })();
 </script>
