@@ -5431,18 +5431,20 @@ function build(){
   g.closed=isClosed(g);
  });
  groups=[...map.values()];
- syncOfficerUserLinks();
- populateOfficerList();
- populateCollectionLists();
- populateClientsLists();
- populatePortfolioLists();
- populateSpecialistList();
- updateRiskFilterLists();
- setTimeout(()=>refreshDataQuality(),0);
- refreshLoginUsers();
- // Do not render all large tables during startup. They will be rendered
- // only when the user opens the corresponding screen.
- renderDash();
+ if(!window.__mubSilentDataRefresh){
+  syncOfficerUserLinks();
+  populateOfficerList();
+  populateCollectionLists();
+  populateClientsLists();
+  populatePortfolioLists();
+  populateSpecialistList();
+  updateRiskFilterLists();
+  setTimeout(()=>refreshDataQuality(),0);
+  refreshLoginUsers();
+  // Do not render all large tables during startup. They will be rendered
+  // only when the user opens the corresponding screen.
+  renderDash();
+ }
 }
 
 function renderScreenData(id){
@@ -9429,23 +9431,31 @@ function updateMubCollectionExcelRefreshLock(){
  else if(mubCollectionExcelRefreshLockHeld){button.disabled=mubCollectionExcelRefreshWasDisabled;mubCollectionExcelRefreshLockHeld=false;}
 }
 let openingRefreshInProgress=false;
+let lastPassiveRefreshAt=0;
 async function refreshOnOpen(){
  if(mubCollectionExcelPickerOpen||mubCollectionExcelImportInProgress)return true;
  if(!session||!appSessionReady||openingRefreshInProgress)return;
- openingRefreshInProgress=true;
+ const now=Date.now();
+ // Avoid repeated network work when Android fires focus/visibility events together.
+ if(now-lastPassiveRefreshAt<60000)return true;
+ openingRefreshInProgress=true;lastPassiveRefreshAt=now;
  try{
-	 if(!cloudReady)initSupabase();
-	 const statusEl=document.getElementById("status");
-	 if(statusEl)statusEl.textContent="🔄 جاري تحميل/تحديث البيانات المصرح بها لهذا الحساب…";
-	 const previousLoadPromise=loadDB();
-	 collectionPreviousDataLoadPromise=previousLoadPromise;
-	 return await previousLoadPromise===true;
-	}catch(e){
-	 setCollectionPreviousDataState("error");
-	 console.error("Refresh data failed:",e);
-	 const statusEl=document.getElementById("status");if(statusEl)statusEl.textContent="⚠️ تعذر تحديث البيانات؛ حاول مرة أخرى.";
-	 return false;
-	}finally{openingRefreshInProgress=false}
+  if(!cloudReady)initSupabase();
+  const data=await loadCloud();
+  if(!Array.isArray(data))return false;
+  // Refresh shared indexes and caches, but do not clear or redraw the active screen.
+  const previousSilent=!!window.__mubSilentDataRefresh;
+  window.__mubSilentDataRefresh=true;
+  try{rows=data;build()}finally{window.__mubSilentDataRefresh=previousSilent}
+  const officerCacheKey=lastCloudDataScope==="officer"?officerKey(currentUserRecord()?.officerName||session.officerName||""):"";
+  if(data.length<=50000&&session?.role!=="group_lead"){
+   safeLocalSet(LS_ROWS,JSON.stringify(data));
+   safeLocalSet(LS_ROWS_META,JSON.stringify({scope:lastCloudDataScope==="officer"?"officer":"all",officer_key:officerCacheKey,updated_at:lastCloudUpdatedAt}));
+  }
+  safeLocalSet("mub_time",new Date().toLocaleString("en-US"));updateLastDataUpdate();
+  return true;
+ }catch(e){console.warn("Passive tab-return refresh failed:",e);return false}
+ finally{openingRefreshInProgress=false}
 }
 initSupabase();
 subscribeCloud();
