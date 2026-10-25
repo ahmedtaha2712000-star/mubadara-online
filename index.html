@@ -3186,6 +3186,42 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
  body.dailyOpsPrinting #dailyOpsPrintHolder table td.daily-ops-group-delta{border-left:2px solid #64748b!important;border-right:2px solid #64748b!important}
 }
 </style>
+
+<style id="daily-ops-comparison-contrast-colors">
+/* تعديل ألوان مجموعات المقارنة فقط: الشاشة والطباعة وPDF */
+#dailyOperations table th.daily-ops-current-group,
+#dailyOperations.daily-ops-export-clone table th.daily-ops-current-group{background:#DCEEFF!important}
+#dailyOperations table th.daily-ops-previous-group,
+#dailyOperations.daily-ops-export-clone table th.daily-ops-previous-group{background:#EDEAF5!important}
+#dailyOperations table th.daily-ops-delta-group,
+#dailyOperations.daily-ops-export-clone table th.daily-ops-delta-group{background:#FFF4CC!important}
+#dailyOperations table td.daily-ops-group-current-start,
+#dailyOperations table td.daily-ops-group-current-end,
+#dailyOperations.daily-ops-export-clone table td.daily-ops-group-current-start,
+#dailyOperations.daily-ops-export-clone table td.daily-ops-group-current-end{background:#DCEEFF!important}
+#dailyOperations table td.daily-ops-group-previous-start,
+#dailyOperations table td.daily-ops-group-previous-end,
+#dailyOperations.daily-ops-export-clone table td.daily-ops-group-previous-start,
+#dailyOperations.daily-ops-export-clone table td.daily-ops-group-previous-end{background:#EDEAF5!important}
+#dailyOperations table td.daily-ops-group-delta,
+#dailyOperations.daily-ops-export-clone table td.daily-ops-group-delta{background:#FFF4CC!important}
+#dailyOperations table td.daily-ops-group-delta.daily-ops-delta-positive,
+#dailyOperations.daily-ops-export-clone table td.daily-ops-group-delta.daily-ops-delta-positive{background:#e8f5e9!important}
+#dailyOperations table td.daily-ops-group-delta.daily-ops-delta-negative,
+#dailyOperations.daily-ops-export-clone table td.daily-ops-group-delta.daily-ops-delta-negative{background:#ffebee!important}
+@media print{
+ body.dailyOpsPrinting #dailyOpsPrintHolder table th.daily-ops-current-group{background:#DCEEFF!important}
+ body.dailyOpsPrinting #dailyOpsPrintHolder table th.daily-ops-previous-group{background:#EDEAF5!important}
+ body.dailyOpsPrinting #dailyOpsPrintHolder table th.daily-ops-delta-group{background:#FFF4CC!important}
+ body.dailyOpsPrinting #dailyOpsPrintHolder table td.daily-ops-group-current-start,
+ body.dailyOpsPrinting #dailyOpsPrintHolder table td.daily-ops-group-current-end{background:#DCEEFF!important}
+ body.dailyOpsPrinting #dailyOpsPrintHolder table td.daily-ops-group-previous-start,
+ body.dailyOpsPrinting #dailyOpsPrintHolder table td.daily-ops-group-previous-end{background:#EDEAF5!important}
+ body.dailyOpsPrinting #dailyOpsPrintHolder table td.daily-ops-group-delta{background:#FFF4CC!important}
+ body.dailyOpsPrinting #dailyOpsPrintHolder table td.daily-ops-group-delta.daily-ops-delta-positive{background:#e8f5e9!important}
+ body.dailyOpsPrinting #dailyOpsPrintHolder table td.daily-ops-group-delta.daily-ops-delta-negative{background:#ffebee!important}
+}
+</style>
 </head>
 
 <body>
