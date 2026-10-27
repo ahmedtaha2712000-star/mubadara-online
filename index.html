@@ -14926,6 +14926,11 @@ body.du-camera-open #mobileBottomNav,body.du-camera-open #mobileMorePanel,body.d
   const visible=()=>document.querySelector('#uploadTool.screen.active')||location.hash==='#uploadTool';
   async function getViewer(){const c=client();if(!c)return null;const {data,error}=await c.auth.getUser();if(error||!data?.user)return null;let role='';try{const r=await c.from('app_user_profiles').select('app_role').eq('user_id',data.user.id).maybeSingle();role=String(r.data?.app_role||'')}catch(e){}return{id:data.user.id,role,owner:role==='owner'||role==='manager'}}
   function notify(){window.dispatchEvent(new CustomEvent('mub-scanner-inbox-updated'))}
+  let realtimeChannel=null;
+  function subscribeRealtime(){
+    const c=client();if(!c||realtimeChannel)return;
+    realtimeChannel=c.channel('mubadara-scanner-inbox-live').on('postgres_changes',{event:'*',schema:'public',table:'scanner_inbox'},()=>{void api.refresh()}).subscribe(status=>{if(status==='CHANNEL_ERROR'||status==='TIMED_OUT'){realtimeChannel=null;}});
+  }
   api.refresh=async function(){const c=client();if(api.loading||!visible()||!c)return;api.loading=true;try{api.viewer=await getViewer();api.owner=!!api.viewer?.owner;if(!api.viewer)throw Error('انتهت جلسة الدخول. سجّل الدخول مرة أخرى.');const q=c.from('scanner_inbox').select('id,user_id,file_path,file_name,page_count,status,created_at').order('created_at',{ascending:false}).limit(500);const r=await q;if(r.error)throw r.error;api.rows=r.data||[];notify()}catch(e){api.rows=[];window.dispatchEvent(new CustomEvent('mub-scanner-inbox-error',{detail:e?.message||'تعذر تحميل ملفات الماسح.'}))}finally{api.loading=false}};
   async function signed(row){const c=client();if(!c)throw Error('اتصال Supabase غير متاح.');const r=await c.storage.from('scanner-inbox').createSignedUrl(row.file_path,600);if(r.error)throw r.error;return r.data.signedUrl}
   async function openRow(row,action){
@@ -14947,8 +14952,8 @@ body.du-camera-open #mobileBottomNav,body.du-camera-open #mobileMorePanel,body.d
   async function removeRow(row){if(!api.owner&&!api.viewer?.id||(!api.owner&&String(api.viewer.id)!==String(row.user_id)))return; if(!confirm(`سيُحذف ملف «${row.file_name||'ملف PDF'}» من صندوق الماسح. هل تريد المتابعة؟`))return;try{const c=client();const d=await c.from('scanner_inbox').delete().eq('id',row.id);if(d.error)throw d.error;const st=await c.storage.from('scanner-inbox').remove([row.file_path]);if(st.error)throw st.error;await api.refresh()}catch(e){window.dispatchEvent(new CustomEvent('mub-scanner-inbox-error',{detail:e?.message||'تعذر حذف ملف الماسح.'}))}}
   window.mubScannerInbox=api;
   document.addEventListener('click',e=>{const b=e.target.closest?.('button[data-scanner-action]');if(!b)return;const row=api.rows.find(x=>String(x.id)===String(b.dataset.scannerId));if(!row)return;const action=b.dataset.scannerAction;if(action==='delete')void removeRow(row);else void openRow(row,action)});
-  window.addEventListener('hashchange',()=>{if(visible())void api.refresh()});window.addEventListener('focus',()=>{if(visible())void api.refresh()});let tries=0;const timer=setInterval(()=>{tries++;if(visible()&&client()){void api.refresh();if(api.viewer||tries>20)clearInterval(timer)}else if(tries>30)clearInterval(timer)},1000);
-  if(visible())void api.refresh();
+  window.addEventListener('hashchange',()=>{if(visible()){subscribeRealtime();void api.refresh()}});window.addEventListener('focus',()=>{if(visible()){subscribeRealtime();void api.refresh()}});let tries=0;const timer=setInterval(()=>{tries++;if(visible()&&client()){subscribeRealtime();void api.refresh();if(api.viewer||tries>20)clearInterval(timer)}else if(tries>30)clearInterval(timer)},1000);let fallback=0;setInterval(()=>{if(visible()&&client()){subscribeRealtime();void api.refresh();fallback++}},10000);
+  if(visible()){subscribeRealtime();void api.refresh();}
 })();
 </script>
 <script id="document-upload-screen-logic">
