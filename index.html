@@ -3222,6 +3222,21 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
  body.dailyOpsPrinting #dailyOpsPrintHolder table td.daily-ops-group-delta.daily-ops-delta-negative{background:#ffebee!important}
 }
 </style>
+
+<style id="scanner-inbox-ui-style">
+#scannerInboxPanel{margin-top:16px;padding:15px;border:1px solid #d8e2eb;border-radius:15px;background:#fff;box-shadow:0 5px 20px #0f172a08}
+#scannerInboxPanel[hidden]{display:none}
+.scanner-inbox-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.scanner-inbox-head h3{margin:0;color:#173c54;font-size:15px}.scanner-inbox-head p{margin:4px 0 0;color:#64748b;font-size:11px;line-height:1.6}
+.scanner-inbox-status{margin:10px 0;padding:8px 10px;border-radius:9px;background:#f8fafc;color:#64748b;font-size:11px}
+.scanner-inbox-status[data-kind="error"]{color:#b42318;background:#fff1f2}.scanner-inbox-status[data-kind="ok"]{color:#047857;background:#ecfdf5}
+.scanner-inbox-wrap{overflow-x:auto;border:1px solid #e2e8f0;border-radius:11px}.scanner-inbox-table{width:100%;min-width:760px;border-collapse:separate;border-spacing:0;background:#fff;font-size:11px}
+.scanner-inbox-table th{padding:10px 9px;background:#f1f6f9;color:#334155;text-align:right;white-space:nowrap;border-bottom:1px solid #dbe3eb}.scanner-inbox-table td{padding:9px;border-bottom:1px solid #eef2f6;color:#334155;vertical-align:middle}.scanner-inbox-table tbody tr:last-child td{border-bottom:0}.scanner-inbox-table td:first-child{font-weight:800;color:#173c54;max-width:240px;overflow-wrap:anywhere}
+.scanner-inbox-actions{display:flex;gap:5px;flex-wrap:wrap;white-space:nowrap}.scanner-inbox-actions button{padding:6px 8px!important;font-size:10px!important}.scanner-inbox-empty{text-align:center;padding:22px!important;color:#64748b!important}
+#scannerInboxPreview{margin-top:14px;padding-top:12px;border-top:1px solid #e2e8f0}#scannerInboxPreview[hidden]{display:none}#scannerInboxPreview iframe{display:block;width:100%;height:min(72vh,760px);border:1px solid #dbe3eb;border-radius:11px;background:#f1f5f9}
+@media(max-width:650px){#scannerInboxPanel{padding:10px}.scanner-inbox-head{display:grid}.scanner-inbox-head .du-inline{display:grid;grid-template-columns:1fr 1fr}.scanner-inbox-table{min-width:680px}.scanner-inbox-actions button{min-height:36px}}
+</style>
+
 </head>
 
 <body>
@@ -3613,6 +3628,16 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
   </div>
   <div id="docUploadPdfPreviewPanel" class="du-preview-panel" hidden><div class="du-preview-head"><div><h3>تم تجهيز ملف PDF</h3><p id="docUploadPreviewName">—</p><small id="docUploadPreviewSize" class="du-estimate"></small></div><div class="du-inline"><button type="button" class="du-primary" id="docUploadPreviewOpen">فتح PDF</button><button type="button" class="du-secondary" id="docUploadPreviewShare">مشاركة</button><button type="button" class="du-secondary" id="docUploadPreviewDownload">تنزيل PDF</button><button type="button" class="du-secondary" id="docUploadPreviewClose">إغلاق المعاينة</button></div></div><iframe id="docUploadPdfPreview" title="معاينة ملف PDF المحفوظ" loading="lazy"></iframe></div>
   <details class="du-history" id="docUploadHistory"><summary class="du-history-summary"><strong>سجل الملفات المحلي</strong><small>افتح السجل عند الحاجة — محفوظ على هذا الجهاز فقط</small></summary><div class="du-history-content"><div class="du-history-head"><div><h3>سجل الملفات على هذا الجهاز</h3><p>يمكنك البحث في الملفات المحفوظة محليًا وفتحها أو مشاركتها أو تنزيلها.</p></div><label class="du-history-search"><span>بحث في السجل</span><input id="docUploadHistorySearch" type="search" placeholder="اسم الملف أو المستخدم" autocomplete="off"></label><div class="du-inline"><button type="button" class="du-secondary" id="docUploadHistoryRefresh">تحديث السجل</button><button type="button" class="du-danger" id="docUploadHistoryClear">حذف كل السجل المحلي</button></div></div><div class="du-table-wrap"><table class="du-history-table"><thead><tr><th>الملف</th><th>اسم المستخدم</th><th>التاريخ والوقت</th><th>الصفحات</th><th>الحجم</th><th>المصادر</th><th>OCR</th><th>الإجراءات</th></tr></thead><tbody id="docUploadHistoryBody"><tr><td colspan="8">جارٍ تحميل السجل المحلي…</td></tr></tbody></table></div></div></details>
+
+<section id="scannerInboxPanel" aria-labelledby="scannerInboxTitle">
+  <div class="scanner-inbox-head">
+    <div><h3 id="scannerInboxTitle">ملفات واردة من تطبيق الماسح</h3><p>تظهر هنا ملفاتك، وتظهر جميع الملفات لملاك النظام. افتح الملف داخل شاشة الرفع أو نزّله أو احذفه حسب الصلاحية.</p></div>
+    <div class="du-inline"><button type="button" class="du-secondary" id="scannerInboxRefresh">تحديث الملفات</button></div>
+  </div>
+  <p id="scannerInboxStatus" class="scanner-inbox-status" role="status" aria-live="polite">جارٍ تجهيز صندوق الملفات…</p>
+  <div class="scanner-inbox-wrap"><table class="scanner-inbox-table"><thead><tr><th>الملف</th><th>المرسل</th><th>تاريخ الإرسال</th><th>الصفحات</th><th>الحالة</th><th>الإجراءات</th></tr></thead><tbody id="scannerInboxBody"><tr><td colspan="6" class="scanner-inbox-empty">جارٍ تحميل الملفات…</td></tr></tbody></table></div>
+  <div id="scannerInboxPreview" hidden><div class="du-preview-head"><div><h3>معاينة الملف الوارد</h3><p id="scannerInboxPreviewName">—</p></div><div class="du-inline"><button type="button" class="du-secondary" id="scannerInboxPreviewDownload">تنزيل PDF</button><button type="button" class="du-secondary" id="scannerInboxPreviewClose">إغلاق المعاينة</button></div></div><iframe id="scannerInboxPreviewFrame" title="معاينة ملف وارد من تطبيق الماسح" loading="lazy"></iframe></div>
+</section>
   <div id="docUploadCropModal" class="du-modal" hidden role="dialog" aria-modal="true" aria-labelledby="docUploadCropTitle"><div class="du-modal-card"><div class="du-modal-head"><div><h3 id="docUploadCropTitle">معاينة الصورة وقصّها</h3><p>الصورة كاملة أمامك؛ راجع اقتراح الحدود أو عدّل إطار القص يدويًا.</p></div><button type="button" class="du-close" id="docUploadCropClose" aria-label="إغلاق">×</button></div><div class="du-crop-toolbar"><label>نسبة القص<select id="docUploadCropRatio"><option value="free">حرة</option><option value="card">بطاقة هوية</option><option value="a4">ورقة A4</option></select></label><button type="button" class="du-secondary" id="docUploadCropZoom" aria-pressed="false" title="كبّر الصورة للتدقيق واسحبها لرؤية بقية الحواف">تكبير للتدقيق ×١٫٨</button><span id="docUploadCropStatus" class="du-crop-status" role="status" aria-live="polite">ستظهر الصورة كاملة. يمكنك تعديل الإطار يدويًا.</span></div><div class="du-crop-stage"><canvas id="docUploadCropCanvas" aria-label="معاينة كاملة للمستند وإطار القص"></canvas></div><div class="du-inline du-modal-actions du-crop-actions"><button type="button" class="du-secondary" id="docUploadCropSuggest">اقتراح تلقائي</button><button type="button" class="du-primary" id="docUploadCropAcceptAuto" hidden>اعتماد القص المقترح</button><button type="button" class="du-secondary" id="docUploadCropManual" hidden>القص اليدوي على الأصل</button><button type="button" class="du-secondary" id="docUploadCropReset">إعادة التحديد</button><button type="button" class="du-primary" id="docUploadCropApply">تطبيق القص</button></div></div></div>
   <div id="docUploadCameraModal" class="du-modal" hidden role="dialog" aria-modal="true" aria-labelledby="docUploadCameraTitle"><div class="du-modal-card du-camera-card"><div class="du-modal-head"><div><h3 id="docUploadCameraTitle">تصوير مستند</h3><p>التقاط مباشر عبر المتصفح. بعد التصوير استخدم القص اليدوي؛ على الهاتف يفتح الزر تطبيق الكاميرا.</p></div><button type="button" class="du-close" id="docUploadCameraClose" aria-label="إغلاق">×</button></div><div class="du-camera-stage"><video id="docUploadCameraVideo" autoplay playsinline muted></video><canvas id="docUploadCameraOverlay" aria-hidden="true"></canvas><div class="du-camera-guide" aria-hidden="true"><span>أظهر المستند كاملًا داخل الإطار</span></div></div><div class="du-camera-status" id="docUploadCameraStatus" role="status" aria-live="polite">جارٍ فتح الكاميرا…</div><div class="du-camera-type" role="group" aria-label="نوع المستند"><span class="du-camera-type-label" id="docUploadCameraTypeStatus" aria-live="polite">النوع: بانتظار كشف الحدود</span><div class="du-camera-type-buttons"><button type="button" class="du-secondary" id="docUploadCameraTypeAuto" aria-pressed="true">غير محدد</button><button type="button" class="du-secondary" id="docUploadCameraTypeCard" aria-pressed="false">بطاقة</button><button type="button" class="du-secondary" id="docUploadCameraTypePage" aria-pressed="false">صفحة</button></div></div><div class="du-inline du-modal-actions"><button type="button" class="du-secondary" id="docUploadCameraFallback">اختيار صورة من الجهاز</button><button type="button" class="du-primary" id="docUploadCameraCapture" disabled>التقاط ثم القص اليدوي</button><button type="button" class="du-secondary" id="docUploadCameraCancel">إلغاء</button></div><small class="du-camera-note">قد يُجرّب كشف الحدود تلقائيًا عند توفره؛ إذا لم يتوفر أو أخفق فسيظل القص اليدوي متاحًا دائمًا.</small></div></div>
 
@@ -6638,7 +6663,45 @@ function printPortfolioReport(event){
  const launchPrint=()=>{if(started||!printFrame.isConnected)return;started=true;try{printFrame.contentWindow.focus();printFrame.contentWindow.print()}catch(error){console.error("Portfolio print:",error);cleanup();alert("تعذرت طباعة تقرير المحفظة. حاول مرة أخرى.")}};
  try{
   printDocument.open();
-  printDocument.write(`<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(title)}</title><style>${printStyles}</style></head><body>${layer.outerHTML}</body></html>`);
+  printDocument.write(`<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(title)}</title><style>${printStyles}</style></head><body>${layer.outerHTML}
+<script id="scanner-inbox-screen-logic">
+(()=>{
+  const $=id=>document.getElementById(id);
+  const panel=$('scannerInboxPanel'); if(!panel)return;
+  let viewer=null, owner=false, rows=[], loading=false, currentUrl='';
+  const esc=v=>String(v??'').replace(/[&<>'"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch]));
+  const status=(text,kind='neutral')=>{const el=$('scannerInboxStatus');if(el){el.textContent=text;el.dataset.kind=kind}};
+  const fmtDate=v=>{try{return new Date(v).toLocaleString('ar-EG',{dateStyle:'medium',timeStyle:'short'})}catch(e){return v||'—'}};
+  const isVisible=()=>document.querySelector('#uploadTool.screen.active')||location.hash==='#uploadTool';
+  async function getViewer(){
+    const c=typeof supabaseClient!=='undefined'?supabaseClient:null;if(!c)return null;
+    const {data,error}=await c.auth.getUser();if(error||!data?.user)return null;
+    let role='';try{const r=await c.from('app_user_profiles').select('app_role').eq('user_id',data.user.id).maybeSingle();role=String(r.data?.app_role||'')}catch(e){}
+    return {id:data.user.id,role,owner:role==='owner'||role==='manager'};
+  }
+  function render(){
+    const body=$('scannerInboxBody');if(!body)return;
+    if(!rows.length){body.innerHTML='<tr><td colspan="6" class="scanner-inbox-empty">لا توجد ملفات واردة حتى الآن.</td></tr>';return}
+    body.innerHTML=rows.map(row=>{const canDelete=owner||String(row.user_id)===String(viewer?.id);return `<tr><td>${esc(row.file_name||'ملف PDF')}</td><td>${esc(row.sender_name||row.user_id||'—')}</td><td>${esc(fmtDate(row.created_at))}</td><td>${esc(row.page_count||'—')}</td><td>${esc(row.status||'new')}</td><td><div class="scanner-inbox-actions"><button type="button" data-inbox-action="open" data-inbox-id="${esc(row.id)}">فتح</button><button type="button" data-inbox-action="download" data-inbox-id="${esc(row.id)}">تنزيل</button>${canDelete?`<button type="button" class="du-danger" data-inbox-action="delete" data-inbox-id="${esc(row.id)}">حذف</button>`:''}</div></td></tr>`}).join('');
+  }
+  async function refresh(){
+    if(loading||!isVisible())return;const c=typeof supabaseClient!=='undefined'?supabaseClient:null;if(!c)return;
+    loading=true;status('جارٍ تحميل ملفات الماسح…');
+    try{viewer=await getViewer();owner=!!viewer?.owner;if(!viewer)throw Error('انتهت جلسة الدخول. سجّل الدخول مرة أخرى.');
+      const q=c.from('scanner_inbox').select('id,user_id,file_path,file_name,page_count,status,created_at').order('created_at',{ascending:false}).limit(500);
+      const result=await q;if(result.error)throw result.error;rows=result.data||[];render();status(rows.length?`تم تحميل ${rows.length.toLocaleString('ar-EG')} ملف.`:'لا توجد ملفات واردة حتى الآن.','ok');
+    }catch(e){rows=[];render();status(e?.message||'تعذر تحميل ملفات الماسح.','error')}finally{loading=false}
+  }
+  async function signed(row){const c=typeof supabaseClient!=='undefined'?supabaseClient:null;if(!c)throw Error('اتصال Supabase غير متاح.');const r=await c.storage.from('scanner-inbox').createSignedUrl(row.file_path,600);if(r.error)throw r.error;return r.data.signedUrl}
+  async function openRow(row,download=false){try{const url=await signed(row);currentUrl=url;if(download){const a=document.createElement('a');a.href=url;a.download=row.file_name||'scanner-document.pdf';a.target='_blank';a.rel='noopener';document.body.appendChild(a);a.click();a.remove();return}const frame=$('scannerInboxPreviewFrame');const box=$('scannerInboxPreview');if(frame&&box){frame.src=url;box.hidden=false;$('scannerInboxPreviewName').textContent=row.file_name||'ملف PDF';box.scrollIntoView({behavior:'smooth',block:'nearest'})}}catch(e){status(e?.message||'تعذر فتح الملف.','error')}}
+  async function removeRow(row){if(!confirm(`هل تريد حذف الملف «${row.file_name||'ملف PDF'}»؟`))return;try{const c=typeof supabaseClient!=='undefined'?supabaseClient:null;const d=await c.from('scanner_inbox').delete().eq('id',row.id);if(d.error)throw d.error;const s=await c.storage.from('scanner-inbox').remove([row.file_path]);if(s.error)throw s.error;status('تم حذف الملف.','ok');await refresh()}catch(e){status(e?.message||'تعذر حذف الملف.','error')}}
+  $('scannerInboxRefresh')?.addEventListener('click',refresh);$('scannerInboxPreviewClose')?.addEventListener('click',()=>{const b=$('scannerInboxPreview'),f=$('scannerInboxPreviewFrame');if(f)f.src='about:blank';if(b)b.hidden=true});$('scannerInboxPreviewDownload')?.addEventListener('click',()=>{const id=$('scannerInboxPreviewName')?.dataset?.rowId;const row=rows.find(x=>String(x.id)===String(id));if(row)openRow(row,true)});
+  $('scannerInboxBody')?.addEventListener('click',e=>{const b=e.target.closest?.('[data-inbox-action]');if(!b)return;const row=rows.find(x=>String(x.id)===String(b.dataset.inboxId));if(!row)return;if(b.dataset.inboxAction==='delete')removeRow(row);else openRow(row,b.dataset.inboxAction==='download');if(b.dataset.inboxAction==='open')$('scannerInboxPreviewName').dataset.rowId=row.id});
+  const start=()=>{if(isVisible())refresh();};window.addEventListener('hashchange',start);window.addEventListener('focus',start);let tries=0;const timer=setInterval(()=>{tries++;if(isVisible()&&typeof supabaseClient!=='undefined'&&supabaseClient){refresh();if(viewer||tries>20)clearInterval(timer)}else if(tries>30)clearInterval(timer)},1000);start();
+})();
+</script>
+
+</body></html>`);
   printDocument.close();
   printFrame.contentWindow.addEventListener("afterprint",cleanup,{once:true});
   setTimeout(launchPrint,350);
