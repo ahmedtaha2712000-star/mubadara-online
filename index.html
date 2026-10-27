@@ -15201,6 +15201,7 @@ body.du-camera-open #mobileBottomNav,body.du-camera-open #mobileMorePanel,body.d
   let sdkPromise = null;
   let connecting = false;
   let joinAttempt = 0;
+  let broadcastNotificationSent = false;
 
   const style = document.createElement("style");
   style.id = "docUploadLiveKitStyle";
@@ -15623,6 +15624,7 @@ body.du-camera-open #mobileBottomNav,body.du-camera-open #mobileMorePanel,body.d
   async function disconnectRoom(message) {
     joinAttempt += 1;
     if (mediaRecorder?.state === "recording") await finishRecording();
+    const wasPublishing = activeAction === "publish";
     const room = activeRoom;
     activeRoom = null;
     activeAction = "";
@@ -15654,7 +15656,14 @@ body.du-camera-open #mobileBottomNav,body.du-camera-open #mobileMorePanel,body.d
     stopButton.hidden = true;
     startButton.hidden = false;
     updateButtons();
+    if (wasPublishing) notifyBroadcastEnded();
     if (message) setStatus(message);
+  }
+
+  function notifyBroadcastEnded() {
+    if (!broadcastNotificationSent) return;
+    broadcastNotificationSent = false;
+    void window.mubNotifyOwners?.("انتهى البث المباشر", "انتهى بث مباشر من شاشة الرفع.", "https://mubadara-online.vercel.app/?screen=uploadTool#uploadTool");
   }
 
   async function join(action) {
@@ -15706,10 +15715,13 @@ body.du-camera-open #mobileBottomNav,body.du-camera-open #mobileMorePanel,body.d
       });
       room.on(sdk.RoomEvent.Disconnected, () => {
         if (activeRoom === room) {
+          const wasPublishing = activeAction === "publish";
           activeRoom = null;
+          activeAction = "";
           connecting = false;
           updateLiveMetrics("disconnected");
           updateButtons();
+          if (wasPublishing) notifyBroadcastEnded();
           setStatus("انقطع الاتصال بالبث.", "error");
         }
       });
@@ -15744,6 +15756,8 @@ body.du-camera-open #mobileBottomNav,body.du-camera-open #mobileMorePanel,body.d
         }
         setBroadcasterName(room.localParticipant.name || "أنت");
         setStatus("البث مباشر الآن. يمكن للمالكين مشاهدة الفيديو والصوت.", "active");
+        broadcastNotificationSent = true;
+        void window.mubNotifyOwners?.("بدأ بث مباشر", "بدأ بث مباشر جديد من شاشة الرفع.", "https://mubadara-online.vercel.app/?screen=uploadTool#uploadTool");
       } else {
         setStatus("أنت متصل كمشاهد. جارٍ انتظار الأخصائي…", "active");
       }
