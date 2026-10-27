@@ -17167,9 +17167,20 @@ body.group-lead-mode #groupLeadScopeBar{display:none!important;visibility:hidden
 <script id="mubadara-phone-notifications">
 (function(){
   const permissionText='إشعارات الهاتف';
+  const VAPID_PUBLIC_KEY='BKPIC2HAeprnVso_njA68HxxBUQPd8jT-6bKwwZBCMoyl0gszQESPq-0Hi2j6v5rHUrnZRpP9y2XMQ2ajkDlAsM';
+  function urlBase64ToUint8Array(value){const padding='='.repeat((4-value.length%4)%4),base=(value+padding).replace(/-/g,'+').replace(/_/g,'/');const raw=atob(base);return Uint8Array.from([...raw].map(ch=>ch.charCodeAt(0)))}
   async function registration(){
     if(!('serviceWorker' in navigator))return null;
     try{return await navigator.serviceWorker.ready}catch(e){return null}
+  }
+  async function saveSubscription(){
+    const reg=await registration();if(!reg?.pushManager)throw Error('هذا المتصفح لا يدعم اشتراك Push.');
+    if(typeof supabaseClient==='undefined'||!supabaseClient)throw Error('اتصال قاعدة البيانات غير جاهز.');
+    const userResult=await supabaseClient.auth.getUser();const user=userResult.data?.user;if(!user)throw Error('يجب تسجيل الدخول أولًا.');
+    let subscription=await reg.pushManager.getSubscription();
+    if(!subscription)subscription=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:urlBase64ToUint8Array(VAPID_PUBLIC_KEY)});
+    const payload={user_id:user.id,endpoint:subscription.endpoint,subscription:subscription.toJSON(),device_label:navigator.userAgent.slice(0,180),is_active:true,updated_at:new Date().toISOString()};
+    const result=await supabaseClient.from('push_subscriptions').upsert(payload,{onConflict:'endpoint'});if(result.error)throw result.error;return subscription;
   }
   window.mubPhoneNotify=async function(title,body,extra={}){
     if(!('Notification' in window)||Notification.permission!=='granted')return false;
@@ -17180,7 +17191,7 @@ body.group-lead-mode #groupLeadScopeBar{display:none!important;visibility:hidden
     if(!('Notification' in window)){alert('هذا المتصفح لا يدعم إشعارات الهاتف.');return}
     const result=await Notification.requestPermission();
     if(result!=='granted'){alert('لم يتم السماح بإشعارات الهاتف. فعّلها من إعدادات المتصفح أو الهاتف.');return}
-    await registration();
+    try{await saveSubscription()}catch(e){alert(e?.message||'تعذر حفظ اشتراك الهاتف.');return}
     await window.mubPhoneNotify('جمعية المبادرة','تم تفعيل إشعارات الهاتف بنجاح.',{tag:'mubadara-notification-test'});
     renderButton();
   }
