@@ -26,7 +26,7 @@ module.exports = async (req, res) => {
   const userResponse = await fetch(`${SUPABASE_URL}/auth/v1/user`, { headers: { apikey: SUPABASE_ANON_KEY, authorization } });
   if (!userResponse.ok) return json(res, 401, { error: 'Invalid authentication.' });
   const sender = await userResponse.json();
-  const { title = 'جمعية المبادرة', body = 'لديك إشعار جديد.', url = 'https://mubadara-online.vercel.app/?screen=uploadTool#uploadTool', sender_id } = req.body || {};
+  const { title = 'جمعية المبادرة', body = 'لديك إشعار جديد.', url = 'https://mubadara-online.vercel.app/?screen=uploadTool#uploadTool', sender_id, audience = 'all' } = req.body || {};
   if (sender_id && sender_id !== sender.id) return json(res, 403, { error: 'Sender mismatch.' });
 
   webpush.setVapidDetails('mailto:admin@mubadara-online.vercel.app', VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY);
@@ -34,7 +34,15 @@ module.exports = async (req, res) => {
     headers: { apikey: SUPABASE_SERVICE_ROLE_KEY, authorization: `Bearer ${SUPABASE_SERVICE_ROLE_KEY}` }
   });
   if (!subscriptionsResponse.ok) return json(res, 502, { error: 'Unable to load push subscriptions.' });
-  const subscriptions = await subscriptionsResponse.json();
+  let subscriptions = await subscriptionsResponse.json();
+  if (audience === 'owners') {
+    const ownersResponse = await fetch(`${SUPABASE_URL}/rest/v1/app_user_profiles?app_role=in.(owner,manager)&select=user_id&limit=500`, {
+      headers: { apikey: SUPABASE_SERVICE_ROLE_KEY, authorization: `Bearer ${SUPABASE_SERVICE_ROLE_KEY}` }
+    });
+    if (!ownersResponse.ok) return json(res, 502, { error: 'Unable to load owner accounts.' });
+    const ownerIds = new Set((await ownersResponse.json()).map(row => String(row.user_id)).filter(Boolean));
+    subscriptions = subscriptions.filter(row => ownerIds.has(String(row.user_id)));
+  }
   const payload = JSON.stringify({ title, body, url: url || 'https://mubadara-online.vercel.app/?screen=uploadTool#uploadTool', icon: 'https://mubadara-online.vercel.app/icons/icon-192.png', badge: 'https://mubadara-online.vercel.app/icons/icon-192.png', tag: `scanner-${Date.now()}` });
   let sent = 0, removed = 0;
   for (const row of subscriptions) {
