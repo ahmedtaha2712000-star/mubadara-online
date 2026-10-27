@@ -4833,7 +4833,7 @@ async function login(){
 	}
 	function applySession(){
  if(!session)return;
- if(!activateMubTabLockForSession())return;
+ 
  if(!enforceSession())return;
  resetInactivityTimer();
   startUserPresenceTracking();
@@ -4949,7 +4949,7 @@ function updateLastDataUpdate(){
  el.title=`آخر وقت تم فيه تحديث البيانات: ${shown}`;
 }
 function logout(silent=false){
-	 releaseMubTabLock();
+	 
 	 authFlowVersion++;
 	 stopUserPresenceTracking();
  if(supabaseClient)try{supabaseClient.auth.signOut().catch(()=>{})}catch(e){}
