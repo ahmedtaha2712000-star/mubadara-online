@@ -26,7 +26,7 @@ module.exports = async (req, res) => {
   const userResponse = await fetch(`${SUPABASE_URL}/auth/v1/user`, { headers: { apikey: SUPABASE_ANON_KEY, authorization } });
   if (!userResponse.ok) return json(res, 401, { error: 'Invalid authentication.' });
   const sender = await userResponse.json();
-  const { title = 'جمعية المبادرة', body = 'لديك إشعار جديد.', url = '/#uploadTool', sender_id } = req.body || {};
+  const { title = 'جمعية المبادرة', body = 'لديك إشعار جديد.', url = 'https://mubadara-online.vercel.app/?screen=uploadTool#uploadTool', sender_id } = req.body || {};
   if (sender_id && sender_id !== sender.id) return json(res, 403, { error: 'Sender mismatch.' });
 
   webpush.setVapidDetails('mailto:admin@mubadara-online.vercel.app', VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY);
@@ -35,7 +35,7 @@ module.exports = async (req, res) => {
   });
   if (!subscriptionsResponse.ok) return json(res, 502, { error: 'Unable to load push subscriptions.' });
   const subscriptions = await subscriptionsResponse.json();
-  const payload = JSON.stringify({ title, body, url, icon: '/icons/icon-192.png', badge: '/icons/icon-192.png', tag: `scanner-${Date.now()}` });
+  const payload = JSON.stringify({ title, body, url: url || 'https://mubadara-online.vercel.app/?screen=uploadTool#uploadTool', icon: 'https://mubadara-online.vercel.app/icons/icon-192.png', badge: 'https://mubadara-online.vercel.app/icons/icon-192.png', tag: `scanner-${Date.now()}` });
   let sent = 0, removed = 0;
   for (const row of subscriptions) {
     try { await webpush.sendNotification(row.subscription, payload); sent += 1; }
