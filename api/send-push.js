@@ -5,7 +5,10 @@ function json(res, status, body) {
 }
 
 function cors(res) {
-  res.setHeader('Access-Control-Allow-Origin', 'https://mubadara-scanner.vercel.app');
+  const origin = String(res.req?.headers?.origin || '');
+  const allowed = ['https://mubadara-scanner.vercel.app', 'https://mubadara-online.vercel.app'];
+  res.setHeader('Access-Control-Allow-Origin', allowed.includes(origin) ? origin : 'https://mubadara-online.vercel.app');
+  res.setHeader('Vary', 'Origin');
   res.setHeader('Access-Control-Allow-Headers', 'authorization, content-type');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
 }
