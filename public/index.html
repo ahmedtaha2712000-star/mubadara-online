@@ -17237,33 +17237,3 @@ body.group-lead-mode #groupLeadScopeBar{display:none!important;visibility:hidden
   };
 })();
 </script>
-<style id="due-installments-requested-font-and-suggestion-layer">
-@media screen{
-  #dueInstallments .due-filter-panel>div:has(.smart-datalist.open),
-  #dueInstallments .due-filter-panel>div:has(.smart-select.open),
-  #dueInstallments .due-filter-panel>div:has(.smart-select-menu){position:relative!important;z-index:1000000!important}
-  #dueInstallments .due-filter-panel .smart-datalist.open,
-  #dueInstallments .due-filter-panel .smart-select.open{z-index:1000001!important}
-  #dueInstallments .due-filter-panel .smart-select-menu{z-index:1000002!important}
-  #dueInstallments table.risk-installments-table th:nth-child(n),
-  #dueInstallments table.risk-installments-table td:nth-child(n),
-  #dueInstallments table.risk-installments-table th:nth-child(n) *,
-  #dueInstallments table.risk-installments-table td:nth-child(n) *{font-size:19px!important}
-}
-@media print{
-  #dueInstallments table.risk-installments-table th:nth-child(n),
-  #dueInstallments table.risk-installments-table td:nth-child(n),
-  #dueInstallments table.risk-installments-table th:nth-child(n) *,
-  #dueInstallments table.risk-installments-table td:nth-child(n) *{font-size:19px!important}
-}
-</style>
-<script id="due-installments-pdf-19px-lock">
-(()=>{
-  const previous=window.enforceDueOutputTypography;
-  window.enforceDueOutputTypography=function(layer){
-    if(typeof previous==="function")previous(layer);
-    if(layer)layer.querySelectorAll("table.due-approved-table th,table.due-approved-table td,table.due-approved-table th *,table.due-approved-table td *").forEach(node=>node.style.setProperty("font-size","19px","important"));
-    return layer;
-  };
-})();
-</script>
