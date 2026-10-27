@@ -14937,7 +14937,7 @@ body.du-camera-open #mobileBottomNav,body.du-camera-open #mobileMorePanel,body.d
   let realtimeChannel=null;
   function subscribeRealtime(){
     const c=client();if(!c||realtimeChannel)return;
-    realtimeChannel=c.channel('mubadara-scanner-inbox-live').on('postgres_changes',{event:'*',schema:'public',table:'scanner_inbox'},()=>{void api.refresh()}).subscribe(status=>{if(status==='CHANNEL_ERROR'||status==='TIMED_OUT'){realtimeChannel=null;}});
+    realtimeChannel=c.channel('mubadara-scanner-inbox-live').on('postgres_changes',{event:'*',schema:'public',table:'scanner_inbox'},payload=>{if(payload?.eventType==='INSERT'&&payload.new)window.mubPhoneNotify?.('ملف جديد من تطبيق الماسح',`تم استلام ${payload.new.file_name||'ملف PDF'} في شاشة الرفع`,{url:'/#uploadTool',tag:`scanner-${payload.new.id||Date.now()}`});void api.refresh()}).subscribe(status=>{if(status==='CHANNEL_ERROR'||status==='TIMED_OUT'){realtimeChannel=null;}});
   }
   api.refresh=async function(){const c=client();if(api.loading||!visible()||!c)return;api.loading=true;try{api.viewer=await getViewer();api.owner=!!api.viewer?.owner;if(!api.viewer)throw Error('انتهت جلسة الدخول. سجّل الدخول مرة أخرى.');const q=c.from('scanner_inbox').select('id,user_id,file_path,file_name,page_count,status,created_at').order('created_at',{ascending:false}).limit(500);const r=await q;if(r.error)throw r.error;api.rows=r.data||[];
       const ids=[...new Set(api.rows.map(x=>x.user_id).filter(Boolean))];
@@ -17163,3 +17163,33 @@ body.group-lead-mode #groupLeadScopeBar{display:none!important;visibility:hidden
  #docUploadCropModal .du-modal-actions button{flex:1 1 30%!important;min-width:0!important;min-height:48px!important;padding:7px 4px!important;font-size:12px!important}
 }
 </style>
+
+<script id="mubadara-phone-notifications">
+(function(){
+  const permissionText='إشعارات الهاتف';
+  async function registration(){
+    if(!('serviceWorker' in navigator))return null;
+    try{return await navigator.serviceWorker.ready}catch(e){return null}
+  }
+  window.mubPhoneNotify=async function(title,body,extra={}){
+    if(!('Notification' in window)||Notification.permission!=='granted')return false;
+    const reg=await registration();
+    try{if(reg)return await reg.showNotification(title,{body,icon:'/icons/icon-192.png',badge:'/icons/icon-192.png',dir:'rtl',lang:'ar',tag:extra.tag||'mubadara-notification',renotify:true,data:{url:extra.url||'/'}});new Notification(title,{body});return true}catch(e){return false}
+  };
+  async function enable(){
+    if(!('Notification' in window)){alert('هذا المتصفح لا يدعم إشعارات الهاتف.');return}
+    const result=await Notification.requestPermission();
+    if(result!=='granted'){alert('لم يتم السماح بإشعارات الهاتف. فعّلها من إعدادات المتصفح أو الهاتف.');return}
+    await registration();
+    await window.mubPhoneNotify('جمعية المبادرة','تم تفعيل إشعارات الهاتف بنجاح.',{tag:'mubadara-notification-test'});
+    renderButton();
+  }
+  function renderButton(){
+    const box=document.querySelector('.pro-header .userbox');
+    if(!box||document.getElementById('mubPhoneNotificationButton'))return;
+    const b=document.createElement('button');b.type='button';b.id='mubPhoneNotificationButton';b.className='no-print';b.title=permissionText;b.setAttribute('aria-label',permissionText);b.textContent='📱';b.style.cssText='border:1px solid #cbd5e1;border-radius:9px;background:#fff;padding:8px 10px;cursor:pointer;margin-inline:3px';b.onclick=enable;box.insertBefore(b,box.firstElementChild);
+  }
+  function boot(){renderButton();let tries=0;const t=setInterval(()=>{renderButton();if(++tries>30)clearInterval(t)},1000)}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
+})();
+</script>
