@@ -6664,42 +6664,7 @@ function printPortfolioReport(event){
  try{
   printDocument.open();
   printDocument.write(`<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(title)}</title><style>${printStyles}</style></head><body>${layer.outerHTML}
-<script id="scanner-inbox-screen-logic">
-(()=>{
-  const $=id=>document.getElementById(id);
-  const panel=$('scannerInboxPanel'); if(!panel)return;
-  let viewer=null, owner=false, rows=[], loading=false, currentUrl='';
-  const esc=v=>String(v??'').replace(/[&<>'"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch]));
-  const status=(text,kind='neutral')=>{const el=$('scannerInboxStatus');if(el){el.textContent=text;el.dataset.kind=kind}};
-  const fmtDate=v=>{try{return new Date(v).toLocaleString('ar-EG',{dateStyle:'medium',timeStyle:'short'})}catch(e){return v||'—'}};
-  const isVisible=()=>document.querySelector('#uploadTool.screen.active')||location.hash==='#uploadTool';
-  async function getViewer(){
-    const c=typeof supabaseClient!=='undefined'?supabaseClient:null;if(!c)return null;
-    const {data,error}=await c.auth.getUser();if(error||!data?.user)return null;
-    let role='';try{const r=await c.from('app_user_profiles').select('app_role').eq('user_id',data.user.id).maybeSingle();role=String(r.data?.app_role||'')}catch(e){}
-    return {id:data.user.id,role,owner:role==='owner'||role==='manager'};
-  }
-  function render(){
-    const body=$('scannerInboxBody');if(!body)return;
-    if(!rows.length){body.innerHTML='<tr><td colspan="6" class="scanner-inbox-empty">لا توجد ملفات واردة حتى الآن.</td></tr>';return}
-    body.innerHTML=rows.map(row=>{const canDelete=owner||String(row.user_id)===String(viewer?.id);return `<tr><td>${esc(row.file_name||'ملف PDF')}</td><td>${esc(row.sender_name||row.user_id||'—')}</td><td>${esc(fmtDate(row.created_at))}</td><td>${esc(row.page_count||'—')}</td><td>${esc(row.status||'new')}</td><td><div class="scanner-inbox-actions"><button type="button" data-inbox-action="open" data-inbox-id="${esc(row.id)}">فتح</button><button type="button" data-inbox-action="download" data-inbox-id="${esc(row.id)}">تنزيل</button>${canDelete?`<button type="button" class="du-danger" data-inbox-action="delete" data-inbox-id="${esc(row.id)}">حذف</button>`:''}</div></td></tr>`}).join('');
-  }
-  async function refresh(){
-    if(loading||!isVisible())return;const c=typeof supabaseClient!=='undefined'?supabaseClient:null;if(!c)return;
-    loading=true;status('جارٍ تحميل ملفات الماسح…');
-    try{viewer=await getViewer();owner=!!viewer?.owner;if(!viewer)throw Error('انتهت جلسة الدخول. سجّل الدخول مرة أخرى.');
-      const q=c.from('scanner_inbox').select('id,user_id,file_path,file_name,page_count,status,created_at').order('created_at',{ascending:false}).limit(500);
-      const result=await q;if(result.error)throw result.error;rows=result.data||[];render();status(rows.length?`تم تحميل ${rows.length.toLocaleString('ar-EG')} ملف.`:'لا توجد ملفات واردة حتى الآن.','ok');
-    }catch(e){rows=[];render();status(e?.message||'تعذر تحميل ملفات الماسح.','error')}finally{loading=false}
-  }
-  async function signed(row){const c=typeof supabaseClient!=='undefined'?supabaseClient:null;if(!c)throw Error('اتصال Supabase غير متاح.');const r=await c.storage.from('scanner-inbox').createSignedUrl(row.file_path,600);if(r.error)throw r.error;return r.data.signedUrl}
-  async function openRow(row,download=false){try{const url=await signed(row);currentUrl=url;if(download){const a=document.createElement('a');a.href=url;a.download=row.file_name||'scanner-document.pdf';a.target='_blank';a.rel='noopener';document.body.appendChild(a);a.click();a.remove();return}const frame=$('scannerInboxPreviewFrame');const box=$('scannerInboxPreview');if(frame&&box){frame.src=url;box.hidden=false;$('scannerInboxPreviewName').textContent=row.file_name||'ملف PDF';box.scrollIntoView({behavior:'smooth',block:'nearest'})}}catch(e){status(e?.message||'تعذر فتح الملف.','error')}}
-  async function removeRow(row){if(!confirm(`هل تريد حذف الملف «${row.file_name||'ملف PDF'}»؟`))return;try{const c=typeof supabaseClient!=='undefined'?supabaseClient:null;const d=await c.from('scanner_inbox').delete().eq('id',row.id);if(d.error)throw d.error;const s=await c.storage.from('scanner-inbox').remove([row.file_path]);if(s.error)throw s.error;status('تم حذف الملف.','ok');await refresh()}catch(e){status(e?.message||'تعذر حذف الملف.','error')}}
-  $('scannerInboxRefresh')?.addEventListener('click',refresh);$('scannerInboxPreviewClose')?.addEventListener('click',()=>{const b=$('scannerInboxPreview'),f=$('scannerInboxPreviewFrame');if(f)f.src='about:blank';if(b)b.hidden=true});$('scannerInboxPreviewDownload')?.addEventListener('click',()=>{const id=$('scannerInboxPreviewName')?.dataset?.rowId;const row=rows.find(x=>String(x.id)===String(id));if(row)openRow(row,true)});
-  $('scannerInboxBody')?.addEventListener('click',e=>{const b=e.target.closest?.('[data-inbox-action]');if(!b)return;const row=rows.find(x=>String(x.id)===String(b.dataset.inboxId));if(!row)return;if(b.dataset.inboxAction==='delete')removeRow(row);else openRow(row,b.dataset.inboxAction==='download');if(b.dataset.inboxAction==='open')$('scannerInboxPreviewName').dataset.rowId=row.id});
-  const start=()=>{if(isVisible())refresh();};window.addEventListener('hashchange',start);window.addEventListener('focus',start);let tries=0;const timer=setInterval(()=>{tries++;if(isVisible()&&typeof supabaseClient!=='undefined'&&supabaseClient){refresh();if(viewer||tries>20)clearInterval(timer)}else if(tries>30)clearInterval(timer)},1000);start();
-})();
-</script>
+
 
 </body></html>`);
   printDocument.close();
@@ -14974,6 +14939,42 @@ body.du-camera-open #mobileBottomNav,body.du-camera-open #mobileMorePanel,body.d
 #docUploadVideoModal #docUploadVideoStop{background:#b91c1c;color:#fff}
 @media(max-width:650px){#docUploadVideoModal{padding:0}#docUploadVideoModal .du-video-card{width:100%;height:100%;max-height:100dvh;overflow:auto;border-radius:0;padding:12px}#docUploadVideoModal .du-video-stage{min-height:180px;max-height:60dvh}#docUploadVideoModal .du-video-stage video{max-height:60dvh}#docUploadVideoModal .du-video-actions button{flex:1 1 44%}}
 </style>
+<script id="scanner-inbox-screen-logic">
+(()=>{
+  const $=id=>document.getElementById(id);
+  const panel=$('scannerInboxPanel'); if(!panel)return;
+  let viewer=null, owner=false, rows=[], loading=false, currentUrl='';
+  const esc=v=>String(v??'').replace(/[&<>'"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch]));
+  const status=(text,kind='neutral')=>{const el=$('scannerInboxStatus');if(el){el.textContent=text;el.dataset.kind=kind}};
+  const fmtDate=v=>{try{return new Date(v).toLocaleString('ar-EG',{dateStyle:'medium',timeStyle:'short'})}catch(e){return v||'—'}};
+  const isVisible=()=>document.querySelector('#uploadTool.screen.active')||location.hash==='#uploadTool';
+  async function getViewer(){
+    const c=typeof supabaseClient!=='undefined'?supabaseClient:null;if(!c)return null;
+    const {data,error}=await c.auth.getUser();if(error||!data?.user)return null;
+    let role='';try{const r=await c.from('app_user_profiles').select('app_role').eq('user_id',data.user.id).maybeSingle();role=String(r.data?.app_role||'')}catch(e){}
+    return {id:data.user.id,role,owner:role==='owner'||role==='manager'};
+  }
+  function render(){
+    const body=$('scannerInboxBody');if(!body)return;
+    if(!rows.length){body.innerHTML='<tr><td colspan="6" class="scanner-inbox-empty">لا توجد ملفات واردة حتى الآن.</td></tr>';return}
+    body.innerHTML=rows.map(row=>{const canDelete=owner||String(row.user_id)===String(viewer?.id);return `<tr><td>${esc(row.file_name||'ملف PDF')}</td><td>${esc(row.sender_name||row.user_id||'—')}</td><td>${esc(fmtDate(row.created_at))}</td><td>${esc(row.page_count||'—')}</td><td>${esc(row.status||'new')}</td><td><div class="scanner-inbox-actions"><button type="button" data-inbox-action="open" data-inbox-id="${esc(row.id)}">فتح</button><button type="button" data-inbox-action="download" data-inbox-id="${esc(row.id)}">تنزيل</button>${canDelete?`<button type="button" class="du-danger" data-inbox-action="delete" data-inbox-id="${esc(row.id)}">حذف</button>`:''}</div></td></tr>`}).join('');
+  }
+  async function refresh(){
+    if(loading||!isVisible())return;const c=typeof supabaseClient!=='undefined'?supabaseClient:null;if(!c)return;
+    loading=true;status('جارٍ تحميل ملفات الماسح…');
+    try{viewer=await getViewer();owner=!!viewer?.owner;if(!viewer)throw Error('انتهت جلسة الدخول. سجّل الدخول مرة أخرى.');
+      const q=c.from('scanner_inbox').select('id,user_id,file_path,file_name,page_count,status,created_at').order('created_at',{ascending:false}).limit(500);
+      const result=await q;if(result.error)throw result.error;rows=result.data||[];render();status(rows.length?`تم تحميل ${rows.length.toLocaleString('ar-EG')} ملف.`:'لا توجد ملفات واردة حتى الآن.','ok');
+    }catch(e){rows=[];render();status(e?.message||'تعذر تحميل ملفات الماسح.','error')}finally{loading=false}
+  }
+  async function signed(row){const c=typeof supabaseClient!=='undefined'?supabaseClient:null;if(!c)throw Error('اتصال Supabase غير متاح.');const r=await c.storage.from('scanner-inbox').createSignedUrl(row.file_path,600);if(r.error)throw r.error;return r.data.signedUrl}
+  async function openRow(row,download=false){try{const url=await signed(row);currentUrl=url;if(download){const a=document.createElement('a');a.href=url;a.download=row.file_name||'scanner-document.pdf';a.target='_blank';a.rel='noopener';document.body.appendChild(a);a.click();a.remove();return}const frame=$('scannerInboxPreviewFrame');const box=$('scannerInboxPreview');if(frame&&box){frame.src=url;box.hidden=false;$('scannerInboxPreviewName').textContent=row.file_name||'ملف PDF';box.scrollIntoView({behavior:'smooth',block:'nearest'})}}catch(e){status(e?.message||'تعذر فتح الملف.','error')}}
+  async function removeRow(row){if(!confirm(`هل تريد حذف الملف «${row.file_name||'ملف PDF'}»؟`))return;try{const c=typeof supabaseClient!=='undefined'?supabaseClient:null;const d=await c.from('scanner_inbox').delete().eq('id',row.id);if(d.error)throw d.error;const s=await c.storage.from('scanner-inbox').remove([row.file_path]);if(s.error)throw s.error;status('تم حذف الملف.','ok');await refresh()}catch(e){status(e?.message||'تعذر حذف الملف.','error')}}
+  $('scannerInboxRefresh')?.addEventListener('click',refresh);$('scannerInboxPreviewClose')?.addEventListener('click',()=>{const b=$('scannerInboxPreview'),f=$('scannerInboxPreviewFrame');if(f)f.src='about:blank';if(b)b.hidden=true});$('scannerInboxPreviewDownload')?.addEventListener('click',()=>{const id=$('scannerInboxPreviewName')?.dataset?.rowId;const row=rows.find(x=>String(x.id)===String(id));if(row)openRow(row,true)});
+  $('scannerInboxBody')?.addEventListener('click',e=>{const b=e.target.closest?.('[data-inbox-action]');if(!b)return;const row=rows.find(x=>String(x.id)===String(b.dataset.inboxId));if(!row)return;if(b.dataset.inboxAction==='delete')removeRow(row);else openRow(row,b.dataset.inboxAction==='download');if(b.dataset.inboxAction==='open')$('scannerInboxPreviewName').dataset.rowId=row.id});
+  const start=()=>{if(isVisible())refresh();};window.addEventListener('hashchange',start);window.addEventListener('focus',start);let tries=0;const timer=setInterval(()=>{tries++;if(isVisible()&&typeof supabaseClient!=='undefined'&&supabaseClient){refresh();if(viewer||tries>20)clearInterval(timer)}else if(tries>30)clearInterval(timer)},1000);start();
+})();
+</script>
 <script id="document-upload-screen-logic">
 (function(){
   const MAX_FILE_BYTES=40*1024*1024,MAX_PAGE_COUNT=100,DRAFT_ID="__mub_document_upload_draft_v1__";
@@ -16026,6 +16027,7 @@ body.group-lead-mode #paymentFollowup .pf-form,
 body.group-lead-mode #paymentFollowup .pf-log-actions,
 body.group-lead-mode #paymentFollowup .pf-log-tools-actions {display:none!important}
 </style>
+
 
 
 </body></html>`);
