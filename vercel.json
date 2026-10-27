@@ -1,4 +1,10 @@
 {
+  "rewrites": [
+    {
+      "source": "/((?!api(?:/|$)|manifest\\.json$|service-worker\\.js$|icons/|.*\\.[^/]+$).*)",
+      "destination": "/index.html"
+    }
+  ],
   "functions": {
     "api/generate-pdf.js": {
       "maxDuration": 60,
