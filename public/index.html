@@ -4825,7 +4825,7 @@ async function login(){
 	  session={user:profile.username,name:profile.display_name||localUser.name,role:profile.app_role,ownerRole:profile.owner_role||localUser.ownerRole||"",officerName:profile.officer_name||localUser.officerName||selectedOfficerName};
 	  try{sessionStorage.setItem(SESSION_KEY,JSON.stringify(session));if(remember)localStorage.setItem(REMEMBER_SESSION_KEY,JSON.stringify(session));else localStorage.removeItem(REMEMBER_SESSION_KEY);}catch(e){console.warn("حفظ الجلسة:",e)}
 	  if(msg){msg.textContent="";msg.style.display="none";}
-	  auditLog("تسجيل الدخول",`المستخدم: ${session.name}`);applySession();
+	  auditLog("تسجيل الدخول",`المستخدم: ${session.name}`);void window.mubNotifyOwners?.("تسجيل دخول جديد",`قام ${session.name} بتسجيل الدخول إلى البرنامج.`,"https://mubadara-online.vercel.app/?screen=users#users");applySession();
 	 }catch(e){
 	  if(supabaseClient)try{await supabaseClient.auth.signOut()}catch(_e){}
 	  fail(e?.message||"تعذر إتمام تسجيل الدخول حاليًا.");
@@ -4954,7 +4954,7 @@ function logout(silent=false){
 	 stopUserPresenceTracking();
  if(supabaseClient)try{supabaseClient.auth.signOut().catch(()=>{})}catch(e){}
  const old=session; session=null; appSessionReady=false; if(inactivityTimer)clearTimeout(inactivityTimer); inactivityTimer=null; sessionStorage.removeItem(SESSION_KEY); localStorage.removeItem(SESSION_KEY); localStorage.removeItem(REMEMBER_SESSION_KEY); localStorage.removeItem("mub_session");
- if(!silent && old)auditLog("تسجيل الخروج",`المستخدم: ${old.name}`);
+ if(!silent && old){auditLog("تسجيل الخروج",`المستخدم: ${old.name}`);void window.mubNotifyOwners?.("تسجيل خروج",`قام ${old.name} بتسجيل الخروج من البرنامج.`,"https://mubadara-online.vercel.app/?screen=users#users");}
  document.getElementById("app").style.display="none";
  document.getElementById("loginScreen").style.display="flex";
  document.getElementById("loginPass").value="";
@@ -5221,7 +5221,7 @@ async function importExcelFile(file){
     setImportProgress(100,"المزامنة السحابية غير مكتملة",localSaved?"حُفظت النسخة على هذا الجهاز فقط؛ لم تبدأ الأرشفة.":"لم يُؤكد الحفظ السحابي؛ لم تبدأ الأرشفة.");
     const progressBar=document.getElementById("importProgressBar");if(progressBar)progressBar.style.background="#f59e0b";
   }
-  if(cloudSaved)try{recordSuccessfulImportNotice()}catch(importNoticeErr){console.warn("تعذر حفظ ملاحظة آخر استيراد:",importNoticeErr)}
+  if(cloudSaved){try{recordSuccessfulImportNotice()}catch(importNoticeErr){console.warn("تعذر حفظ ملاحظة آخر استيراد:",importNoticeErr)};void window.mubNotifyOwners?.("استيراد Excel مكتمل",`اكتمل استيراد الملف ${displayFileName} بعدد ${rows.length.toLocaleString("en-US")} صفًا.`,"https://mubadara-online.vercel.app/?screen=import#import");}
 }
 const collectionExcelFileInput=document.getElementById("file");
 collectionExcelFileInput?.addEventListener("click",()=>{
@@ -13481,7 +13481,7 @@ async function captureAndSendLocation() {
     const payload={username:session.user||session.name||"غير محدد",display_name:session.name||session.user||"غير محدد",app_role:session.role||"officer",latitude:c.latitude,longitude:c.longitude,accuracy_m:c.accuracy,captured_at:capturedAt,client_nonce:locationNonce(),client_timezone:Intl.DateTimeFormat().resolvedOptions().timeZone||""};
     const response=await fetch(LOCATION_FUNCTION_URL,{method:"POST",headers:{"Content-Type":"application/json",apikey:SUPABASE_PUBLISHABLE_KEY},body:JSON.stringify(payload)}), data=await response.json();
     if(!response.ok)throw new Error(data.error||"تعذر حفظ الموقع");
-    const item=data.location; renderLocationFacts(item); setLocationStatus(item.validation_status==="accepted"?"تم حفظ الموقع بفحوصات ويب ناجحة":"تم حفظ الموقع لكنه يحتاج مراجعة",item.validation_status); await refreshSharedLocations();
+    const item=data.location; renderLocationFacts(item); setLocationStatus(item.validation_status==="accepted"?"تم حفظ الموقع بفحوصات ويب ناجحة":"تم حفظ الموقع لكنه يحتاج مراجعة",item.validation_status); void window.mubNotifyOwners?.("موقع جديد",`${locationText(item.display_name,item.username)} أرسل موقعًا جديدًا.`,"https://mubadara-online.vercel.app/?screen=location#location"); await refreshSharedLocations();
   } catch(e) { setLocationStatus(e.code===1?"تم رفض إذن الموقع":(e.message||"تعذر إرسال الموقع"),"error"); console.warn("location capture",e); } finally { if(button)button.disabled=false; }
 }
 const previousShowScreen = window.showScreen;
@@ -16044,6 +16044,21 @@ body.group-lead-mode #paymentFollowup .pf-log-tools-actions {display:none!import
 
 
 
+<script id="mubadara-owner-event-notifications">
+(()=>{
+  const API='https://mubadara-online.vercel.app/api/send-push';
+  window.mubNotifyOwners=async function(title,body,url='/'){
+    try{
+      if(typeof supabaseClient==='undefined'||!supabaseClient)return false;
+      const result=await supabaseClient.auth.getSession();
+      const token=result?.data?.session?.access_token;
+      if(!token)return false;
+      const response=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json',Authorization:`Bearer ${token}`},body:JSON.stringify({title,body,url,audience:'owners',sender_id:result.data.session.user.id})});
+      return response.ok;
+    }catch(error){console.warn('Owner push notification failed:',error);return false}
+  };
+})();
+</script>
 </body></html>`);
         reportDocument.close();
         await new Promise(resolve => stage.contentWindow.requestAnimationFrame(() => stage.contentWindow.requestAnimationFrame(resolve)));
