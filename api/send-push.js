@@ -37,7 +37,7 @@ module.exports = async (req, res) => {
   const subscriptions = await subscriptionsResponse.json();
   const payload = JSON.stringify({ title, body, url, icon: '/icons/icon-192.png', badge: '/icons/icon-192.png', tag: `scanner-${Date.now()}` });
   let sent = 0, removed = 0;
-  for (const row of subscriptions.filter(item => String(item.user_id) !== String(sender.id))) {
+  for (const row of subscriptions) {
     try { await webpush.sendNotification(row.subscription, payload); sent += 1; }
     catch (error) {
       if (error.statusCode === 404 || error.statusCode === 410) {
