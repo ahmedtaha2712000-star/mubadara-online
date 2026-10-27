@@ -17197,7 +17197,7 @@ body.group-lead-mode #groupLeadScopeBar{display:none!important;visibility:hidden
     let subscription=await reg.pushManager.getSubscription();
     if(!subscription)subscription=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:urlBase64ToUint8Array(VAPID_PUBLIC_KEY)});
     const payload={user_id:user.id,endpoint:subscription.endpoint,subscription:subscription.toJSON(),device_label:navigator.userAgent.slice(0,180),is_active:true,updated_at:new Date().toISOString()};
-    const result=await supabaseClient.from('push_subscriptions').upsert(payload,{onConflict:'endpoint'});if(result.error)throw result.error;return subscription;
+    const authSession=await supabaseClient.auth.getSession();const token=authSession.data?.session?.access_token;if(!token)throw Error('انتهت جلسة الدخول؛ سجّل الدخول مرة أخرى.');const response=await fetch('/api/save-push',{method:'POST',headers:{'Content-Type':'application/json',Authorization:`Bearer ${token}`},body:JSON.stringify(payload)});let result={};try{result=await response.json()}catch(e){}if(!response.ok)throw Error(result.error||'تعذر حفظ اشتراك الإشعارات.');return subscription;
   }
   window.mubPhoneNotify=async function(title,body,extra={}){
     if(!('Notification' in window)||Notification.permission!=='granted')return false;
