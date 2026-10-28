@@ -5692,6 +5692,8 @@ function updateCollectionFilterLists(){
       const rnOfficer=String(get(r,"officer")||get(g.r,"officer")||"").trim();
       if(officer && !norm(rnOfficer).includes(officer))return;
       if(client && !norm(rnClient).includes(client))return;
+      if(!window.__locationHierarchyMatch?.("collection",r,g))return;
+      if(officer && !norm(rnOfficer).includes(officer))return;
       if(rnClient)clients.set(norm(rnClient),rnClient);
       if(rnOfficer)officers.set(norm(rnOfficer),rnOfficer);
     });
@@ -6106,6 +6108,9 @@ function updateDueFilterLists(baseRows){
   const cacheChanged=cacheKey!==dueFilterListsCacheKey||sourceRows!==dueFilterListsSourceRows;
   if(cacheChanged){
     const clients=new Map(),addresses=new Map();sourceRows.forEach(x=>{
+      if(!window.__locationHierarchyMatch?.('due',x.r,x.g))return;
+      const rowOfficer=norm(get(x.r,'officer')||get(x.g.r,'officer'));
+      if(officer&&!rowOfficer.includes(officer))return;
       const cn=String(get(x.r,'client')||get(x.g.r,'client')||'').trim(),an=String(rowAddress(x.r)||rowAddress(x.g.r)||'').trim();
       if(cn)clients.set(norm(cn),cn);if(an)addresses.set(norm(an),an);
     });
@@ -17274,8 +17279,10 @@ body.group-lead-mode #groupLeadScopeBar{display:none!important;visibility:hidden
   const closeMenus=()=>bar.querySelectorAll('.loc-hierarchy-menu').forEach(m=>m.classList.remove('open'));
   const paint=idx=>{const inp=inputs[idx],menu=inp.closest('.loc-hierarchy-field').querySelector('.loc-hierarchy-menu'),q=normv(inp.value),data=source();let options=idx===0?data.map(x=>x.province):data.filter(x=>!chosen[0]||normv(x.province)===normv(chosen[0])).map(x=>x.branch);options=[...new Map(options.filter(Boolean).map(x=>[normv(x),x])).values()].filter(x=>!q||normv(x).includes(q)).sort((a,b)=>a.localeCompare(b,'ar'));menu.innerHTML='';const all=document.createElement('button');all.type='button';all.textContent='الكل';all.onclick=()=>select(idx,'');menu.appendChild(all);options.forEach(v=>{const b=document.createElement('button');b.type='button';b.textContent=v;b.onclick=()=>select(idx,v);menu.appendChild(b)});menu.classList.add('open')};
   const refreshOfficers=()=>{const data=source(),opts=[...new Map(data.filter(x=>(!chosen[0]||normv(x.province)===normv(chosen[0]))&&(!chosen[1]||normv(x.branch)===normv(chosen[1]))).map(x=>x.officer).filter(Boolean).map(x=>[normv(x),x])).values()];const dl=officer.list&&document.getElementById(officer.list);if(dl)dl.innerHTML=opts.map(x=>`<option value="${String(x).replaceAll('&','&amp;').replaceAll('"','&quot;')}"></option>`).join('');if(officer.value&&opts.length&&!opts.some(x=>normv(x)===normv(officer.value)))officer.value=''};
-  function select(idx,v){chosen[idx]=v;inputs[idx].value=v;if(idx===0&&chosen[1]&&!source().some(x=>normv(x.province)===normv(v)&&normv(x.branch)===normv(chosen[1]))){chosen[1]='';inputs[1].value=''}closeMenus();refreshOfficers();c.rerender()}
+  function select(idx,v){chosen[idx]=v;inputs[idx].value=v;if(idx===0&&chosen[1]&&!source().some(x=>normv(x.province)===normv(v)&&normv(x.branch)===normv(chosen[1]))){chosen[1]='';inputs[1].value=''}closeMenus();refreshOfficers();if(key==='collection')window.updateCollectionFilterLists?.();else{window.invalidateDueFilterLists?.();window.updateDueFilterLists?.()}c.rerender()}
   inputs.forEach((inp,i)=>{inp.addEventListener('focus',()=>paint(i));inp.addEventListener('input',()=>paint(i));inp.addEventListener('keydown',e=>{if(e.key==='Escape')closeMenus();if(e.key==='Enter'){e.preventDefault();inp.closest('.loc-hierarchy-field').querySelector('.loc-hierarchy-menu button:not(:first-child)')?.click()}});inp.closest('.loc-hierarchy-field').querySelector('.loc-hierarchy-clear').addEventListener('click',()=>select(i,''))});
+  const refreshClients=()=>{if(key==='collection')window.updateCollectionFilterLists?.();else{window.invalidateDueFilterLists?.();window.updateDueFilterLists?.()}};
+  officer.addEventListener('input',refreshClients);officer.addEventListener('change',refreshClients);
   document.addEventListener('click',e=>{if(!bar.contains(e.target))closeMenus()});root._locHierarchy={values:()=>chosen,source,refreshOfficers};refreshOfficers();
  }
  function activeFilter(key,row,group){const root=document.getElementById(cfg[key].root),st=root?._locHierarchy;if(!st)return true;const [p,b]=st.values(),get=names=>vals(row,names)||vals(group?.r,names),rp=get(['المحافظة','المحافظه']),rb=get(['اسم الفرع','الفرع','فرع']);return(!p||normv(rp)===normv(p))&&(!b||normv(rb)===normv(b))}
