@@ -5697,7 +5697,7 @@ function updateCollectionFilterLists(){
     });
   });
   cl.innerHTML=[...clients.values()].sort((a,b)=>a.localeCompare(b,"ar")).map(x=>`<option value="${esc(x)}"></option>`).join("");
-  ol.innerHTML=`<option value="جميع الأخصائيين"></option>`+specialistDirectoryNames().filter(name=>specialistMatchesState(name,appSpecialistFilterState())).sort((a,b)=>a.localeCompare(b,"ar")).map(x=>`<option value="${esc(x)}"></option>`).join("");
+  ol.innerHTML=`<option value="جميع الأخصائيين"></option>`+specialistDirectoryNames().filter(name=>specialistMatchesState(name,appSpecialistFilterState())&&window.__locationOfficerAllowed?.("collection",name)).sort((a,b)=>a.localeCompare(b,"ar")).map(x=>`<option value="${esc(x)}"></option>`).join("");
   // Keep the current typed value; the lists are only suggestions and never force a selection.
 }
 function showCollectionDetails(groupIndex){
@@ -5744,6 +5744,7 @@ function riskDisplayDate(v){
   return `${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,"0")}/${String(d.getDate()).padStart(2,"0")}`;
 }
 function renderCollection(){
+  document.getElementById("collection")?._locHierarchy?.refreshOfficers();
   const filter=document.getElementById("collectionStatus").value;
   const client=norm(document.getElementById("collectionClient").value);
   const officer=norm(document.getElementById("collectionOfficer").value);
@@ -5762,7 +5763,7 @@ function renderCollection(){
   }));
 
   visibleGroups().filter(g=>{
-    if(!statusMatch(g,filter)||!specialistStatusAllows(get(g.r,"officer")))return false;
+    if(!statusMatch(g,filter)||!specialistStatusAllows(get(g.r,"officer"))||!window.__locationHierarchyMatch?.("collection",g.r,g))return false;
     if(client && !norm(get(g.r,"client")).includes(client))return false;
     if(officer && !norm(get(g.r,"officer")).includes(officer))return false;
     return collectionRowsForScreen(g,from,to).length>0;
@@ -6227,6 +6228,7 @@ function resetDueAgingRange(){
 }
 
 function renderDueInstallments(baseRows){
+  document.getElementById("dueInstallments")?._locHierarchy?.refreshOfficers();
  const fromEl=document.getElementById('dueFrom'),toEl=document.getElementById('dueTo');
  if(fromEl&&toEl&&!fromEl.value&&!toEl.value){const n=new Date();fromEl.value=isoDate(new Date(n.getFullYear(),n.getMonth(),1));toEl.value=isoDate(new Date(n.getFullYear(),n.getMonth()+1,0))}
  const officerValue=norm(document.getElementById('dueOfficer')?.value||''),officer=officerValue===norm(DUE_ALL_SPECIALISTS_LABEL)?'':officerValue,client=norm(document.getElementById('dueClient')?.value||''),address=norm(document.getElementById('dueAddress')?.value||''),fromVal=fromEl?.value||'',toVal=toEl?.value||'',from=fromVal?parseExcelDate(fromVal):null,to=toVal?parseExcelDate(toVal):null,filter=document.getElementById('dueStatus')?.value||'open',view=window.dueView||'due';
@@ -6236,7 +6238,7 @@ function renderDueInstallments(baseRows){
  const matchesDueSpecialistState=(name,state=specialistState)=>{const key=`${state}::${String(name??'').trim()}`;if(dueSpecialistStateCache.has(key))return dueSpecialistStateCache.get(key);const matched=specialistMatchesState(name,state);dueSpecialistStateCache.set(key,matched);return matched};
  const base=baseRows||dueInstallmentRows(),stats={due:0,upcoming:0,partial:0,paid:0,overdue:0,todayAmount:0,todayCount:0};base.forEach(x=>{const t=dueDayType(x.r),paid=rowPaidAmount(x.r),remaining=dueRemainingForScreen(x.r),unpaid=remaining>0;if(t==='due'&&unpaid){stats.due++;stats.todayAmount+=num(get(x.r,'value'));stats.todayCount++}if(t==='upcoming'&&unpaid)stats.upcoming++;if(t==='overdue'&&unpaid)stats.overdue++;if(paid>0&&remaining>0)stats.partial++;if(paid>0&&remaining<=0)stats.paid++});
  renderDueAgingSummary(dueAgingEligibleRows(base,filter,specialistState,officer,client,address,matchesDueSpecialistState));
- const rows=base.filter(x=>{const g=x.g,r=x.r,go=norm(get(r,'officer')||get(g.r,'officer')),gc=norm(get(r,'client')||get(g.r,'client')),ga=norm(rowAddress(r)||rowAddress(g.r)||''),type=dueDayType(r),paid=rowPaidAmount(r),remaining=dueRemainingForScreen(r),unpaid=remaining>0,partial=paid>0&&unpaid,paidView=paid>0&&remaining<=0;const viewOk=dueAgingRange?unpaid&&type==='overdue'&&riskAgingBandForRow(r)?.id===dueAgingRange:(view==='due'?unpaid:view==='upcoming'?unpaid&&type==='upcoming':view==='partial'?partial:view==='paid'?paidView:unpaid&&type==='overdue');return statusMatch(g,filter)&&matchesDueSpecialistState(go,specialistState)&&(!officer||go.includes(officer))&&(!client||gc.includes(client))&&(!address||ga.includes(address))&&(!dueAgingRange?dueDateInRange(r,dateFrom,dateTo):true)&&viewOk}).sort((a,b)=>{const rank={overdue:0,due:1,upcoming:2};return (rank[dueDayType(a.r)]??3)-(rank[dueDayType(b.r)]??3)||((parseExcelDate(riskDueDateValue(a.r))?.getTime()||0)-(parseExcelDate(riskDueDateValue(b.r))?.getTime()||0))});
+ const rows=base.filter(x=>{const g=x.g,r=x.r,go=norm(get(r,'officer')||get(g.r,'officer')),gc=norm(get(r,'client')||get(g.r,'client')),ga=norm(rowAddress(r)||rowAddress(g.r)||''),type=dueDayType(r),paid=rowPaidAmount(r),remaining=dueRemainingForScreen(r),unpaid=remaining>0,partial=paid>0&&unpaid,paidView=paid>0&&remaining<=0;const viewOk=dueAgingRange?unpaid&&type==='overdue'&&riskAgingBandForRow(r)?.id===dueAgingRange:(view==='due'?unpaid:view==='upcoming'?unpaid&&type==='upcoming':view==='partial'?partial:view==='paid'?paidView:unpaid&&type==='overdue');return statusMatch(g,filter)&&window.__locationHierarchyMatch?.('due',r,g)&&matchesDueSpecialistState(go,specialistState)&&(!officer||go.includes(officer))&&(!client||gc.includes(client))&&(!address||ga.includes(address))&&(!dueAgingRange?dueDateInRange(r,dateFrom,dateTo):true)&&viewOk}).sort((a,b)=>{const rank={overdue:0,due:1,upcoming:2};return (rank[dueDayType(a.r)]??3)-(rank[dueDayType(b.r)]??3)||((parseExcelDate(riskDueDateValue(a.r))?.getTime()||0)-(parseExcelDate(riskDueDateValue(b.r))?.getTime()||0))});
  let totalDue=0,totalPaid=0,totalUnpaid=0,totalLateCount=0,totalDelayDays=0,totalArrears=0;const uniqueClients=new Set();let out='';
  // الاحتفاظ بعميل واحد في الجدول حسب الصفوف المطابقة لفترة العرض.
  const clientRows=new Map();rows.forEach(x=>{const key=norm(get(x.r,'client')||get(x.g.r,'client'))||`row:${clientRows.size}`;if(!clientRows.has(key))clientRows.set(key,[]);clientRows.get(key).push(x)});
@@ -6246,7 +6248,7 @@ function renderDueInstallments(baseRows){
   if(!statusMatch(g,filter))return;
   (g.items||[g.r]).forEach(r=>{
    const go=norm(get(r,'officer')||get(g.r,'officer')),gc=norm(get(r,'client')||get(g.r,'client')),ga=norm(rowAddress(r)||rowAddress(g.r)||'');
-   if(matchesDueSpecialistState(go,specialistState)&&(!officer||go.includes(officer))&&(!client||gc.includes(client))&&(!address||ga.includes(address))){if(dueAgingRange&&(dueDayType(r)!=='overdue'||dueRemainingForScreen(r)<=0||riskAgingBandForRow(r)?.id!==dueAgingRange))return;selectionRows.push({g,r})}
+   if(window.__locationHierarchyMatch?.('due',r,g)&&matchesDueSpecialistState(go,specialistState)&&(!officer||go.includes(officer))&&(!client||gc.includes(client))&&(!address||ga.includes(address))){if(dueAgingRange&&(dueDayType(r)!=='overdue'||dueRemainingForScreen(r)<=0||riskAgingBandForRow(r)?.id!==dueAgingRange))return;selectionRows.push({g,r})}
   });
  });
  const selectionByClient=new Map(),selectionByClientLoan=excelRowMode?new Map():null;selectionRows.forEach(x=>{const rawClient=norm(get(x.r,'client')||get(x.g.r,'client')),key=rawClient||`row:${selectionByClient.size}`,loanKey=norm(get(x.r,'loan')||get(x.g.r,'loan'))+'|'+norm(get(x.r,'nid')||get(x.g.r,'nid')),composite=JSON.stringify([key,loanKey]);if(!selectionByClient.has(key))selectionByClient.set(key,[]);selectionByClient.get(key).push(x);if(selectionByClientLoan&&rawClient){if(!selectionByClientLoan.has(composite))selectionByClientLoan.set(composite,[]);selectionByClientLoan.get(composite).push(x)}});
@@ -6650,6 +6652,8 @@ function printPortfolioReport(event){
  try{
   printDocument.open();
   printDocument.write(`<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(title)}</title><style>${printStyles}</style></head><body>${layer.outerHTML}
+
+
 
 
 </body></html>`);
@@ -16057,6 +16061,42 @@ body.group-lead-mode #paymentFollowup .pf-log-tools-actions {display:none!import
 </style>
 
 
+
+
+<style id="location-branch-officer-filter-style">
+#collection .loc-hierarchy-filters,#dueInstallments .loc-hierarchy-filters{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:9px;margin:0 0 10px;direction:rtl}
+#collection .loc-hierarchy-field,#dueInstallments .loc-hierarchy-field{position:relative;display:grid;gap:5px;min-width:0}
+.loc-hierarchy-field label{font-size:12px;font-weight:800;color:#526175}
+.loc-hierarchy-field input{box-sizing:border-box;width:100%;height:40px;border:1px solid #cbd5e1;border-radius:9px;background:#fbfcfe;color:#172033;padding:0 11px;font:inherit}
+.loc-hierarchy-menu{display:none;position:absolute;top:100%;right:0;left:0;z-index:10020;max-height:220px;overflow:auto;margin-top:3px;padding:4px;border:1px solid #cbd5e1;border-radius:9px;background:#fff;box-shadow:0 10px 24px #0f172a24}
+.loc-hierarchy-menu.open{display:block}.loc-hierarchy-menu button{display:block;width:100%;border:0;border-radius:6px;background:#fff;padding:8px 9px;text-align:right;font:inherit;color:#172033;cursor:pointer}.loc-hierarchy-menu button:hover{background:#eef5ff}
+@media(max-width:760px){#collection .loc-hierarchy-filters,#dueInstallments .loc-hierarchy-filters{grid-template-columns:repeat(2,minmax(0,1fr))}.loc-hierarchy-field input{height:36px;font-size:12px}}
+</style>
+<script id="location-branch-officer-filters">
+(()=>{
+ const cfg={collection:{root:'collection',officer:'collectionOfficer',rerender:()=>window.renderCollection?.(),source:()=>window.visibleGroups?.().flatMap(g=>[...(g.items||[g.r]).map(r=>({r,g}))])||[]},due:{root:'dueInstallments',officer:'dueOfficer',rerender:()=>window.renderDueInstallments?.(),source:()=>window.dueInstallmentRows?.()||[]}};
+ const vals=(o,names)=>{for(const n of names){const v=o?.[n];if(v!==undefined&&v!==null&&String(v).trim())return String(v).trim()}return ''};
+ const field=(x,names)=>vals(x?.r,names)||vals(x?.g?.r,names);
+ const normv=v=>String(v||'').trim().toLocaleLowerCase('ar-EG').replace(/[\u064B-\u065F\u0670]/g,'').replace(/[أإآ]/g,'ا');
+ function init(key,c){const root=document.getElementById(c.root);if(!root||root.querySelector('.loc-hierarchy-filters'))return;
+  const bar=document.createElement('div');bar.className='loc-hierarchy-filters no-print';bar.innerHTML=['المحافظة','الفرع'].map((n,i)=>`<div class="loc-hierarchy-field"><label>${n}</label><input type="text" autocomplete="off" placeholder="اكتب للبحث في ${n}" data-loc-index="${i}"><div class="loc-hierarchy-menu" role="listbox"></div></div>`).join('');
+  const officer=document.getElementById(c.officer);if(!officer)return;officer.parentElement?.parentElement?.insertAdjacentElement('beforebegin',bar);
+  const inputs=[...bar.querySelectorAll('input')];let chosen=['',''];
+  const source=()=>c.source().map(x=>({province:field(x,['المحافظة','المحافظه']),branch:field(x,['الفرع','فرع']),officer:field(x,['اسم الأخصائي','اسم الاخصائي','الأخصائي','الاخصائي','اسم الأخصائى'])}));
+  const paint=(idx)=>{const inp=inputs[idx],menu=inp.nextElementSibling,q=normv(inp.value),data=source();let options=idx===0?data.map(x=>x.province):idx===1?data.filter(x=>!chosen[0]||normv(x.province)===normv(chosen[0])).map(x=>x.branch):[];options=[...new Map(options.filter(Boolean).map(x=>[normv(x),x])).values()].filter(x=>!q||normv(x).includes(q)).sort((a,b)=>a.localeCompare(b,'ar'));menu.innerHTML='';const all=document.createElement('button');all.type='button';all.textContent='الكل';all.onclick=()=>select(idx,'');menu.appendChild(all);options.forEach(v=>{const b=document.createElement('button');b.type='button';b.textContent=v;b.onclick=()=>select(idx,v);menu.appendChild(b)});menu.classList.add('open')};
+  const refreshOfficers=()=>{const data=source();let opts=data.filter(x=>(!chosen[0]||normv(x.province)===normv(chosen[0]))&&(!chosen[1]||normv(x.branch)===normv(chosen[1]))).map(x=>x.officer).filter(Boolean);opts=[...new Map(opts.map(x=>[normv(x),x])).values()];const dl=officer.list&&document.getElementById(officer.list);if(dl)dl.innerHTML=opts.map(x=>`<option value="${String(x).replaceAll('&','&amp;').replaceAll('"','&quot;')}"></option>`).join('');if(officer.value&&opts.length&&!opts.some(x=>normv(x)===normv(officer.value)))officer.value='';};
+  function select(idx,v){chosen[idx]=v;inputs[idx].value=v;const next=idx+1;if(idx===0&&chosen[1]&&!source().some(x=>normv(x.province)===normv(v)&&normv(x.branch)===normv(chosen[1])))chosen[1]='';if(idx===0)inputs[1].value=chosen[1];inputs.forEach(x=>x.nextElementSibling.classList.remove('open'));refreshOfficers();c.rerender()}
+  inputs.forEach((inp,i)=>{inp.addEventListener('focus',()=>paint(i));inp.addEventListener('input',()=>paint(i));inp.addEventListener('keydown',e=>{if(e.key==='Escape')inp.nextElementSibling.classList.remove('open');if(e.key==='Enter'){e.preventDefault();inp.nextElementSibling.querySelector('button:not(:first-child)')?.click()}})});
+  document.addEventListener('click',e=>{if(!bar.contains(e.target))bar.querySelectorAll('.loc-hierarchy-menu').forEach(m=>m.classList.remove('open'))});
+  root._locHierarchy={values:()=>chosen,source,refreshOfficers};refreshOfficers();
+ }
+ function activeFilter(key,row,group){const root=document.getElementById(cfg[key].root),st=root?._locHierarchy;if(!st)return true;const [p,b]=st.values(),get=(names)=>vals(row,names)||vals(group?.r,names);const rp=get(['المحافظة','المحافظه']),rb=get(['الفرع','فرع']);return(!p||normv(rp)===normv(p))&&(!b||normv(rb)===normv(b))}
+ window.__locationHierarchyMatch=activeFilter;
+ window.__locationOfficerAllowed=(key,name)=>{const root=document.getElementById(cfg[key]?.root),st=root?._locHierarchy;if(!st)return true;const [p,b]=st.values();return st.source().some(x=>(!p||normv(x.province)===normv(p))&&(!b||normv(x.branch)===normv(b))&&normv(x.officer)===normv(name))};
+ const boot=()=>Object.entries(cfg).forEach(([k,c])=>init(k,c));if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
+ const mo=new MutationObserver(()=>boot());mo.observe(document.body,{childList:true,subtree:true});
+})();
+</script>
 
 </body></html>`);
         reportDocument.close();
