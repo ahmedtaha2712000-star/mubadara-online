@@ -17246,16 +17246,17 @@ body.group-lead-mode #groupLeadScopeBar{display:none!important;visibility:hidden
 <style id="location-branch-officer-filter-style">
 #collection .loc-hierarchy-filters,#dueInstallments .loc-hierarchy-filters{position:relative;z-index:30;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;width:100%;box-sizing:border-box;margin:0 0 12px;padding:10px;border:1px solid #dbe4ec;border-radius:12px;background:#fff;direction:rtl;grid-column:1/-1}
 #collection .collection-filter-card .loc-hierarchy-filters{grid-column:1/-1!important;order:-1}
-#collection .loc-hierarchy-field,#dueInstallments .loc-hierarchy-field{position:relative;z-index:1;display:grid;gap:5px;min-width:0}
-#collection .loc-hierarchy-field:focus-within,#dueInstallments .loc-hierarchy-field:focus-within{z-index:10050}
-.loc-hierarchy-field label{font-size:12px;font-weight:800;color:#526175}
-.loc-hierarchy-input-wrap{position:relative;display:flex;align-items:center;min-width:0}
-.loc-hierarchy-field input{box-sizing:border-box;width:100%;height:40px;border:1px solid #cbd5e1;border-radius:9px;background:#fbfcfe;color:#172033;padding:0 36px 0 10px;font:inherit}
+#collection .loc-hierarchy-field,#dueInstallments .loc-hierarchy-field{position:relative;z-index:1;display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-rows:auto auto auto;gap:5px 7px;min-width:0;align-items:center}
+#collection .loc-hierarchy-field:focus-within,#dueInstallments .loc-hierarchy-field:focus-within{z-index:2}
+.loc-hierarchy-field>label{grid-column:1/-1;font-size:12px;font-weight:800;color:#526175}
+.loc-hierarchy-input-wrap{grid-column:1;grid-row:2;position:relative;display:block;min-width:0}
+.loc-hierarchy-field input{box-sizing:border-box;width:100%;height:40px;border:1px solid #cbd5e1;border-radius:9px;background:#fbfcfe;color:#172033;padding:0 10px;font:inherit}
 .loc-hierarchy-field input:focus{outline:none;border-color:#17866f;box-shadow:0 0 0 3px #17866f22}
-.loc-hierarchy-clear{position:absolute;right:5px;top:50%;transform:translateY(-50%);z-index:2;width:28px;height:28px;border:0;border-radius:50%;background:#edf2f7;color:#64748b;font-size:19px;font-weight:900;line-height:1;cursor:pointer}
-.loc-hierarchy-menu{display:none;position:absolute;top:calc(100% + 3px);right:0;left:0;z-index:10060;max-height:min(220px,35vh);overflow:auto;margin:0;padding:4px;border:1px solid #cbd5e1;border-radius:9px;background:#fff;box-shadow:0 10px 24px #0f172a38;isolation:isolate}
-.loc-hierarchy-menu.open{display:block}.loc-hierarchy-menu button{display:block;width:100%;min-height:38px;border:0;border-radius:6px;background:#fff;padding:8px 9px;text-align:right;font:inherit;color:#172033;cursor:pointer}.loc-hierarchy-menu button:hover,.loc-hierarchy-menu button:focus{background:#eef5ff}
-@media(max-width:760px){#collection .loc-hierarchy-filters,#dueInstallments .loc-hierarchy-filters{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;padding:8px}.loc-hierarchy-field input{height:38px;font-size:12px}.loc-hierarchy-field label{font-size:11px}}
+.loc-hierarchy-clear{grid-column:2;grid-row:2;position:static;transform:none;width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;border:1px solid #d8e1e8;border-radius:9px;background:#edf2f7;color:#526175;font-size:20px;font-weight:900;line-height:1;cursor:pointer}
+.loc-hierarchy-clear:hover{background:#e2eaf1;border-color:#aebdca}
+.loc-hierarchy-menu{grid-column:1/-1;grid-row:3;display:none;position:static;z-index:auto;width:100%;max-height:min(200px,30vh);overflow:auto;box-sizing:border-box;margin:0;padding:4px;border:1px solid #cbd5e1;border-radius:9px;background:#fff;box-shadow:0 4px 12px #0f172a12}
+.loc-hierarchy-menu.open{display:block}.loc-hierarchy-menu button{display:block;width:100%;min-height:42px;border:0;border-radius:6px;background:#fff;padding:9px 10px;text-align:right;font:inherit;color:#172033;cursor:pointer}.loc-hierarchy-menu button:hover,.loc-hierarchy-menu button:focus{background:#eef5ff;outline:2px solid #b9d8d1}
+@media(max-width:760px){#collection .loc-hierarchy-filters,#dueInstallments .loc-hierarchy-filters{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding:8px}.loc-hierarchy-field input{height:40px;font-size:12px}.loc-hierarchy-field>label{font-size:11px}.loc-hierarchy-clear{width:30px;height:30px}}
 </style>
 <script id="location-branch-officer-filters">
 (()=>{
