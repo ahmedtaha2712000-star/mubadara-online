@@ -4825,7 +4825,7 @@ async function login(){
 	  session={user:profile.username,name:profile.display_name||localUser.name,role:profile.app_role,ownerRole:profile.owner_role||localUser.ownerRole||"",officerName:profile.officer_name||localUser.officerName||selectedOfficerName};
 	  try{sessionStorage.setItem(SESSION_KEY,JSON.stringify(session));if(remember)localStorage.setItem(REMEMBER_SESSION_KEY,JSON.stringify(session));else localStorage.removeItem(REMEMBER_SESSION_KEY);}catch(e){console.warn("حفظ الجلسة:",e)}
 	  if(msg){msg.textContent="";msg.style.display="none";}
-	  auditLog("تسجيل الدخول",`المستخدم: ${session.name}`);applySession();
+	  auditLog("تسجيل الدخول",`المستخدم: ${session.name}`);void window.mubNotifyOwners?.("تسجيل دخول جديد",`قام ${session.name} بتسجيل الدخول إلى البرنامج.`,"https://mubadara-online.vercel.app/?screen=users#users");applySession();
 	 }catch(e){
 	  if(supabaseClient)try{await supabaseClient.auth.signOut()}catch(_e){}
 	  fail(e?.message||"تعذر إتمام تسجيل الدخول حاليًا.");
@@ -4954,7 +4954,7 @@ function logout(silent=false){
 	 stopUserPresenceTracking();
  if(supabaseClient)try{supabaseClient.auth.signOut().catch(()=>{})}catch(e){}
  const old=session; session=null; appSessionReady=false; if(inactivityTimer)clearTimeout(inactivityTimer); inactivityTimer=null; sessionStorage.removeItem(SESSION_KEY); localStorage.removeItem(SESSION_KEY); localStorage.removeItem(REMEMBER_SESSION_KEY); localStorage.removeItem("mub_session");
- if(!silent && old)auditLog("تسجيل الخروج",`المستخدم: ${old.name}`);
+ if(!silent && old){auditLog("تسجيل الخروج",`المستخدم: ${old.name}`);void window.mubNotifyOwners?.("تسجيل خروج",`قام ${old.name} بتسجيل الخروج من البرنامج.`,"https://mubadara-online.vercel.app/?screen=users#users");}
  document.getElementById("app").style.display="none";
  document.getElementById("loginScreen").style.display="flex";
  document.getElementById("loginPass").value="";
@@ -5221,7 +5221,7 @@ async function importExcelFile(file){
     setImportProgress(100,"المزامنة السحابية غير مكتملة",localSaved?"حُفظت النسخة على هذا الجهاز فقط؛ لم تبدأ الأرشفة.":"لم يُؤكد الحفظ السحابي؛ لم تبدأ الأرشفة.");
     const progressBar=document.getElementById("importProgressBar");if(progressBar)progressBar.style.background="#f59e0b";
   }
-  if(cloudSaved)try{recordSuccessfulImportNotice()}catch(importNoticeErr){console.warn("تعذر حفظ ملاحظة آخر استيراد:",importNoticeErr)}
+  if(cloudSaved){try{recordSuccessfulImportNotice()}catch(importNoticeErr){console.warn("تعذر حفظ ملاحظة آخر استيراد:",importNoticeErr)};void window.mubNotifyOwners?.("استيراد Excel مكتمل",`اكتمل استيراد الملف ${displayFileName} بعدد ${rows.length.toLocaleString("en-US")} صفًا.`,"https://mubadara-online.vercel.app/?screen=import#import");}
 }
 const collectionExcelFileInput=document.getElementById("file");
 collectionExcelFileInput?.addEventListener("click",()=>{
@@ -5692,12 +5692,14 @@ function updateCollectionFilterLists(){
       const rnOfficer=String(get(r,"officer")||get(g.r,"officer")||"").trim();
       if(officer && !norm(rnOfficer).includes(officer))return;
       if(client && !norm(rnClient).includes(client))return;
+      if(!window.__locationHierarchyMatch?.("collection",r,g))return;
+      if(officer && !norm(rnOfficer).includes(officer))return;
       if(rnClient)clients.set(norm(rnClient),rnClient);
       if(rnOfficer)officers.set(norm(rnOfficer),rnOfficer);
     });
   });
   cl.innerHTML=[...clients.values()].sort((a,b)=>a.localeCompare(b,"ar")).map(x=>`<option value="${esc(x)}"></option>`).join("");
-  ol.innerHTML=`<option value="جميع الأخصائيين"></option>`+specialistDirectoryNames().filter(name=>specialistMatchesState(name,appSpecialistFilterState())).sort((a,b)=>a.localeCompare(b,"ar")).map(x=>`<option value="${esc(x)}"></option>`).join("");
+  ol.innerHTML=`<option value="جميع الأخصائيين"></option>`+specialistDirectoryNames().filter(name=>specialistMatchesState(name,appSpecialistFilterState())&&window.__locationOfficerAllowed?.("collection",name)).sort((a,b)=>a.localeCompare(b,"ar")).map(x=>`<option value="${esc(x)}"></option>`).join("");
   // Keep the current typed value; the lists are only suggestions and never force a selection.
 }
 function showCollectionDetails(groupIndex){
@@ -5744,6 +5746,7 @@ function riskDisplayDate(v){
   return `${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,"0")}/${String(d.getDate()).padStart(2,"0")}`;
 }
 function renderCollection(){
+  document.getElementById("collection")?._locHierarchy?.refreshOfficers();
   const filter=document.getElementById("collectionStatus").value;
   const client=norm(document.getElementById("collectionClient").value);
   const officer=norm(document.getElementById("collectionOfficer").value);
@@ -5761,8 +5764,9 @@ function renderCollection(){
     customerArrearsByClient.set(clientKey,(customerArrearsByClient.get(clientKey)||0)+Math.max(0,num(rawUnpaid)));
   }));
 
+  const byProvince=new Map();
   visibleGroups().filter(g=>{
-    if(!statusMatch(g,filter)||!specialistStatusAllows(get(g.r,"officer")))return false;
+    if(!statusMatch(g,filter)||!specialistStatusAllows(get(g.r,"officer"))||!window.__locationHierarchyMatch?.("collection",g.r,g))return false;
     if(client && !norm(get(g.r,"client")).includes(client))return false;
     if(officer && !norm(get(g.r,"officer")).includes(officer))return false;
     return collectionRowsForScreen(g,from,to).length>0;
@@ -5771,27 +5775,45 @@ function renderCollection(){
     const customerLateCount=collectionOverdueInstallmentCount(g);
     sumTotal+=d.total; sumPaid+=d.paid; sumUnpaid+=d.unpaid;
     collectionRowsForScreen(g,from,to).forEach(r=>{
-      count++;
-      const unpaid=num(get(r,"unpaid"));
-      const cls=unpaid>0?"unpaid-row":"paid-row";
-      const clientKey=norm(get(r,"client")||get(g.r,"client")||""),customerArrears=customerArrearsByClient.get(clientKey)||0;
-      out+=`<tr class="${cls}">
-        <td data-excel-officer="${esc(get(r,"officer"))}">${esc(get(r,"officer"))}</td>
-        <td><b>${esc(get(r,"client")||get(g.r,"client"))}</b></td>
-        <td>${esc(clientPhones(r)||get(r,"phone"))}</td>
-        <td>${money(get(r,"value"))}</td>
-        <td>${esc(collectionDisplayDate(get(r,"date")))}</td>
-        <td>${esc(get(r,"installment"))}</td>
-        <td>${money(rowPaidAmount(r))}</td>
-        <td>${esc(collectionDisplayDate(get(r,"paymentDate")))}</td>
-        <td>${money(get(r,"unpaid"))}</td>
-        <td>${esc(customerLateCount)}</td>
-        <td>${money(customerArrears)}</td>
-        <td class="collection-product-cell">${esc(get(r,"product")||get(g.r,"product"))}</td>
-      </tr>`;
+      const province=String(getAny(r,["المحافظة","المحافظه"])||getAny(g.r,["المحافظة","المحافظه"])||"غير محدد").trim()||"غير محدد";
+      const branch=String(getAny(r,["اسم الفرع","الفرع","فرع"])||getAny(g.r,["اسم الفرع","الفرع","فرع"])||"غير محدد").trim()||"غير محدد";
+      if(!byProvince.has(province))byProvince.set(province,new Map());
+      const branches=byProvince.get(province);
+      if(!branches.has(branch))branches.set(branch,{rows:[],count:0,total:0,paid:0,unpaid:0});
+      const bucket=branches.get(branch),value=num(get(r,"value")),paid=rowPaidAmount(r),unpaid=num(get(r,"unpaid"));
+      bucket.rows.push({g,r,customerLateCount});bucket.count++;bucket.total+=value;bucket.paid+=paid;bucket.unpaid+=unpaid;
     });
   });
-
+  const moneyText=value=>Math.round(Number(value)||0).toLocaleString("en-US");
+  const summaryCells=b=>`<span>السجلات: <b>${b.count}</b></span><span>قيمة الأقساط: <b>${moneyText(b.total)}</b></span><span>المسدد: <b>${moneyText(b.paid)}</b></span><span>المتبقي: <b>${moneyText(b.unpaid)}</b></span>`;
+  [...byProvince.keys()].sort((a,b)=>a.localeCompare(b,"ar")).forEach(province=>{
+    const branches=byProvince.get(province),provinceTotal={count:0,total:0,paid:0,unpaid:0};
+    branches.forEach(b=>{provinceTotal.count+=b.count;provinceTotal.total+=b.total;provinceTotal.paid+=b.paid;provinceTotal.unpaid+=b.unpaid});
+    out+=`<tr class="collection-location-group-row collection-province-group-row"><td colspan="13"><div class="collection-location-group-title"><strong>المحافظة: ${esc(province)}</strong><div class="collection-location-group-totals">${summaryCells(provinceTotal)}</div></div></td></tr>`;
+    [...branches.keys()].sort((a,b)=>a.localeCompare(b,"ar")).forEach(branch=>{
+      const bucket=branches.get(branch);
+      out+=`<tr class="collection-location-group-row collection-branch-group-row"><td colspan="13"><div class="collection-location-group-title"><strong>الفرع: ${esc(branch)}</strong><div class="collection-location-group-totals">${summaryCells(bucket)}</div></div></td></tr>`;
+      bucket.rows.forEach(({g,r,customerLateCount})=>{
+        count++;
+        const unpaid=num(get(r,"unpaid")),cls=unpaid>0?"unpaid-row":"paid-row";
+        const clientKey=norm(get(r,"client")||get(g.r,"client")||""),customerArrears=customerArrearsByClient.get(clientKey)||0;
+        out+=`<tr class="${cls}">
+          <td data-excel-officer="${esc(get(r,"officer"))}">${esc(get(r,"officer"))}</td>
+          <td><b>${esc(get(r,"client")||get(g.r,"client"))}</b></td>
+          <td>${esc(clientPhones(r)||get(r,"phone"))}</td>
+          <td>${money(get(r,"value"))}</td>
+          <td>${esc(collectionDisplayDate(get(r,"date")))}</td>
+          <td>${esc(get(r,"installment"))}</td>
+          <td>${money(rowPaidAmount(r))}</td>
+          <td>${esc(collectionDisplayDate(get(r,"paymentDate")))}</td>
+          <td>${money(get(r,"unpaid"))}</td>
+          <td>${esc(customerLateCount)}</td>
+          <td>${money(customerArrears)}</td>
+          <td class="collection-product-cell">${esc(get(r,"product")||get(g.r,"product"))}</td>
+        </tr>`;
+      });
+    });
+  });
   document.getElementById("ct").innerHTML=out||'<tr><td colspan="13">لا توجد نتائج في الفترة أو الفلاتر المحددة</td></tr>';
   document.getElementById("collectionCount").textContent=count;
   document.getElementById("collectionDue").textContent=Math.round(Number(sumTotal)||0).toLocaleString("en-US");
@@ -6105,6 +6127,9 @@ function updateDueFilterLists(baseRows){
   const cacheChanged=cacheKey!==dueFilterListsCacheKey||sourceRows!==dueFilterListsSourceRows;
   if(cacheChanged){
     const clients=new Map(),addresses=new Map();sourceRows.forEach(x=>{
+      if(!window.__locationHierarchyMatch?.('due',x.r,x.g))return;
+      const rowOfficer=norm(get(x.r,'officer')||get(x.g.r,'officer'));
+      if(officer&&!rowOfficer.includes(officer))return;
       const cn=String(get(x.r,'client')||get(x.g.r,'client')||'').trim(),an=String(rowAddress(x.r)||rowAddress(x.g.r)||'').trim();
       if(cn)clients.set(norm(cn),cn);if(an)addresses.set(norm(an),an);
     });
@@ -6227,6 +6252,7 @@ function resetDueAgingRange(){
 }
 
 function renderDueInstallments(baseRows){
+  document.getElementById("dueInstallments")?._locHierarchy?.refreshOfficers();
  const fromEl=document.getElementById('dueFrom'),toEl=document.getElementById('dueTo');
  if(fromEl&&toEl&&!fromEl.value&&!toEl.value){const n=new Date();fromEl.value=isoDate(new Date(n.getFullYear(),n.getMonth(),1));toEl.value=isoDate(new Date(n.getFullYear(),n.getMonth()+1,0))}
  const officerValue=norm(document.getElementById('dueOfficer')?.value||''),officer=officerValue===norm(DUE_ALL_SPECIALISTS_LABEL)?'':officerValue,client=norm(document.getElementById('dueClient')?.value||''),address=norm(document.getElementById('dueAddress')?.value||''),fromVal=fromEl?.value||'',toVal=toEl?.value||'',from=fromVal?parseExcelDate(fromVal):null,to=toVal?parseExcelDate(toVal):null,filter=document.getElementById('dueStatus')?.value||'open',view=window.dueView||'due';
@@ -6236,7 +6262,7 @@ function renderDueInstallments(baseRows){
  const matchesDueSpecialistState=(name,state=specialistState)=>{const key=`${state}::${String(name??'').trim()}`;if(dueSpecialistStateCache.has(key))return dueSpecialistStateCache.get(key);const matched=specialistMatchesState(name,state);dueSpecialistStateCache.set(key,matched);return matched};
  const base=baseRows||dueInstallmentRows(),stats={due:0,upcoming:0,partial:0,paid:0,overdue:0,todayAmount:0,todayCount:0};base.forEach(x=>{const t=dueDayType(x.r),paid=rowPaidAmount(x.r),remaining=dueRemainingForScreen(x.r),unpaid=remaining>0;if(t==='due'&&unpaid){stats.due++;stats.todayAmount+=num(get(x.r,'value'));stats.todayCount++}if(t==='upcoming'&&unpaid)stats.upcoming++;if(t==='overdue'&&unpaid)stats.overdue++;if(paid>0&&remaining>0)stats.partial++;if(paid>0&&remaining<=0)stats.paid++});
  renderDueAgingSummary(dueAgingEligibleRows(base,filter,specialistState,officer,client,address,matchesDueSpecialistState));
- const rows=base.filter(x=>{const g=x.g,r=x.r,go=norm(get(r,'officer')||get(g.r,'officer')),gc=norm(get(r,'client')||get(g.r,'client')),ga=norm(rowAddress(r)||rowAddress(g.r)||''),type=dueDayType(r),paid=rowPaidAmount(r),remaining=dueRemainingForScreen(r),unpaid=remaining>0,partial=paid>0&&unpaid,paidView=paid>0&&remaining<=0;const viewOk=dueAgingRange?unpaid&&type==='overdue'&&riskAgingBandForRow(r)?.id===dueAgingRange:(view==='due'?unpaid:view==='upcoming'?unpaid&&type==='upcoming':view==='partial'?partial:view==='paid'?paidView:unpaid&&type==='overdue');return statusMatch(g,filter)&&matchesDueSpecialistState(go,specialistState)&&(!officer||go.includes(officer))&&(!client||gc.includes(client))&&(!address||ga.includes(address))&&(!dueAgingRange?dueDateInRange(r,dateFrom,dateTo):true)&&viewOk}).sort((a,b)=>{const rank={overdue:0,due:1,upcoming:2};return (rank[dueDayType(a.r)]??3)-(rank[dueDayType(b.r)]??3)||((parseExcelDate(riskDueDateValue(a.r))?.getTime()||0)-(parseExcelDate(riskDueDateValue(b.r))?.getTime()||0))});
+ const rows=base.filter(x=>{const g=x.g,r=x.r,go=norm(get(r,'officer')||get(g.r,'officer')),gc=norm(get(r,'client')||get(g.r,'client')),ga=norm(rowAddress(r)||rowAddress(g.r)||''),type=dueDayType(r),paid=rowPaidAmount(r),remaining=dueRemainingForScreen(r),unpaid=remaining>0,partial=paid>0&&unpaid,paidView=paid>0&&remaining<=0;const viewOk=dueAgingRange?unpaid&&type==='overdue'&&riskAgingBandForRow(r)?.id===dueAgingRange:(view==='due'?unpaid:view==='upcoming'?unpaid&&type==='upcoming':view==='partial'?partial:view==='paid'?paidView:unpaid&&type==='overdue');return statusMatch(g,filter)&&window.__locationHierarchyMatch?.('due',r,g)&&matchesDueSpecialistState(go,specialistState)&&(!officer||go.includes(officer))&&(!client||gc.includes(client))&&(!address||ga.includes(address))&&(!dueAgingRange?dueDateInRange(r,dateFrom,dateTo):true)&&viewOk}).sort((a,b)=>{const rank={overdue:0,due:1,upcoming:2};return (rank[dueDayType(a.r)]??3)-(rank[dueDayType(b.r)]??3)||((parseExcelDate(riskDueDateValue(a.r))?.getTime()||0)-(parseExcelDate(riskDueDateValue(b.r))?.getTime()||0))});
  let totalDue=0,totalPaid=0,totalUnpaid=0,totalLateCount=0,totalDelayDays=0,totalArrears=0;const uniqueClients=new Set();let out='';
  // الاحتفاظ بعميل واحد في الجدول حسب الصفوف المطابقة لفترة العرض.
  const clientRows=new Map();rows.forEach(x=>{const key=norm(get(x.r,'client')||get(x.g.r,'client'))||`row:${clientRows.size}`;if(!clientRows.has(key))clientRows.set(key,[]);clientRows.get(key).push(x)});
@@ -6246,7 +6272,7 @@ function renderDueInstallments(baseRows){
   if(!statusMatch(g,filter))return;
   (g.items||[g.r]).forEach(r=>{
    const go=norm(get(r,'officer')||get(g.r,'officer')),gc=norm(get(r,'client')||get(g.r,'client')),ga=norm(rowAddress(r)||rowAddress(g.r)||'');
-   if(matchesDueSpecialistState(go,specialistState)&&(!officer||go.includes(officer))&&(!client||gc.includes(client))&&(!address||ga.includes(address))){if(dueAgingRange&&(dueDayType(r)!=='overdue'||dueRemainingForScreen(r)<=0||riskAgingBandForRow(r)?.id!==dueAgingRange))return;selectionRows.push({g,r})}
+   if(window.__locationHierarchyMatch?.('due',r,g)&&matchesDueSpecialistState(go,specialistState)&&(!officer||go.includes(officer))&&(!client||gc.includes(client))&&(!address||ga.includes(address))){if(dueAgingRange&&(dueDayType(r)!=='overdue'||dueRemainingForScreen(r)<=0||riskAgingBandForRow(r)?.id!==dueAgingRange))return;selectionRows.push({g,r})}
   });
  });
  const selectionByClient=new Map(),selectionByClientLoan=excelRowMode?new Map():null;selectionRows.forEach(x=>{const rawClient=norm(get(x.r,'client')||get(x.g.r,'client')),key=rawClient||`row:${selectionByClient.size}`,loanKey=norm(get(x.r,'loan')||get(x.g.r,'loan'))+'|'+norm(get(x.r,'nid')||get(x.g.r,'nid')),composite=JSON.stringify([key,loanKey]);if(!selectionByClient.has(key))selectionByClient.set(key,[]);selectionByClient.get(key).push(x);if(selectionByClientLoan&&rawClient){if(!selectionByClientLoan.has(composite))selectionByClientLoan.set(composite,[]);selectionByClientLoan.get(composite).push(x)}});
@@ -6650,6 +6676,8 @@ function printPortfolioReport(event){
  try{
   printDocument.open();
   printDocument.write(`<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(title)}</title><style>${printStyles}</style></head><body>${layer.outerHTML}
+
+
 
 
 </body></html>`);
@@ -13481,7 +13509,7 @@ async function captureAndSendLocation() {
     const payload={username:session.user||session.name||"غير محدد",display_name:session.name||session.user||"غير محدد",app_role:session.role||"officer",latitude:c.latitude,longitude:c.longitude,accuracy_m:c.accuracy,captured_at:capturedAt,client_nonce:locationNonce(),client_timezone:Intl.DateTimeFormat().resolvedOptions().timeZone||""};
     const response=await fetch(LOCATION_FUNCTION_URL,{method:"POST",headers:{"Content-Type":"application/json",apikey:SUPABASE_PUBLISHABLE_KEY},body:JSON.stringify(payload)}), data=await response.json();
     if(!response.ok)throw new Error(data.error||"تعذر حفظ الموقع");
-    const item=data.location; renderLocationFacts(item); setLocationStatus(item.validation_status==="accepted"?"تم حفظ الموقع بفحوصات ويب ناجحة":"تم حفظ الموقع لكنه يحتاج مراجعة",item.validation_status); await refreshSharedLocations();
+    const item=data.location; renderLocationFacts(item); setLocationStatus(item.validation_status==="accepted"?"تم حفظ الموقع بفحوصات ويب ناجحة":"تم حفظ الموقع لكنه يحتاج مراجعة",item.validation_status); void window.mubNotifyOwners?.("موقع جديد",`${locationText(item.display_name,item.username)} أرسل موقعًا جديدًا.`,"https://mubadara-online.vercel.app/?screen=location#location"); await refreshSharedLocations();
   } catch(e) { setLocationStatus(e.code===1?"تم رفض إذن الموقع":(e.message||"تعذر إرسال الموقع"),"error"); console.warn("location capture",e); } finally { if(button)button.disabled=false; }
 }
 const previousShowScreen = window.showScreen;
@@ -14128,7 +14156,7 @@ window.markDailyOpsBranchDate=markDailyOpsBranchDate;window.syncDailyOpsBranchFi
  #dueInstallments .due-filter-panel .toolbar .light,#dueInstallments .due-filter-persistence-toolbar .light{min-height:32px!important;border:1px solid #cbd5e1!important;border-radius:7px!important;background:#fff!important;color:#35516b!important;padding:7px 10px!important;font-size:11px!important;font-weight:900!important}
  #dueInstallments .due-filter-persistence-toolbar{display:flex!important;align-items:center!important;gap:7px!important;flex-wrap:wrap!important;margin:10px 0!important;padding:8px 10px!important;border:1px solid #e2e8f0!important;border-radius:10px!important;background:#fff!important}
  #dueInstallments .due-filter-panel>div{position:relative!important;z-index:1!important}
- #dueInstallments .due-filter-panel>div:has(.smart-select.open),#dueInstallments .due-filter-panel>div:has(.smart-datalist.open),#dueInstallments .due-filter-panel>div:has(.smart-select-menu){z-index:13000!important}
+ #dueInstallments .due-filter-panel>div:focus-within{z-index:13000!important}
  #dueInstallments .due-filter-panel .smart-datalist.open,#dueInstallments .due-filter-panel .smart-select.open{z-index:13001!important}
  #dueInstallments .due-filter-panel .smart-select-menu{z-index:13002!important;position:absolute!important;top:calc(100% + 4px)!important;right:0!important;left:0!important;width:100%!important;max-width:none!important;background:#fff!important;border:2px solid #1769aa!important;border-radius:9px!important;box-shadow:0 14px 30px rgba(15,45,80,.2)!important}
  #dueInstallments .due-filter-panel .smart-select-option{padding:8px 9px!important;color:#1f3d5b!important;font-size:11px!important;font-weight:800!important}
@@ -14211,7 +14239,7 @@ window.markDailyOpsBranchDate=markDailyOpsBranchDate;window.syncDailyOpsBranchFi
  #dueInstallments .due-filter-panel>div{position:relative!important;z-index:1!important;min-width:0!important;background:#fff!important;border:1px solid #68727d!important;border-radius:10px!important;padding:9px!important;box-shadow:0 2px 5px rgba(30,65,95,.05)!important}
  #dueInstallments .due-filter-panel>div:first-child{border-right:4px solid #56758e!important}
  #dueInstallments .due-filter-panel>div:nth-child(4){border-right:4px solid #25a184!important}
- #dueInstallments .due-filter-panel>div:first-child,#dueInstallments .due-filter-panel>div:has(.smart-datalist.open),#dueInstallments .due-filter-panel>div:has(.smart-select.open),#dueInstallments .due-filter-panel>div:has(.smart-select-menu){z-index:100000!important}
+ #dueInstallments .due-filter-panel>div:focus-within{z-index:100000!important}
  #dueInstallments .due-filter-panel input:not([type=radio]):not([type=checkbox]),#dueInstallments .due-filter-panel select{border:1px solid #68727d!important;border-radius:7px!important;background:#fff!important;color:#111!important}
  #dueInstallments .due-filter-panel .due-specialist-status-control{border:1px solid #9db2c2!important;background:#f3f8fb!important;border-radius:7px!important}
  #dueInstallments .due-filter-panel .due-date-range input,#dueInstallments #dueFrom,#dueInstallments #dueTo{font-size:14px!important;font-weight:950!important;color:#000!important;direction:ltr!important;text-align:center!important}
@@ -15199,6 +15227,7 @@ body.du-camera-open #mobileBottomNav,body.du-camera-open #mobileMorePanel,body.d
   let sdkPromise = null;
   let connecting = false;
   let joinAttempt = 0;
+  let broadcastNotificationSent = false;
 
   const style = document.createElement("style");
   style.id = "docUploadLiveKitStyle";
@@ -15621,6 +15650,7 @@ body.du-camera-open #mobileBottomNav,body.du-camera-open #mobileMorePanel,body.d
   async function disconnectRoom(message) {
     joinAttempt += 1;
     if (mediaRecorder?.state === "recording") await finishRecording();
+    const wasPublishing = activeAction === "publish";
     const room = activeRoom;
     activeRoom = null;
     activeAction = "";
@@ -15652,7 +15682,14 @@ body.du-camera-open #mobileBottomNav,body.du-camera-open #mobileMorePanel,body.d
     stopButton.hidden = true;
     startButton.hidden = false;
     updateButtons();
+    if (wasPublishing) notifyBroadcastEnded();
     if (message) setStatus(message);
+  }
+
+  function notifyBroadcastEnded() {
+    if (!broadcastNotificationSent) return;
+    broadcastNotificationSent = false;
+    void window.mubNotifyOwners?.("انتهى البث المباشر", "انتهى بث مباشر من شاشة الرفع.", "https://mubadara-online.vercel.app/?screen=uploadTool#uploadTool");
   }
 
   async function join(action) {
@@ -15704,10 +15741,13 @@ body.du-camera-open #mobileBottomNav,body.du-camera-open #mobileMorePanel,body.d
       });
       room.on(sdk.RoomEvent.Disconnected, () => {
         if (activeRoom === room) {
+          const wasPublishing = activeAction === "publish";
           activeRoom = null;
+          activeAction = "";
           connecting = false;
           updateLiveMetrics("disconnected");
           updateButtons();
+          if (wasPublishing) notifyBroadcastEnded();
           setStatus("انقطع الاتصال بالبث.", "error");
         }
       });
@@ -15742,6 +15782,8 @@ body.du-camera-open #mobileBottomNav,body.du-camera-open #mobileMorePanel,body.d
         }
         setBroadcasterName(room.localParticipant.name || "أنت");
         setStatus("البث مباشر الآن. يمكن للمالكين مشاهدة الفيديو والصوت.", "active");
+        broadcastNotificationSent = true;
+        void window.mubNotifyOwners?.("بدأ بث مباشر", "بدأ بث مباشر جديد من شاشة الرفع.", "https://mubadara-online.vercel.app/?screen=uploadTool#uploadTool");
       } else {
         setStatus("أنت متصل كمشاهد. جارٍ انتظار الأخصائي…", "active");
       }
@@ -17180,7 +17222,7 @@ body.group-lead-mode #groupLeadScopeBar{display:none!important;visibility:hidden
     let subscription=await reg.pushManager.getSubscription();
     if(!subscription)subscription=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:urlBase64ToUint8Array(VAPID_PUBLIC_KEY)});
     const payload={user_id:user.id,endpoint:subscription.endpoint,subscription:subscription.toJSON(),device_label:navigator.userAgent.slice(0,180),is_active:true,updated_at:new Date().toISOString()};
-    const result=await supabaseClient.from('push_subscriptions').upsert(payload,{onConflict:'endpoint'});if(result.error)throw result.error;return subscription;
+    const authSession=await supabaseClient.auth.getSession();const token=authSession.data?.session?.access_token;if(!token)throw Error('انتهت جلسة الدخول؛ سجّل الدخول مرة أخرى.');const response=await fetch('/api/save-push',{method:'POST',headers:{'Content-Type':'application/json',Authorization:`Bearer ${token}`},body:JSON.stringify(payload)});let result={};try{result=await response.json()}catch(e){}if(!response.ok)throw Error(result.error||'تعذر حفظ اشتراك الإشعارات.');return subscription;
   }
   window.mubPhoneNotify=async function(title,body,extra={}){
     if(!('Notification' in window)||Notification.permission!=='granted')return false;
@@ -17204,3 +17246,78 @@ body.group-lead-mode #groupLeadScopeBar{display:none!important;visibility:hidden
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
 })();
 </script>
+
+<script id="mubadara-owner-event-notifications">
+(()=>{
+  const API='https://mubadara-online.vercel.app/api/send-push';
+  window.mubNotifyOwners=async function(title,body,url='/'){
+    try{
+      if(typeof supabaseClient==='undefined'||!supabaseClient)return false;
+      const result=await supabaseClient.auth.getSession();
+      const token=result?.data?.session?.access_token;
+      if(!token)return false;
+      const response=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json',Authorization:`Bearer ${token}`},body:JSON.stringify({title,body,url,audience:'owners',sender_id:result.data.session.user.id})});
+      let payload={};
+      try{payload=await response.json()}catch(error){}
+      if(!response.ok||payload.ok!==true){console.warn('Owner push notification delivery failed:',{httpStatus:response.status,...payload});return false}
+      return true;
+    }catch(error){console.warn('Owner push notification failed:',error);return false}
+  };
+})();
+</script>
+
+
+<style id="location-branch-officer-filter-style">
+#collection .loc-hierarchy-filters,#dueInstallments .loc-hierarchy-filters{position:relative!important;z-index:1!important;display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important;width:100%!important;box-sizing:border-box!important;margin:0 0 12px!important;padding:10px!important;border:1px solid #dbe4ec!important;border-radius:12px!important;background:#fff!important;direction:rtl!important;grid-column:1/-1!important;overflow:visible!important}
+#collection .collection-filter-card .loc-hierarchy-filters{grid-column:1/-1!important;order:-1!important}
+#collection .loc-hierarchy-field,#dueInstallments .loc-hierarchy-field{position:relative!important;z-index:auto!important;display:grid!important;grid-template-columns:minmax(0,1fr)!important;grid-template-rows:auto auto auto!important;gap:5px!important;min-width:0!important;align-items:stretch!important;overflow:visible!important}
+.loc-hierarchy-field>label{grid-column:1!important;grid-row:1!important;font-size:12px!important;font-weight:800!important;color:#526175!important}
+.loc-hierarchy-input-wrap{grid-column:1!important;grid-row:2!important;position:static!important;display:flex!important;flex-direction:row!important;align-items:center!important;gap:7px!important;width:100%!important;min-width:0!important;overflow:visible!important;direction:rtl!important}
+.loc-hierarchy-field input{display:block!important;position:static!important;flex:1 1 0!important;width:1%!important;min-width:0!important;max-width:none!important;height:40px!important;box-sizing:border-box!important;border:1px solid #cbd5e1!important;border-radius:9px!important;background:#fbfcfe!important;color:#172033!important;padding:0 10px!important;font:inherit!important}
+.loc-hierarchy-field input:focus{outline:none!important;border-color:#17866f!important;box-shadow:0 0 0 3px #17866f22!important}
+.loc-hierarchy-clear{position:static!important;inset:auto!important;transform:none!important;display:inline-flex!important;flex:0 0 34px!important;align-items:center!important;justify-content:center!important;width:34px!important;min-width:34px!important;max-width:34px!important;height:34px!important;margin:0!important;padding:0!important;border:1px solid #d8e1e8!important;border-radius:9px!important;background:#edf2f7!important;color:#526175!important;font-size:20px!important;font-weight:900!important;line-height:1!important;cursor:pointer!important;box-shadow:none!important}
+.loc-hierarchy-clear:hover{background:#e2eaf1!important;border-color:#aebdca!important}
+.loc-hierarchy-menu{grid-column:1!important;grid-row:3!important;display:none!important;position:static!important;inset:auto!important;z-index:auto!important;float:none!important;clear:both!important;width:100%!important;max-height:min(200px,30vh)!important;overflow-y:auto!important;overflow-x:hidden!important;box-sizing:border-box!important;margin:0!important;padding:4px!important;border:1px solid #cbd5e1!important;border-radius:9px!important;background:#fff!important;box-shadow:0 4px 12px #0f172a12!important;transform:none!important}
+.loc-hierarchy-menu.open{display:block!important}.loc-hierarchy-menu button{position:static!important;display:block!important;float:none!important;width:100%!important;min-height:42px!important;height:auto!important;margin:0!important;border:0!important;border-radius:6px!important;background:#fff!important;padding:9px 10px!important;text-align:right!important;font:inherit!important;color:#172033!important;cursor:pointer!important;white-space:normal!important}
+.loc-hierarchy-menu button:hover,.loc-hierarchy-menu button:focus{background:#eef5ff!important;outline:2px solid #b9d8d1!important}
+@media(max-width:760px){#collection .loc-hierarchy-filters,#dueInstallments .loc-hierarchy-filters{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important;padding:8px!important}.loc-hierarchy-field input{height:40px!important;font-size:12px!important}.loc-hierarchy-field>label{font-size:11px!important}.loc-hierarchy-clear{flex-basis:32px!important;width:32px!important;min-width:32px!important;max-width:32px!important;height:32px!important}}
+</style>
+<script id="location-branch-officer-filters">
+(()=>{
+ const cfg={collection:{root:'collection',officer:'collectionOfficer',rerender:()=>window.renderCollection?.(),source:()=>window.visibleGroups?.().flatMap(g=>(g.items||[g.r]).map(r=>({r,g})))||[]},due:{root:'dueInstallments',officer:'dueOfficer',rerender:()=>window.renderDueInstallments?.(),source:()=>window.dueInstallmentRows?.()||[]}};
+ const vals=(o,names)=>{for(const n of names){const v=o?.[n];if(v!==undefined&&v!==null&&String(v).trim())return String(v).trim()}return ''};
+ const field=(x,names)=>vals(x?.r,names)||vals(x?.g?.r,names);
+ const normv=v=>String(v||'').trim().toLocaleLowerCase('ar-EG').replace(/[\u064B-\u065F\u0670]/g,'').replace(/[أإآ]/g,'ا');
+ function init(key,c){const root=document.getElementById(c.root);if(!root||root.querySelector('.loc-hierarchy-filters'))return;
+  const bar=document.createElement('div');bar.className='loc-hierarchy-filters no-print';bar.setAttribute('aria-label','فلاتر الموقع والأخصائي');
+  bar.innerHTML=['المحافظة','الفرع'].map((n,i)=>`<div class="loc-hierarchy-field"><label>${n}</label><div class="loc-hierarchy-input-wrap"><input type="text" autocomplete="off" placeholder="اكتب للبحث في ${n}" data-loc-index="${i}" aria-haspopup="listbox"><button class="loc-hierarchy-clear" type="button" aria-label="مسح ${n}" title="مسح ${n}">×</button></div><div class="loc-hierarchy-menu" role="listbox"></div></div>`).join('');
+  const officer=document.getElementById(c.officer);if(!officer)return;
+  if(key==='collection'){const card=root.querySelector('.collection-filter-card'),grid=card?.querySelector('.collection-filter-grid');if(grid)grid.insertBefore(bar,grid.firstChild);else officer.parentElement?.parentElement?.insertAdjacentElement('beforebegin',bar)}else{const panel=root.querySelector('.due-filter-panel');if(panel)panel.insertAdjacentElement('beforebegin',bar);else officer.parentElement?.parentElement?.insertAdjacentElement('beforebegin',bar)}
+  const inputs=[...bar.querySelectorAll('input')],chosen=['',''];
+  const source=()=>c.source().map(x=>({province:field(x,['المحافظة','المحافظه']),branch:field(x,['اسم الفرع','الفرع','فرع']),officer:field(x,['اسم الأخصائي','اسم الاخصائي','الأخصائي','الاخصائي','اسم الأخصائى'])}));
+  const closeMenus=()=>bar.querySelectorAll('.loc-hierarchy-menu').forEach(m=>m.classList.remove('open'));
+  const paint=idx=>{const inp=inputs[idx],menu=inp.closest('.loc-hierarchy-field').querySelector('.loc-hierarchy-menu'),q=normv(inp.value),data=source();let options=idx===0?data.map(x=>x.province):data.filter(x=>!chosen[0]||normv(x.province)===normv(chosen[0])).map(x=>x.branch);options=[...new Map(options.filter(Boolean).map(x=>[normv(x),x])).values()].filter(x=>!q||normv(x).includes(q)).sort((a,b)=>a.localeCompare(b,'ar'));menu.innerHTML='';const all=document.createElement('button');all.type='button';all.textContent='الكل';all.onclick=()=>select(idx,'');menu.appendChild(all);options.forEach(v=>{const b=document.createElement('button');b.type='button';b.textContent=v;b.onclick=()=>select(idx,v);menu.appendChild(b)});menu.classList.add('open')};
+  const refreshOfficers=()=>{const data=source(),opts=[...new Map(data.filter(x=>(!chosen[0]||normv(x.province)===normv(chosen[0]))&&(!chosen[1]||normv(x.branch)===normv(chosen[1]))).map(x=>x.officer).filter(Boolean).map(x=>[normv(x),x])).values()];const dl=officer.list&&document.getElementById(officer.list);if(dl)dl.innerHTML=opts.map(x=>`<option value="${String(x).replaceAll('&','&amp;').replaceAll('"','&quot;')}"></option>`).join('');if(officer.value&&opts.length&&!opts.some(x=>normv(x)===normv(officer.value)))officer.value=''};
+  function select(idx,v){chosen[idx]=v;inputs[idx].value=v;if(idx===0&&chosen[1]&&!source().some(x=>normv(x.province)===normv(v)&&normv(x.branch)===normv(chosen[1]))){chosen[1]='';inputs[1].value=''}closeMenus();refreshOfficers();if(key==='collection')window.updateCollectionFilterLists?.();else{window.invalidateDueFilterLists?.();window.updateDueFilterLists?.()}c.rerender()}
+  inputs.forEach((inp,i)=>{inp.addEventListener('focus',()=>paint(i));inp.addEventListener('input',()=>paint(i));inp.addEventListener('keydown',e=>{if(e.key==='Escape')closeMenus();if(e.key==='Enter'){e.preventDefault();inp.closest('.loc-hierarchy-field').querySelector('.loc-hierarchy-menu button:not(:first-child)')?.click()}});inp.closest('.loc-hierarchy-field').querySelector('.loc-hierarchy-clear').addEventListener('click',()=>select(i,''))});
+  const refreshClients=()=>{if(key==='collection')window.updateCollectionFilterLists?.();else{window.invalidateDueFilterLists?.();window.updateDueFilterLists?.()}};
+  officer.addEventListener('input',refreshClients);officer.addEventListener('change',refreshClients);
+  document.addEventListener('click',e=>{if(!bar.contains(e.target))closeMenus()});root._locHierarchy={values:()=>chosen,source,refreshOfficers};refreshOfficers();
+ }
+ function activeFilter(key,row,group){const root=document.getElementById(cfg[key].root),st=root?._locHierarchy;if(!st)return true;const [p,b]=st.values(),get=names=>vals(row,names)||vals(group?.r,names),rp=get(['المحافظة','المحافظه']),rb=get(['اسم الفرع','الفرع','فرع']);return(!p||normv(rp)===normv(p))&&(!b||normv(rb)===normv(b))}
+ window.__locationHierarchyMatch=activeFilter;
+ window.__locationOfficerAllowed=(key,name)=>{const root=document.getElementById(cfg[key]?.root),st=root?._locHierarchy;if(!st)return true;const [p,b]=st.values();return st.source().some(x=>(!p||normv(x.province)===normv(p))&&(!b||normv(x.branch)===normv(b))&&normv(x.officer)===normv(name))};
+ const boot=()=>Object.entries(cfg).forEach(([k,c])=>init(k,c));if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();const mo=new MutationObserver(()=>boot());mo.observe(document.body,{childList:true,subtree:true});
+})();
+</script>
+
+<style id="collection-location-group-row-style">
+#collection .collection-main-table .collection-location-group-row>td{padding:0!important;border:0!important;background:#fff!important}
+#collection .collection-main-table .collection-province-group-row .collection-location-group-title{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-top:8px;padding:11px 12px;border:1px solid #9ccfc1;border-right:5px solid #087957;border-radius:10px;background:linear-gradient(100deg,#e8f7f1,#f8fcfa);color:#124b3d}
+#collection .collection-main-table .collection-branch-group-row .collection-location-group-title{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin:5px 0;padding:9px 12px;border:1px solid #c7d7e5;border-right:4px solid #40749a;border-radius:9px;background:#f1f6fa;color:#24445e}
+#collection .collection-location-group-title>strong{font-weight:900}
+#collection .collection-location-group-totals{display:flex;align-items:center;gap:6px 12px;flex-wrap:wrap;font-size:11px;color:#40566a}
+#collection .collection-location-group-totals span{white-space:nowrap}.collection-location-group-totals b{color:#182d42;font-weight:900}
+@media(max-width:760px){#collection .collection-location-group-title{align-items:flex-start!important;flex-direction:column!important;gap:5px!important;padding:8px 9px!important}#collection .collection-location-group-totals{gap:4px 9px;font-size:10px}}
+@media print{#collection .collection-main-table .collection-location-group-row{display:none!important}}
+</style>
