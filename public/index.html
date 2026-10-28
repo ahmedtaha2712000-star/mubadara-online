@@ -12531,45 +12531,64 @@ async function prepareDueWhatsAppPDF(event){
  const tableHeaders=['م','الأخصائي','اسم العميل','رقم الهاتف','قيمة القسط','تاريخ الاستحقاق','رقم القسط','المسدد','تاريخ السداد','المبلغ المتبقي','عدد الأقساط المتأخرة','إجمالي المتأخرات حتى الانتظام','العنوان'];
  const groupCollectionTable=()=>{
   const body=document.getElementById('ct');if(!body)return;
+  if(!body.dataset.collectionBranchToggleBound){
+   body.dataset.collectionBranchToggleBound='1';
+   body.addEventListener('click',event=>{
+    const button=event.target.closest('.collection-branch-toggle');if(!button||!body.contains(button))return;
+    event.preventDefault();event.stopPropagation();
+    const branchId=button.dataset.branchId,open=button.getAttribute('aria-expanded')!=='true';
+    body.querySelectorAll('.collection-branch-detail-row').forEach(row=>{
+     if(row.dataset.collectionBranchId===branchId)row.classList.toggle('collection-branch-collapsed',!open);
+    });
+    button.setAttribute('aria-expanded',String(open));
+    const label=button.querySelector('span');if(label)label.textContent=`${open?'إخفاء':'عرض'} الأخصائيين (${button.dataset.specialistCount||'0'})`;
+    const icon=button.querySelector('b');if(icon)icon.textContent=open?'⌃':'⌄';
+   });
+  }
   const priorRows=Array.from(body.children),dataRows=priorRows.filter(row=>row.cells.length===12),emptyRow=priorRows.find(row=>row.cells.length===1);
   const sourceTable=body.closest('.collection-main-table');sourceTable?.classList.toggle('collection-grouped-view',dataRows.length>0);
-  const groups=new Map();let totalValue=0,totalPaid=0,totalUnpaid=0;
+  const branches=new Map();let totalValue=0,totalPaid=0,totalUnpaid=0;
   dataRows.forEach((row,index)=>{
    row.dataset.collectionPrintOrder=String(index);
-   const name=String(row.cells[0]?.dataset?.excelOfficer||row.cells[0]?.textContent||'').trim()||'غير محدد',key=norm(name)||'غير محدد';
-   if(!groups.has(key))groups.set(key,{name,rows:[],value:0,paid:0,unpaid:0});
-   const group=groups.get(key),value=num(row.cells[3]?.textContent),paid=num(row.cells[6]?.textContent),unpaid=num(row.cells[8]?.textContent);
-   group.rows.push(row);group.value+=value;group.paid+=paid;group.unpaid+=unpaid;totalValue+=value;totalPaid+=paid;totalUnpaid+=unpaid;
+   const officer=String(row.cells[0]?.dataset?.excelOfficer||row.cells[0]?.textContent||'').trim()||'غير محدد';
+   const locationCell=row.querySelector('[data-excel-province]');
+   const province=String(locationCell?.dataset.excelProvince||'غير محدد').trim()||'غير محدد';
+   const branch=String(locationCell?.dataset.excelBranch||'غير محدد').trim()||'غير محدد';
+   const branchKey=JSON.stringify([norm(province),norm(branch)]);
+   if(!branches.has(branchKey))branches.set(branchKey,{province,branch,rows:[],specialists:new Map(),value:0,paid:0,unpaid:0});
+   const entry=branches.get(branchKey),officerKey=norm(officer)||'غير محدد';
+   if(!entry.specialists.has(officerKey))entry.specialists.set(officerKey,{name:officer,rows:[],value:0,paid:0,unpaid:0});
+   const specialist=entry.specialists.get(officerKey),value=num(row.cells[3]?.textContent),paid=num(row.cells[6]?.textContent),unpaid=num(row.cells[8]?.textContent);
+   entry.rows.push(row);specialist.rows.push(row);
+   entry.value+=value;entry.paid+=paid;entry.unpaid+=unpaid;
+   specialist.value+=value;specialist.paid+=paid;specialist.unpaid+=unpaid;
+   totalValue+=value;totalPaid+=paid;totalUnpaid+=unpaid;
   });
-  const orderedGroups=[...groups.values()].sort((a,b)=>a.name.localeCompare(b.name,'ar'));
+  const orderedBranches=[...branches.values()].sort((a,b)=>a.province.localeCompare(b.province,'ar')||a.branch.localeCompare(b.branch,'ar'));
+  const specialistsTotal=[...branches.values()].reduce((sum,branch)=>sum+branch.specialists.size,0);
   const groupRow=(className,label,value,paid,unpaid,count='')=>`<tr class="collection-screen-only ${className}"><td colspan="4">${label}${count?` — ${count} قسط`:''}</td><td>${money(value)}</td><td></td><td></td><td>${money(paid)}</td><td></td><td>${money(unpaid)}</td><td></td><td></td><td></td></tr>`;
   const headerRow=`<tr class="collection-screen-only collection-repeat-header-row">${tableHeaders.map(text=>`<td role="columnheader">${text}</td>`).join('')}</tr>`;
   const html=[groupRow('collection-general-total-row','الإجمالي العام',totalValue,totalPaid,totalUnpaid,String(dataRows.length))];
-  if(!orderedGroups.length){html.push(emptyRow?.outerHTML||'<tr><td colspan="13">لا توجد نتائج في الفترة أو الفلاتر المحددة</td></tr>');body.innerHTML=html.join('');return}
-  const multiple=orderedGroups.length>1;
-  const locationMoney=value=>Math.round(Number(value)||0).toLocaleString("en-US");
-  const locationSummary=(kind,label,items)=>{
-   const totals=items.reduce((acc,row)=>{acc.count++;acc.value+=num(row.cells[3]?.textContent);acc.paid+=num(row.cells[6]?.textContent);acc.unpaid+=num(row.cells[8]?.textContent);return acc},{count:0,value:0,paid:0,unpaid:0});
-   return `<tr class="collection-screen-only collection-location-group-row collection-${kind}-group-row"><td colspan="13"><div class="collection-location-group-title"><strong>${label}</strong><div class="collection-location-group-totals"><span>السجلات: <b>${totals.count}</b></span><span>قيمة الأقساط: <b>${locationMoney(totals.value)}</b></span><span>المسدد: <b>${locationMoney(totals.paid)}</b></span><span>المتبقي: <b>${locationMoney(totals.unpaid)}</b></span></div></div></td></tr>`;
-  };
-  orderedGroups.forEach((group,groupIndex)=>{
-   if(groupIndex>0)html.push('<tr class="collection-screen-only collection-specialist-gap-row"><td colspan="13"></td></tr>');
-   html.push(`<tr class="collection-screen-only collection-specialist-header-row"><td colspan="13"><span>الأخصائي: <b>${esc(group.name)}</b></span><span class="collection-specialist-row-count">${group.rows.length} قسط</span></td></tr>`);
-   if(multiple)html.push(groupRow('collection-specialist-subtotal-row',`الإجمالي الفرعي — ${esc(group.name)}`,group.value,group.paid,group.unpaid,String(group.rows.length)));
-   html.push(headerRow);
-   const locations=new Map();
-   group.rows.forEach(row=>{
-    const cell=row.querySelector('[data-excel-province]'),province=String(cell?.dataset.excelProvince||'غير محدد').trim()||'غير محدد',branch=String(cell?.dataset.excelBranch||'غير محدد').trim()||'غير محدد';
-    if(!locations.has(province))locations.set(province,new Map());
-    const branches=locations.get(province);if(!branches.has(branch))branches.set(branch,[]);branches.get(branch).push(row);
-   });
-   let sequence=0;
-   [...locations.keys()].sort((a,b)=>a.localeCompare(b,'ar')).forEach(province=>{
-    const branches=locations.get(province),provinceRows=[...branches.values()].flat();
-    html.push(locationSummary('province',`المحافظة: ${esc(province)}`,provinceRows));
-    [...branches.keys()].sort((a,b)=>a.localeCompare(b,'ar')).forEach(branch=>{
-     const branchRows=branches.get(branch);html.push(locationSummary('branch',`الفرع: ${esc(branch)}`,branchRows));
-     branchRows.forEach(row=>{const serial=row.insertCell(0);serial.className='collection-screen-only collection-row-sequence';serial.textContent=String(++sequence);html.push(row.outerHTML)});
+  if(!orderedBranches.length){html.push(emptyRow?.outerHTML||'<tr><td colspan="13">لا توجد نتائج في الفترة أو الفلاتر المحددة</td></tr>');body.innerHTML=html.join('');return}
+  const detailMarkup=(markup,id)=>markup.replace('<tr class="collection-screen-only ','<tr data-collection-branch-id="'+id+'" class="collection-screen-only collection-branch-detail-row collection-branch-collapsed ');
+  orderedBranches.forEach((branch,branchIndex)=>{
+   const branchId=`collection-branch-${branchIndex}`,specialistCount=branch.specialists.size;
+   html.push(`<tr class="collection-screen-only collection-branch-card-row"><td colspan="13"><div class="collection-branch-card">
+    <div class="collection-branch-card-line"><span class="collection-branch-card-label">المحافظة</span><strong>${esc(branch.province)}</strong></div>
+    <div class="collection-branch-card-line"><span class="collection-branch-card-label">اسم الفرع</span><strong>${esc(branch.branch)}</strong></div>
+    <div class="collection-branch-card-line collection-branch-card-total"><span class="collection-branch-card-label">إجمالي الفرع</span><span class="collection-branch-card-metrics"><span>قيمة الأقساط: <b>${money(branch.value)}</b></span><span>المسدد: <b>${money(branch.paid)}</b></span><span>المتبقي: <b>${money(branch.unpaid)}</b></span></span><button type="button" class="collection-branch-toggle" data-branch-id="${branchId}" data-specialist-count="${specialistCount}" aria-expanded="false" aria-label="عرض أخصائيي فرع ${esc(branch.branch)}"><span>عرض الأخصائيين (${specialistCount})</span><b aria-hidden="true">⌄</b></button></div>
+   </div></td></tr>`);
+   const specialists=[...branch.specialists.values()].sort((a,b)=>a.name.localeCompare(b.name,'ar'));
+   specialists.forEach((specialist,specialistIndex)=>{
+    if(specialistIndex>0)html.push(detailMarkup('<tr class="collection-screen-only collection-specialist-gap-row"><td colspan="13"></td></tr>',branchId));
+    html.push(detailMarkup(`<tr class="collection-screen-only collection-specialist-header-row"><td colspan="13"><span>الأخصائي: <b>${esc(specialist.name)}</b></span><span class="collection-specialist-row-count">${specialist.rows.length} قسط</span></td></tr>`,branchId));
+    if(specialistsTotal>1)html.push(detailMarkup(groupRow('collection-specialist-subtotal-row',`الإجمالي الفرعي — ${esc(specialist.name)}`,specialist.value,specialist.paid,specialist.unpaid,String(specialist.rows.length)),branchId));
+    html.push(detailMarkup(headerRow,branchId));
+    let sequence=0;
+    specialist.rows.forEach(row=>{
+     const serial=row.insertCell(0);serial.className='collection-screen-only collection-row-sequence';serial.textContent=String(++sequence);
+     row.classList.add('collection-branch-detail-row','collection-branch-collapsed');row.dataset.collectionBranchId=branchId;
+     html.push(row.outerHTML);
     });
    });
   });
@@ -17340,4 +17359,21 @@ body.group-lead-mode #groupLeadScopeBar{display:none!important;visibility:hidden
 #collection .collection-location-group-totals span{white-space:nowrap}.collection-location-group-totals b{color:#182d42;font-weight:900}
 @media(max-width:760px){#collection .collection-location-group-title{align-items:flex-start!important;flex-direction:column!important;gap:5px!important;padding:8px 9px!important}#collection .collection-location-group-totals{gap:4px 9px;font-size:10px}}
 @media print{#collection .collection-main-table .collection-location-group-row{display:none!important}}
+</style>
+
+<style id="collection-branch-cards-compact-style">
+#collection .collection-main-table .collection-branch-card-row>td{padding:0!important;border:0!important;background:transparent!important}
+#collection .collection-branch-card{display:grid;gap:2px;margin:5px 0;padding:7px 10px;border:1px solid #c8ddd8;border-right:4px solid #087957;border-radius:10px;background:linear-gradient(105deg,#f2faf7,#fff);box-shadow:0 3px 9px rgba(15,55,45,.06);color:#183d35}
+#collection .collection-branch-card-line{display:flex;align-items:center;gap:8px;min-height:19px;line-height:1.3}
+#collection .collection-branch-card-label{flex:0 0 94px;color:#58716b;font-size:10px;font-weight:800}
+#collection .collection-branch-card-line>strong{min-width:0;color:#153d33;font-size:11px;font-weight:900;overflow-wrap:anywhere}
+#collection .collection-branch-card-total{flex-wrap:wrap;margin-top:2px;padding-top:5px;border-top:1px solid #dcebe5}
+#collection .collection-branch-card-total .collection-branch-card-label{color:#087957;font-size:10px}
+#collection .collection-branch-card-metrics{display:flex;flex:1 1 300px;align-items:center;gap:4px 13px;flex-wrap:wrap;color:#526861;font-size:10px}
+#collection .collection-branch-card-metrics b{color:#173c32;font-weight:900;white-space:nowrap}
+#collection .collection-branch-toggle{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:27px;margin-inline-start:auto;padding:4px 9px;border:1px solid #b8d8cc;border-radius:7px;background:#fff;color:#087957;font-family:inherit;font-size:10px;font-weight:900;white-space:nowrap;cursor:pointer}
+#collection .collection-branch-toggle:hover{background:#e9f7f1;border-color:#70b39a}
+#collection .collection-branch-toggle b{font-size:14px;line-height:1}
+#collection .collection-branch-detail-row.collection-branch-collapsed{display:none!important}
+@media(max-width:760px){#collection .collection-branch-card{padding:6px 8px}#collection .collection-branch-card-line{gap:5px!important}#collection .collection-branch-card-label{flex-basis:76px!important;font-size:9px!important}#collection .collection-branch-card-line>strong{font-size:10px!important}#collection .collection-branch-card-metrics{flex-basis:100%!important;gap:3px 9px!important;font-size:9px!important}#collection .collection-branch-toggle{min-height:25px!important;padding:3px 7px!important;font-size:9px!important}}
 </style>
