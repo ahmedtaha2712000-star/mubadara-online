@@ -5766,7 +5766,7 @@ function renderCollection(){
 
   const byProvince=new Map();
   visibleGroups().filter(g=>{
-    if(!statusMatch(g,filter)||!specialistStatusAllows(get(g.r,"officer"))||!window.__locationHierarchyMatch?.("collection",g.r,g))return false;
+    if(!statusMatch(g,filter)||!specialistStatusAllows(get(g.r,"officer"))||(window.__locationHierarchyMatch && !window.__locationHierarchyMatch("collection",g.r,g)))return false;
     if(client && !norm(get(g.r,"client")).includes(client))return false;
     if(officer && !norm(get(g.r,"officer")).includes(officer))return false;
     return collectionRowsForScreen(g,from,to).length>0;
