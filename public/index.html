@@ -16062,42 +16062,6 @@ body.group-lead-mode #paymentFollowup .pf-log-tools-actions {display:none!import
 
 
 
-
-<style id="location-branch-officer-filter-style">
-#collection .loc-hierarchy-filters,#dueInstallments .loc-hierarchy-filters{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:9px;margin:0 0 10px;direction:rtl}
-#collection .loc-hierarchy-field,#dueInstallments .loc-hierarchy-field{position:relative;display:grid;gap:5px;min-width:0}
-.loc-hierarchy-field label{font-size:12px;font-weight:800;color:#526175}
-.loc-hierarchy-field input{box-sizing:border-box;width:100%;height:40px;border:1px solid #cbd5e1;border-radius:9px;background:#fbfcfe;color:#172033;padding:0 11px;font:inherit}
-.loc-hierarchy-menu{display:none;position:absolute;top:100%;right:0;left:0;z-index:10020;max-height:220px;overflow:auto;margin-top:3px;padding:4px;border:1px solid #cbd5e1;border-radius:9px;background:#fff;box-shadow:0 10px 24px #0f172a24}
-.loc-hierarchy-menu.open{display:block}.loc-hierarchy-menu button{display:block;width:100%;border:0;border-radius:6px;background:#fff;padding:8px 9px;text-align:right;font:inherit;color:#172033;cursor:pointer}.loc-hierarchy-menu button:hover{background:#eef5ff}
-@media(max-width:760px){#collection .loc-hierarchy-filters,#dueInstallments .loc-hierarchy-filters{grid-template-columns:repeat(2,minmax(0,1fr))}.loc-hierarchy-field input{height:36px;font-size:12px}}
-</style>
-<script id="location-branch-officer-filters">
-(()=>{
- const cfg={collection:{root:'collection',officer:'collectionOfficer',rerender:()=>window.renderCollection?.(),source:()=>window.visibleGroups?.().flatMap(g=>[...(g.items||[g.r]).map(r=>({r,g}))])||[]},due:{root:'dueInstallments',officer:'dueOfficer',rerender:()=>window.renderDueInstallments?.(),source:()=>window.dueInstallmentRows?.()||[]}};
- const vals=(o,names)=>{for(const n of names){const v=o?.[n];if(v!==undefined&&v!==null&&String(v).trim())return String(v).trim()}return ''};
- const field=(x,names)=>vals(x?.r,names)||vals(x?.g?.r,names);
- const normv=v=>String(v||'').trim().toLocaleLowerCase('ar-EG').replace(/[\u064B-\u065F\u0670]/g,'').replace(/[أإآ]/g,'ا');
- function init(key,c){const root=document.getElementById(c.root);if(!root||root.querySelector('.loc-hierarchy-filters'))return;
-  const bar=document.createElement('div');bar.className='loc-hierarchy-filters no-print';bar.innerHTML=['المحافظة','الفرع'].map((n,i)=>`<div class="loc-hierarchy-field"><label>${n}</label><input type="text" autocomplete="off" placeholder="اكتب للبحث في ${n}" data-loc-index="${i}"><div class="loc-hierarchy-menu" role="listbox"></div></div>`).join('');
-  const officer=document.getElementById(c.officer);if(!officer)return;officer.parentElement?.parentElement?.insertAdjacentElement('beforebegin',bar);
-  const inputs=[...bar.querySelectorAll('input')];let chosen=['',''];
-  const source=()=>c.source().map(x=>({province:field(x,['المحافظة','المحافظه']),branch:field(x,['الفرع','فرع']),officer:field(x,['اسم الأخصائي','اسم الاخصائي','الأخصائي','الاخصائي','اسم الأخصائى'])}));
-  const paint=(idx)=>{const inp=inputs[idx],menu=inp.nextElementSibling,q=normv(inp.value),data=source();let options=idx===0?data.map(x=>x.province):idx===1?data.filter(x=>!chosen[0]||normv(x.province)===normv(chosen[0])).map(x=>x.branch):[];options=[...new Map(options.filter(Boolean).map(x=>[normv(x),x])).values()].filter(x=>!q||normv(x).includes(q)).sort((a,b)=>a.localeCompare(b,'ar'));menu.innerHTML='';const all=document.createElement('button');all.type='button';all.textContent='الكل';all.onclick=()=>select(idx,'');menu.appendChild(all);options.forEach(v=>{const b=document.createElement('button');b.type='button';b.textContent=v;b.onclick=()=>select(idx,v);menu.appendChild(b)});menu.classList.add('open')};
-  const refreshOfficers=()=>{const data=source();let opts=data.filter(x=>(!chosen[0]||normv(x.province)===normv(chosen[0]))&&(!chosen[1]||normv(x.branch)===normv(chosen[1]))).map(x=>x.officer).filter(Boolean);opts=[...new Map(opts.map(x=>[normv(x),x])).values()];const dl=officer.list&&document.getElementById(officer.list);if(dl)dl.innerHTML=opts.map(x=>`<option value="${String(x).replaceAll('&','&amp;').replaceAll('"','&quot;')}"></option>`).join('');if(officer.value&&opts.length&&!opts.some(x=>normv(x)===normv(officer.value)))officer.value='';};
-  function select(idx,v){chosen[idx]=v;inputs[idx].value=v;const next=idx+1;if(idx===0&&chosen[1]&&!source().some(x=>normv(x.province)===normv(v)&&normv(x.branch)===normv(chosen[1])))chosen[1]='';if(idx===0)inputs[1].value=chosen[1];inputs.forEach(x=>x.nextElementSibling.classList.remove('open'));refreshOfficers();c.rerender()}
-  inputs.forEach((inp,i)=>{inp.addEventListener('focus',()=>paint(i));inp.addEventListener('input',()=>paint(i));inp.addEventListener('keydown',e=>{if(e.key==='Escape')inp.nextElementSibling.classList.remove('open');if(e.key==='Enter'){e.preventDefault();inp.nextElementSibling.querySelector('button:not(:first-child)')?.click()}})});
-  document.addEventListener('click',e=>{if(!bar.contains(e.target))bar.querySelectorAll('.loc-hierarchy-menu').forEach(m=>m.classList.remove('open'))});
-  root._locHierarchy={values:()=>chosen,source,refreshOfficers};refreshOfficers();
- }
- function activeFilter(key,row,group){const root=document.getElementById(cfg[key].root),st=root?._locHierarchy;if(!st)return true;const [p,b]=st.values(),get=(names)=>vals(row,names)||vals(group?.r,names);const rp=get(['المحافظة','المحافظه']),rb=get(['الفرع','فرع']);return(!p||normv(rp)===normv(p))&&(!b||normv(rb)===normv(b))}
- window.__locationHierarchyMatch=activeFilter;
- window.__locationOfficerAllowed=(key,name)=>{const root=document.getElementById(cfg[key]?.root),st=root?._locHierarchy;if(!st)return true;const [p,b]=st.values();return st.source().some(x=>(!p||normv(x.province)===normv(p))&&(!b||normv(x.branch)===normv(b))&&normv(x.officer)===normv(name))};
- const boot=()=>Object.entries(cfg).forEach(([k,c])=>init(k,c));if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
- const mo=new MutationObserver(()=>boot());mo.observe(document.body,{childList:true,subtree:true});
-})();
-</script>
-
 </body></html>`);
         reportDocument.close();
         await new Promise(resolve => stage.contentWindow.requestAnimationFrame(() => stage.contentWindow.requestAnimationFrame(resolve)));
@@ -17277,3 +17241,40 @@ body.group-lead-mode #groupLeadScopeBar{display:none!important;visibility:hidden
   };
 })();
 </script>
+
+
+<style id="location-branch-officer-filter-style">
+#collection .loc-hierarchy-filters,#dueInstallments .loc-hierarchy-filters{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:9px;margin:0 0 10px;direction:rtl}
+#collection .loc-hierarchy-field,#dueInstallments .loc-hierarchy-field{position:relative;display:grid;gap:5px;min-width:0}
+.loc-hierarchy-field label{font-size:12px;font-weight:800;color:#526175}
+.loc-hierarchy-field input{box-sizing:border-box;width:100%;height:40px;border:1px solid #cbd5e1;border-radius:9px;background:#fbfcfe;color:#172033;padding:0 11px;font:inherit}
+.loc-hierarchy-menu{display:none;position:absolute;top:100%;right:0;left:0;z-index:10020;max-height:220px;overflow:auto;margin-top:3px;padding:4px;border:1px solid #cbd5e1;border-radius:9px;background:#fff;box-shadow:0 10px 24px #0f172a24}
+.loc-hierarchy-menu.open{display:block}.loc-hierarchy-menu button{display:block;width:100%;border:0;border-radius:6px;background:#fff;padding:8px 9px;text-align:right;font:inherit;color:#172033;cursor:pointer}.loc-hierarchy-menu button:hover{background:#eef5ff}
+@media(max-width:760px){#collection .loc-hierarchy-filters,#dueInstallments .loc-hierarchy-filters{grid-template-columns:repeat(2,minmax(0,1fr))}.loc-hierarchy-field input{height:36px;font-size:12px}}
+</style>
+<script id="location-branch-officer-filters">
+(()=>{
+ const cfg={collection:{root:'collection',officer:'collectionOfficer',rerender:()=>window.renderCollection?.(),source:()=>window.visibleGroups?.().flatMap(g=>[...(g.items||[g.r]).map(r=>({r,g}))])||[]},due:{root:'dueInstallments',officer:'dueOfficer',rerender:()=>window.renderDueInstallments?.(),source:()=>window.dueInstallmentRows?.()||[]}};
+ const vals=(o,names)=>{for(const n of names){const v=o?.[n];if(v!==undefined&&v!==null&&String(v).trim())return String(v).trim()}return ''};
+ const field=(x,names)=>vals(x?.r,names)||vals(x?.g?.r,names);
+ const normv=v=>String(v||'').trim().toLocaleLowerCase('ar-EG').replace(/[\u064B-\u065F\u0670]/g,'').replace(/[أإآ]/g,'ا');
+ function init(key,c){const root=document.getElementById(c.root);if(!root||root.querySelector('.loc-hierarchy-filters'))return;
+  const bar=document.createElement('div');bar.className='loc-hierarchy-filters no-print';bar.innerHTML=['المحافظة','الفرع'].map((n,i)=>`<div class="loc-hierarchy-field"><label>${n}</label><input type="text" autocomplete="off" placeholder="اكتب للبحث في ${n}" data-loc-index="${i}"><div class="loc-hierarchy-menu" role="listbox"></div></div>`).join('');
+  const officer=document.getElementById(c.officer);if(!officer)return;officer.parentElement?.parentElement?.insertAdjacentElement('beforebegin',bar);
+  const inputs=[...bar.querySelectorAll('input')];let chosen=['',''];
+  const source=()=>c.source().map(x=>({province:field(x,['المحافظة','المحافظه']),branch:field(x,['الفرع','فرع']),officer:field(x,['اسم الأخصائي','اسم الاخصائي','الأخصائي','الاخصائي','اسم الأخصائى'])}));
+  const paint=(idx)=>{const inp=inputs[idx],menu=inp.nextElementSibling,q=normv(inp.value),data=source();let options=idx===0?data.map(x=>x.province):idx===1?data.filter(x=>!chosen[0]||normv(x.province)===normv(chosen[0])).map(x=>x.branch):[];options=[...new Map(options.filter(Boolean).map(x=>[normv(x),x])).values()].filter(x=>!q||normv(x).includes(q)).sort((a,b)=>a.localeCompare(b,'ar'));menu.innerHTML='';const all=document.createElement('button');all.type='button';all.textContent='الكل';all.onclick=()=>select(idx,'');menu.appendChild(all);options.forEach(v=>{const b=document.createElement('button');b.type='button';b.textContent=v;b.onclick=()=>select(idx,v);menu.appendChild(b)});menu.classList.add('open')};
+  const refreshOfficers=()=>{const data=source();let opts=data.filter(x=>(!chosen[0]||normv(x.province)===normv(chosen[0]))&&(!chosen[1]||normv(x.branch)===normv(chosen[1]))).map(x=>x.officer).filter(Boolean);opts=[...new Map(opts.map(x=>[normv(x),x])).values()];const dl=officer.list&&document.getElementById(officer.list);if(dl)dl.innerHTML=opts.map(x=>`<option value="${String(x).replaceAll('&','&amp;').replaceAll('"','&quot;')}"></option>`).join('');if(officer.value&&opts.length&&!opts.some(x=>normv(x)===normv(officer.value)))officer.value='';};
+  function select(idx,v){chosen[idx]=v;inputs[idx].value=v;const next=idx+1;if(idx===0&&chosen[1]&&!source().some(x=>normv(x.province)===normv(v)&&normv(x.branch)===normv(chosen[1])))chosen[1]='';if(idx===0)inputs[1].value=chosen[1];inputs.forEach(x=>x.nextElementSibling.classList.remove('open'));refreshOfficers();c.rerender()}
+  inputs.forEach((inp,i)=>{inp.addEventListener('focus',()=>paint(i));inp.addEventListener('input',()=>paint(i));inp.addEventListener('keydown',e=>{if(e.key==='Escape')inp.nextElementSibling.classList.remove('open');if(e.key==='Enter'){e.preventDefault();inp.nextElementSibling.querySelector('button:not(:first-child)')?.click()}})});
+  document.addEventListener('click',e=>{if(!bar.contains(e.target))bar.querySelectorAll('.loc-hierarchy-menu').forEach(m=>m.classList.remove('open'))});
+  root._locHierarchy={values:()=>chosen,source,refreshOfficers};refreshOfficers();
+ }
+ function activeFilter(key,row,group){const root=document.getElementById(cfg[key].root),st=root?._locHierarchy;if(!st)return true;const [p,b]=st.values(),get=(names)=>vals(row,names)||vals(group?.r,names);const rp=get(['المحافظة','المحافظه']),rb=get(['الفرع','فرع']);return(!p||normv(rp)===normv(p))&&(!b||normv(rb)===normv(b))}
+ window.__locationHierarchyMatch=activeFilter;
+ window.__locationOfficerAllowed=(key,name)=>{const root=document.getElementById(cfg[key]?.root),st=root?._locHierarchy;if(!st)return true;const [p,b]=st.values();return st.source().some(x=>(!p||normv(x.province)===normv(p))&&(!b||normv(x.branch)===normv(b))&&normv(x.officer)===normv(name))};
+ const boot=()=>Object.entries(cfg).forEach(([k,c])=>init(k,c));if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
+ const mo=new MutationObserver(()=>boot());mo.observe(document.body,{childList:true,subtree:true});
+})();
+</script>
+
