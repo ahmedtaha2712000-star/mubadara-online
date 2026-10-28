@@ -5789,10 +5789,10 @@ function renderCollection(){
   [...byProvince.keys()].sort((a,b)=>a.localeCompare(b,"ar")).forEach(province=>{
     const branches=byProvince.get(province),provinceTotal={count:0,total:0,paid:0,unpaid:0};
     branches.forEach(b=>{provinceTotal.count+=b.count;provinceTotal.total+=b.total;provinceTotal.paid+=b.paid;provinceTotal.unpaid+=b.unpaid});
-    out+=`<tr class="collection-location-group-row collection-province-group-row no-print"><td colspan="13"><div class="collection-location-group-title"><strong>المحافظة: ${esc(province)}</strong><div class="collection-location-group-totals">${summaryCells(provinceTotal)}</div></div></td></tr>`;
+    out+=`<tr class="collection-location-group-row collection-province-group-row"><td colspan="13"><div class="collection-location-group-title"><strong>المحافظة: ${esc(province)}</strong><div class="collection-location-group-totals">${summaryCells(provinceTotal)}</div></div></td></tr>`;
     [...branches.keys()].sort((a,b)=>a.localeCompare(b,"ar")).forEach(branch=>{
       const bucket=branches.get(branch);
-      out+=`<tr class="collection-location-group-row collection-branch-group-row no-print"><td colspan="13"><div class="collection-location-group-title"><strong>الفرع: ${esc(branch)}</strong><div class="collection-location-group-totals">${summaryCells(bucket)}</div></div></td></tr>`;
+      out+=`<tr class="collection-location-group-row collection-branch-group-row"><td colspan="13"><div class="collection-location-group-title"><strong>الفرع: ${esc(branch)}</strong><div class="collection-location-group-totals">${summaryCells(bucket)}</div></div></td></tr>`;
       bucket.rows.forEach(({g,r,customerLateCount})=>{
         count++;
         const unpaid=num(get(r,"unpaid")),cls=unpaid>0?"unpaid-row":"paid-row";
