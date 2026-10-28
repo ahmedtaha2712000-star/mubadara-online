@@ -5765,16 +5765,17 @@ function renderCollection(){
   }));
 
   const byProvince=new Map();
-  visibleGroups().filter(g=>{
-    if(!statusMatch(g,filter)||!specialistStatusAllows(get(g.r,"officer"))||(window.__locationHierarchyMatch && !window.__locationHierarchyMatch("collection",g.r,g)))return false;
+  visibleGroups().map(g=>({g,rows:collectionRowsForScreen(g,from,to).filter(r=>!window.__locationHierarchyMatch||window.__locationHierarchyMatch("collection",r,g))})).filter(entry=>{
+    const g=entry.g;
+    if(!statusMatch(g,filter)||!specialistStatusAllows(get(g.r,"officer")))return false;
     if(client && !norm(get(g.r,"client")).includes(client))return false;
     if(officer && !norm(get(g.r,"officer")).includes(officer))return false;
-    return collectionRowsForScreen(g,from,to).length>0;
-  }).forEach(g=>{
-    const d=collectionGroupData(g,from,to);
+    return entry.rows.length>0;
+  }).forEach(({g,rows:screenRows})=>{
+    const d={total:screenRows.reduce((a,r)=>a+num(get(r,"total")),0),paid:screenRows.reduce((a,r)=>a+rowPaidAmount(r),0),unpaid:screenRows.reduce((a,r)=>a+num(get(r,"unpaid")),0)};
     const customerLateCount=collectionOverdueInstallmentCount(g);
     sumTotal+=d.total; sumPaid+=d.paid; sumUnpaid+=d.unpaid;
-    collectionRowsForScreen(g,from,to).forEach(r=>{
+    screenRows.forEach(r=>{
       const province=String(getAny(r,["المحافظة","المحافظه"])||getAny(g.r,["المحافظة","المحافظه"])||"غير محدد").trim()||"غير محدد";
       const branch=String(getAny(r,["اسم الفرع","الفرع","فرع"])||getAny(g.r,["اسم الفرع","الفرع","فرع"])||"غير محدد").trim()||"غير محدد";
       if(!byProvince.has(province))byProvince.set(province,new Map());
