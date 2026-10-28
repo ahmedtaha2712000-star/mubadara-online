@@ -5764,6 +5764,7 @@ function renderCollection(){
     customerArrearsByClient.set(clientKey,(customerArrearsByClient.get(clientKey)||0)+Math.max(0,num(rawUnpaid)));
   }));
 
+  const byProvince=new Map();
   visibleGroups().filter(g=>{
     if(!statusMatch(g,filter)||!specialistStatusAllows(get(g.r,"officer"))||!window.__locationHierarchyMatch?.("collection",g.r,g))return false;
     if(client && !norm(get(g.r,"client")).includes(client))return false;
@@ -5774,27 +5775,45 @@ function renderCollection(){
     const customerLateCount=collectionOverdueInstallmentCount(g);
     sumTotal+=d.total; sumPaid+=d.paid; sumUnpaid+=d.unpaid;
     collectionRowsForScreen(g,from,to).forEach(r=>{
-      count++;
-      const unpaid=num(get(r,"unpaid"));
-      const cls=unpaid>0?"unpaid-row":"paid-row";
-      const clientKey=norm(get(r,"client")||get(g.r,"client")||""),customerArrears=customerArrearsByClient.get(clientKey)||0;
-      out+=`<tr class="${cls}">
-        <td data-excel-officer="${esc(get(r,"officer"))}">${esc(get(r,"officer"))}</td>
-        <td><b>${esc(get(r,"client")||get(g.r,"client"))}</b></td>
-        <td>${esc(clientPhones(r)||get(r,"phone"))}</td>
-        <td>${money(get(r,"value"))}</td>
-        <td>${esc(collectionDisplayDate(get(r,"date")))}</td>
-        <td>${esc(get(r,"installment"))}</td>
-        <td>${money(rowPaidAmount(r))}</td>
-        <td>${esc(collectionDisplayDate(get(r,"paymentDate")))}</td>
-        <td>${money(get(r,"unpaid"))}</td>
-        <td>${esc(customerLateCount)}</td>
-        <td>${money(customerArrears)}</td>
-        <td class="collection-product-cell">${esc(get(r,"product")||get(g.r,"product"))}</td>
-      </tr>`;
+      const province=String(getAny(r,["المحافظة","المحافظه"])||getAny(g.r,["المحافظة","المحافظه"])||"غير محدد").trim()||"غير محدد";
+      const branch=String(getAny(r,["اسم الفرع","الفرع","فرع"])||getAny(g.r,["اسم الفرع","الفرع","فرع"])||"غير محدد").trim()||"غير محدد";
+      if(!byProvince.has(province))byProvince.set(province,new Map());
+      const branches=byProvince.get(province);
+      if(!branches.has(branch))branches.set(branch,{rows:[],count:0,total:0,paid:0,unpaid:0});
+      const bucket=branches.get(branch),value=num(get(r,"value")),paid=rowPaidAmount(r),unpaid=num(get(r,"unpaid"));
+      bucket.rows.push({g,r,customerLateCount});bucket.count++;bucket.total+=value;bucket.paid+=paid;bucket.unpaid+=unpaid;
     });
   });
-
+  const moneyText=value=>Math.round(Number(value)||0).toLocaleString("en-US");
+  const summaryCells=b=>`<span>السجلات: <b>${b.count}</b></span><span>قيمة الأقساط: <b>${moneyText(b.total)}</b></span><span>المسدد: <b>${moneyText(b.paid)}</b></span><span>المتبقي: <b>${moneyText(b.unpaid)}</b></span>`;
+  [...byProvince.keys()].sort((a,b)=>a.localeCompare(b,"ar")).forEach(province=>{
+    const branches=byProvince.get(province),provinceTotal={count:0,total:0,paid:0,unpaid:0};
+    branches.forEach(b=>{provinceTotal.count+=b.count;provinceTotal.total+=b.total;provinceTotal.paid+=b.paid;provinceTotal.unpaid+=b.unpaid});
+    out+=`<tr class="collection-location-group-row collection-province-group-row no-print"><td colspan="13"><div class="collection-location-group-title"><strong>المحافظة: ${esc(province)}</strong><div class="collection-location-group-totals">${summaryCells(provinceTotal)}</div></div></td></tr>`;
+    [...branches.keys()].sort((a,b)=>a.localeCompare(b,"ar")).forEach(branch=>{
+      const bucket=branches.get(branch);
+      out+=`<tr class="collection-location-group-row collection-branch-group-row no-print"><td colspan="13"><div class="collection-location-group-title"><strong>الفرع: ${esc(branch)}</strong><div class="collection-location-group-totals">${summaryCells(bucket)}</div></div></td></tr>`;
+      bucket.rows.forEach(({g,r,customerLateCount})=>{
+        count++;
+        const unpaid=num(get(r,"unpaid")),cls=unpaid>0?"unpaid-row":"paid-row";
+        const clientKey=norm(get(r,"client")||get(g.r,"client")||""),customerArrears=customerArrearsByClient.get(clientKey)||0;
+        out+=`<tr class="${cls}">
+          <td data-excel-officer="${esc(get(r,"officer"))}">${esc(get(r,"officer"))}</td>
+          <td><b>${esc(get(r,"client")||get(g.r,"client"))}</b></td>
+          <td>${esc(clientPhones(r)||get(r,"phone"))}</td>
+          <td>${money(get(r,"value"))}</td>
+          <td>${esc(collectionDisplayDate(get(r,"date")))}</td>
+          <td>${esc(get(r,"installment"))}</td>
+          <td>${money(rowPaidAmount(r))}</td>
+          <td>${esc(collectionDisplayDate(get(r,"paymentDate")))}</td>
+          <td>${money(get(r,"unpaid"))}</td>
+          <td>${esc(customerLateCount)}</td>
+          <td>${money(customerArrears)}</td>
+          <td class="collection-product-cell">${esc(get(r,"product")||get(g.r,"product"))}</td>
+        </tr>`;
+      });
+    });
+  });
   document.getElementById("ct").innerHTML=out||'<tr><td colspan="13">لا توجد نتائج في الفترة أو الفلاتر المحددة</td></tr>';
   document.getElementById("collectionCount").textContent=count;
   document.getElementById("collectionDue").textContent=Math.round(Number(sumTotal)||0).toLocaleString("en-US");
@@ -17249,19 +17268,19 @@ body.group-lead-mode #groupLeadScopeBar{display:none!important;visibility:hidden
 
 
 <style id="location-branch-officer-filter-style">
-#collection .loc-hierarchy-filters,#dueInstallments .loc-hierarchy-filters{position:relative;z-index:30;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;width:100%;box-sizing:border-box;margin:0 0 12px;padding:10px;border:1px solid #dbe4ec;border-radius:12px;background:#fff;direction:rtl;grid-column:1/-1}
-#collection .collection-filter-card .loc-hierarchy-filters{grid-column:1/-1!important;order:-1}
-#collection .loc-hierarchy-field,#dueInstallments .loc-hierarchy-field{position:relative;z-index:1;display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-rows:auto auto auto;gap:5px 7px;min-width:0;align-items:center}
-#collection .loc-hierarchy-field:focus-within,#dueInstallments .loc-hierarchy-field:focus-within{z-index:2}
-.loc-hierarchy-field>label{grid-column:1/-1;font-size:12px;font-weight:800;color:#526175}
-.loc-hierarchy-input-wrap{grid-column:1;grid-row:2;position:relative;display:block;min-width:0}
-.loc-hierarchy-field input{box-sizing:border-box;width:100%;height:40px;border:1px solid #cbd5e1;border-radius:9px;background:#fbfcfe;color:#172033;padding:0 10px;font:inherit}
-.loc-hierarchy-field input:focus{outline:none;border-color:#17866f;box-shadow:0 0 0 3px #17866f22}
-.loc-hierarchy-clear{grid-column:2;grid-row:2;position:static;transform:none;width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;border:1px solid #d8e1e8;border-radius:9px;background:#edf2f7;color:#526175;font-size:20px;font-weight:900;line-height:1;cursor:pointer}
-.loc-hierarchy-clear:hover{background:#e2eaf1;border-color:#aebdca}
-.loc-hierarchy-menu{grid-column:1/-1;grid-row:3;display:none;position:static;z-index:auto;width:100%;max-height:min(200px,30vh);overflow:auto;box-sizing:border-box;margin:0;padding:4px;border:1px solid #cbd5e1;border-radius:9px;background:#fff;box-shadow:0 4px 12px #0f172a12}
-.loc-hierarchy-menu.open{display:block}.loc-hierarchy-menu button{display:block;width:100%;min-height:42px;border:0;border-radius:6px;background:#fff;padding:9px 10px;text-align:right;font:inherit;color:#172033;cursor:pointer}.loc-hierarchy-menu button:hover,.loc-hierarchy-menu button:focus{background:#eef5ff;outline:2px solid #b9d8d1}
-@media(max-width:760px){#collection .loc-hierarchy-filters,#dueInstallments .loc-hierarchy-filters{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding:8px}.loc-hierarchy-field input{height:40px;font-size:12px}.loc-hierarchy-field>label{font-size:11px}.loc-hierarchy-clear{width:30px;height:30px}}
+#collection .loc-hierarchy-filters,#dueInstallments .loc-hierarchy-filters{position:relative!important;z-index:1!important;display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important;width:100%!important;box-sizing:border-box!important;margin:0 0 12px!important;padding:10px!important;border:1px solid #dbe4ec!important;border-radius:12px!important;background:#fff!important;direction:rtl!important;grid-column:1/-1!important;overflow:visible!important}
+#collection .collection-filter-card .loc-hierarchy-filters{grid-column:1/-1!important;order:-1!important}
+#collection .loc-hierarchy-field,#dueInstallments .loc-hierarchy-field{position:relative!important;z-index:auto!important;display:grid!important;grid-template-columns:minmax(0,1fr)!important;grid-template-rows:auto auto auto!important;gap:5px!important;min-width:0!important;align-items:stretch!important;overflow:visible!important}
+.loc-hierarchy-field>label{grid-column:1!important;grid-row:1!important;font-size:12px!important;font-weight:800!important;color:#526175!important}
+.loc-hierarchy-input-wrap{grid-column:1!important;grid-row:2!important;position:static!important;display:flex!important;flex-direction:row!important;align-items:center!important;gap:7px!important;width:100%!important;min-width:0!important;overflow:visible!important;direction:rtl!important}
+.loc-hierarchy-field input{display:block!important;position:static!important;flex:1 1 0!important;width:1%!important;min-width:0!important;max-width:none!important;height:40px!important;box-sizing:border-box!important;border:1px solid #cbd5e1!important;border-radius:9px!important;background:#fbfcfe!important;color:#172033!important;padding:0 10px!important;font:inherit!important}
+.loc-hierarchy-field input:focus{outline:none!important;border-color:#17866f!important;box-shadow:0 0 0 3px #17866f22!important}
+.loc-hierarchy-clear{position:static!important;inset:auto!important;transform:none!important;display:inline-flex!important;flex:0 0 34px!important;align-items:center!important;justify-content:center!important;width:34px!important;min-width:34px!important;max-width:34px!important;height:34px!important;margin:0!important;padding:0!important;border:1px solid #d8e1e8!important;border-radius:9px!important;background:#edf2f7!important;color:#526175!important;font-size:20px!important;font-weight:900!important;line-height:1!important;cursor:pointer!important;box-shadow:none!important}
+.loc-hierarchy-clear:hover{background:#e2eaf1!important;border-color:#aebdca!important}
+.loc-hierarchy-menu{grid-column:1!important;grid-row:3!important;display:none!important;position:static!important;inset:auto!important;z-index:auto!important;float:none!important;clear:both!important;width:100%!important;max-height:min(200px,30vh)!important;overflow-y:auto!important;overflow-x:hidden!important;box-sizing:border-box!important;margin:0!important;padding:4px!important;border:1px solid #cbd5e1!important;border-radius:9px!important;background:#fff!important;box-shadow:0 4px 12px #0f172a12!important;transform:none!important}
+.loc-hierarchy-menu.open{display:block!important}.loc-hierarchy-menu button{position:static!important;display:block!important;float:none!important;width:100%!important;min-height:42px!important;height:auto!important;margin:0!important;border:0!important;border-radius:6px!important;background:#fff!important;padding:9px 10px!important;text-align:right!important;font:inherit!important;color:#172033!important;cursor:pointer!important;white-space:normal!important}
+.loc-hierarchy-menu button:hover,.loc-hierarchy-menu button:focus{background:#eef5ff!important;outline:2px solid #b9d8d1!important}
+@media(max-width:760px){#collection .loc-hierarchy-filters,#dueInstallments .loc-hierarchy-filters{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important;padding:8px!important}.loc-hierarchy-field input{height:40px!important;font-size:12px!important}.loc-hierarchy-field>label{font-size:11px!important}.loc-hierarchy-clear{flex-basis:32px!important;width:32px!important;min-width:32px!important;max-width:32px!important;height:32px!important}}
 </style>
 <script id="location-branch-officer-filters">
 (()=>{
@@ -17291,3 +17310,14 @@ body.group-lead-mode #groupLeadScopeBar{display:none!important;visibility:hidden
  const boot=()=>Object.entries(cfg).forEach(([k,c])=>init(k,c));if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();const mo=new MutationObserver(()=>boot());mo.observe(document.body,{childList:true,subtree:true});
 })();
 </script>
+
+<style id="collection-location-group-row-style">
+#collection .collection-main-table .collection-location-group-row>td{padding:0!important;border:0!important;background:#fff!important}
+#collection .collection-main-table .collection-province-group-row .collection-location-group-title{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-top:8px;padding:11px 12px;border:1px solid #9ccfc1;border-right:5px solid #087957;border-radius:10px;background:linear-gradient(100deg,#e8f7f1,#f8fcfa);color:#124b3d}
+#collection .collection-main-table .collection-branch-group-row .collection-location-group-title{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin:5px 0;padding:9px 12px;border:1px solid #c7d7e5;border-right:4px solid #40749a;border-radius:9px;background:#f1f6fa;color:#24445e}
+#collection .collection-location-group-title>strong{font-weight:900}
+#collection .collection-location-group-totals{display:flex;align-items:center;gap:6px 12px;flex-wrap:wrap;font-size:11px;color:#40566a}
+#collection .collection-location-group-totals span{white-space:nowrap}.collection-location-group-totals b{color:#182d42;font-weight:900}
+@media(max-width:760px){#collection .collection-location-group-title{align-items:flex-start!important;flex-direction:column!important;gap:5px!important;padding:8px 9px!important}#collection .collection-location-group-totals{gap:4px 9px;font-size:10px}}
+@media print{#collection .collection-main-table .collection-location-group-row{display:none!important}}
+</style>
