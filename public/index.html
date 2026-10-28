@@ -3727,6 +3727,14 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
   <button type="button" class="pdf-btn icon-action collection-report-share-button" aria-label="مشاركة ملف PDF أو فتحه أو تنزيله" title="مشاركة PDF أو فتحه أو تنزيله" onclick="openCollectionPdfActions(this)" style="border-color:#128c4a;background:#25d366;color:#fff"><span class="action-glyph" aria-hidden="true">↗</span><span class="action-label">مشاركة PDF</span></button>
   <button class="excel-btn icon-action" aria-label="تحميل Excel" title="تحميل Excel" onclick="exportCurrentExcel()"><span class="action-glyph glyph-excel" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M7 2.75h7l4 4v14.5H7z" fill="#fff" stroke="#168045" stroke-width="1.15"/><path d="M14 2.75v4h4" fill="#d8f2e2" stroke="#168045" stroke-width="1.05"/><path d="M12.4 10.1h3.8m-3.8 2.7h3.8m-3.8 2.7h3.8m-3.8 2.7h3.8" fill="none" stroke="#72b48c" stroke-width=".8" stroke-linecap="round"/><path d="M3.15 8.7h9.7v10.1h-9.7z" fill="#107c41" stroke="#075e2f" stroke-width="1.1"/><path d="m5.65 11.1 4.7 5.3m-4.7 0 4.7-5.3" fill="none" stroke="#fff" stroke-width="1.45" stroke-linecap="round"/></svg></span><span class="action-label">Excel</span></button>
 </div>
+<div id="collectionBranchAppendixControls" class="collection-branch-appendix-controls no-print" aria-label="خيارات ملحق الفروع للطباعة">
+  <label class="collection-branch-appendix-enable"><input type="checkbox" id="collectionBranchAppendixEnabled" onchange="document.getElementById('collectionBranchAppendixModeOptions').hidden=!this.checked"> إضافة ملحق الفروع للطباعة وPDF</label>
+  <fieldset id="collectionBranchAppendixModeOptions" class="collection-branch-appendix-modes" hidden>
+    <legend>طريقة عرض جداول الفروع</legend>
+    <label><input type="radio" name="collectionBranchAppendixMode" value="separate" checked> جدول مستقل لكل فرع بعد بطاقته</label>
+    <label><input type="radio" name="collectionBranchAppendixMode" value="continuous"> جدول واحد متصل تفصل الفروع فيه بعناوين</label>
+  </fieldset>
+</div>
 
 <div class="screen-header">
   <div>
@@ -12919,6 +12927,50 @@ async function prepareDueWhatsAppPDF(event){
       section.innerHTML=`<h1 class="collection-print-title">جمعية المبادرة — تقرير التحصيل</h1><h2 class="collection-print-specialist-title">الأخصائي: ${esc(group.name)}</h2><div class="collection-print-meta"><span>الفترة: ${esc(period)}</span><span>حالة القرض: ${esc(selectedText("collectionStatus"))}</span><span>عدد العملاء المحصلة: ${fmt(group.rows.length)}</span></div>${table}<div class="collection-print-specialist-subtotal"><strong>الإجمالي الفرعي — ${esc(group.name)}</strong><div class="collection-print-subtotal-items"><span>عدد العملاء المحصلة: <b>${fmt(group.rows.length)}</b></span><span>المستحق: <b>${esc(money(totals.due))}</b></span><span>المسدد: <b>${esc(money(totals.paid))}</b></span><span>غير المسدد: <b>${esc(money(totals.unpaid))}</b></span><span>متأخرات العملاء حتى الانتظام: <b>${esc(money(totals.arrears))}</b></span></div></div><footer class="collection-print-footer"><span>المستخدم: ${esc(user)}</span><span>تاريخ الطباعة: ${esc(formatPrintDate(now))}</span><span>الأخصائي: ${esc(group.name)}</span></footer>`;
       layer.appendChild(section);
     });
+    if(document.getElementById("collectionBranchAppendixEnabled")?.checked){
+      const appendixBranches=new Map();
+      sourceRows.forEach(row=>{
+        const locationCell=row.querySelector("[data-excel-province]"),province=String(locationCell?.dataset.excelProvince||"غير محدد").trim()||"غير محدد",branch=String(locationCell?.dataset.excelBranch||"غير محدد").trim()||"غير محدد",branchKey=JSON.stringify([norm(province),norm(branch)]),officer=getName(row);
+        if(!appendixBranches.has(branchKey))appendixBranches.set(branchKey,{province,branch,rows:[],specialists:new Set(),due:0,paid:0,unpaid:0});
+        const item=appendixBranches.get(branchKey);item.rows.push(row);item.specialists.add(norm(officer)||officer);item.due+=amount(row,4);item.paid+=amount(row,7);item.unpaid+=amount(row,9);
+      });
+      const orderedAppendixBranches=[...appendixBranches.values()].sort((a,b)=>a.province.localeCompare(b.province,"ar")||a.branch.localeCompare(b.branch,"ar"));
+      const appendix=document.createElement("section");appendix.className="collection-branch-appendix";
+      const appendixStyles=`<style class="collection-branch-appendix-style">
+        .collection-branch-appendix{break-before:page;page-break-before:always;margin-top:12px;direction:rtl}
+        .collection-branch-appendix-title{margin:0 0 8px;padding:7px 10px;border-bottom:2px solid #087957;color:#123d33;font-size:15px;font-weight:900;text-align:right;break-after:avoid;page-break-after:avoid}
+        .collection-branch-appendix-block{margin:0 0 10px;break-inside:auto;page-break-inside:auto}
+        .collection-branch-appendix-card{display:grid;gap:2px;margin:0 0 5px;padding:6px 9px;border:1px solid #bfd7cf;border-right:4px solid #087957;border-radius:7px;background:#f4faf7;color:#183d35;break-inside:avoid;page-break-inside:avoid}
+        .collection-branch-appendix-card-line{display:flex;align-items:baseline;gap:8px;min-height:14px;font-size:9px;line-height:1.35}
+        .collection-branch-appendix-card-line strong{flex:0 0 78px;color:#46665c;font-size:9px;font-weight:800}
+        .collection-branch-appendix-card-line span{font-weight:800;overflow-wrap:anywhere}
+        .collection-branch-appendix-card-total{flex-wrap:wrap;border-top:1px solid #d5e5df;padding-top:3px;color:#173d32}
+        .collection-branch-appendix-card-total .collection-branch-appendix-metrics{display:flex;flex:1 1 360px;gap:4px 12px;flex-wrap:wrap}
+        .collection-branch-appendix-metrics span{white-space:nowrap}
+        .collection-branch-appendix-table{margin:0 0 8px;width:100%;break-inside:auto;page-break-inside:auto}
+        .collection-branch-appendix-divider-row{break-inside:avoid;page-break-inside:avoid}
+        .collection-branch-appendix-divider-cell{padding:2px 0 5px!important;border:0!important;background:transparent!important;text-align:right!important}
+        .collection-branch-appendix-divider-cell .collection-branch-appendix-card{margin:0}
+        @media print{.collection-branch-appendix{break-before:page!important;page-break-before:always!important}.collection-branch-appendix-table thead{display:table-header-group!important}.collection-branch-appendix-table tbody{display:table-row-group!important}}
+      </style>`;
+      const cardMarkup=item=>`<div class="collection-branch-appendix-card"><div class="collection-branch-appendix-card-line"><strong>المحافظة</strong><span>${esc(item.province)}</span></div><div class="collection-branch-appendix-card-line"><strong>اسم الفرع</strong><span>${esc(item.branch)}</span></div><div class="collection-branch-appendix-card-line collection-branch-appendix-card-total"><strong>إجمالي الفرع</strong><span class="collection-branch-appendix-metrics"><span>قيمة الأقساط: <b>${esc(money(item.due))}</b></span><span>المسدد: <b>${esc(money(item.paid))}</b></span><span>المتبقي: <b>${esc(money(item.unpaid))}</b></span><span>الأخصائيون: <b>${fmt(item.specialists.size)}</b></span></span></div></div>`;
+      const widths=["3%","12%","15%","8%","7%","8%","4%","7%","8%","7%","6%","8%","7%"],colgroup=`<colgroup>${widths.map(width=>`<col style="width:${width}">`).join("")}</colgroup>`,headerMarkup=`<thead><tr>${headers.map(header=>`<th>${esc(header)}</th>`).join("")}</tr></thead>`;
+      const orderedRows=item=>[...item.rows].sort((a,b)=>getName(a).localeCompare(getName(b),"ar")||Number(a.dataset.collectionPrintOrder||0)-Number(b.dataset.collectionPrintOrder||0));
+      const detailRows=item=>orderedRows(item).map((row,index)=>{const values=[...row.cells].map(cell=>cell.textContent.trim());values[0]=String(index+1);return`<tr>${values.map((value,column)=>`<td data-column="${column}">${esc(value||"—")}</td>`).join("")}</tr>`}).join("");
+      const appendixMode=document.querySelector('input[name="collectionBranchAppendixMode"]:checked')?.value||"separate";
+      appendix.innerHTML=appendixStyles+`<h2 class="collection-branch-appendix-title">ملحق ملخص الفروع</h2>`;
+      if(appendixMode==="continuous"){
+        const bodyMarkup=orderedAppendixBranches.map(item=>`<tr class="collection-branch-appendix-divider-row"><td class="collection-branch-appendix-divider-cell" colspan="${headers.length}">${cardMarkup(item)}</td></tr>${detailRows(item)}`).join("");
+        appendix.insertAdjacentHTML("beforeend",`<table class="collection-print-table risk-print-table collection-print-detail-table collection-branch-appendix-table">${colgroup}${headerMarkup}<tbody>${bodyMarkup}</tbody></table>`);
+      }else{
+        orderedAppendixBranches.forEach(item=>{
+          const block=document.createElement("section");block.className="collection-branch-appendix-block";
+          block.innerHTML=cardMarkup(item)+`<table class="collection-print-table risk-print-table collection-print-detail-table collection-branch-appendix-table">${colgroup}${headerMarkup}<tbody>${detailRows(item)}</tbody></table>`;
+          appendix.appendChild(block);
+        });
+      }
+      layer.appendChild(appendix);
+    }
     return layer;
   }
   function formatCollectionPrintLayer(layer){
@@ -12932,6 +12984,7 @@ async function prepareDueWhatsAppPDF(event){
     layer.querySelectorAll("table.collection-print-summary-table tbody td:first-child,table.collection-print-summary-table tfoot th:first-child").forEach(cell=>{cell.style.setProperty("font-size","17px","important");cell.style.setProperty("font-weight","800","important");cell.style.setProperty("color","#000","important");cell.style.setProperty("line-height","1.4","important");cell.style.setProperty("padding","7px 4px","important");cell.style.setProperty("height","auto","important")});
     layer.querySelectorAll("table.collection-print-summary-table tbody td:not(:first-child),table.collection-print-summary-table tfoot th:not(:first-child)").forEach(cell=>{cell.style.setProperty("font-size","17px","important");cell.style.setProperty("font-weight","900","important");cell.style.setProperty("color","#000","important");cell.style.setProperty("line-height","1.45","important");cell.style.setProperty("padding","8px 4px","important");cell.style.setProperty("height","auto","important")});
     layer.querySelectorAll(".collection-print-specialist-section table.collection-print-table th,.collection-print-specialist-section table.collection-print-table td").forEach(cell=>{cell.style.setProperty("font-size","16px","important");cell.style.setProperty("font-weight","800","important");cell.style.setProperty("color","#000","important");cell.style.setProperty("line-height","1.35","important");cell.style.setProperty("padding","6px 3px","important");cell.style.setProperty("height","auto","important");cell.style.setProperty("color","#000","important");if(cell.cellIndex===cell.parentElement.cells.length-1){cell.style.setProperty("white-space","normal","important");cell.style.setProperty("overflow-wrap","anywhere","important");cell.style.setProperty("word-break","normal","important")}});
+    layer.querySelectorAll(".collection-branch-appendix-divider-cell").forEach(cell=>{cell.style.setProperty("padding","2px 0 5px","important");cell.style.setProperty("border","0","important");cell.style.setProperty("background","transparent","important");cell.style.setProperty("text-align","right","important")});
   }
   async function downloadCollectionReportViaVercel(layer,filename,returnBlob=false){
   let css=[...document.querySelectorAll("style")].map(style=>style.textContent||"").join("\n"),requestBody=JSON.stringify({html:layer.outerHTML,css,filename,reportType:"collection-report"});
@@ -17376,4 +17429,14 @@ body.group-lead-mode #groupLeadScopeBar{display:none!important;visibility:hidden
 #collection .collection-branch-toggle b{font-size:14px;line-height:1}
 #collection .collection-branch-detail-row.collection-branch-collapsed{display:none!important}
 @media(max-width:760px){#collection .collection-branch-card{padding:6px 8px}#collection .collection-branch-card-line{gap:5px!important}#collection .collection-branch-card-label{flex-basis:76px!important;font-size:9px!important}#collection .collection-branch-card-line>strong{font-size:10px!important}#collection .collection-branch-card-metrics{flex-basis:100%!important;gap:3px 9px!important;font-size:9px!important}#collection .collection-branch-toggle{min-height:25px!important;padding:3px 7px!important;font-size:9px!important}}
+</style>
+
+<style id="collection-branch-appendix-controls-style">
+#collection .collection-branch-appendix-controls{display:flex;align-items:flex-start;flex-wrap:wrap;gap:8px 14px;margin:7px 0 10px;padding:7px 10px;border:1px solid #d8e6e1;border-radius:9px;background:#f8fbfa;color:#294940;font:700 11px Arial,Tahoma,sans-serif}
+#collection .collection-branch-appendix-enable,#collection .collection-branch-appendix-modes label{display:flex;align-items:center;gap:7px;cursor:pointer}
+#collection .collection-branch-appendix-controls input{accent-color:#087957}
+#collection .collection-branch-appendix-modes{display:flex;align-items:center;gap:8px 14px;flex-wrap:wrap;margin:0;padding:0;border:0}
+#collection .collection-branch-appendix-modes legend{margin:0 0 4px;color:#58716b;font-size:10px;font-weight:900}
+#collection .collection-branch-appendix-modes[hidden]{display:none!important}
+@media(max-width:700px){#collection .collection-branch-appendix-controls{font-size:10px}#collection .collection-branch-appendix-modes{flex-basis:100%;gap:6px 10px}}
 </style>
