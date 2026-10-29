@@ -3232,19 +3232,6 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="جمعية المبادرة">
 <script>if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("/service-worker.js",{scope:"/"}).catch(()=>{}));}</script>
-<style id="collection-screen-title-card-style">
-@media screen{
-  #collection>.screen-header{display:flex;align-items:center;gap:12px;margin:2px 0 15px;padding:13px 16px;border:1px solid #b8c9d8;border-right:5px solid #3c6385;border-radius:12px;background:linear-gradient(110deg,#dce9f4 0%,#e4e5f2 100%);box-shadow:0 5px 14px rgba(23,53,80,.10)}
-  #collection>.screen-header>div{min-width:0}
-  #collection>.screen-header h2{margin:0 0 5px;color:#183b5b!important;font-size:21px!important;font-weight:900!important;line-height:1.3}
-  #collection>.screen-header .sub{color:#425b72!important;font-size:13px!important;line-height:1.55}
-}
-@media screen and (max-width:600px){
-  #collection>.screen-header{margin:1px 0 12px;padding:10px 12px;border-right-width:4px;border-radius:10px}
-  #collection>.screen-header h2{font-size:18px!important}
-  #collection>.screen-header .sub{font-size:11px!important}
-}
-</style>
 </head>
 
 <body>
@@ -3734,22 +3721,18 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
 </section>
 
 <section id="collection" class="card screen">
-<div class="screen-header">
-  <div>
-    <h2>📅 شاشة التحصيل</h2>
-    <div class="sub">إدارة ومتابعة الأقساط والتحصيل حسب العميل والأخصائي والفترة الزمنية.</div>
-  </div>
-</div>
-
 <div class="export-toolbar no-print collection-export-icons">
   <button class="print-btn icon-action" aria-label="طباعة" title="طباعة" onclick="printCollectionStandalone()"><span class="action-glyph glyph-print" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M7.25 8V3.5h9.5V8" fill="#eaf3ff" stroke="#3769a3" stroke-width="1.25"/><path d="M5.75 8.5h12.5A2.75 2.75 0 0 1 21 11.25v2A2.75 2.75 0 0 1 18.25 16H17v-2.5H7V16H5.75A2.75 2.75 0 0 1 3 13.25v-2A2.75 2.75 0 0 1 5.75 8.5Z" fill="#4d86c6" stroke="#225d9c" stroke-width="1.2"/><path d="M7 13.5h10v7H7z" fill="#fff" stroke="#225d9c" stroke-width="1.2"/><path d="M9 16.5h6" fill="none" stroke="#77a5d6" stroke-width="1.25"/><circle cx="17.25" cy="11.3" r=".7" fill="#e7f8ff" stroke="#fff" stroke-width=".45"/></svg></span><span class="action-label">طباعة</span></button>
   <button class="pdf-btn icon-action" aria-label="تحميل PDF" title="تحميل PDF" onclick="downloadCurrentPDF()"><span class="action-glyph glyph-pdf" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M6 2.75h8l4.25 4.25v14.25H6z" fill="#fff" stroke="#b51f2b" stroke-width="1.2"/><path d="M14 2.75V7h4.25" fill="#ffd9dd" stroke="#b51f2b" stroke-width="1.1"/><rect x="5.75" y="10" width="13" height="8.25" rx="1.3" fill="#d62839" stroke="#b51f2b" stroke-width=".6"/><text x="12.25" y="15.9" text-anchor="middle" font-family="Arial,sans-serif" font-size="7.1" font-weight="900" textLength="12" lengthAdjust="spacingAndGlyphs" fill="#fff">PDF</text><path d="M8.5 19.35h8" fill="none" stroke="#ed9ca4" stroke-width=".8"/></svg></span><span class="action-label">PDF</span></button>
   <button type="button" class="pdf-btn icon-action collection-report-share-button" aria-label="مشاركة ملف PDF أو فتحه أو تنزيله" title="مشاركة PDF أو فتحه أو تنزيله" onclick="openCollectionPdfActions(this)" style="border-color:#128c4a;background:#25d366;color:#fff"><span class="action-glyph" aria-hidden="true">↗</span><span class="action-label">مشاركة PDF</span></button>
   <button class="excel-btn icon-action" aria-label="تحميل Excel" title="تحميل Excel" onclick="exportCurrentExcel()"><span class="action-glyph glyph-excel" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M7 2.75h7l4 4v14.5H7z" fill="#fff" stroke="#168045" stroke-width="1.15"/><path d="M14 2.75v4h4" fill="#d8f2e2" stroke="#168045" stroke-width="1.05"/><path d="M12.4 10.1h3.8m-3.8 2.7h3.8m-3.8 2.7h3.8m-3.8 2.7h3.8" fill="none" stroke="#72b48c" stroke-width=".8" stroke-linecap="round"/><path d="M3.15 8.7h9.7v10.1h-9.7z" fill="#107c41" stroke="#075e2f" stroke-width="1.1"/><path d="m5.65 11.1 4.7 5.3m-4.7 0 4.7-5.3" fill="none" stroke="#fff" stroke-width="1.45" stroke-linecap="round"/></svg></span><span class="action-label">Excel</span></button>
 </div>
-<div id="collectionBranchAppendixControls" class="collection-branch-appendix-controls no-print" aria-label="خيارات ملحق الفروع للطباعة">
-  <label class="collection-branch-appendix-enable"><input type="checkbox" id="collectionBranchAppendixEnabled" > إضافة ملحق الفروع للطباعة وPDF</label>
-  <span class="collection-branch-appendix-note">عند التفعيل: ملخص التقرير، ثم بطاقة كل فرع وجداول أخصائييه بشكل مستقل.</span>
+
+<div class="screen-header">
+  <div>
+    <h2>📅 شاشة التحصيل</h2>
+    <div class="sub">إدارة ومتابعة الأقساط والتحصيل حسب العميل والأخصائي والفترة الزمنية.</div>
+  </div>
 </div>
 
 <label id="collectionMobileDifferencesToggle" class="collection-mobile-differences-toggle no-print" for="collectionMobileDifferencesSwitch">
@@ -5709,14 +5692,12 @@ function updateCollectionFilterLists(){
       const rnOfficer=String(get(r,"officer")||get(g.r,"officer")||"").trim();
       if(officer && !norm(rnOfficer).includes(officer))return;
       if(client && !norm(rnClient).includes(client))return;
-      if(!window.__locationHierarchyMatch?.("collection",r,g))return;
-      if(officer && !norm(rnOfficer).includes(officer))return;
       if(rnClient)clients.set(norm(rnClient),rnClient);
       if(rnOfficer)officers.set(norm(rnOfficer),rnOfficer);
     });
   });
   cl.innerHTML=[...clients.values()].sort((a,b)=>a.localeCompare(b,"ar")).map(x=>`<option value="${esc(x)}"></option>`).join("");
-  ol.innerHTML=`<option value="جميع الأخصائيين"></option>`+specialistDirectoryNames().filter(name=>specialistMatchesState(name,appSpecialistFilterState())&&window.__locationOfficerAllowed?.("collection",name)).sort((a,b)=>a.localeCompare(b,"ar")).map(x=>`<option value="${esc(x)}"></option>`).join("");
+  ol.innerHTML=`<option value="جميع الأخصائيين"></option>`+specialistDirectoryNames().filter(name=>specialistMatchesState(name,appSpecialistFilterState())).sort((a,b)=>a.localeCompare(b,"ar")).map(x=>`<option value="${esc(x)}"></option>`).join("");
   // Keep the current typed value; the lists are only suggestions and never force a selection.
 }
 function showCollectionDetails(groupIndex){
@@ -5763,7 +5744,6 @@ function riskDisplayDate(v){
   return `${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,"0")}/${String(d.getDate()).padStart(2,"0")}`;
 }
 function renderCollection(){
-  document.getElementById("collection")?._locHierarchy?.refreshOfficers();
   const filter=document.getElementById("collectionStatus").value;
   const client=norm(document.getElementById("collectionClient").value);
   const officer=norm(document.getElementById("collectionOfficer").value);
@@ -5781,57 +5761,37 @@ function renderCollection(){
     customerArrearsByClient.set(clientKey,(customerArrearsByClient.get(clientKey)||0)+Math.max(0,num(rawUnpaid)));
   }));
 
-  const byProvince=new Map();
-  visibleGroups().map(g=>({g,rows:collectionRowsForScreen(g,from,to).filter(r=>!window.__locationHierarchyMatch||window.__locationHierarchyMatch("collection",r,g))})).filter(entry=>{
-    const g=entry.g;
+  visibleGroups().filter(g=>{
     if(!statusMatch(g,filter)||!specialistStatusAllows(get(g.r,"officer")))return false;
     if(client && !norm(get(g.r,"client")).includes(client))return false;
     if(officer && !norm(get(g.r,"officer")).includes(officer))return false;
-    return entry.rows.length>0;
-  }).forEach(({g,rows:screenRows})=>{
-    const d={total:screenRows.reduce((a,r)=>a+num(get(r,"total")),0),paid:screenRows.reduce((a,r)=>a+rowPaidAmount(r),0),unpaid:screenRows.reduce((a,r)=>a+num(get(r,"unpaid")),0)};
+    return collectionRowsForScreen(g,from,to).length>0;
+  }).forEach(g=>{
+    const d=collectionGroupData(g,from,to);
     const customerLateCount=collectionOverdueInstallmentCount(g);
     sumTotal+=d.total; sumPaid+=d.paid; sumUnpaid+=d.unpaid;
-    screenRows.forEach(r=>{
-      const province=String(getAny(r,["المحافظة","المحافظه"])||getAny(g.r,["المحافظة","المحافظه"])||"غير محدد").trim()||"غير محدد";
-      const branch=String(getAny(r,["اسم الفرع","الفرع","فرع"])||getAny(g.r,["اسم الفرع","الفرع","فرع"])||"غير محدد").trim()||"غير محدد";
-      if(!byProvince.has(province))byProvince.set(province,new Map());
-      const branches=byProvince.get(province);
-      if(!branches.has(branch))branches.set(branch,{rows:[],count:0,total:0,paid:0,unpaid:0});
-      const bucket=branches.get(branch),value=num(get(r,"value")),paid=rowPaidAmount(r),unpaid=num(get(r,"unpaid"));
-      bucket.rows.push({g,r,customerLateCount});bucket.count++;bucket.total+=value;bucket.paid+=paid;bucket.unpaid+=unpaid;
+    collectionRowsForScreen(g,from,to).forEach(r=>{
+      count++;
+      const unpaid=num(get(r,"unpaid"));
+      const cls=unpaid>0?"unpaid-row":"paid-row";
+      const clientKey=norm(get(r,"client")||get(g.r,"client")||""),customerArrears=customerArrearsByClient.get(clientKey)||0;
+      out+=`<tr class="${cls}">
+        <td data-excel-officer="${esc(get(r,"officer"))}">${esc(get(r,"officer"))}</td>
+        <td><b>${esc(get(r,"client")||get(g.r,"client"))}</b></td>
+        <td>${esc(clientPhones(r)||get(r,"phone"))}</td>
+        <td>${money(get(r,"value"))}</td>
+        <td>${esc(collectionDisplayDate(get(r,"date")))}</td>
+        <td>${esc(get(r,"installment"))}</td>
+        <td>${money(rowPaidAmount(r))}</td>
+        <td>${esc(collectionDisplayDate(get(r,"paymentDate")))}</td>
+        <td>${money(get(r,"unpaid"))}</td>
+        <td>${esc(customerLateCount)}</td>
+        <td>${money(customerArrears)}</td>
+        <td class="collection-product-cell">${esc(get(r,"product")||get(g.r,"product"))}</td>
+      </tr>`;
     });
   });
-  const moneyText=value=>Math.round(Number(value)||0).toLocaleString("en-US");
-  const summaryCells=b=>`<span>السجلات: <b>${b.count}</b></span><span>قيمة الأقساط: <b>${moneyText(b.total)}</b></span><span>المسدد: <b>${moneyText(b.paid)}</b></span><span>المتبقي: <b>${moneyText(b.unpaid)}</b></span>`;
-  [...byProvince.keys()].sort((a,b)=>a.localeCompare(b,"ar")).forEach(province=>{
-    const branches=byProvince.get(province),provinceTotal={count:0,total:0,paid:0,unpaid:0};
-    branches.forEach(b=>{provinceTotal.count+=b.count;provinceTotal.total+=b.total;provinceTotal.paid+=b.paid;provinceTotal.unpaid+=b.unpaid});
-    out+=`<tr class="collection-location-group-row collection-province-group-row"><td colspan="13"><div class="collection-location-group-title"><strong>المحافظة: ${esc(province)}</strong><div class="collection-location-group-totals">${summaryCells(provinceTotal)}</div></div></td></tr>`;
-    [...branches.keys()].sort((a,b)=>a.localeCompare(b,"ar")).forEach(branch=>{
-      const bucket=branches.get(branch);
-      out+=`<tr class="collection-location-group-row collection-branch-group-row"><td colspan="13"><div class="collection-location-group-title"><strong>الفرع: ${esc(branch)}</strong><div class="collection-location-group-totals">${summaryCells(bucket)}</div></div></td></tr>`;
-      bucket.rows.forEach(({g,r,customerLateCount})=>{
-        count++;
-        const unpaid=num(get(r,"unpaid")),cls=unpaid>0?"unpaid-row":"paid-row";
-        const clientKey=norm(get(r,"client")||get(g.r,"client")||""),customerArrears=customerArrearsByClient.get(clientKey)||0;
-        out+=`<tr class="${cls}">
-          <td data-excel-officer="${esc(get(r,"officer"))}" data-excel-province="${esc(province)}" data-excel-branch="${esc(branch)}">${esc(get(r,"officer"))}</td>
-          <td><b>${esc(get(r,"client")||get(g.r,"client"))}</b></td>
-          <td>${esc(clientPhones(r)||get(r,"phone"))}</td>
-          <td>${money(get(r,"value"))}</td>
-          <td>${esc(collectionDisplayDate(get(r,"date")))}</td>
-          <td>${esc(get(r,"installment"))}</td>
-          <td>${money(rowPaidAmount(r))}</td>
-          <td>${esc(collectionDisplayDate(get(r,"paymentDate")))}</td>
-          <td>${money(get(r,"unpaid"))}</td>
-          <td>${esc(customerLateCount)}</td>
-          <td>${money(customerArrears)}</td>
-          <td class="collection-product-cell">${esc(get(r,"product")||get(g.r,"product"))}</td>
-        </tr>`;
-      });
-    });
-  });
+
   document.getElementById("ct").innerHTML=out||'<tr><td colspan="13">لا توجد نتائج في الفترة أو الفلاتر المحددة</td></tr>';
   document.getElementById("collectionCount").textContent=count;
   document.getElementById("collectionDue").textContent=Math.round(Number(sumTotal)||0).toLocaleString("en-US");
@@ -6145,9 +6105,6 @@ function updateDueFilterLists(baseRows){
   const cacheChanged=cacheKey!==dueFilterListsCacheKey||sourceRows!==dueFilterListsSourceRows;
   if(cacheChanged){
     const clients=new Map(),addresses=new Map();sourceRows.forEach(x=>{
-      if(!window.__locationHierarchyMatch?.('due',x.r,x.g))return;
-      const rowOfficer=norm(get(x.r,'officer')||get(x.g.r,'officer'));
-      if(officer&&!rowOfficer.includes(officer))return;
       const cn=String(get(x.r,'client')||get(x.g.r,'client')||'').trim(),an=String(rowAddress(x.r)||rowAddress(x.g.r)||'').trim();
       if(cn)clients.set(norm(cn),cn);if(an)addresses.set(norm(an),an);
     });
@@ -6270,7 +6227,6 @@ function resetDueAgingRange(){
 }
 
 function renderDueInstallments(baseRows){
-  document.getElementById("dueInstallments")?._locHierarchy?.refreshOfficers();
  const fromEl=document.getElementById('dueFrom'),toEl=document.getElementById('dueTo');
  if(fromEl&&toEl&&!fromEl.value&&!toEl.value){const n=new Date();fromEl.value=isoDate(new Date(n.getFullYear(),n.getMonth(),1));toEl.value=isoDate(new Date(n.getFullYear(),n.getMonth()+1,0))}
  const officerValue=norm(document.getElementById('dueOfficer')?.value||''),officer=officerValue===norm(DUE_ALL_SPECIALISTS_LABEL)?'':officerValue,client=norm(document.getElementById('dueClient')?.value||''),address=norm(document.getElementById('dueAddress')?.value||''),fromVal=fromEl?.value||'',toVal=toEl?.value||'',from=fromVal?parseExcelDate(fromVal):null,to=toVal?parseExcelDate(toVal):null,filter=document.getElementById('dueStatus')?.value||'open',view=window.dueView||'due';
@@ -6280,7 +6236,7 @@ function renderDueInstallments(baseRows){
  const matchesDueSpecialistState=(name,state=specialistState)=>{const key=`${state}::${String(name??'').trim()}`;if(dueSpecialistStateCache.has(key))return dueSpecialistStateCache.get(key);const matched=specialistMatchesState(name,state);dueSpecialistStateCache.set(key,matched);return matched};
  const base=baseRows||dueInstallmentRows(),stats={due:0,upcoming:0,partial:0,paid:0,overdue:0,todayAmount:0,todayCount:0};base.forEach(x=>{const t=dueDayType(x.r),paid=rowPaidAmount(x.r),remaining=dueRemainingForScreen(x.r),unpaid=remaining>0;if(t==='due'&&unpaid){stats.due++;stats.todayAmount+=num(get(x.r,'value'));stats.todayCount++}if(t==='upcoming'&&unpaid)stats.upcoming++;if(t==='overdue'&&unpaid)stats.overdue++;if(paid>0&&remaining>0)stats.partial++;if(paid>0&&remaining<=0)stats.paid++});
  renderDueAgingSummary(dueAgingEligibleRows(base,filter,specialistState,officer,client,address,matchesDueSpecialistState));
- const rows=base.filter(x=>{const g=x.g,r=x.r,go=norm(get(r,'officer')||get(g.r,'officer')),gc=norm(get(r,'client')||get(g.r,'client')),ga=norm(rowAddress(r)||rowAddress(g.r)||''),type=dueDayType(r),paid=rowPaidAmount(r),remaining=dueRemainingForScreen(r),unpaid=remaining>0,partial=paid>0&&unpaid,paidView=paid>0&&remaining<=0;const viewOk=dueAgingRange?unpaid&&type==='overdue'&&riskAgingBandForRow(r)?.id===dueAgingRange:(view==='due'?unpaid:view==='upcoming'?unpaid&&type==='upcoming':view==='partial'?partial:view==='paid'?paidView:unpaid&&type==='overdue');return statusMatch(g,filter)&&window.__locationHierarchyMatch?.('due',r,g)&&matchesDueSpecialistState(go,specialistState)&&(!officer||go.includes(officer))&&(!client||gc.includes(client))&&(!address||ga.includes(address))&&(!dueAgingRange?dueDateInRange(r,dateFrom,dateTo):true)&&viewOk}).sort((a,b)=>{const rank={overdue:0,due:1,upcoming:2};return (rank[dueDayType(a.r)]??3)-(rank[dueDayType(b.r)]??3)||((parseExcelDate(riskDueDateValue(a.r))?.getTime()||0)-(parseExcelDate(riskDueDateValue(b.r))?.getTime()||0))});
+ const rows=base.filter(x=>{const g=x.g,r=x.r,go=norm(get(r,'officer')||get(g.r,'officer')),gc=norm(get(r,'client')||get(g.r,'client')),ga=norm(rowAddress(r)||rowAddress(g.r)||''),type=dueDayType(r),paid=rowPaidAmount(r),remaining=dueRemainingForScreen(r),unpaid=remaining>0,partial=paid>0&&unpaid,paidView=paid>0&&remaining<=0;const viewOk=dueAgingRange?unpaid&&type==='overdue'&&riskAgingBandForRow(r)?.id===dueAgingRange:(view==='due'?unpaid:view==='upcoming'?unpaid&&type==='upcoming':view==='partial'?partial:view==='paid'?paidView:unpaid&&type==='overdue');return statusMatch(g,filter)&&matchesDueSpecialistState(go,specialistState)&&(!officer||go.includes(officer))&&(!client||gc.includes(client))&&(!address||ga.includes(address))&&(!dueAgingRange?dueDateInRange(r,dateFrom,dateTo):true)&&viewOk}).sort((a,b)=>{const rank={overdue:0,due:1,upcoming:2};return (rank[dueDayType(a.r)]??3)-(rank[dueDayType(b.r)]??3)||((parseExcelDate(riskDueDateValue(a.r))?.getTime()||0)-(parseExcelDate(riskDueDateValue(b.r))?.getTime()||0))});
  let totalDue=0,totalPaid=0,totalUnpaid=0,totalLateCount=0,totalDelayDays=0,totalArrears=0;const uniqueClients=new Set();let out='';
  // الاحتفاظ بعميل واحد في الجدول حسب الصفوف المطابقة لفترة العرض.
  const clientRows=new Map();rows.forEach(x=>{const key=norm(get(x.r,'client')||get(x.g.r,'client'))||`row:${clientRows.size}`;if(!clientRows.has(key))clientRows.set(key,[]);clientRows.get(key).push(x)});
@@ -6290,7 +6246,7 @@ function renderDueInstallments(baseRows){
   if(!statusMatch(g,filter))return;
   (g.items||[g.r]).forEach(r=>{
    const go=norm(get(r,'officer')||get(g.r,'officer')),gc=norm(get(r,'client')||get(g.r,'client')),ga=norm(rowAddress(r)||rowAddress(g.r)||'');
-   if(window.__locationHierarchyMatch?.('due',r,g)&&matchesDueSpecialistState(go,specialistState)&&(!officer||go.includes(officer))&&(!client||gc.includes(client))&&(!address||ga.includes(address))){if(dueAgingRange&&(dueDayType(r)!=='overdue'||dueRemainingForScreen(r)<=0||riskAgingBandForRow(r)?.id!==dueAgingRange))return;selectionRows.push({g,r})}
+   if(matchesDueSpecialistState(go,specialistState)&&(!officer||go.includes(officer))&&(!client||gc.includes(client))&&(!address||ga.includes(address))){if(dueAgingRange&&(dueDayType(r)!=='overdue'||dueRemainingForScreen(r)<=0||riskAgingBandForRow(r)?.id!==dueAgingRange))return;selectionRows.push({g,r})}
   });
  });
  const selectionByClient=new Map(),selectionByClientLoan=excelRowMode?new Map():null;selectionRows.forEach(x=>{const rawClient=norm(get(x.r,'client')||get(x.g.r,'client')),key=rawClient||`row:${selectionByClient.size}`,loanKey=norm(get(x.r,'loan')||get(x.g.r,'loan'))+'|'+norm(get(x.r,'nid')||get(x.g.r,'nid')),composite=JSON.stringify([key,loanKey]);if(!selectionByClient.has(key))selectionByClient.set(key,[]);selectionByClient.get(key).push(x);if(selectionByClientLoan&&rawClient){if(!selectionByClientLoan.has(composite))selectionByClientLoan.set(composite,[]);selectionByClientLoan.get(composite).push(x)}});
@@ -12548,66 +12504,28 @@ async function prepareDueWhatsAppPDF(event){
  const tableHeaders=['م','الأخصائي','اسم العميل','رقم الهاتف','قيمة القسط','تاريخ الاستحقاق','رقم القسط','المسدد','تاريخ السداد','المبلغ المتبقي','عدد الأقساط المتأخرة','إجمالي المتأخرات حتى الانتظام','العنوان'];
  const groupCollectionTable=()=>{
   const body=document.getElementById('ct');if(!body)return;
-  if(!body.dataset.collectionBranchToggleBound){
-   body.dataset.collectionBranchToggleBound='1';
-   body.addEventListener('click',event=>{
-    const button=event.target.closest('.collection-branch-toggle');if(!button||!body.contains(button))return;
-    event.preventDefault();event.stopPropagation();
-    const branchId=button.dataset.branchId,open=button.getAttribute('aria-expanded')!=='true';
-    body.querySelectorAll('.collection-branch-detail-row').forEach(row=>{
-     if(row.dataset.collectionBranchId===branchId)row.classList.toggle('collection-branch-collapsed',!open);
-    });
-    button.setAttribute('aria-expanded',String(open));
-    const label=button.querySelector('span');if(label)label.textContent=`${open?'إخفاء':'عرض'} الأخصائيين (${button.dataset.specialistCount||'0'})`;
-    const icon=button.querySelector('b');if(icon)icon.textContent=open?'⌃':'⌄';
-   });
-  }
   const priorRows=Array.from(body.children),dataRows=priorRows.filter(row=>row.cells.length===12),emptyRow=priorRows.find(row=>row.cells.length===1);
   const sourceTable=body.closest('.collection-main-table');sourceTable?.classList.toggle('collection-grouped-view',dataRows.length>0);
-  const branches=new Map();let totalValue=0,totalPaid=0,totalUnpaid=0;
+  const groups=new Map();let totalValue=0,totalPaid=0,totalUnpaid=0;
   dataRows.forEach((row,index)=>{
    row.dataset.collectionPrintOrder=String(index);
-   const officer=String(row.cells[0]?.dataset?.excelOfficer||row.cells[0]?.textContent||'').trim()||'غير محدد';
-   const locationCell=row.querySelector('[data-excel-province]');
-   const province=String(locationCell?.dataset.excelProvince||'غير محدد').trim()||'غير محدد';
-   const branch=String(locationCell?.dataset.excelBranch||'غير محدد').trim()||'غير محدد';
-   const branchKey=JSON.stringify([norm(province),norm(branch)]);
-   if(!branches.has(branchKey))branches.set(branchKey,{province,branch,rows:[],specialists:new Map(),value:0,paid:0,unpaid:0});
-   const entry=branches.get(branchKey),officerKey=norm(officer)||'غير محدد';
-   if(!entry.specialists.has(officerKey))entry.specialists.set(officerKey,{name:officer,rows:[],value:0,paid:0,unpaid:0});
-   const specialist=entry.specialists.get(officerKey),value=num(row.cells[3]?.textContent),paid=num(row.cells[6]?.textContent),unpaid=num(row.cells[8]?.textContent);
-   entry.rows.push(row);specialist.rows.push(row);
-   entry.value+=value;entry.paid+=paid;entry.unpaid+=unpaid;
-   specialist.value+=value;specialist.paid+=paid;specialist.unpaid+=unpaid;
-   totalValue+=value;totalPaid+=paid;totalUnpaid+=unpaid;
+   const name=String(row.cells[0]?.dataset?.excelOfficer||row.cells[0]?.textContent||'').trim()||'غير محدد',key=norm(name)||'غير محدد';
+   if(!groups.has(key))groups.set(key,{name,rows:[],value:0,paid:0,unpaid:0});
+   const group=groups.get(key),value=num(row.cells[3]?.textContent),paid=num(row.cells[6]?.textContent),unpaid=num(row.cells[8]?.textContent);
+   group.rows.push(row);group.value+=value;group.paid+=paid;group.unpaid+=unpaid;totalValue+=value;totalPaid+=paid;totalUnpaid+=unpaid;
   });
-  const orderedBranches=[...branches.values()].sort((a,b)=>a.province.localeCompare(b.province,'ar')||a.branch.localeCompare(b.branch,'ar'));
-  const specialistsTotal=[...branches.values()].reduce((sum,branch)=>sum+branch.specialists.size,0);
+  const orderedGroups=[...groups.values()].sort((a,b)=>a.name.localeCompare(b.name,'ar'));
   const groupRow=(className,label,value,paid,unpaid,count='')=>`<tr class="collection-screen-only ${className}"><td colspan="4">${label}${count?` — ${count} قسط`:''}</td><td>${money(value)}</td><td></td><td></td><td>${money(paid)}</td><td></td><td>${money(unpaid)}</td><td></td><td></td><td></td></tr>`;
   const headerRow=`<tr class="collection-screen-only collection-repeat-header-row">${tableHeaders.map(text=>`<td role="columnheader">${text}</td>`).join('')}</tr>`;
   const html=[groupRow('collection-general-total-row','الإجمالي العام',totalValue,totalPaid,totalUnpaid,String(dataRows.length))];
-  if(!orderedBranches.length){html.push(emptyRow?.outerHTML||'<tr><td colspan="13">لا توجد نتائج في الفترة أو الفلاتر المحددة</td></tr>');body.innerHTML=html.join('');return}
-  const detailMarkup=(markup,id)=>markup.replace('<tr class="collection-screen-only ','<tr data-collection-branch-id="'+id+'" class="collection-screen-only collection-branch-detail-row collection-branch-collapsed ');
-  orderedBranches.forEach((branch,branchIndex)=>{
-   const branchId=`collection-branch-${branchIndex}`,specialistCount=branch.specialists.size;
-   html.push(`<tr class="collection-screen-only collection-branch-card-row"><td colspan="13"><div class="collection-branch-card">
-    <div class="collection-branch-card-line"><span class="collection-branch-card-label">المحافظة</span><strong>${esc(branch.province)}</strong></div>
-    <div class="collection-branch-card-line"><span class="collection-branch-card-label">اسم الفرع</span><strong>${esc(branch.branch)}</strong></div>
-    <div class="collection-branch-card-line collection-branch-card-total"><span class="collection-branch-card-label">إجمالي الفرع</span><span class="collection-branch-card-metrics"><span>قيمة الأقساط: <b>${money(branch.value)}</b></span><span>المسدد: <b>${money(branch.paid)}</b></span><span>المتبقي: <b>${money(branch.unpaid)}</b></span></span><button type="button" class="collection-branch-toggle" data-branch-id="${branchId}" data-specialist-count="${specialistCount}" aria-expanded="false" aria-label="عرض أخصائيي فرع ${esc(branch.branch)}"><span>عرض الأخصائيين (${specialistCount})</span><b aria-hidden="true">⌄</b></button></div>
-   </div></td></tr>`);
-   const specialists=[...branch.specialists.values()].sort((a,b)=>a.name.localeCompare(b.name,'ar'));
-   specialists.forEach((specialist,specialistIndex)=>{
-    if(specialistIndex>0)html.push(detailMarkup('<tr class="collection-screen-only collection-specialist-gap-row"><td colspan="13"></td></tr>',branchId));
-    html.push(detailMarkup(`<tr class="collection-screen-only collection-specialist-header-row"><td colspan="13"><span>الأخصائي: <b>${esc(specialist.name)}</b></span><span class="collection-specialist-row-count">${specialist.rows.length} قسط</span></td></tr>`,branchId));
-    if(specialistsTotal>1)html.push(detailMarkup(groupRow('collection-specialist-subtotal-row',`الإجمالي الفرعي — ${esc(specialist.name)}`,specialist.value,specialist.paid,specialist.unpaid,String(specialist.rows.length)),branchId));
-    html.push(detailMarkup(headerRow,branchId));
-    let sequence=0;
-    specialist.rows.forEach(row=>{
-     const serial=row.insertCell(0);serial.className='collection-screen-only collection-row-sequence';serial.textContent=String(++sequence);
-     row.classList.add('collection-branch-detail-row','collection-branch-collapsed');row.dataset.collectionBranchId=branchId;
-     html.push(row.outerHTML);
-    });
-   });
+  if(!orderedGroups.length){html.push(emptyRow?.outerHTML||'<tr><td colspan="13">لا توجد نتائج في الفترة أو الفلاتر المحددة</td></tr>');body.innerHTML=html.join('');return}
+  const multiple=orderedGroups.length>1;
+  orderedGroups.forEach((group,groupIndex)=>{
+   if(groupIndex>0)html.push('<tr class="collection-screen-only collection-specialist-gap-row"><td colspan="13"></td></tr>');
+   html.push(`<tr class="collection-screen-only collection-specialist-header-row"><td colspan="13"><span>الأخصائي: <b>${esc(group.name)}</b></span><span class="collection-specialist-row-count">${group.rows.length} قسط</span></td></tr>`);
+   if(multiple)html.push(groupRow('collection-specialist-subtotal-row',`الإجمالي الفرعي — ${esc(group.name)}`,group.value,group.paid,group.unpaid,String(group.rows.length)));
+   html.push(headerRow);
+   group.rows.forEach((row,index)=>{const serial=row.insertCell(0);serial.className='collection-screen-only collection-row-sequence';serial.textContent=String(index+1);html.push(row.outerHTML)});
   });
   body.innerHTML=html.join('');
  };
@@ -12927,7 +12845,7 @@ async function prepareDueWhatsAppPDF(event){
     const isSingleSpecialist=!!collectionOfficer&&groups.length===1&&norm(groups[0].name)===collectionOfficer;
     if(isSingleSpecialist)overview.querySelector("table.collection-print-table tfoot")?.remove();
     layer.appendChild(overview);
-    if(!document.getElementById("collectionBranchAppendixEnabled")?.checked)groups.forEach(group=>{
+    groups.forEach(group=>{
       const totals=summarize(group.rows),section=document.createElement("section");section.className="collection-print-specialist-section";
       const rowMarkup=group.rows.map((row,index)=>{const values=[...row.cells].map(cell=>cell.textContent.trim());values[0]=String(index+1);return`<tr>${values.map((value,column)=>`<td data-column="${column}">${esc(value||"—")}</td>`).join("")}</tr>`}).join("");
       const detailColumnWidths=["3%","12%","15%","8%","7%","8%","4%","7%","8%","7%","6%","8%","7%"];
@@ -12936,53 +12854,6 @@ async function prepareDueWhatsAppPDF(event){
       section.innerHTML=`<h1 class="collection-print-title">جمعية المبادرة — تقرير التحصيل</h1><h2 class="collection-print-specialist-title">الأخصائي: ${esc(group.name)}</h2><div class="collection-print-meta"><span>الفترة: ${esc(period)}</span><span>حالة القرض: ${esc(selectedText("collectionStatus"))}</span><span>عدد العملاء المحصلة: ${fmt(group.rows.length)}</span></div>${table}<div class="collection-print-specialist-subtotal"><strong>الإجمالي الفرعي — ${esc(group.name)}</strong><div class="collection-print-subtotal-items"><span>عدد العملاء المحصلة: <b>${fmt(group.rows.length)}</b></span><span>المستحق: <b>${esc(money(totals.due))}</b></span><span>المسدد: <b>${esc(money(totals.paid))}</b></span><span>غير المسدد: <b>${esc(money(totals.unpaid))}</b></span><span>متأخرات العملاء حتى الانتظام: <b>${esc(money(totals.arrears))}</b></span></div></div><footer class="collection-print-footer"><span>المستخدم: ${esc(user)}</span><span>تاريخ الطباعة: ${esc(formatPrintDate(now))}</span><span>الأخصائي: ${esc(group.name)}</span></footer>`;
       layer.appendChild(section);
     });
-    if(document.getElementById("collectionBranchAppendixEnabled")?.checked){
-      const appendixBranches=new Map();
-      sourceRows.forEach(row=>{
-        const locationCell=row.querySelector("[data-excel-province]"),province=String(locationCell?.dataset.excelProvince||"غير محدد").trim()||"غير محدد",branch=String(locationCell?.dataset.excelBranch||"غير محدد").trim()||"غير محدد",branchKey=JSON.stringify([norm(province),norm(branch)]),officer=getName(row),officerKey=norm(officer)||officer;
-        if(!appendixBranches.has(branchKey))appendixBranches.set(branchKey,{province,branch,rows:[],specialists:new Map(),due:0,paid:0,unpaid:0});
-        const item=appendixBranches.get(branchKey);item.rows.push(row);item.due+=amount(row,4);item.paid+=amount(row,7);item.unpaid+=amount(row,9);
-        if(!item.specialists.has(officerKey))item.specialists.set(officerKey,{name:officer,rows:[]});
-        item.specialists.get(officerKey).rows.push(row);
-      });
-      const orderedAppendixBranches=[...appendixBranches.values()].sort((a,b)=>a.province.localeCompare(b.province,"ar")||a.branch.localeCompare(b.branch,"ar"));
-      const appendix=document.createElement("section");appendix.className="collection-branch-appendix";
-      const appendixStyles=`<style class="collection-branch-appendix-style">
-        .collection-branch-appendix{break-before:page;page-break-before:always;margin-top:8px;direction:rtl}
-        .collection-branch-appendix-title{margin:0 0 9px;padding:7px 10px;border-bottom:2px solid #111;color:#111;font-size:16px;font-weight:900;text-align:center;break-after:avoid;page-break-after:avoid}
-        .collection-branch-appendix-block{margin:0 0 18px;padding:0 0 11px;border-bottom:3px double #222;break-inside:auto;page-break-inside:auto}
-        .collection-branch-appendix-card{display:block;margin:0 0 10px;padding:9px 12px;border:2px solid #111;border-top:6px solid #087957;border-radius:8px;background:#fff;color:#000;break-inside:avoid;page-break-inside:avoid}
-        .collection-branch-appendix-period{margin:0 0 8px;text-align:center;color:#000;font-size:12px;font-weight:900;line-height:1.35}
-        .collection-branch-appendix-location{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding-top:7px;border-top:1px solid #bbb}
-        .collection-branch-appendix-location-item{text-align:center;min-width:0;color:#000}
-        .collection-branch-appendix-location-label{display:block;margin-bottom:2px;color:#111;font-size:11px;font-weight:800}
-        .collection-branch-appendix-location-value{display:block;color:#000;font-size:20px;font-weight:950;line-height:1.3;overflow-wrap:anywhere}
-        .collection-branch-appendix-total{display:flex;flex-wrap:wrap;justify-content:center;gap:4px 15px;margin-top:7px;padding-top:6px;border-top:1px solid #999;color:#000;font-size:10px;font-weight:800}
-        .collection-branch-appendix-specialist{margin:0 0 11px;break-inside:auto;page-break-inside:auto}
-        .collection-branch-appendix-specialist-title{margin:5px 0;padding:5px 8px;border:1px solid #222;background:#f1f1f1;color:#000;font-size:13px;font-weight:900;text-align:right;break-after:avoid;page-break-after:avoid}
-        .collection-branch-appendix-specialist-meta{margin:0 0 4px;color:#000;font-size:9px;font-weight:700}
-        .collection-branch-appendix-specialist .collection-print-specialist-subtotal{margin-top:5px}
-        .collection-branch-appendix-specialist .collection-print-footer{margin-top:4px}
-        @media print{.collection-branch-appendix{break-before:page!important;page-break-before:always!important}.collection-branch-appendix-block{break-inside:auto!important;page-break-inside:auto!important}.collection-branch-appendix-specialist{break-inside:auto!important;page-break-inside:auto!important}.collection-branch-appendix-specialist table thead{display:table-header-group!important}.collection-branch-appendix-specialist table tbody{display:table-row-group!important}}
-      </style>`;
-      const cardMarkup=item=>`<div class="collection-branch-appendix-card"><div class="collection-branch-appendix-period">الفترة: ${esc(period)}</div><div class="collection-branch-appendix-location"><div class="collection-branch-appendix-location-item"><span class="collection-branch-appendix-location-label">المحافظة</span><strong class="collection-branch-appendix-location-value">${esc(item.province)}</strong></div><div class="collection-branch-appendix-location-item"><span class="collection-branch-appendix-location-label">الفرع</span><strong class="collection-branch-appendix-location-value">${esc(item.branch)}</strong></div></div><div class="collection-branch-appendix-total"><span>إجمالي المستحق: <b>${esc(money(item.due))}</b></span><span>المسدد: <b>${esc(money(item.paid))}</b></span><span>غير المسدد: <b>${esc(money(item.unpaid))}</b></span><span>عدد الأخصائيين: <b>${fmt(item.specialists.size)}</b></span></div></div>`;
-      const detailColumnWidths=["3%","12%","15%","8%","7%","8%","4%","7%","8%","7%","6%","8%","7%"],detailColgroup=`<colgroup>${detailColumnWidths.map(width=>`<col style="width:${width}">`).join("")}</colgroup>`;
-      const headerCells=headers.map(header=>`<th>${esc(header)}</th>`).join("");
-      const specialistMarkup=(specialist,item)=>{
-        const totals=summarize(specialist.rows);
-        const rowMarkup=specialist.rows.map((row,index)=>{const values=[...row.cells].map(cell=>cell.textContent.trim());values[0]=String(index+1);return`<tr>${values.map((value,column)=>`<td data-column="${column}">${esc(value||"—")}</td>`).join("")}</tr>`}).join("");
-        const table=`<table class="collection-print-table risk-print-table collection-print-detail-table">${detailColgroup}<thead><tr class="collection-print-specialist-heading"><th colspan="${headers.length}">الأخصائي: ${esc(specialist.name)}</th></tr><tr>${headerCells}</tr></thead><tbody>${rowMarkup}</tbody></table>`;
-        return `<section class="collection-branch-appendix-specialist"><h3 class="collection-branch-appendix-specialist-title">الأخصائي: ${esc(specialist.name)}</h3><div class="collection-branch-appendix-specialist-meta">حالة القرض: ${esc(selectedText("collectionStatus"))} — عدد العملاء المحصلة: ${fmt(specialist.rows.length)}</div>${table}<div class="collection-print-specialist-subtotal"><strong>الإجمالي الفرعي — ${esc(specialist.name)}</strong><div class="collection-print-subtotal-items"><span>عدد العملاء المحصلة: <b>${fmt(specialist.rows.length)}</b></span><span>المستحق: <b>${esc(money(totals.due))}</b></span><span>المسدد: <b>${esc(money(totals.paid))}</b></span><span>غير المسدد: <b>${esc(money(totals.unpaid))}</b></span><span>متأخرات العملاء حتى الانتظام: <b>${esc(money(totals.arrears))}</b></span></div></div><footer class="collection-print-footer"><span>المستخدم: ${esc(user)}</span><span>تاريخ الطباعة: ${esc(formatPrintDate(now))}</span><span>الأخصائي: ${esc(specialist.name)}</span></footer></section>`;
-      };
-      appendix.innerHTML=appendixStyles+`<h2 class="collection-branch-appendix-title">ملحق الفروع والأخصائيين</h2>`;
-      orderedAppendixBranches.forEach(item=>{
-        const block=document.createElement("section");block.className="collection-branch-appendix-block";
-        const specialists=[...item.specialists.values()].sort((a,b)=>a.name.localeCompare(b.name,"ar"));
-        block.innerHTML=cardMarkup(item)+specialists.map(specialist=>specialistMarkup(specialist,item)).join("");
-        appendix.appendChild(block);
-      });
-      layer.appendChild(appendix);
-    }
     return layer;
   }
   function formatCollectionPrintLayer(layer){
@@ -12996,18 +12867,6 @@ async function prepareDueWhatsAppPDF(event){
     layer.querySelectorAll("table.collection-print-summary-table tbody td:first-child,table.collection-print-summary-table tfoot th:first-child").forEach(cell=>{cell.style.setProperty("font-size","17px","important");cell.style.setProperty("font-weight","800","important");cell.style.setProperty("color","#000","important");cell.style.setProperty("line-height","1.4","important");cell.style.setProperty("padding","7px 4px","important");cell.style.setProperty("height","auto","important")});
     layer.querySelectorAll("table.collection-print-summary-table tbody td:not(:first-child),table.collection-print-summary-table tfoot th:not(:first-child)").forEach(cell=>{cell.style.setProperty("font-size","17px","important");cell.style.setProperty("font-weight","900","important");cell.style.setProperty("color","#000","important");cell.style.setProperty("line-height","1.45","important");cell.style.setProperty("padding","8px 4px","important");cell.style.setProperty("height","auto","important")});
     layer.querySelectorAll(".collection-print-specialist-section table.collection-print-table th,.collection-print-specialist-section table.collection-print-table td").forEach(cell=>{cell.style.setProperty("font-size","16px","important");cell.style.setProperty("font-weight","800","important");cell.style.setProperty("color","#000","important");cell.style.setProperty("line-height","1.35","important");cell.style.setProperty("padding","6px 3px","important");cell.style.setProperty("height","auto","important");cell.style.setProperty("color","#000","important");if(cell.cellIndex===cell.parentElement.cells.length-1){cell.style.setProperty("white-space","normal","important");cell.style.setProperty("overflow-wrap","anywhere","important");cell.style.setProperty("word-break","normal","important")}});
-    layer.querySelectorAll(".collection-branch-appendix-specialist table.collection-print-table th,.collection-branch-appendix-specialist table.collection-print-table td").forEach(cell=>{cell.style.setProperty("font-size","16px","important");cell.style.setProperty("font-weight","800","important");cell.style.setProperty("color","#000","important");cell.style.setProperty("line-height","1.35","important");cell.style.setProperty("padding","6px 3px","important");cell.style.setProperty("height","auto","important");if(cell.cellIndex===cell.parentElement.cells.length-1){cell.style.setProperty("white-space","normal","important");cell.style.setProperty("overflow-wrap","anywhere","important");cell.style.setProperty("word-break","normal","important")}});
-    layer.querySelectorAll(".collection-branch-appendix-specialist table.collection-print-table thead th").forEach(cell=>cell.style.setProperty("background-color","#f0f0f0","important"));
-    layer.querySelectorAll(".collection-branch-appendix-specialist table.collection-print-table .collection-print-specialist-heading th").forEach(cell=>cell.style.setProperty("background-color","#e8e8e8","important"));
-    layer.querySelectorAll(".collection-branch-appendix-divider-cell").forEach(cell=>{cell.style.setProperty("padding","2px 0 5px","important");cell.style.setProperty("border","0","important");cell.style.setProperty("background","transparent","important");cell.style.setProperty("text-align","right","important")});
-    const appendixTextStyles=(selector,styles)=>layer.querySelectorAll(selector).forEach(element=>Object.entries(styles).forEach(([property,value])=>element.style.setProperty(property,value,"important")));
-    appendixTextStyles(".collection-branch-appendix-title",{"font-size":"18px","font-weight":"900","color":"#000","text-align":"center","line-height":"1.3"});
-    appendixTextStyles(".collection-branch-appendix-period",{"font-size":"14px","font-weight":"900","color":"#000","text-align":"center","line-height":"1.35"});
-    appendixTextStyles(".collection-branch-appendix-location-label",{"font-size":"12px","font-weight":"900","color":"#000","text-align":"center"});
-    appendixTextStyles(".collection-branch-appendix-location-value",{"font-size":"22px","font-weight":"900","color":"#000","text-align":"center","line-height":"1.3"});
-    appendixTextStyles(".collection-branch-appendix-total",{"font-size":"10px","font-weight":"800","color":"#000","text-align":"center"});
-    appendixTextStyles(".collection-branch-appendix-specialist-title",{"font-size":"14px","font-weight":"900","color":"#000","text-align":"right"});
-    appendixTextStyles(".collection-branch-appendix-specialist-meta",{"font-size":"9px","font-weight":"700","color":"#000"});
   }
   async function downloadCollectionReportViaVercel(layer,filename,returnBlob=false){
   let css=[...document.querySelectorAll("style")].map(style=>style.textContent||"").join("\n"),requestBody=JSON.stringify({html:layer.outerHTML,css,filename,reportType:"collection-report"});
@@ -17380,84 +17239,3 @@ body.group-lead-mode #groupLeadScopeBar{display:none!important;visibility:hidden
   };
 })();
 </script>
-
-
-<style id="location-branch-officer-filter-style">
-#collection .loc-hierarchy-filters,#dueInstallments .loc-hierarchy-filters{position:relative!important;z-index:1!important;display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important;width:100%!important;box-sizing:border-box!important;margin:0 0 12px!important;padding:10px!important;border:1px solid #dbe4ec!important;border-radius:12px!important;background:#fff!important;direction:rtl!important;grid-column:1/-1!important;overflow:visible!important}
-#collection .collection-filter-card .loc-hierarchy-filters{grid-column:1/-1!important;order:-1!important}
-#collection .loc-hierarchy-field,#dueInstallments .loc-hierarchy-field{position:relative!important;z-index:auto!important;display:grid!important;grid-template-columns:minmax(0,1fr)!important;grid-template-rows:auto auto auto!important;gap:5px!important;min-width:0!important;align-items:stretch!important;overflow:visible!important}
-.loc-hierarchy-field>label{grid-column:1!important;grid-row:1!important;font-size:12px!important;font-weight:800!important;color:#526175!important}
-.loc-hierarchy-input-wrap{grid-column:1!important;grid-row:2!important;position:static!important;display:flex!important;flex-direction:row!important;align-items:center!important;gap:7px!important;width:100%!important;min-width:0!important;overflow:visible!important;direction:rtl!important}
-.loc-hierarchy-field input{display:block!important;position:static!important;flex:1 1 0!important;width:1%!important;min-width:0!important;max-width:none!important;height:40px!important;box-sizing:border-box!important;border:1px solid #cbd5e1!important;border-radius:9px!important;background:#fbfcfe!important;color:#172033!important;padding:0 10px!important;font:inherit!important}
-.loc-hierarchy-field input:focus{outline:none!important;border-color:#17866f!important;box-shadow:0 0 0 3px #17866f22!important}
-.loc-hierarchy-clear{position:static!important;inset:auto!important;transform:none!important;display:inline-flex!important;flex:0 0 34px!important;align-items:center!important;justify-content:center!important;width:34px!important;min-width:34px!important;max-width:34px!important;height:34px!important;margin:0!important;padding:0!important;border:1px solid #d8e1e8!important;border-radius:9px!important;background:#edf2f7!important;color:#526175!important;font-size:20px!important;font-weight:900!important;line-height:1!important;cursor:pointer!important;box-shadow:none!important}
-.loc-hierarchy-clear:hover{background:#e2eaf1!important;border-color:#aebdca!important}
-.loc-hierarchy-menu{grid-column:1!important;grid-row:3!important;display:none!important;position:static!important;inset:auto!important;z-index:auto!important;float:none!important;clear:both!important;width:100%!important;max-height:min(200px,30vh)!important;overflow-y:auto!important;overflow-x:hidden!important;box-sizing:border-box!important;margin:0!important;padding:4px!important;border:1px solid #cbd5e1!important;border-radius:9px!important;background:#fff!important;box-shadow:0 4px 12px #0f172a12!important;transform:none!important}
-.loc-hierarchy-menu.open{display:block!important}.loc-hierarchy-menu button{position:static!important;display:block!important;float:none!important;width:100%!important;min-height:42px!important;height:auto!important;margin:0!important;border:0!important;border-radius:6px!important;background:#fff!important;padding:9px 10px!important;text-align:right!important;font:inherit!important;color:#172033!important;cursor:pointer!important;white-space:normal!important}
-.loc-hierarchy-menu button:hover,.loc-hierarchy-menu button:focus{background:#eef5ff!important;outline:2px solid #b9d8d1!important}
-@media(max-width:760px){#collection .loc-hierarchy-filters,#dueInstallments .loc-hierarchy-filters{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important;padding:8px!important}.loc-hierarchy-field input{height:40px!important;font-size:12px!important}.loc-hierarchy-field>label{font-size:11px!important}.loc-hierarchy-clear{flex-basis:32px!important;width:32px!important;min-width:32px!important;max-width:32px!important;height:32px!important}}
-</style>
-<script id="location-branch-officer-filters">
-(()=>{
- const cfg={collection:{root:'collection',officer:'collectionOfficer',rerender:()=>window.renderCollection?.(),source:()=>window.visibleGroups?.().flatMap(g=>(g.items||[g.r]).map(r=>({r,g})))||[]},due:{root:'dueInstallments',officer:'dueOfficer',rerender:()=>window.renderDueInstallments?.(),source:()=>window.dueInstallmentRows?.()||[]}};
- const vals=(o,names)=>{for(const n of names){const v=o?.[n];if(v!==undefined&&v!==null&&String(v).trim())return String(v).trim()}return ''};
- const field=(x,names)=>vals(x?.r,names)||vals(x?.g?.r,names);
- const normv=v=>String(v||'').trim().toLocaleLowerCase('ar-EG').replace(/[\u064B-\u065F\u0670]/g,'').replace(/[أإآ]/g,'ا');
- function init(key,c){const root=document.getElementById(c.root);if(!root||root.querySelector('.loc-hierarchy-filters'))return;
-  const bar=document.createElement('div');bar.className='loc-hierarchy-filters no-print';bar.setAttribute('aria-label','فلاتر الموقع والأخصائي');
-  bar.innerHTML=['المحافظة','الفرع'].map((n,i)=>`<div class="loc-hierarchy-field"><label>${n}</label><div class="loc-hierarchy-input-wrap"><input type="text" autocomplete="off" placeholder="اكتب للبحث في ${n}" data-loc-index="${i}" aria-haspopup="listbox"><button class="loc-hierarchy-clear" type="button" aria-label="مسح ${n}" title="مسح ${n}">×</button></div><div class="loc-hierarchy-menu" role="listbox"></div></div>`).join('');
-  const officer=document.getElementById(c.officer);if(!officer)return;
-  if(key==='collection'){const card=root.querySelector('.collection-filter-card'),grid=card?.querySelector('.collection-filter-grid');if(grid)grid.insertBefore(bar,grid.firstChild);else officer.parentElement?.parentElement?.insertAdjacentElement('beforebegin',bar)}else{const panel=root.querySelector('.due-filter-panel');if(panel)panel.insertAdjacentElement('beforebegin',bar);else officer.parentElement?.parentElement?.insertAdjacentElement('beforebegin',bar)}
-  const inputs=[...bar.querySelectorAll('input')],chosen=['',''];
-  const source=()=>c.source().map(x=>({province:field(x,['المحافظة','المحافظه']),branch:field(x,['اسم الفرع','الفرع','فرع']),officer:field(x,['اسم الأخصائي','اسم الاخصائي','الأخصائي','الاخصائي','اسم الأخصائى'])}));
-  const closeMenus=()=>bar.querySelectorAll('.loc-hierarchy-menu').forEach(m=>m.classList.remove('open'));
-  const paint=idx=>{const inp=inputs[idx],menu=inp.closest('.loc-hierarchy-field').querySelector('.loc-hierarchy-menu'),q=normv(inp.value),data=source();let options=idx===0?data.map(x=>x.province):data.filter(x=>!chosen[0]||normv(x.province)===normv(chosen[0])).map(x=>x.branch);options=[...new Map(options.filter(Boolean).map(x=>[normv(x),x])).values()].filter(x=>!q||normv(x).includes(q)).sort((a,b)=>a.localeCompare(b,'ar'));menu.innerHTML='';const all=document.createElement('button');all.type='button';all.textContent='الكل';all.onclick=()=>select(idx,'');menu.appendChild(all);options.forEach(v=>{const b=document.createElement('button');b.type='button';b.textContent=v;b.onclick=()=>select(idx,v);menu.appendChild(b)});menu.classList.add('open')};
-  const refreshOfficers=()=>{const data=source(),opts=[...new Map(data.filter(x=>(!chosen[0]||normv(x.province)===normv(chosen[0]))&&(!chosen[1]||normv(x.branch)===normv(chosen[1]))).map(x=>x.officer).filter(Boolean).map(x=>[normv(x),x])).values()];const dl=officer.list&&document.getElementById(officer.list);if(dl)dl.innerHTML=opts.map(x=>`<option value="${String(x).replaceAll('&','&amp;').replaceAll('"','&quot;')}"></option>`).join('');if(officer.value&&normv(officer.value)!==normv('جميع الأخصائيين')&&opts.length&&!opts.some(x=>normv(x)===normv(officer.value)))officer.value=''};
-  function select(idx,v){chosen[idx]=v;inputs[idx].value=v;if(idx===0&&chosen[1]&&!source().some(x=>normv(x.province)===normv(v)&&normv(x.branch)===normv(chosen[1]))){chosen[1]='';inputs[1].value=''}closeMenus();refreshOfficers();if(key==='collection')window.updateCollectionFilterLists?.();else{window.invalidateDueFilterLists?.();window.updateDueFilterLists?.()}c.rerender()}
-  inputs.forEach((inp,i)=>{inp.addEventListener('focus',()=>paint(i));inp.addEventListener('input',()=>paint(i));inp.addEventListener('keydown',e=>{if(e.key==='Escape')closeMenus();if(e.key==='Enter'){e.preventDefault();inp.closest('.loc-hierarchy-field').querySelector('.loc-hierarchy-menu button:not(:first-child)')?.click()}});inp.closest('.loc-hierarchy-field').querySelector('.loc-hierarchy-clear').addEventListener('click',()=>select(i,''))});
-  const refreshClients=()=>{if(key==='collection')window.updateCollectionFilterLists?.();else{window.invalidateDueFilterLists?.();window.updateDueFilterLists?.()}};
-  officer.addEventListener('input',refreshClients);officer.addEventListener('change',refreshClients);
-  document.addEventListener('click',e=>{if(!bar.contains(e.target))closeMenus()});root._locHierarchy={values:()=>chosen,source,refreshOfficers};refreshOfficers();
- }
- function activeFilter(key,row,group){const root=document.getElementById(cfg[key].root),st=root?._locHierarchy;if(!st)return true;const [p,b]=st.values(),get=names=>vals(row,names)||vals(group?.r,names),rp=get(['المحافظة','المحافظه']),rb=get(['اسم الفرع','الفرع','فرع']);return(!p||normv(rp)===normv(p))&&(!b||normv(rb)===normv(b))}
- window.__locationHierarchyMatch=activeFilter;
- window.__locationOfficerAllowed=(key,name)=>{const root=document.getElementById(cfg[key]?.root),st=root?._locHierarchy;if(!st)return true;const [p,b]=st.values();return st.source().some(x=>(!p||normv(x.province)===normv(p))&&(!b||normv(x.branch)===normv(b))&&normv(x.officer)===normv(name))};
- const boot=()=>Object.entries(cfg).forEach(([k,c])=>init(k,c));if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();const mo=new MutationObserver(()=>boot());mo.observe(document.body,{childList:true,subtree:true});
-})();
-</script>
-
-<style id="collection-location-group-row-style">
-#collection .collection-main-table .collection-location-group-row>td{padding:0!important;border:0!important;background:#fff!important}
-#collection .collection-main-table .collection-province-group-row .collection-location-group-title{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-top:8px;padding:11px 12px;border:1px solid #9ccfc1;border-right:5px solid #087957;border-radius:10px;background:linear-gradient(100deg,#e8f7f1,#f8fcfa);color:#124b3d}
-#collection .collection-main-table .collection-branch-group-row .collection-location-group-title{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin:5px 0;padding:9px 12px;border:1px solid #c7d7e5;border-right:4px solid #40749a;border-radius:9px;background:#f1f6fa;color:#24445e}
-#collection .collection-location-group-title>strong{font-weight:900}
-#collection .collection-location-group-totals{display:flex;align-items:center;gap:6px 12px;flex-wrap:wrap;font-size:11px;color:#40566a}
-#collection .collection-location-group-totals span{white-space:nowrap}.collection-location-group-totals b{color:#182d42;font-weight:900}
-@media(max-width:760px){#collection .collection-location-group-title{align-items:flex-start!important;flex-direction:column!important;gap:5px!important;padding:8px 9px!important}#collection .collection-location-group-totals{gap:4px 9px;font-size:10px}}
-@media print{#collection .collection-main-table .collection-location-group-row{display:none!important}}
-</style>
-
-<style id="collection-branch-cards-compact-style">
-#collection .collection-main-table .collection-branch-card-row>td{padding:0!important;border:0!important;background:transparent!important}
-#collection .collection-branch-card{display:grid;gap:2px;margin:5px 0;padding:7px 10px;border:1px solid #c8ddd8;border-right:4px solid #087957;border-radius:10px;background:linear-gradient(105deg,#f2faf7,#fff);box-shadow:0 3px 9px rgba(15,55,45,.06);color:#183d35}
-#collection .collection-branch-card-line{display:flex;align-items:center;gap:8px;min-height:19px;line-height:1.3}
-#collection .collection-branch-card-label{flex:0 0 94px;color:#58716b;font-size:10px;font-weight:800}
-#collection .collection-branch-card-line>strong{min-width:0;color:#153d33;font-size:11px;font-weight:900;overflow-wrap:anywhere}
-#collection .collection-branch-card-total{flex-wrap:wrap;margin-top:2px;padding-top:5px;border-top:1px solid #dcebe5}
-#collection .collection-branch-card-total .collection-branch-card-label{color:#087957;font-size:10px}
-#collection .collection-branch-card-metrics{display:flex;flex:1 1 300px;align-items:center;gap:4px 13px;flex-wrap:wrap;color:#526861;font-size:10px}
-#collection .collection-branch-card-metrics b{color:#173c32;font-weight:900;white-space:nowrap}
-#collection .collection-branch-toggle{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:27px;margin-inline-start:auto;padding:4px 9px;border:1px solid #b8d8cc;border-radius:7px;background:#fff;color:#087957;font-family:inherit;font-size:10px;font-weight:900;white-space:nowrap;cursor:pointer}
-#collection .collection-branch-toggle:hover{background:#e9f7f1;border-color:#70b39a}
-#collection .collection-branch-toggle b{font-size:14px;line-height:1}
-#collection .collection-branch-detail-row.collection-branch-collapsed{display:none!important}
-@media(max-width:760px){#collection .collection-branch-card{padding:6px 8px}#collection .collection-branch-card-line{gap:5px!important}#collection .collection-branch-card-label{flex-basis:76px!important;font-size:9px!important}#collection .collection-branch-card-line>strong{font-size:10px!important}#collection .collection-branch-card-metrics{flex-basis:100%!important;gap:3px 9px!important;font-size:9px!important}#collection .collection-branch-toggle{min-height:25px!important;padding:3px 7px!important;font-size:9px!important}}
-</style>
-
-<style id="collection-branch-appendix-controls-style">
-#collection .collection-branch-appendix-controls{display:flex;align-items:flex-start;flex-wrap:wrap;gap:8px 14px;margin:7px 0 10px;padding:7px 10px;border:1px solid #d8e6e1;border-radius:9px;background:#f8fbfa;color:#294940;font:700 11px Arial,Tahoma,sans-serif}
-#collection .collection-branch-appendix-enable{display:flex;align-items:center;gap:7px;cursor:pointer}
-#collection .collection-branch-appendix-controls input{accent-color:#087957}
-#collection .collection-branch-appendix-note{color:#58716b;font-size:10px;font-weight:700}
-@media(max-width:700px){#collection .collection-branch-appendix-controls{font-size:10px}#collection .collection-branch-appendix-note{flex-basis:100%}}
-</style>
