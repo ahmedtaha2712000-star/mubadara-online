@@ -4250,9 +4250,9 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
       <button type="button" class="print-btn icon-action pfa-export-action" aria-label="طباعة سجل متابعة السداد" title="طباعة سجل متابعة السداد" onclick="return printPaymentFollowupArchive(event)"><span class="action-glyph glyph-print" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M7 8V3.5h10V8M6 17H4a2 2 0 0 1-2-2v-3.5A3.5 3.5 0 0 1 5.5 8h13A3.5 3.5 0 0 1 22 11.5V15a2 2 0 0 1-2 2h-2" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M6 13h12v8H6zM7.5 16h9" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><circle cx="18" cy="11.5" r=".8" fill="currentColor"/></svg></span><span class="action-label">طباعة</span></button>
       <button type="button" class="pdf-btn icon-action pfa-export-action" aria-label="تحميل سجل متابعة السداد PDF" title="تحميل سجل متابعة السداد PDF" onclick="return downloadPaymentFollowupArchivePDF(event)"><span class="action-glyph glyph-pdf" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M6 2.5h8l4 4V21H6z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M14 2.5V7h4M8 12h8M8 15h6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M8 18h8" stroke="currentColor" stroke-width="2"/></svg></span><span class="action-label">PDF</span></button>
       <button type="button" class="excel-btn icon-action pfa-export-action" aria-label="تحميل سجل متابعة السداد Excel" title="تحميل سجل متابعة السداد Excel" onclick="return exportPaymentFollowupArchiveExcel(event)"><span class="action-glyph glyph-excel" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M7 2.75h7l4 4v14.5H7z" fill="#fff" stroke="#168045" stroke-width="1.15"/><path d="M14 2.75v4h4" fill="#d8f2e2" stroke="#168045" stroke-width="1.05"/><path d="M12.4 10.1h3.8m-3.8 2.7h3.8m-3.8 2.7h3.8m-3.8 2.7h3.8" fill="none" stroke="#72b48c" stroke-width=".8" stroke-linecap="round"/><path d="M3.15 8.7h9.7v10.1h-9.7z" fill="#107c41" stroke="#075e2f" stroke-width="1.1"/><path d="m5.65 11.1 4.7 5.3m-4.7 0 4.7-5.3" fill="none" stroke="#fff" stroke-width="1.45" stroke-linecap="round"/></svg></span><span class="action-label">Excel</span></button>
-      <button type="button" class="print-btn icon-action pfa-export-action pfa-export-filtered" aria-label="طباعة مختصرة لسجل متابعة السداد" title="طباعة مختصرة مع إخفاء الأعمدة المحددة" onclick="return printPaymentFollowupArchiveCompact(event)"><span class="action-glyph glyph-print" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M7 8V3.5h10V8M6 17H4a2 2 0 0 1-2-2v-3.5A3.5 3.5 0 0 1 5.5 8h13A3.5 3.5 0 0 1 22 11.5V15a2 2 0 0 1-2 2h-2M6 13h12v8H6z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg></span><span class="action-label">طباعة مختصرة</span></button>
-      <button type="button" class="pdf-btn icon-action pfa-export-action pfa-export-filtered" aria-label="تحميل PDF مختصر لسجل متابعة السداد" title="تحميل PDF مختصر مع إخفاء الأعمدة المحددة" onclick="return downloadPaymentFollowupArchiveCompactPDF(event)"><span class="action-glyph glyph-pdf" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M6 2.5h8l4 4V21H6zM14 2.5V7h4M8 12h8M8 15h6M8 18h8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg></span><span class="action-label">PDF مختصر</span></button>
-      <button type="button" class="excel-btn icon-action pfa-export-action pfa-export-filtered" aria-label="تحميل Excel مختصر لسجل متابعة السداد" title="Excel مختصر مع إخفاء أعمدة السداد التفصيلية" onclick="return exportPaymentFollowupArchiveCompactExcel(event)"><span class="action-glyph glyph-excel" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M7 2.75h7l4 4v14.5H7zM14 2.75v4h4M3.15 8.7h9.7v10.1h-9.7z" fill="none" stroke="#168045" stroke-width="1.4"/><path d="m5.65 11.1 4.7 5.3m-4.7 0 4.7-5.3" fill="none" stroke="#168045" stroke-width="1.5"/></svg></span><span class="action-label">Excel مختصر</span></button>
+      <button type="button" class="print-btn icon-action pfa-export-action" aria-label="طباعة نموذج متابعة مختصر" title="طباعة نموذج متابعة وحث على السداد تليفونيًا" onclick="return printPaymentFollowupFormTemplate(event)"><span class="action-glyph glyph-print" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M7 8V3.5h10V8M6 17H4a2 2 0 0 1-2-2v-3.5A3.5 3.5 0 0 1 5.5 8h13A3.5 3.5 0 0 1 22 11.5V15a2 2 0 0 1-2 2h-2M6 13h12v8H6z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg></span><span class="action-label">طباعة النموذج</span></button>
+      <button type="button" class="pdf-btn icon-action pfa-export-action" aria-label="تحميل نموذج متابعة مختصر PDF" title="تحميل نموذج متابعة وحث على السداد تليفونيًا PDF" onclick="return downloadPaymentFollowupFormTemplatePDF(event)"><span class="action-glyph glyph-pdf" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M6 2.5h8l4 4V21H6zM14 2.5V7h4M8 12h8M8 15h6M8 18h8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg></span><span class="action-label">PDF النموذج</span></button>
+      <button type="button" class="excel-btn icon-action pfa-export-action" aria-label="تحميل Excel مختصر لسجل متابعة السداد" title="تحميل نسخة Excel مختصرة" onclick="return exportPaymentFollowupCompactExcel(event)"><span class="action-glyph glyph-excel" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M7 2.75h7l4 4v14.5H7zM14 2.75v4h4M3.15 8.7h9.7v10.1h-9.7z" fill="none" stroke="#168045" stroke-width="1.4"/><path d="m5.65 11.1 4.7 5.3m-4.7 0 4.7-5.3" fill="none" stroke="#168045" stroke-width="1.5"/></svg></span><span class="action-label">Excel مختصر</span></button>
       <button type="button" class="pfa-back-action" onclick="showScreen('paymentFollowup')">← العودة إلى متابعة السداد</button>
     </div></div>
     <div class="pfa-summary" aria-hidden="true" style="display:none!important"><div class="pfa-card"><span>العميل</span><b id="paymentFollowupArchiveClient">—</b></div><div class="pfa-card"><span>القرض / الحالة</span><b id="paymentFollowupArchiveLoan">—</b></div><div class="pfa-card"><span>عدد المتابعات</span><b id="paymentFollowupArchiveCount">0</b></div><div class="pfa-card"><span>آخر متابعة</span><b id="paymentFollowupArchiveLatest">—</b></div></div>
@@ -13448,58 +13448,80 @@ body.pfa-resizing-rows,body.pfa-resizing-rows *{cursor:row-resize!important;user
     catch(error){console.error("Archive Excel export:",error);alert("تعذر إنشاء ملف Excel للأرشيف.")}
     return false;
   }
-  // Compact exports use a separate report layer/data matrix; the screen table and legacy actions are not modified.
-  function compactArchiveColumnIndexes(headers,includePrintOnly=false){
-    const normalize=value=>String(value||"").replace(/[\s\u200f\u200e]/g,"").replace(/[إأآ]/g,"ا").toLowerCase();
-    const shouldHide=header=>{const h=normalize(header);const base=h.includes("تاريخالسداد")||h.includes("المتبقيمنالقسط")||h.includes("المتبقىمنالقسط")||h.includes("عددالاقساطالمتاخرة")||h.includes("اجمالىالمتاخرات")||h.includes("اجماليالمتاخرات")||h.includes("المبلغالمسدد")||h==="المسدد";if(base)return true;if(!includePrintOnly)return false;return h.includes("نتيجةالمتابعة")||h.includes("نتيجهالمتابعه")||h.includes("القائمبالمتابعة")||h.includes("القائمبالمتابعه")||h.includes("التاريخوالوقت")||h.includes("قيمةالقسط")||h.includes("قيمهالقسط")||h.includes("اجماليمتاخراتالعميل")||h.includes("اجمالىمتاخراتالعميل")};
-    return headers.map((header,index)=>shouldHide(header)?index:-1).filter(index=>index>=0);
+  // Standalone paper-form exports. They read the currently visible archive rows but never modify them.
+  const pfaFormCss=`@page{size:letter landscape;margin:0.22in}#pfaFormPrintRoot{direction:rtl;color:#111;font-family:Arial,Tahoma,sans-serif;background:#fff}#pfaFormPrintRoot *{box-sizing:border-box}#pfaFormPrintRoot .pfa-form-page{width:100%;height:7.95in;padding:0;position:relative;page-break-after:always;break-after:page;overflow:hidden}#pfaFormPrintRoot .pfa-form-page:last-child{page-break-after:auto;break-after:auto}.pfa-form-brand{height:.57in;border-bottom:2px solid #111;display:flex;align-items:center;justify-content:space-between;padding:0 .05in}.pfa-form-brand img{width:.8in;height:.48in;object-fit:contain}.pfa-form-brand-text{text-align:right;line-height:1.25;font-weight:700;font-size:11px}.pfa-form-brand-text .en{font-size:10px;direction:ltr}.pfa-form-title{text-align:center;font-size:14px;font-weight:700;text-decoration:underline;margin:.08in 0 .13in}.pfa-form-meta{display:grid;grid-template-columns:1fr 1fr 1fr;grid-template-rows:.34in .34in;align-items:center;font-size:10px;font-weight:700}.pfa-form-meta span{padding:0 .08in;white-space:nowrap}.pfa-form-table{width:100%;border-collapse:collapse;table-layout:fixed;direction:rtl;margin-top:.02in}.pfa-form-table th,.pfa-form-table td{border:1px solid #111;text-align:center;vertical-align:middle;padding:.035in .04in}.pfa-form-table th{height:.42in;background:#ddd;font-size:8px;font-weight:700}.pfa-form-table td{height:.80in;font-size:8px;white-space:pre-wrap;overflow-wrap:anywhere}.pfa-form-table .pfa-outcome{text-align:right;vertical-align:top;padding:.08in}.pfa-form-sign{margin-top:.20in;font-size:10px;font-weight:700;text-align:right}.pfa-form-empty{height:.80in}body.pfa-form-printing>*:not(#pfaFormPrintRoot){display:none!important}body.pfa-form-printing #pfaFormPrintRoot{display:block!important;position:fixed!important;inset:0!important;width:100%!important;background:#fff!important}`;
+  function pfaFormEscape(value){return String(value??"").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]))}
+  function pfaFormDate(value){const date=new Date(value||"");if(Number.isNaN(date.getTime()))return String(value||"");return `${String(date.getDate()).padStart(2,"0")}/${String(date.getMonth()+1).padStart(2,"0")}/${date.getFullYear()}`}
+  function pfaFormDay(value){const date=new Date(value||"");return Number.isNaN(date.getTime())?"":new Intl.DateTimeFormat("ar-EG",{weekday:"long"}).format(date)}
+  function pfaFormVisibleRecords(){
+    const body=document.getElementById("paymentFollowupArchiveTimeline");if(!body)return [];
+    const visible=[...body.querySelectorAll("tr[data-pfa-row-key]")],logs=pfReadLogs();
+    return visible.map(row=>{
+      const rowKey=row.dataset.pfaRowKey||"",item=currentCases.find(candidate=>rowKey.startsWith(String(candidate.key)+"|"));if(!item)return null;
+      const log=logs.find(entry=>`${item.key}|${String(entry.cloudId||entry.createdAt||"")}|${String(entry.status||"")}|${String(entry.callParty||"")}`===rowKey);if(!log)return null;
+      const cells=[...row.cells].map(cell=>cell.innerText.trim()),callParty=cells[1]||log.callParty||"";
+      const contacts=item.contacts||[];let contact=contacts.find(c=>norm(c.label||"")===norm(callParty)||norm(c.name||"")===norm(callParty));
+      if(!contact)contact=contacts.find(c=>norm(callParty).includes(norm(c.label||""))||norm(callParty).includes(norm(c.name||"")));
+      const phone=(contact?.phones||[]).map(p=>p.phone).filter(Boolean).join("، ");
+      const party=[callParty,phone].filter(Boolean).join(" — ");
+      const result=[log.status,log.note].map(v=>String(v||"").trim()).filter(v=>v&&v!=="—").join("\n");
+      const branch=getAny(item.group?.r||[],["الفرع","فرع","Branch","branch"])||item.branch||"";
+      return {item,log,party,result,branch,callDate:log.createdAt||""};
+    }).filter(Boolean);
   }
-  function removeCompactColumnsFromLayer(layer){
-    const table=layer?.querySelector(".pfa-print-table");if(!table)return;
-    const head=table.tHead?.rows?.[table.tHead.rows.length-1];if(!head)return;
-    const indexes=compactArchiveColumnIndexes([...head.cells].map(cell=>cell.innerText.trim()),true);
-    [...table.rows].forEach(row=>indexes.slice().sort((a,b)=>b-a).forEach(index=>{if(row.cells[index])row.deleteCell(index)}));
-    [...table.querySelectorAll("colgroup")].forEach(group=>indexes.slice().sort((a,b)=>b-a).forEach(index=>{if(group.children[index])group.children[index].remove()}));
+  function buildPaymentFollowupFormTemplate(){
+    const records=pfaFormVisibleRecords();if(!records.length)return null;
+    const root=document.createElement("div");root.id="pfaFormPrintRoot";root.dir="rtl";
+    const logo=document.querySelector(".association-logo")?.src||document.querySelector(".print-logo")?.src||"";
+    const esc=pfaFormEscape,unique=values=>[...new Set(values.map(v=>String(v||"").trim()).filter(Boolean))].join("، ");
+    for(let offset=0,pageNo=0;offset<records.length;offset+=6,pageNo++){
+      const batch=records.slice(offset,offset+6),first=batch[0],date=pfaFormDate(first.callDate),day=pfaFormDay(first.callDate);
+      const branches=unique(batch.map(x=>x.branch)),specialists=unique(batch.map(x=>x.item.officer)),callers=unique(batch.map(x=>x.log.user));
+      const rows=batch.map((record,index)=>`<tr><td>${offset+index+1}</td><td>${esc(record.item.client||"—")}</td><td>${esc(record.item.loanCode||record.item.loanNo||record.item.loanLabel||"—")}</td><td>${esc(typeof money==="function"?money(record.item.loanAmount):record.item.loanAmount||"—")}</td><td>${esc(pfTextDate(record.item.due)||"—")}</td><td>${esc(record.party||"غير محدد")}</td><td class="pfa-outcome">${esc(record.result||"—")}</td></tr>`).join("");
+      const page=document.createElement("section");page.className="pfa-form-page";
+      page.innerHTML=`<header class="pfa-form-brand">${logo?`<img src="${esc(logo)}" alt="شعار الجمعية">`:"<span></span>"}<div class="pfa-form-brand-text"><div>جمعية تنمية المجتمعات المحلية والمشروعات الصغيرة</div><div class="en">Community Development and Small Enterprise Association</div></div></header><h1 class="pfa-form-title">نموذج متابعة وحث على السداد تليفونيًا</h1><div class="pfa-form-meta"><span>فرع: ${esc(branches||"—")}</span><span>يوم: ${esc(day||"—")}</span><span>الموافق: ${esc(date||"—")}</span><span>محفظة الأخصائي: ${esc(specialists||"—")}</span><span>القائم بالاتصال: ${esc(callers||"—")}</span><span></span></div><table class="pfa-form-table"><colgroup><col style="width:4%"><col style="width:20%"><col style="width:8%"><col style="width:10%"><col style="width:10%"><col style="width:16%"><col style="width:32%"></colgroup><thead><tr><th>م</th><th>اسم العميل</th><th>الكود</th><th>مبلغ القرض</th><th>متأخر منذ<br>(تاريخ الاستحقاق)</th><th>رقم الهاتف الذي تم التواصل معه وصفته</th><th>نتيجة الاتصال</th></tr></thead><tbody>${rows}${Array.from({length:6-batch.length},(_,i)=>`<tr class="pfa-form-empty"><td>${offset+batch.length+i+1}</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>`).join("")}</tbody></table><div class="pfa-form-sign">توقيع القائم بالاتصال،،،</div>`;
+      root.appendChild(page);
+    }
+    return root;
   }
-  function printPaymentFollowupArchiveCompact(event){
+  function pfaFormAttach(root){
+    const style=document.createElement("style");style.id="pfaFormPrintStyle";style.textContent=pfaFormCss;document.head.appendChild(style);document.body.appendChild(root);return style;
+  }
+  function printPaymentFollowupFormTemplate(event){
     event?.preventDefault?.();event?.stopImmediatePropagation?.();if(busy)return false;
-    const layer=buildArchiveLayer();if(!layer){alert("لا توجد سجلات ظاهرة في الأرشيف للطباعة.");return false}
-    removeCompactColumnsFromLayer(layer);busy=true;document.body.appendChild(layer);formatArchiveLayer(layer);document.body.classList.add("printing-pfa-archive");
-    const filename=exportFileName("pdf").replace(/\.pdf$/i,"_مختصر.pdf"),textCleanup=restorePageTitleAndText(layer,filename);let cleaned=false;
-    const cleanup=()=>{if(cleaned)return;cleaned=true;textCleanup();busy=false;window.removeEventListener("afterprint",cleanup)};
-    window.addEventListener("afterprint",cleanup,{once:true});void layer.offsetHeight;
-    try{window.print()}catch(error){cleanup();alert("تعذر تشغيل الطباعة. حاول مرة أخرى.");return false}
-    setTimeout(cleanup,60000);return false;
+    const root=buildPaymentFollowupFormTemplate();if(!root){alert("لا توجد سجلات ظاهرة في الأرشيف للطباعة.");return false}
+    busy=true;const style=pfaFormAttach(root),oldTitle=document.title;document.title=exportFileName("نموذج.pdf");document.body.classList.add("pfa-form-printing");let cleaned=false;
+    const cleanup=()=>{if(cleaned)return;cleaned=true;document.body.classList.remove("pfa-form-printing");document.title=oldTitle;root.remove();style.remove();busy=false;window.removeEventListener("afterprint",cleanup)};
+    window.addEventListener("afterprint",cleanup,{once:true});try{window.print()}catch(error){cleanup();alert("تعذر تشغيل الطباعة. حاول مرة أخرى.");return false}setTimeout(cleanup,60000);return false;
   }
-  async function downloadPaymentFollowupArchiveCompactPDF(event){
+  async function downloadPaymentFollowupFormTemplatePDF(event){
     event?.preventDefault?.();event?.stopImmediatePropagation?.();if(busy)return false;
-    const layer=buildArchiveLayer();if(!layer){alert("لا توجد سجلات ظاهرة في الأرشيف لتحميلها PDF.");return false}
-    removeCompactColumnsFromLayer(layer);const button=event?.currentTarget,label=button?.querySelector(".action-label"),oldText=label?.textContent;busy=true;
+    const root=buildPaymentFollowupFormTemplate();if(!root){alert("لا توجد سجلات ظاهرة في الأرشيف لتحميلها PDF.");return false}
+    const button=event?.currentTarget,label=button?.querySelector(".action-label"),oldText=label?.textContent;busy=true;
     try{
       if(button){button.disabled=true;button.setAttribute("aria-busy","true");if(label)label.textContent="جاري الإنشاء..."}
-      formatArchiveLayer(layer);const css=[...document.querySelectorAll("style")].map(style=>style.textContent||"").join("\n"),filename=exportFileName("pdf").replace(/\.pdf$/i,"_مختصر.pdf");
-      const response=await fetch("/api/generate-pdf",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({html:layer.outerHTML,css,filename,reportType:"due-installments"})});
+      const html=root.outerHTML,css=[...document.querySelectorAll("style")].map(style=>style.textContent||"").join("\n")+"\n"+pfaFormCss,filename=exportFileName("نموذج.pdf");
+      const response=await fetch("/api/generate-pdf",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({html,css,filename,reportType:"due-installments"})});
       if(!response.ok){let detail="";try{detail=await response.text()}catch(e){}throw new Error(`PDF API ${response.status}: ${detail}`)}
-      const blob=await response.blob();if(blob.size<100)throw new Error("لم يُرجع خادم PDF ملفًا صالحًا.");const url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);
-      if(typeof showMsg==="function")showMsg("تم إنشاء ملف PDF مختصر للأرشيف بنجاح.","ok");
-    }catch(error){console.error("Compact archive PDF export:",error);alert("تعذر إنشاء PDF المختصر. تحقق من اتصال البرنامج بخدمة PDF ثم حاول مرة أخرى.")}
-    finally{layer.remove();if(button){button.disabled=false;button.removeAttribute("aria-busy");if(label)label.textContent=oldText||"PDF مختصر"}busy=false}
+      const blob=await response.blob();if(blob.size<100)throw new Error("لم يُرجع خادم PDF ملفًا صالحًا.");const url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);if(typeof showMsg==="function")showMsg("تم إنشاء ملف PDF للنموذج بنجاح.","ok");
+    }catch(error){console.error("Payment follow-up form PDF:",error);alert("تعذر إنشاء PDF للنموذج. تحقق من اتصال البرنامج بخدمة PDF ثم حاول مرة أخرى.")}
+    finally{root.remove();if(button){button.disabled=false;button.removeAttribute("aria-busy");if(label)label.textContent=oldText||"PDF النموذج"}busy=false}
     return false;
   }
-  function exportPaymentFollowupArchiveCompactExcel(event){
+  function exportPaymentFollowupCompactExcel(event){
     event?.preventDefault?.();event?.stopImmediatePropagation?.();if(typeof XLSX==="undefined"||!XLSX.utils){alert("مكتبة Excel غير متاحة.");return false}
     const source=document.querySelector("#paymentFollowupArchive #paymentFollowupArchiveTableWrap table.pfa-table"),data=archiveMatrix(source);if(!data||!data.rows.length){alert("لا توجد سجلات ظاهرة في الأرشيف لتصديرها.");return false}
-    const hidden=compactArchiveColumnIndexes(data.headers,false),keep=data.headers.map((_,index)=>index).filter(index=>!hidden.includes(index)),filename=exportFileName("xlsx").replace(/\.xlsx$/i,"_مختصر.xlsx");
-    try{const ws=XLSX.utils.aoa_to_sheet([keep.map(index=>data.headers[index]),...data.rows.map(row=>keep.map(index=>row[index]??""))]);ws["!rtl"]=true;const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,"أرشيف مختصر");XLSX.writeFile(wb,filename)}
-    catch(error){console.error("Compact archive Excel export:",error);alert("تعذر إنشاء ملف Excel المختصر.")}
+    const normHeader=value=>String(value||"").replace(/[\\s\\u200f\\u200e]/g,"").replace(/[إأآ]/g,"ا"),hide=h=>{h=normHeader(h);return h.includes("تاريخالسداد")||h.includes("المتبقيمنالقسط")||h.includes("المتبقىمنالقسط")||h.includes("عددالاقساطالمتاخرة")||h.includes("اجماليالمتاخرات")||h.includes("اجمالىالمتاخرات")||h.includes("المسدد")};
+    const keep=data.headers.map((h,i)=>hide(h)?-1:i).filter(i=>i>=0),filename=exportFileName("xlsx").replace(/\\.xlsx$/i,"_مختصر.xlsx");
+    try{const ws=XLSX.utils.aoa_to_sheet([keep.map(i=>data.headers[i]),...data.rows.map(row=>keep.map(i=>row[i]??""))]);ws["!rtl"]=true;const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,"أرشيف مختصر");XLSX.writeFile(wb,filename)}catch(error){console.error("Compact archive Excel:",error);alert("تعذر إنشاء ملف Excel المختصر.")}
     return false;
   }
   window.printPaymentFollowupArchive=printPaymentFollowupArchive;
   window.downloadPaymentFollowupArchivePDF=downloadPaymentFollowupArchivePDF;
   window.exportPaymentFollowupArchiveExcel=exportPaymentFollowupArchiveExcel;
-  window.printPaymentFollowupArchiveCompact=printPaymentFollowupArchiveCompact;
-  window.downloadPaymentFollowupArchiveCompactPDF=downloadPaymentFollowupArchiveCompactPDF;
-  window.exportPaymentFollowupArchiveCompactExcel=exportPaymentFollowupArchiveCompactExcel;
+  window.printPaymentFollowupFormTemplate=printPaymentFollowupFormTemplate;
+  window.downloadPaymentFollowupFormTemplatePDF=downloadPaymentFollowupFormTemplatePDF;
+  window.exportPaymentFollowupCompactExcel=exportPaymentFollowupCompactExcel;
 })();
 </script>
 <style id="payment-followup-archive-print-due-rules">
