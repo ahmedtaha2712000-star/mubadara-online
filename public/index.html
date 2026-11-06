@@ -13449,25 +13449,34 @@ body.pfa-resizing-rows,body.pfa-resizing-rows *{cursor:row-resize!important;user
     return false;
   }
   // Standalone paper-form exports. They read the currently visible archive rows but never modify them.
-  const pfaFormCss=`@page{size:letter landscape;margin:0.22in}#pfaFormPrintRoot{direction:rtl;color:#111;font-family:Arial,Tahoma,sans-serif;background:#fff}#pfaFormPrintRoot *{box-sizing:border-box}#pfaFormPrintRoot .pfa-form-page{width:100%;height:7.95in;padding:0;position:relative;page-break-after:always;break-after:page;overflow:hidden}#pfaFormPrintRoot .pfa-form-page:last-child{page-break-after:auto;break-after:auto}.pfa-form-brand{height:.57in;border-bottom:2px solid #111;display:flex;align-items:center;justify-content:space-between;padding:0 .05in}.pfa-form-brand img{width:.8in;height:.48in;object-fit:contain}.pfa-form-brand-text{text-align:right;line-height:1.25;font-weight:700;font-size:11px}.pfa-form-brand-text .en{font-size:10px;direction:ltr}.pfa-form-title{text-align:center;font-size:14px;font-weight:700;text-decoration:underline;margin:.08in 0 .13in}.pfa-form-meta{display:grid;grid-template-columns:1fr 1fr 1fr;grid-template-rows:.34in .34in;align-items:center;font-size:10px;font-weight:700}.pfa-form-meta span{padding:0 .08in;white-space:nowrap}.pfa-form-table{width:100%;border-collapse:collapse;table-layout:fixed;direction:rtl;margin-top:.02in}.pfa-form-table th,.pfa-form-table td{border:1px solid #111;text-align:center;vertical-align:middle;padding:.035in .04in}.pfa-form-table th{height:.42in;background:#ddd;font-size:8px;font-weight:700}.pfa-form-table td{height:.80in;font-size:8px;white-space:pre-wrap;overflow-wrap:anywhere}.pfa-form-table .pfa-outcome{text-align:right;vertical-align:top;padding:.08in}.pfa-form-sign{margin-top:.20in;font-size:10px;font-weight:700;text-align:right}.pfa-form-empty{height:.80in}body.pfa-form-printing>*:not(#pfaFormPrintRoot){display:none!important}body.pfa-form-printing #pfaFormPrintRoot{display:block!important;position:fixed!important;inset:0!important;width:100%!important;background:#fff!important}`;
+  const pfaFormCss=`@page{size:letter landscape;margin:0.22in}#pfaFormPrintRoot{display:none!important;direction:rtl;color:#111;font-family:Arial,Tahoma,sans-serif;background:#fff}#pfaFormPrintRoot *{box-sizing:border-box}#pfaFormPrintRoot .pfa-form-page{width:100%;height:7.5in;padding:0;position:relative;page-break-after:always;break-after:page;overflow:hidden}#pfaFormPrintRoot .pfa-form-page:last-child{page-break-after:auto;break-after:auto}.pfa-form-brand{display:flex!important;visibility:visible!important;height:.57in;border-bottom:2px solid #111;display:flex;align-items:center;justify-content:space-between;padding:0 .05in;direction:ltr}.pfa-form-brand img{display:block!important;visibility:visible!important;width:.8in;height:.48in;object-fit:contain}.pfa-form-brand-text{text-align:right;direction:rtl;line-height:1.25;font-weight:700;font-size:11px}.pfa-form-brand-text .en{font-size:10px;direction:ltr}.pfa-form-title{text-align:center;font-size:14px;font-weight:700;text-decoration:underline;margin:.08in 0 .13in}.pfa-form-meta{display:grid;grid-template-columns:1fr 1fr 1fr;grid-template-rows:.34in .34in;align-items:center;font-size:10px;font-weight:700}.pfa-form-meta span{padding:0 .08in;white-space:nowrap}.pfa-form-table{width:100%;border-collapse:collapse;table-layout:fixed;direction:rtl;margin-top:.02in}.pfa-form-table th,.pfa-form-table td{border:1px solid #111;text-align:center;vertical-align:middle;padding:.035in .04in}.pfa-form-table th{height:.42in;background:#ddd;font-size:8px;font-weight:700}.pfa-form-table td{height:.80in;font-size:8px;white-space:pre-wrap;overflow-wrap:anywhere}.pfa-form-table .pfa-outcome{text-align:right;vertical-align:top;padding:.08in}.pfa-form-sign{margin-top:.20in;font-size:10px;font-weight:700;text-align:right}.pfa-form-empty{height:.80in}@media print{body.pfa-form-printing>*:not(#pfaFormPrintRoot){display:none!important}body.pfa-form-printing #pfaFormPrintRoot{display:block!important;position:static!important;width:100%!important;background:#fff!important;visibility:visible!important}body.pfa-form-printing #pfaFormPrintRoot *{visibility:visible!important}}`;
   function pfaFormEscape(value){return String(value??"").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]))}
   function pfaFormDate(value){const date=new Date(value||"");if(Number.isNaN(date.getTime()))return String(value||"");return `${String(date.getDate()).padStart(2,"0")}/${String(date.getMonth()+1).padStart(2,"0")}/${date.getFullYear()}`}
   function pfaFormDay(value){const date=new Date(value||"");return Number.isNaN(date.getTime())?"":new Intl.DateTimeFormat("ar-EG",{weekday:"long"}).format(date)}
   function pfaFormVisibleRecords(){
     const body=document.getElementById("paymentFollowupArchiveTimeline");if(!body)return [];
-    const visible=[...body.querySelectorAll("tr[data-pfa-row-key]")],logs=pfReadLogs();
+    const visible=[...body.querySelectorAll("tr[data-pfa-row-key]")];let lastClient="";
+    const normalize=value=>String(value||"").replace(/[\s\u200f\u200e]/g,"").replace(/[إأآ]/g,"ا").toLowerCase();
+    const groups=typeof window.visibleGroups==="function"?window.visibleGroups():[];
+    const getValue=(row,keys)=>typeof window.getAny==="function"?window.getAny(row,keys):"";
     return visible.map(row=>{
-      const rowKey=row.dataset.pfaRowKey||"",item=currentCases.find(candidate=>rowKey.startsWith(String(candidate.key)+"|"));if(!item)return null;
-      const log=logs.find(entry=>`${item.key}|${String(entry.cloudId||entry.createdAt||"")}|${String(entry.status||"")}|${String(entry.callParty||"")}`===rowKey);if(!log)return null;
-      const cells=[...row.cells].map(cell=>cell.innerText.trim()),callParty=cells[1]||log.callParty||"";
-      const contacts=item.contacts||[];let contact=contacts.find(c=>norm(c.label||"")===norm(callParty)||norm(c.name||"")===norm(callParty));
-      if(!contact)contact=contacts.find(c=>norm(callParty).includes(norm(c.label||""))||norm(callParty).includes(norm(c.name||"")));
-      const phone=(contact?.phones||[]).map(p=>p.phone).filter(Boolean).join("، ");
-      const party=[callParty,phone].filter(Boolean).join(" — ");
-      const result=[log.status,log.note].map(v=>String(v||"").trim()).filter(v=>v&&v!=="—").join("\n");
-      const branch=getAny(item.group?.r||[],["الفرع","فرع","Branch","branch"])||item.branch||"";
-      return {item,log,party,result,branch,callDate:log.createdAt||""};
-    }).filter(Boolean);
+      const rowKey=row.dataset.pfaRowKey||"",parts=rowKey.split("|"),cells={};
+      [...row.cells].forEach((cell,index)=>{const col=Number(cell.dataset.pfaColumn);cells[Number.isFinite(col)?col:index]=cell.innerText.trim()});
+      const group=groups.find(g=>{const r=g.r||{};const client=typeof window.get==="function"?window.get(r,"client"):getValue(r,["اسم العميل","العميل"]);const code=getValue(r,["كود القرض","رقم القرض","رقم القرض/كود القرض"]);const loan=typeof window.get==="function"?window.get(r,"loan"):"";return normalize(client)===parts[0]&&(normalize(code||loan)===parts[1]||normalize(loan)===parts[1])});
+      const raw=group?.r||group?.items?.[0]||{};const client=String(cells[0]||lastClient||(typeof window.get==="function"?window.get(raw,"client"):"")||parts[0]||"").trim();if(client)lastClient=client;
+      const party=String(cells[1]||"");let phone="";
+      if(raw&&Object.keys(raw).length){
+        const isG1=/الضامن\s*(الأول|الاول|1)/.test(party),isG2=/الضامن\s*(الثاني|2)/.test(party),isG3=/الضامن\s*(الثالث|3)/.test(party);
+        const names=isG1?["رقم هاتف الضامن الأول","رقم تليفون الضامن الأول","موبايل الضامن الأول","هاتف الضامن الأول"]:isG2?["رقم هاتف الضامن الثاني","رقم تليفون الضامن الثاني","موبايل الضامن الثاني","هاتف الضامن الثاني"]:isG3?["رقم هاتف الضامن الثالث","رقم تليفون الضامن الثالث","موبايل الضامن الثالث","هاتف الضامن الثالث"]:["رقم الهاتف","رقم الموبيل","الموبايل","الهاتف","رقم الهاتف الثاني","رقم الهاتف الثالث"];
+        phone=String(getValue(raw,names)||"").trim();
+      }
+      if(!phone&&typeof window.clientPhones==="function"&&raw&&Object.keys(raw).length&&!/ضامن/.test(party))phone=String(window.clientPhones(raw)||"").split(" / ")[0].trim();
+      const item={client,loanCode:getValue(raw,["كود القرض"])||parts[1]||"",loanNo:getValue(raw,["رقم القرض"])||parts[1]||"",loanLabel:parts[1]||"",loanAmount:cells[7]||"—",due:cells[9]||"—",officer:cells[16]||"—"};
+      const status=String(cells[2]||"").trim(),note=String(cells[3]||"").trim();
+      const log={status,note,callParty:party,user:cells[5]||"—",createdAt:cells[6]||""};
+      const branch=getValue(raw,["الفرع","اسم الفرع","فرع","Branch","branch"])||"";
+      return {item,log,party:[party,phone].filter(Boolean).join(" — "),result:note&&note!=="—"?note:"—",branch,callDate:log.createdAt};
+    }).filter(record=>record.item.client);
   }
   function buildPaymentFollowupFormTemplate(){
     const records=pfaFormVisibleRecords();if(!records.length)return null;
@@ -13477,7 +13486,7 @@ body.pfa-resizing-rows,body.pfa-resizing-rows *{cursor:row-resize!important;user
     for(let offset=0,pageNo=0;offset<records.length;offset+=6,pageNo++){
       const batch=records.slice(offset,offset+6),first=batch[0],date=pfaFormDate(first.callDate),day=pfaFormDay(first.callDate);
       const branches=unique(batch.map(x=>x.branch)),specialists=unique(batch.map(x=>x.item.officer)),callers=unique(batch.map(x=>x.log.user));
-      const rows=batch.map((record,index)=>`<tr><td>${offset+index+1}</td><td>${esc(record.item.client||"—")}</td><td>${esc(record.item.loanCode||record.item.loanNo||record.item.loanLabel||"—")}</td><td>${esc(typeof money==="function"?money(record.item.loanAmount):record.item.loanAmount||"—")}</td><td>${esc(pfTextDate(record.item.due)||"—")}</td><td>${esc(record.party||"غير محدد")}</td><td class="pfa-outcome">${esc(record.result||"—")}</td></tr>`).join("");
+      const rows=batch.map((record,index)=>`<tr><td>${offset+index+1}</td><td>${esc(record.item.client||"—")}</td><td>${esc(record.item.loanCode||record.item.loanNo||record.item.loanLabel||"—")}</td><td>${esc(record.item.loanAmount||"—")}</td><td>${esc(record.item.due||"—")}</td><td>${esc(record.party||"غير محدد")}</td><td class="pfa-outcome">${esc(record.result||"—")}</td></tr>`).join("");
       const page=document.createElement("section");page.className="pfa-form-page";
       page.innerHTML=`<header class="pfa-form-brand">${logo?`<img src="${esc(logo)}" alt="شعار الجمعية">`:"<span></span>"}<div class="pfa-form-brand-text"><div>جمعية تنمية المجتمعات المحلية والمشروعات الصغيرة</div><div class="en">Community Development and Small Enterprise Association</div></div></header><h1 class="pfa-form-title">نموذج متابعة وحث على السداد تليفونيًا</h1><div class="pfa-form-meta"><span>فرع: ${esc(branches||"—")}</span><span>يوم: ${esc(day||"—")}</span><span>الموافق: ${esc(date||"—")}</span><span>محفظة الأخصائي: ${esc(specialists||"—")}</span><span>القائم بالاتصال: ${esc(callers||"—")}</span><span></span></div><table class="pfa-form-table"><colgroup><col style="width:4%"><col style="width:20%"><col style="width:8%"><col style="width:10%"><col style="width:10%"><col style="width:16%"><col style="width:32%"></colgroup><thead><tr><th>م</th><th>اسم العميل</th><th>الكود</th><th>مبلغ القرض</th><th>متأخر منذ<br>(تاريخ الاستحقاق)</th><th>رقم الهاتف الذي تم التواصل معه وصفته</th><th>نتيجة الاتصال</th></tr></thead><tbody>${rows}${Array.from({length:6-batch.length},(_,i)=>`<tr class="pfa-form-empty"><td>${offset+batch.length+i+1}</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>`).join("")}</tbody></table><div class="pfa-form-sign">توقيع القائم بالاتصال،،،</div>`;
       root.appendChild(page);
@@ -13490,7 +13499,7 @@ body.pfa-resizing-rows,body.pfa-resizing-rows *{cursor:row-resize!important;user
   function printPaymentFollowupFormTemplate(event){
     event?.preventDefault?.();event?.stopImmediatePropagation?.();if(busy)return false;
     const root=buildPaymentFollowupFormTemplate();if(!root){alert("لا توجد سجلات ظاهرة في الأرشيف للطباعة.");return false}
-    busy=true;const style=pfaFormAttach(root),oldTitle=document.title;document.title=exportFileName("نموذج.pdf");document.body.classList.add("pfa-form-printing");let cleaned=false;
+    busy=true;const style=pfaFormAttach(root),oldTitle=document.title;document.title=exportFileName("pdf").replace(/\.pdf$/i,"_نموذج.pdf");document.body.classList.add("pfa-form-printing");let cleaned=false;
     const cleanup=()=>{if(cleaned)return;cleaned=true;document.body.classList.remove("pfa-form-printing");document.title=oldTitle;root.remove();style.remove();busy=false;window.removeEventListener("afterprint",cleanup)};
     window.addEventListener("afterprint",cleanup,{once:true});try{window.print()}catch(error){cleanup();alert("تعذر تشغيل الطباعة. حاول مرة أخرى.");return false}setTimeout(cleanup,60000);return false;
   }
@@ -13500,7 +13509,7 @@ body.pfa-resizing-rows,body.pfa-resizing-rows *{cursor:row-resize!important;user
     const button=event?.currentTarget,label=button?.querySelector(".action-label"),oldText=label?.textContent;busy=true;
     try{
       if(button){button.disabled=true;button.setAttribute("aria-busy","true");if(label)label.textContent="جاري الإنشاء..."}
-      const html=root.outerHTML,css=[...document.querySelectorAll("style")].map(style=>style.textContent||"").join("\n")+"\n"+pfaFormCss,filename=exportFileName("نموذج.pdf");
+      const html=root.outerHTML,css=[...document.querySelectorAll("style")].map(style=>style.textContent||"").join("\n")+"\n"+pfaFormCss,filename=exportFileName("pdf").replace(/\.pdf$/i,"_نموذج.pdf");
       const response=await fetch("/api/generate-pdf",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({html,css,filename,reportType:"due-installments"})});
       if(!response.ok){let detail="";try{detail=await response.text()}catch(e){}throw new Error(`PDF API ${response.status}: ${detail}`)}
       const blob=await response.blob();if(blob.size<100)throw new Error("لم يُرجع خادم PDF ملفًا صالحًا.");const url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);if(typeof showMsg==="function")showMsg("تم إنشاء ملف PDF للنموذج بنجاح.","ok");
@@ -13511,8 +13520,8 @@ body.pfa-resizing-rows,body.pfa-resizing-rows *{cursor:row-resize!important;user
   function exportPaymentFollowupCompactExcel(event){
     event?.preventDefault?.();event?.stopImmediatePropagation?.();if(typeof XLSX==="undefined"||!XLSX.utils){alert("مكتبة Excel غير متاحة.");return false}
     const source=document.querySelector("#paymentFollowupArchive #paymentFollowupArchiveTableWrap table.pfa-table"),data=archiveMatrix(source);if(!data||!data.rows.length){alert("لا توجد سجلات ظاهرة في الأرشيف لتصديرها.");return false}
-    const normHeader=value=>String(value||"").replace(/[\\s\\u200f\\u200e]/g,"").replace(/[إأآ]/g,"ا"),hide=h=>{h=normHeader(h);return h.includes("تاريخالسداد")||h.includes("المتبقيمنالقسط")||h.includes("المتبقىمنالقسط")||h.includes("عددالاقساطالمتاخرة")||h.includes("اجماليالمتاخرات")||h.includes("اجمالىالمتاخرات")||h.includes("المسدد")};
-    const keep=data.headers.map((h,i)=>hide(h)?-1:i).filter(i=>i>=0),filename=exportFileName("xlsx").replace(/\\.xlsx$/i,"_مختصر.xlsx");
+    const normHeader=value=>String(value||"").replace(/[\s\u200f\u200e]/g,"").replace(/[إأآ]/g,"ا"),hide=h=>{h=normHeader(h);return h.includes("تاريخالسداد")||h.includes("المتبقيمنالقسط")||h.includes("المتبقىمنالقسط")||h.includes("عددالاقساطالمتاخرة")||h.includes("اجماليالمتاخرات")||h.includes("اجمالىالمتاخرات")||h.includes("اجماليمتاخراتالعميل")||h.includes("اجمالىمتاخراتالعميل")||h.includes("المسدد")};
+    const keep=data.headers.map((h,i)=>hide(h)?-1:i).filter(i=>i>=0),filename=exportFileName("xlsx").replace(/\.xlsx$/i,"_مختصر.xlsx");
     try{const ws=XLSX.utils.aoa_to_sheet([keep.map(i=>data.headers[i]),...data.rows.map(row=>keep.map(i=>row[i]??""))]);ws["!rtl"]=true;const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,"أرشيف مختصر");XLSX.writeFile(wb,filename)}catch(error){console.error("Compact archive Excel:",error);alert("تعذر إنشاء ملف Excel المختصر.")}
     return false;
   }
