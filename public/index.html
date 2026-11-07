@@ -10668,6 +10668,14 @@ document.addEventListener('DOMContentLoaded', function () {
   document.addEventListener("submit",event=>{const form=event.target;if(!form?.matches?.("#paymentFollowup .pf-form"))return;event.preventDefault();pfSaveCall(form)});
   window.addEventListener("resize",()=>{if(document.getElementById(SCREEN_ID)?.classList.contains("active")){const mobile=window.matchMedia&&window.matchMedia("(max-width: 760px)").matches;if(mobile!==lastRenderedMobile)renderPaymentFollowup()}});
   document.addEventListener("DOMContentLoaded",()=>{if(document.getElementById(SCREEN_ID)?.classList.contains("active"))renderPaymentFollowup()});
+  window.getPaymentFollowupFormCaseDataForRowKey=function(rowKey){
+    const key=String(rowKey||"");
+    const item=currentCases.find(candidate=>key.startsWith(String(candidate.key)+"|"));
+    if(!item)return null;
+    const branch=getAny(item.group?.r||{},["الفرع","اسم الفرع","فرع","Branch","branch"])||"";
+    return {key:item.key,client:item.client,loanCode:item.loanCode,loanNo:item.loanNo,loanLabel:item.loanLabel,loanAmount:item.loanAmount,due:item.due,officer:item.officer,branch,
+      contacts:(item.contacts||[]).map(contact=>({kind:contact.kind,label:contact.label,name:contact.name,phones:(contact.phones||[]).map(phone=>String(phone.phone||"").trim()).filter(Boolean)}))};
+  };
   window.renderPaymentFollowup=renderPaymentFollowup;
   window.pfSetToday=pfSetToday;window.pfSetPreviousMonth=pfSetPreviousMonth;window.pfClearFilters=pfClearFilters;window.openPaymentFollowupArchive=openPaymentFollowupArchive;window.renderPaymentFollowupArchive=renderPaymentFollowupArchive;
   window.printPaymentFollowupReport=printPaymentFollowupReport;
@@ -13456,25 +13464,34 @@ body.pfa-resizing-rows,body.pfa-resizing-rows *{cursor:row-resize!important;user
   function pfaFormVisibleRecords(){
     const body=document.getElementById("paymentFollowupArchiveTimeline");if(!body)return [];
     const visible=[...body.querySelectorAll("tr[data-pfa-row-key]")];let lastClient="";
-    const normalize=value=>String(value||"").replace(/[\s\u200f\u200e]/g,"").replace(/[إأآ]/g,"ا").toLowerCase();
+    const normalize=value=>typeof window.norm==="function"?window.norm(String(value||"")):String(value||"").replace(/[\s\u200f\u200e]/g,"").replace(/[إأآ]/g,"ا").toLowerCase();
     const groups=typeof window.visibleGroups==="function"?window.visibleGroups():[];
     const getValue=(row,keys)=>typeof window.getAny==="function"?window.getAny(row,keys):"";
     return visible.map(row=>{
       const rowKey=row.dataset.pfaRowKey||"",parts=rowKey.split("|"),cells={};
       [...row.cells].forEach((cell,index)=>{const col=Number(cell.dataset.pfaColumn);cells[Number.isFinite(col)?col:index]=cell.innerText.trim()});
-      const group=groups.find(g=>{const r=g.r||{};const client=typeof window.get==="function"?window.get(r,"client"):getValue(r,["اسم العميل","العميل"]);const code=getValue(r,["كود القرض","رقم القرض","رقم القرض/كود القرض"]);const loan=typeof window.get==="function"?window.get(r,"loan"):"";return normalize(client)===parts[0]&&(normalize(code||loan)===parts[1]||normalize(loan)===parts[1])});
-      const raw=group?.r||group?.items?.[0]||{};const client=String(cells[0]||lastClient||(typeof window.get==="function"?window.get(raw,"client"):"")||parts[0]||"").trim();if(client)lastClient=client;
-      const party=String(cells[1]||"");let phone="";
-      if(raw&&Object.keys(raw).length){
+      const caseData=typeof window.getPaymentFollowupFormCaseDataForRowKey==="function"?window.getPaymentFollowupFormCaseDataForRowKey(rowKey):null;
+      const group=caseData?null:groups.find(g=>{const r=g.r||{};const client=typeof window.get==="function"?window.get(r,"client"):getValue(r,["اسم العميل","العميل"]);const code=getValue(r,["كود القرض","رقم القرض","رقم القرض/كود القرض"]);const loan=typeof window.get==="function"?window.get(r,"loan"):"";return normalize(client)===parts[0]&&(normalize(code||loan)===parts[1]||normalize(loan)===parts[1])});
+      const raw=group?.r||group?.items?.[0]||{};
+      const client=String(cells[0]||lastClient||caseData?.client||(typeof window.get==="function"?window.get(raw,"client"):"")||parts[0]||"").trim();if(client)lastClient=client;
+      const party=String(cells[1]||"").trim();let phone="";
+      const contacts=caseData?.contacts||[];
+      const partyKey=normalize(party);
+      let contact=contacts.find(c=>normalize(`${c.label||""}${c.name&&c.name!==c.label?` — ${c.name}`:""}`)===partyKey)
+        ||contacts.find(c=>normalize(c.label||"")===partyKey||normalize(c.name||"")===partyKey)
+        ||contacts.find(c=>partyKey&&(normalize(c.label||"").includes(partyKey)||partyKey.includes(normalize(c.label||""))||normalize(c.name||"").includes(partyKey)));
+      if(!contact&&contacts.length)contact=contacts.find(c=>c.kind==="client")||contacts[0];
+      phone=String(contact?.phones?.[0]||"").trim();
+      if(!phone&&!caseData&&raw&&Object.keys(raw).length){
         const isG1=/الضامن\s*(الأول|الاول|1)/.test(party),isG2=/الضامن\s*(الثاني|2)/.test(party),isG3=/الضامن\s*(الثالث|3)/.test(party);
         const names=isG1?["رقم هاتف الضامن الأول","رقم تليفون الضامن الأول","موبايل الضامن الأول","هاتف الضامن الأول"]:isG2?["رقم هاتف الضامن الثاني","رقم تليفون الضامن الثاني","موبايل الضامن الثاني","هاتف الضامن الثاني"]:isG3?["رقم هاتف الضامن الثالث","رقم تليفون الضامن الثالث","موبايل الضامن الثالث","هاتف الضامن الثالث"]:["رقم الهاتف","رقم الموبيل","الموبايل","الهاتف","رقم الهاتف الثاني","رقم الهاتف الثالث"];
         phone=String(getValue(raw,names)||"").trim();
+        if(!phone&&typeof window.clientPhones==="function"&&!/ضامن/.test(party))phone=String(window.clientPhones(raw)||"").split(" / ")[0].trim();
       }
-      if(!phone&&typeof window.clientPhones==="function"&&raw&&Object.keys(raw).length&&!/ضامن/.test(party))phone=String(window.clientPhones(raw)||"").split(" / ")[0].trim();
-      const item={client,loanCode:getValue(raw,["كود القرض"])||parts[1]||"",loanNo:getValue(raw,["رقم القرض"])||parts[1]||"",loanLabel:parts[1]||"",loanAmount:cells[7]||"—",due:cells[9]||"—",officer:cells[16]||"—"};
+      const item={client,loanCode:caseData?.loanCode||getValue(raw,["كود القرض"])||parts[1]||"",loanNo:caseData?.loanNo||getValue(raw,["رقم القرض"])||parts[1]||"",loanLabel:caseData?.loanLabel||parts[1]||"",loanAmount:cells[7]||caseData?.loanAmount||"—",due:cells[9]||caseData?.due||"—",officer:cells[16]||caseData?.officer||"—"};
       const status=String(cells[2]||"").trim(),note=String(cells[3]||"").trim();
       const log={status,note,callParty:party,user:cells[5]||"—",createdAt:cells[6]||""};
-      const branch=getValue(raw,["الفرع","اسم الفرع","فرع","Branch","branch"])||"";
+      const branch=caseData?.branch||getValue(raw,["الفرع","اسم الفرع","فرع","Branch","branch"])||"";
       return {item,log,party:party||"غير محدد",phone,result:note&&note!=="—"?note:"—",branch,callDate:log.createdAt};
     }).filter(record=>record.item.client);
   }
