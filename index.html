@@ -10596,8 +10596,37 @@ document.addEventListener('DOMContentLoaded', function () {
     layer.innerHTML=`<div class="pf-print-brand"><div><h1>تقرير متابعة السداد</h1><div class="pf-print-subtitle">جمعية المبادرة — إدارة التمويل والتحصيل</div></div><div class="pf-print-badge">تقرير رسمي</div></div><div class="pf-print-meta"><span><b>الفترة:</b> ${esc(period)}</span><span><b>تاريخ الطباعة:</b> ${esc(now.toLocaleString("en-US"))}</span><span><b>عدد الحالات:</b> ${esc(selected.length)}</span></div><div class="pf-print-summary"><div><small>حالات المتابعة</small><b>${esc(document.getElementById("paymentFollowupCount")?.textContent||selected.length)}</b></div><div><small>عملاء مختلفون</small><b>${esc(document.getElementById("paymentFollowupClientsCount")?.textContent||"0")}</b></div><div><small>إجمالي المتأخرات الظاهرة</small><b>${esc(document.getElementById("paymentFollowupTotalArrears")?.textContent||"0")}</b></div></div><table class="pf-print-table"><colgroup><col class="pc-client"><col class="pc-officer"><col class="pc-loan-amount"><col class="pc-term"><col class="pc-due"><col class="pc-installment"><col class="pc-value"><col class="pc-paid"><col class="pc-payment-date"><col class="pc-remaining"><col class="pc-arrears"><col class="pc-delay"><col class="pc-contacts"><col class="pc-call-party"><col class="pc-status"><col class="pc-next"><col class="pc-note"><col class="pc-actor"></colgroup><thead><tr>${headers.map(h=>`<th>${esc(h)}</th>`).join("")}</tr></thead><tbody>${rows.length?rows.map(r=>`<tr>${r.map((v,i)=>`<td class="pf-print-cell-${i}">${esc(v).replace(/\n/g,"<br>")}</td>`).join("")}</tr>`).join(""):'<tr><td colspan="18" class="pf-print-empty">لا توجد حالات للعرض</td></tr>'}</tbody></table><div class="pf-print-footer"><span>تم إنشاء التقرير من شاشة متابعة السداد</span><span>الصفحة: ______</span></div>`;
     document.body.appendChild(layer);return layer;
   }
+  function mergeCompactPrintClientCells(layer){
+    [...layer.querySelectorAll(".pf-print-table")].forEach(table=>{
+      const body=table.tBodies?.[0],rows=[...(body?.rows||[])];let start=0;
+      while(start<rows.length){
+        const name=rows[start].cells[0]?.textContent.trim()||"",key=rows[start].dataset.pfPrintClientKey||"";let end=start+1;
+        if(key&&name)while(end<rows.length&&rows[end].dataset.pfPrintClientKey===key&&rows[end].cells[0]?.textContent.trim()===name&&rows[end].dataset.pfPrintPageStart!=="1")end++;
+        if(end-start>1){rows[start].cells[0].rowSpan=end-start;for(let i=start+1;i<end;i++)rows[i].cells[0]?.remove();}
+        for(let i=start;i<end;i++){delete rows[i].dataset.pfPrintClientKey;delete rows[i].dataset.pfPrintPageStart;}
+        start=end;
+      }
+    });
+  }
+  function prepareCompactPrintPageBreaks(layer){
+    const table=layer.querySelector(".pf-print-table"),body=table?.tBodies?.[0];if(!table||!body)return;
+    const rows=[...body.rows];if(rows.length<2)return;
+    rows.forEach(row=>{row.dataset.pfPrintClientKey=(row.cells[0]?.textContent||"").trim()});
+    const brand=layer.querySelector(".pf-print-brand"),meta=layer.querySelector(".pf-print-meta"),summary=layer.querySelector(".pf-print-summary"),thead=table.tHead;
+    const pageHeight=1122-38,firstLimit=Math.max(420,pageHeight-(brand?.getBoundingClientRect().height||0)-(meta?.getBoundingClientRect().height||0)-(summary?.getBoundingClientRect().height||0)-20),nextLimit=Math.max(420,pageHeight-(thead?.getBoundingClientRect().height||22));
+    let page=0,used=0;
+    rows.forEach((row,index)=>{const height=Math.max(18,row.getBoundingClientRect().height||24),limit=page===0?firstLimit:nextLimit;if(index>0&&used+height>limit){row.dataset.pfPrintPageStart="1";row.style.setProperty("page-break-before","always","important");row.style.setProperty("break-before","page","important");page++;used=(thead?.getBoundingClientRect().height||22)+height}else used+=height});
+  }
+  function splitCompactPrintTablesByPageBreaks(layer){
+    const source=layer.querySelector(".pf-print-table"),body=source?.tBodies?.[0];if(!source||!body)return;
+    const rows=[...body.rows],breaks=rows.reduce((list,row,index)=>{if(index&&row.dataset.pfPrintPageStart==="1")list.push(index);return list},[]);if(!breaks.length)return;
+    const starts=[0,...breaks],ends=[...breaks,rows.length],tables=[],colgroup=source.querySelector("colgroup")?.cloneNode(true),thead=source.tHead?.cloneNode(true);
+    starts.forEach((start,index)=>{const table=index===0?source:source.cloneNode(false);table.innerHTML="";if(colgroup)table.appendChild(colgroup.cloneNode(true));if(thead)table.appendChild(thead.cloneNode(true));const pageBody=document.createElement("tbody");rows.slice(start,ends[index]).forEach(row=>{const copy=row.cloneNode(true);copy.style.removeProperty("page-break-before");copy.style.removeProperty("break-before");pageBody.appendChild(copy)});table.appendChild(pageBody);if(index>0){table.style.setProperty("page-break-before","always","important");table.style.setProperty("break-before","page","important")};tables.push(table)});
+    source.replaceWith(tables[0]);let cursor=tables[0];for(let i=1;i<tables.length;i++){cursor.insertAdjacentElement("afterend",tables[i]);cursor=tables[i]}
+  }
+  function prepareCompactPrintLayer(layer){prepareCompactPrintPageBreaks(layer);splitCompactPrintTablesByPageBreaks(layer);mergeCompactPrintClientCells(layer)}
   function printPaymentFollowupReport(){
-    const layer=pfBuildExportLayer();document.body.classList.add("printing-payment-followup");const previousTitle=document.title;document.title=`متابعة_السداد_${new Date().toISOString().slice(0,10)}`;
+    const layer=pfBuildExportLayer();prepareCompactPrintLayer(layer);document.body.classList.add("printing-payment-followup");const previousTitle=document.title;document.title=`متابعة_السداد_${new Date().toISOString().slice(0,10)}`;
     let cleaned=false;const cleanup=()=>{if(cleaned)return;cleaned=true;document.body.classList.remove("printing-payment-followup");document.title=previousTitle;layer.remove();window.removeEventListener("afterprint",cleanup)};
     window.addEventListener("afterprint",cleanup);auditLog("طباعة تقرير",screenTitle(SCREEN_ID));
     try{window.print()}catch(e){cleanup();alert("تعذر فتح نافذة الطباعة.")}
@@ -13562,7 +13591,8 @@ body.pfa-resizing-rows,body.pfa-resizing-rows *{cursor:row-resize!important;user
     for(let offset=0,pageNo=0;offset<records.length;offset+=6,pageNo++){
       const batch=records.slice(offset,offset+6),first=batch[0],date=pfaFormDate(first.callDate),day=pfaFormDay(first.callDate);
       const branches=unique(batch.map(x=>x.branch)),specialistNames=[...new Set(batch.map(x=>String(x.item.officer||"").trim()).filter(Boolean))],specialists=specialistNames.join("، "),callers=unique(batch.map(x=>x.log.user));
-      const rows=batch.map((record,index)=>`<tr><td>${offset+index+1}</td><td>${esc(record.item.client||"—")}</td><td>${esc(record.item.loanCode||record.item.loanNo||record.item.loanLabel||"—")}</td><td>${esc(record.item.loanAmount||"—")}</td><td>${esc(record.item.due||"—")}</td><td class="pfa-phone-cell"><span class="pfa-contact-name">${esc(record.party||"غير محدد")}</span>${record.phone?`<bdi class="pfa-phone-number" dir="ltr">${esc(record.phone)}</bdi>`:""}</td><td class="pfa-outcome">${esc(record.result||"—")}</td></tr>`).join("");
+      const clientName=record=>String(record?.item?.client||"—").trim()||"—";
+      const rows=batch.map((record,index)=>{const name=clientName(record),previous=index?clientName(batch[index-1]):"",sameAsPrevious=name===previous;let span=1;if(!sameAsPrevious)while(index+span<batch.length&&clientName(batch[index+span])===name)span++;const clientCell=sameAsPrevious?"":`<td${span>1?` rowspan="${span}"`:""}>${esc(name)}</td>`;return `<tr><td>${offset+index+1}</td>${clientCell}<td>${esc(record.item.loanCode||record.item.loanNo||record.item.loanLabel||"—")}</td><td>${esc(record.item.loanAmount||"—")}</td><td>${esc(record.item.due||"—")}</td><td class="pfa-phone-cell"><span class="pfa-contact-name">${esc(record.party||"غير محدد")}</span>${record.phone?`<bdi class="pfa-phone-number" dir="ltr">${esc(record.phone)}</bdi>`:""}</td><td class="pfa-outcome">${esc(record.result||"—")}</td></tr>`}).join("");
       const page=document.createElement("section");page.className="pfa-form-page";
       page.innerHTML=`<header class="pfa-form-brand">${logo?`<div class="pfa-form-logo-card"><img src="${esc(logo)}" alt="شعار الجمعية"></div>`:`<span class="pfa-form-logo-card"></span>`}<div class="pfa-form-brand-text"><div>جمعية تنمية المجتمعات المحلية والمشروعات الصغيرة</div><div class="en">Community Development and Small Enterprise Association</div></div></header><h1 class="pfa-form-title">نموذج متابعة وحث على السداد تليفونيًا</h1><div class="pfa-form-meta"><span>فرع: ${esc(branches||"—")}</span><span>يوم: ${esc(day||"—")}</span><span>الموافق: ${esc(date||"—")}</span><span>محفظة ${specialistNames.length>1?"الأخصائيين":"الأخصائي"}: ${esc(specialists||"—")}</span><span>القائم بالاتصال: ${esc(callers||"—")}</span><span></span></div><table class="pfa-form-table"><colgroup><col style="width:4%"><col style="width:18%"><col style="width:8%"><col style="width:10%"><col style="width:10%"><col style="width:24%"><col style="width:26%"></colgroup><thead><tr><th>م</th><th>اسم العميل</th><th>الكود</th><th>مبلغ القرض</th><th>متأخر منذ<br>(تاريخ الاستحقاق)</th><th>رقم الهاتف الذي تم التواصل معه وصفته</th><th>نتيجة الاتصال</th></tr></thead><tbody>${rows}${Array.from({length:6-batch.length},(_,i)=>`<tr class="pfa-form-empty"><td>${offset+batch.length+i+1}</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>`).join("")}</tbody></table><div class="pfa-form-sign">توقيع القائم بالاتصال،،،</div>`;
       root.appendChild(page);
