@@ -13618,15 +13618,14 @@ body.pfa-resizing-rows,body.pfa-resizing-rows *{cursor:row-resize!important;user
   async function downloadPaymentFollowupFormTemplatePDF(event){
     event?.preventDefault?.();event?.stopImmediatePropagation?.();if(busy)return false;
     const root=buildPaymentFollowupFormTemplate();if(!root){alert("لا توجد سجلات ظاهرة في الأرشيف لتحميلها PDF.");return false}
-    const button=event?.currentTarget,label=button?.querySelector(".action-label"),oldText=label?.textContent;busy=true;
+    const button=event?.currentTarget,label=button?.querySelector(".action-label"),oldText=label?.textContent;busy=true;let style=null;
     try{
       if(button){button.disabled=true;button.setAttribute("aria-busy","true");if(label)label.textContent="جاري الإنشاء..."}
-      const html=`<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>${pfaFormEscape(pfaFormFilename(root))}</title></head><body>${root.outerHTML}</body></html>`,css=[...document.querySelectorAll("style")].map(style=>style.textContent||"").join("\n")+"\n"+pfaFormCss+"\nhtml,body{display:block!important;visibility:visible!important;margin:0!important;padding:0!important;background:#fff!important}#pfaFormPrintRoot{display:block!important;visibility:visible!important;opacity:1!important;position:static!important;width:100%!important;background:#fff!important}#pfaFormPrintRoot *{visibility:visible!important;opacity:1!important}#pfaFormPrintRoot .pfa-form-page{display:block!important;visibility:visible!important;opacity:1!important}",filename=pfaFormFilename(root);
-      const response=await fetch("/api/generate-pdf",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({html,css,filename,reportType:"due-installments"})});
-      if(!response.ok){let detail="";try{detail=await response.text()}catch(e){}throw new Error(`PDF API ${response.status}: ${detail}`)}
-      const blob=await response.blob();if(blob.size<100)throw new Error("لم يُرجع خادم PDF ملفًا صالحًا.");const url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);if(typeof showMsg==="function")showMsg("تم إنشاء ملف PDF للنموذج بنجاح.","ok");
-    }catch(error){console.error("Payment follow-up form PDF:",error);alert("تعذر إنشاء PDF للنموذج. تحقق من اتصال البرنامج بخدمة PDF ثم حاول مرة أخرى.")}
-    finally{root.remove();if(button){button.disabled=false;button.removeAttribute("aria-busy");if(label)label.textContent=oldText||"PDF النموذج"}busy=false}
+      style=pfaFormAttach(root);
+      const created=await downloadReportLayerPDF(root,pfaFormFilename(root),"pfa-form-pdf");
+      if(!created)throw new Error("لم يتم إنشاء ملف PDF صالح للنموذج.");
+    }catch(error){console.error("Payment follow-up form PDF:",error);alert("تعذر إنشاء PDF للنموذج. حاول مرة أخرى بعد التأكد من تحميل الصفحة بالكامل.")}
+    finally{style?.remove();root.remove();if(button){button.disabled=false;button.removeAttribute("aria-busy");if(label)label.textContent=oldText||"PDF النموذج"}busy=false}
     return false;
   }
   async function sharePaymentFollowupFormWhatsApp(event){
