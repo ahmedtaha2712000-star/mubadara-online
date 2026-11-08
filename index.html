@@ -3245,7 +3245,7 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
   #collection>.screen-header .sub{font-size:11px!important}
 }
 </style>
-</head>
+<style id="pfa-whatsapp-button-style">#paymentFollowupArchive .pfa-whatsapp-action{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:38px;border:1px solid #128c7e;border-radius:8px;background:#25d366;color:#fff;font:inherit;font-weight:900;cursor:pointer}#paymentFollowupArchive .pfa-whatsapp-action:hover{background:#128c7e}</style></head>
 
 <body>
 <div id="loginScreen" class="login-screen">
@@ -4253,6 +4253,7 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
       <button type="button" class="excel-btn icon-action pfa-export-action pfa-legacy-action" hidden aria-label="تحميل سجل متابعة السداد Excel" title="تحميل سجل متابعة السداد Excel" onclick="return exportPaymentFollowupArchiveExcel(event)"><span class="action-glyph glyph-excel" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M7 2.75h7l4 4v14.5H7z" fill="#fff" stroke="#168045" stroke-width="1.15"/><path d="M14 2.75v4h4" fill="#d8f2e2" stroke="#168045" stroke-width="1.05"/><path d="M12.4 10.1h3.8m-3.8 2.7h3.8m-3.8 2.7h3.8m-3.8 2.7h3.8" fill="none" stroke="#72b48c" stroke-width=".8" stroke-linecap="round"/><path d="M3.15 8.7h9.7v10.1h-9.7z" fill="#107c41" stroke="#075e2f" stroke-width="1.1"/><path d="m5.65 11.1 4.7 5.3m-4.7 0 4.7-5.3" fill="none" stroke="#fff" stroke-width="1.45" stroke-linecap="round"/></svg></span><span class="action-label">Excel</span></button>
       <button type="button" class="print-btn icon-action pfa-export-action" aria-label="طباعة نموذج متابعة مختصر" title="طباعة نموذج متابعة وحث على السداد تليفونيًا" onclick="return printPaymentFollowupFormTemplate(event)"><span class="action-glyph glyph-print" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M7 8V3.5h10V8M6 17H4a2 2 0 0 1-2-2v-3.5A3.5 3.5 0 0 1 5.5 8h13A3.5 3.5 0 0 1 22 11.5V15a2 2 0 0 1-2 2h-2M6 13h12v8H6z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg></span><span class="action-label">طباعة النموذج</span></button>
       <button type="button" class="pdf-btn icon-action pfa-export-action" aria-label="تحميل نموذج متابعة مختصر PDF" title="تحميل نموذج متابعة وحث على السداد تليفونيًا PDF" onclick="return downloadPaymentFollowupFormTemplatePDF(event)"><span class="action-glyph glyph-pdf" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M6 2.5h8l4 4V21H6zM14 2.5V7h4M8 12h8M8 15h6M8 18h8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg></span><span class="action-label">PDF النموذج</span></button>
+      <button type="button" class="pfa-whatsapp-action pfa-export-action" aria-label="مشاركة نموذج المتابعة عبر واتساب" title="مشاركة نموذج المتابعة عبر واتساب" onclick="return sharePaymentFollowupFormWhatsApp(event)"><span class="action-glyph" aria-hidden="true">◉</span><span class="action-label">واتساب</span></button>
       <button type="button" class="excel-btn icon-action pfa-export-action" aria-label="تحميل Excel مختصر لسجل متابعة السداد" title="تحميل نسخة Excel مختصرة" onclick="return exportPaymentFollowupCompactExcel(event)"><span class="action-glyph glyph-excel" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M7 2.75h7l4 4v14.5H7zM14 2.75v4h4M3.15 8.7h9.7v10.1h-9.7z" fill="none" stroke="#168045" stroke-width="1.4"/><path d="m5.65 11.1 4.7 5.3m-4.7 0 4.7-5.3" fill="none" stroke="#168045" stroke-width="1.5"/></svg></span><span class="action-label">Excel مختصر</span></button>
       <button type="button" class="pfa-back-action" onclick="showScreen('paymentFollowup')">← العودة إلى متابعة السداد</button>
     </div></div>
@@ -13585,14 +13586,14 @@ body.pfa-resizing-rows,body.pfa-resizing-rows *{cursor:row-resize!important;user
   }
   function buildPaymentFollowupFormTemplate(){
     const records=pfaFormVisibleRecords();if(!records.length)return null;
-    const root=document.createElement("div");root.id="pfaFormPrintRoot";root.dir="rtl";
+    const root=document.createElement("div");root.id="pfaFormPrintRoot";root.dir="rtl";root.dataset.pfaFormDate=pfaFormDate(records[0]?.callDate||"").replace(/\//g,"-");
     const logo=document.querySelector(".association-logo")?.src||document.querySelector(".print-logo")?.src||"";
     const esc=pfaFormEscape,unique=values=>[...new Set(values.map(v=>String(v||"").trim()).filter(Boolean))].join("، ");
     for(let offset=0,pageNo=0;offset<records.length;offset+=6,pageNo++){
       const batch=records.slice(offset,offset+6),first=batch[0],date=pfaFormDate(first.callDate),day=pfaFormDay(first.callDate);
       const branches=unique(batch.map(x=>x.branch)),specialistNames=[...new Set(batch.map(x=>String(x.item.officer||"").trim()).filter(Boolean))],specialists=specialistNames.join("، "),callers=unique(batch.map(x=>x.log.user));
       const clientName=record=>String(record?.item?.client||"—").trim()||"—";
-      const rows=batch.map((record,index)=>{const name=clientName(record),previous=index?clientName(batch[index-1]):"",sameAsPrevious=name===previous;let span=1;if(!sameAsPrevious)while(index+span<batch.length&&clientName(batch[index+span])===name)span++;const clientCell=sameAsPrevious?"":`<td${span>1?` rowspan="${span}"`:""}>${esc(name)}</td>`;return `<tr><td>${offset+index+1}</td>${clientCell}<td>${esc(record.item.loanCode||record.item.loanNo||record.item.loanLabel||"—")}</td><td>${esc(record.item.loanAmount||"—")}</td><td>${esc(record.item.due||"—")}</td><td class="pfa-phone-cell"><span class="pfa-contact-name">${esc(record.party||"غير محدد")}</span>${record.phone?`<bdi class="pfa-phone-number" dir="ltr">${esc(record.phone)}</bdi>`:""}</td><td class="pfa-outcome">${esc(record.result||"—")}</td></tr>`}).join("");
+      const rows=batch.map((record,index)=>{const name=clientName(record),previous=index?clientName(batch[index-1]):"",sameClient=name===previous;const values=[String(offset+index+1),name,String(record.item.loanCode||record.item.loanNo||record.item.loanLabel||"—"),String(record.item.loanAmount||"—"),String(record.item.due||"—")];const mergedCells=values.map((value,col)=>{const samePrevious=index>0&&sameClient&&value===String([String(offset+index),clientName(batch[index-1]),String(batch[index-1].item.loanCode||batch[index-1].item.loanNo||batch[index-1].item.loanLabel||"—"),String(batch[index-1].item.loanAmount||"—"),String(batch[index-1].item.due||"—")][col]);if(samePrevious)return "";let span=1;while(index+span<batch.length&&clientName(batch[index+span])===name){const next=batch[index+span],nextValue=[String(offset+index+span+1),clientName(next),String(next.item.loanCode||next.item.loanNo||next.item.loanLabel||"—"),String(next.item.loanAmount||"—"),String(next.item.due||"—")][col];if(nextValue!==value)break;span++}return `<td${span>1?` rowspan="${span}"`:""}>${esc(value)}</td>`}).join("");return `<tr>${mergedCells}<td class="pfa-phone-cell"><span class="pfa-contact-name">${esc(record.party||"غير محدد")}</span>${record.phone?`<bdi class="pfa-phone-number" dir="ltr">${esc(record.phone)}</bdi>`:""}</td><td class="pfa-outcome">${esc(record.result||"—")}</td></tr>`}).join("");
       const page=document.createElement("section");page.className="pfa-form-page";
       page.innerHTML=`<header class="pfa-form-brand">${logo?`<div class="pfa-form-logo-card"><img src="${esc(logo)}" alt="شعار الجمعية"></div>`:`<span class="pfa-form-logo-card"></span>`}<div class="pfa-form-brand-text"><div>جمعية تنمية المجتمعات المحلية والمشروعات الصغيرة</div><div class="en">Community Development and Small Enterprise Association</div></div></header><h1 class="pfa-form-title">نموذج متابعة وحث على السداد تليفونيًا</h1><div class="pfa-form-meta"><span>فرع: ${esc(branches||"—")}</span><span>يوم: ${esc(day||"—")}</span><span>الموافق: ${esc(date||"—")}</span><span>محفظة ${specialistNames.length>1?"الأخصائيين":"الأخصائي"}: ${esc(specialists||"—")}</span><span>القائم بالاتصال: ${esc(callers||"—")}</span><span></span></div><table class="pfa-form-table"><colgroup><col style="width:4%"><col style="width:18%"><col style="width:8%"><col style="width:10%"><col style="width:10%"><col style="width:24%"><col style="width:26%"></colgroup><thead><tr><th>م</th><th>اسم العميل</th><th>الكود</th><th>مبلغ القرض</th><th>متأخر منذ<br>(تاريخ الاستحقاق)</th><th>رقم الهاتف الذي تم التواصل معه وصفته</th><th>نتيجة الاتصال</th></tr></thead><tbody>${rows}${Array.from({length:6-batch.length},(_,i)=>`<tr class="pfa-form-empty"><td>${offset+batch.length+i+1}</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>`).join("")}</tbody></table><div class="pfa-form-sign">توقيع القائم بالاتصال،،،</div>`;
       root.appendChild(page);
@@ -13602,10 +13603,11 @@ body.pfa-resizing-rows,body.pfa-resizing-rows *{cursor:row-resize!important;user
   function pfaFormAttach(root){
     const style=document.createElement("style");style.id="pfaFormPrintStyle";style.textContent=pfaFormCss;document.head.appendChild(style);document.body.appendChild(root);return style;
   }
+  function pfaFormFilename(root){return `متابعة السداد عن يوم ${root?.dataset?.pfaFormDate||pfaFormDate(new Date()).replace(/\//g,"-")}.pdf`}
   function printPaymentFollowupFormTemplate(event){
     event?.preventDefault?.();event?.stopImmediatePropagation?.();if(busy)return false;
     const root=buildPaymentFollowupFormTemplate();if(!root){alert("لا توجد سجلات ظاهرة في الأرشيف للطباعة.");return false}
-    busy=true;const style=pfaFormAttach(root),oldTitle=document.title;document.title=exportFileName("pdf").replace(/\.pdf$/i,"_نموذج.pdf");document.body.classList.add("pfa-form-printing");let cleaned=false;
+    busy=true;const style=pfaFormAttach(root),oldTitle=document.title,filename=pfaFormFilename(root);document.title=filename.replace(/\.pdf$/i,"");document.body.classList.add("pfa-form-printing");let cleaned=false;
     const cleanup=()=>{if(cleaned)return;cleaned=true;document.body.classList.remove("pfa-form-printing");document.title=oldTitle;root.remove();style.remove();busy=false;window.removeEventListener("afterprint",cleanup)};
     window.addEventListener("afterprint",cleanup,{once:true});try{window.print()}catch(error){cleanup();alert("تعذر تشغيل الطباعة. حاول مرة أخرى.");return false}setTimeout(cleanup,60000);return false;
   }
@@ -13615,12 +13617,27 @@ body.pfa-resizing-rows,body.pfa-resizing-rows *{cursor:row-resize!important;user
     const button=event?.currentTarget,label=button?.querySelector(".action-label"),oldText=label?.textContent;busy=true;
     try{
       if(button){button.disabled=true;button.setAttribute("aria-busy","true");if(label)label.textContent="جاري الإنشاء..."}
-      const html=root.outerHTML,css=[...document.querySelectorAll("style")].map(style=>style.textContent||"").join("\n")+"\n"+pfaFormCss,filename=exportFileName("pdf").replace(/\.pdf$/i,"_نموذج.pdf");
+      const html=root.outerHTML,css=[...document.querySelectorAll("style")].map(style=>style.textContent||"").join("\n")+"\n"+pfaFormCss+"\n#pfaFormPrintRoot{display:block!important;visibility:visible!important;position:static!important;width:100%!important;background:#fff!important}#pfaFormPrintRoot *{visibility:visible!important}#pfaFormPrintRoot .pfa-form-page{display:block!important;visibility:visible!important}",filename=pfaFormFilename(root);
       const response=await fetch("/api/generate-pdf",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({html,css,filename,reportType:"due-installments"})});
       if(!response.ok){let detail="";try{detail=await response.text()}catch(e){}throw new Error(`PDF API ${response.status}: ${detail}`)}
       const blob=await response.blob();if(blob.size<100)throw new Error("لم يُرجع خادم PDF ملفًا صالحًا.");const url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);if(typeof showMsg==="function")showMsg("تم إنشاء ملف PDF للنموذج بنجاح.","ok");
     }catch(error){console.error("Payment follow-up form PDF:",error);alert("تعذر إنشاء PDF للنموذج. تحقق من اتصال البرنامج بخدمة PDF ثم حاول مرة أخرى.")}
     finally{root.remove();if(button){button.disabled=false;button.removeAttribute("aria-busy");if(label)label.textContent=oldText||"PDF النموذج"}busy=false}
+    return false;
+  }
+  async function sharePaymentFollowupFormWhatsApp(event){
+    event?.preventDefault?.();event?.stopImmediatePropagation?.();if(busy)return false;
+    const root=buildPaymentFollowupFormTemplate();if(!root){alert("لا توجد سجلات ظاهرة في الأرشيف لمشاركتها.");return false}
+    const filename=pfaFormFilename(root),message=`متابعة السداد عن يوم ${root.dataset.pfaFormDate||""}`;busy=true;
+    try{
+      const css=[...document.querySelectorAll("style")].map(style=>style.textContent||"").join("\n")+"\n"+pfaFormCss+"\n#pfaFormPrintRoot{display:block!important;visibility:visible!important;position:static!important;width:100%!important;background:#fff!important}#pfaFormPrintRoot *{visibility:visible!important}#pfaFormPrintRoot .pfa-form-page{display:block!important;visibility:visible!important}";
+      const response=await fetch("/api/generate-pdf",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({html:root.outerHTML,css,filename,reportType:"due-installments"})});
+      if(!response.ok)throw new Error(`PDF API ${response.status}`);const blob=await response.blob();if(blob.size<100)throw new Error("ملف PDF غير صالح");
+      const file=new File([blob],filename,{type:"application/pdf"});
+      if(navigator.share&&navigator.canShare?.({files:[file]})){await navigator.share({files:[file],title:filename,text:message})}
+      else{window.open(`https://wa.me/?text=${encodeURIComponent(message)}`,"_blank","noopener,noreferrer");alert("جهازك لا يدعم إرفاق الملف مباشرة من المتصفح؛ تم فتح واتساب برسالة جاهزة. أرفق ملف PDF بعد تنزيله.")}
+    }catch(error){if(error?.name!=="AbortError"){console.error("Share payment follow-up form:",error);window.open(`https://wa.me/?text=${encodeURIComponent(message)}`,"_blank","noopener,noreferrer")}}
+    finally{root.remove();busy=false}
     return false;
   }
   function exportPaymentFollowupCompactExcel(event){
