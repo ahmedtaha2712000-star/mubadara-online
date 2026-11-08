@@ -13625,10 +13625,12 @@ body.pfa-resizing-rows,body.pfa-resizing-rows *{cursor:row-resize!important;user
     const button=event?.currentTarget,label=button?.querySelector(".action-label"),oldText=label?.textContent;busy=true;let style=null;
     try{
       if(button){button.disabled=true;button.setAttribute("aria-busy","true");if(label)label.textContent="جاري الإنشاء..."}
-      pfaFormPreparePdf(root);
-      style=pfaFormAttach(root);
-      const created=await downloadReportLayerPDF(root,pfaFormFilename(root),"pfa-form-pdf");
-      if(!created)throw new Error("لم يتم إنشاء ملف PDF صالح للنموذج.");
+      pfaFormPreparePdf(root);style=pfaFormAttach(root);root.style.setProperty("display","block","important");root.style.setProperty("visibility","visible","important");root.style.setProperty("position","static","important");root.querySelectorAll(".pfa-form-page").forEach(page=>page.style.setProperty("display","block","important"));
+      const filename=pfaFormFilename(root),css=[...document.querySelectorAll("style")].map(item=>item.textContent||"").join("\n")+"\n"+pfaFormCss+"\n@page{size:letter landscape;margin:.22in}html,body{display:block!important;visibility:visible!important;margin:0!important;padding:0!important;background:#fff!important}#pfaFormPrintRoot{display:block!important;visibility:visible!important;position:static!important;width:1056px!important;min-width:1056px!important;background:#fff!important;color:#000!important}#pfaFormPrintRoot .pfa-form-page{display:block!important;visibility:visible!important;width:1056px!important;height:720px!important;min-height:720px!important;max-height:720px!important;overflow:hidden!important;page-break-after:always!important;break-after:page!important}#pfaFormPrintRoot .pfa-form-page:last-child{page-break-after:auto!important;break-after:auto!important}#pfaFormPrintRoot *{visibility:visible!important;opacity:1!important;font-family:Arial,Tahoma,sans-serif!important;color:#000!important;text-shadow:none!important;-webkit-text-stroke:0!important}";
+      const html=`<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>${pfaFormEscape(filename)}</title></head><body>${root.outerHTML}</body></html>`;
+      const response=await fetch("/api/generate-pdf",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({html,css,filename,reportType:"payment-followup-form",pageSize:"letter",orientation:"landscape"})});
+      if(!response.ok){let detail="";try{detail=await response.text()}catch(e){}throw new Error(`PDF API ${response.status}: ${detail}`)}
+      const blob=await response.blob();if(!(blob instanceof Blob)||blob.size<1000)throw new Error("لم يُرجع خادم PDF ملفًا صالحًا.");const url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);if(typeof showMsg==="function")showMsg("تم تحميل PDF النموذج بنجاح.","ok");
     }catch(error){console.error("Payment follow-up form PDF:",error);alert("تعذر إنشاء PDF للنموذج. حاول مرة أخرى بعد التأكد من تحميل الصفحة بالكامل.")}
     finally{style?.remove();root.remove();if(button){button.disabled=false;button.removeAttribute("aria-busy");if(label)label.textContent=oldText||"PDF النموذج"}busy=false}
     return false;
