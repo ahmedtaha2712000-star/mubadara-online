@@ -13423,18 +13423,20 @@ body.pfa-resizing-rows,body.pfa-resizing-rows *{cursor:row-resize!important;user
     const table=document.createElement("table");table.className="risk-print-table pfa-print-table";table.dir="rtl";table.style.cssText="display:table;width:100%;border-collapse:collapse;table-layout:auto;direction:rtl;color:#000;background:#fff;";
     const dateTimeColumn=data.headers.findIndex(header=>header.includes("التاريخ والوقت"));
     const dateTimeParts=value=>{const raw=String(value||"").trim();if(!raw||raw==="—")return{date:raw||"—",time:""};const parsed=new Date(raw);if(!Number.isNaN(parsed.getTime())){const pad=n=>String(n).padStart(2,"0");return{date:`${parsed.getFullYear()}/${pad(parsed.getMonth()+1)}/${pad(parsed.getDate())}`,time:parsed.toLocaleTimeString("en-US",{hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:true})}}const match=raw.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})(?:,?\s+(.*))?$/);return match?{date:`${match[3]}/${String(match[1]).padStart(2,"0")}/${String(match[2]).padStart(2,"0")}`,time:match[4]||""}:{date:raw,time:""}};
-    const colgroup=document.createElement("colgroup");data.headers.forEach(()=>colgroup.appendChild(document.createElement("col")));table.appendChild(colgroup);
-    const thead=document.createElement("thead"),head=document.createElement("tr");data.headers.forEach(text=>{const th=document.createElement("th");th.textContent=text;head.appendChild(th)});thead.appendChild(head);table.appendChild(thead);
-    const tbody=document.createElement("tbody");data.rows.forEach((row,rowIndex)=>{const tr=document.createElement("tr");tr.dataset.pfaPrintGroupKey=data.groupKeys?.[rowIndex]||"";data.headers.forEach((_,i)=>{const td=document.createElement("td");if(i===dateTimeColumn){td.className="pfa-date-time-cell";const parts=dateTimeParts(row[i]);const dateText=document.createElement("span");dateText.className="pfa-date-time-date";dateText.textContent=parts.date;td.appendChild(dateText);if(parts.time){const timeText=document.createElement("span");timeText.className="pfa-date-time-time";timeText.textContent=parts.time;td.appendChild(timeText)}}else td.textContent=row[i]||"";tr.appendChild(td)});tbody.appendChild(tr)});table.appendChild(tbody);
+    const printHeaders=["م",...data.headers],clientNumbers=new Map();let nextClientNumber=1;
+    const clientNumberFor=(row,rowIndex)=>{const groupKey=data.groupKeys?.[rowIndex]||`client:${row[0]||""}`;const key=`${groupKey}|${row[0]||""}`;if(!clientNumbers.has(key))clientNumbers.set(key,nextClientNumber++);return clientNumbers.get(key)};
+    const colgroup=document.createElement("colgroup");printHeaders.forEach(()=>colgroup.appendChild(document.createElement("col")));table.appendChild(colgroup);
+    const thead=document.createElement("thead"),head=document.createElement("tr");printHeaders.forEach(text=>{const th=document.createElement("th");th.textContent=text;head.appendChild(th)});thead.appendChild(head);table.appendChild(thead);
+    const tbody=document.createElement("tbody");data.rows.forEach((row,rowIndex)=>{const tr=document.createElement("tr");tr.dataset.pfaPrintGroupKey=data.groupKeys?.[rowIndex]||`client:${row[0]||""}`;const numberCell=document.createElement("td");numberCell.className="pfa-client-number";numberCell.textContent=String(clientNumberFor(row,rowIndex));tr.appendChild(numberCell);data.headers.forEach((_,i)=>{const td=document.createElement("td");if(i===dateTimeColumn){td.className="pfa-date-time-cell";const parts=dateTimeParts(row[i]);const dateText=document.createElement("span");dateText.className="pfa-date-time-date";dateText.textContent=parts.date;td.appendChild(dateText);if(parts.time){const timeText=document.createElement("span");timeText.className="pfa-date-time-time";timeText.textContent=parts.time;td.appendChild(timeText)}}else td.textContent=row[i]||"";tr.appendChild(td)});tbody.appendChild(tr)});table.appendChild(tbody);
     layer.append(title,metadata,table);return layer;
   }
   function mergeArchivePrintClientCells(layer,options={}){
     [...layer.querySelectorAll(".pfa-print-table")].forEach(table=>{
       const body=table.tBodies?.[0],rows=[...(body?.rows||[])];let start=0;
       while(start<rows.length){
-        const key=rows[start].dataset.pfaPrintGroupKey||"",name=rows[start].cells[0]?.textContent.trim()||"";let end=start+1;
-        if(key&&name)while(end<rows.length&&rows[end].dataset.pfaPrintGroupKey===key&&(rows[end].cells[0]?.textContent.trim()||"")===name&&!(options.respectPageBreak&&rows[end].dataset.pfaPrintPageStart==="1"))end++;
-        if(end-start>1){rows[start].cells[0].rowSpan=end-start;for(let i=start+1;i<end;i++)rows[i].cells[0]?.remove();}
+        const key=rows[start].dataset.pfaPrintGroupKey||"",name=rows[start].cells[1]?.textContent.trim()||"";let end=start+1;
+        if(key&&name)while(end<rows.length&&rows[end].dataset.pfaPrintGroupKey===key&&(rows[end].cells[1]?.textContent.trim()||"")===name&&!(options.respectPageBreak&&rows[end].dataset.pfaPrintPageStart==="1"))end++;
+        if(end-start>1){rows[start].cells[0].rowSpan=end-start;rows[start].cells[1].rowSpan=end-start;for(let i=start+1;i<end;i++){rows[i].cells[0]?.remove();rows[i].cells[1]?.remove();}}
         for(let i=start;i<end;i++){delete rows[i].dataset.pfaPrintGroupKey;delete rows[i].dataset.pfaPrintPageStart;}
         start=end;
       }
@@ -13480,7 +13482,7 @@ body.pfa-resizing-rows,body.pfa-resizing-rows *{cursor:row-resize!important;user
     if(title)title.style.cssText="display:flex;align-items:center;justify-content:center;gap:4px;margin:0 0 3mm;font:900 20px/1.3 Arial,Tahoma,sans-serif;color:#000;text-align:center";
     if(meta)meta.style.cssText="position:relative;display:block;margin:0 0 2mm;padding:1.2mm 1.5mm 3.2mm;border:1px solid #475569;border-radius:1.5mm;background:#f8fafc;color:#000;box-sizing:border-box";
     if(table){
-      const widths=[8,6,6,13,5,5,8,5,4,5,5,5,5,5,4,6,5];
+      const widths=[3,7,6,6,12,5,5,8,5,4,5,5,5,5,5,4,6,4];
       table.style.setProperty("display","table","important");table.style.setProperty("width","100%","important");table.style.setProperty("max-width","100%","important");table.style.setProperty("table-layout","fixed","important");table.style.setProperty("border-collapse","collapse","important");table.style.setProperty("direction","rtl","important");table.style.setProperty("font-family","Arial,Tahoma,sans-serif","important");table.style.setProperty("font-size","7px","important");
       [...table.querySelectorAll("colgroup col")].forEach((col,index)=>{if(widths[index])col.style.setProperty("width",widths[index]+"%","important")});
       table.querySelectorAll("thead").forEach(node=>node.style.setProperty("display","table-header-group","important"));
