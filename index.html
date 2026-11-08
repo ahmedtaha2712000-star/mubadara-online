@@ -4544,8 +4544,6 @@ if(settingsChannel)settingsChannel.onmessage=()=>{programSettings=readProgramSet
 window.addEventListener("resize",()=>{if(programSettings.orientation==="auto")applyProgramSettings()});
  const SCREEN_IDS=["clients","search","dash","dailyOperations","collection","risk","dueInstallments","installmentCalculator","paymentFollowup","paymentFollowupArchive","location","portfolio","issuedLoans","dropoutClients","print","users","specialists","audit","import","uploadTool","iskorCodes","settings","groupLeadFollowup"];
 let screenDataVersion=0;const screenRenderVersion=Object.create(null);
-let dataLastLoadedAt=0;
-const BACKGROUND_REFRESH_INTERVAL=5*60*1000;
 function showScreen(id){
   if(!enforceSession()) return;
   if(!SCREEN_IDS.includes(id)) id="import";
@@ -4930,7 +4928,7 @@ async function refreshDataNow(silent=false){
  if(button){button.disabled=true;button.textContent="…";}
 	 const status=document.getElementById("status"),previous=status?.textContent||"";
 	 try{
-	   const refreshed=typeof refreshOnOpen==="function"&&await refreshOnOpen(true);
+	   const refreshed=typeof refreshOnOpen==="function"&&await refreshOnOpen();
 	   if(!refreshed){
 	     if(status)status.textContent="⚠️ تعذر تحميل البيانات الحالية؛ لم يتم عرض النسخة المحفوظة.";
 	     return;
@@ -9466,14 +9464,12 @@ async function loadDB(){
 	 if(!session||!appSessionReady)return;
 	 setCollectionPreviousDataState("loading");
 	 const statusEl=document.getElementById("status");
-	 if(statusEl)statusEl.textContent=rows.length?"🔄 جارٍ تحديث البيانات في الخلفية…":"🔄 جارٍ تحميل البيانات الحالية…";
-	 // لا نفرغ البيانات الحالية أثناء التحديث؛ تبقى النسخة السابقة ظاهرة حتى اكتمال الطلب.
-	 if(rows.length)refreshActiveScreenAfterDataLoad();
+	 if(statusEl)statusEl.textContent="🔄 جارٍ تحميل البيانات الحالية من الخادم؛ لن تُعرض النسخة المحفوظة…";
+	 rows=[];build();refreshActiveScreenAfterDataLoad();
 	 const data=await loadCloud();
 	 if(Array.isArray(data)){
 	  rows=data;build();refreshActiveScreenAfterDataLoad();
 	  const officerCacheKey=lastCloudDataScope==="officer"?officerKey(currentUserRecord()?.officerName||session.officerName||""):"";
-	  dataLastLoadedAt=Date.now();
 	  if(data.length<=50000&&session?.role!=="group_lead"){
 	   safeLocalSet(LS_ROWS,JSON.stringify(data));
    safeLocalSet(LS_ROWS_META,JSON.stringify({scope:lastCloudDataScope==="officer"?"officer":"all",officer_key:officerCacheKey,updated_at:lastCloudUpdatedAt}));
@@ -9505,15 +9501,12 @@ function updateMubCollectionExcelRefreshLock(){
  else if(mubCollectionExcelRefreshLockHeld){button.disabled=mubCollectionExcelRefreshWasDisabled;mubCollectionExcelRefreshLockHeld=false;}
 }
 let openingRefreshInProgress=false;
-async function refreshOnOpen(force=false){
+async function refreshOnOpen(){
  if(mubCollectionExcelPickerOpen||mubCollectionExcelImportInProgress)return true;
  if(!session||!appSessionReady||openingRefreshInProgress)return;
- if(!force&&dataLastLoadedAt&&Date.now()-dataLastLoadedAt<BACKGROUND_REFRESH_INTERVAL)return true;
  openingRefreshInProgress=true;
  try{
 	 if(!cloudReady)initSupabase();
-	 // استعادة النسخة المحلية فورًا عند أول فتح فقط، قبل بدء التحديث الخلفي.
-	 if(!rows.length){const cached=cachedRowsForCurrentSession();if(Array.isArray(cached)&&cached.length){rows=cached;build();refreshActiveScreenAfterDataLoad();}}
 	 const statusEl=document.getElementById("status");
 	 if(statusEl)statusEl.textContent="🔄 جاري تحميل/تحديث البيانات المصرح بها لهذا الحساب…";
 	 const previousLoadPromise=loadDB();
@@ -13398,20 +13391,32 @@ body.pfa-resizing-rows,body.pfa-resizing-rows *{cursor:row-resize!important;user
     const tbody=document.createElement("tbody");data.rows.forEach((row,rowIndex)=>{const tr=document.createElement("tr");tr.dataset.pfaPrintGroupKey=data.groupKeys?.[rowIndex]||"";data.headers.forEach((_,i)=>{const td=document.createElement("td");if(i===dateTimeColumn){td.className="pfa-date-time-cell";const parts=dateTimeParts(row[i]);const dateText=document.createElement("span");dateText.className="pfa-date-time-date";dateText.textContent=parts.date;td.appendChild(dateText);if(parts.time){const timeText=document.createElement("span");timeText.className="pfa-date-time-time";timeText.textContent=parts.time;td.appendChild(timeText)}}else td.textContent=row[i]||"";tr.appendChild(td)});tbody.appendChild(tr)});table.appendChild(tbody);
     layer.append(title,metadata,table);return layer;
   }
-  function mergeArchivePrintClientCells(layer){
+  function mergeArchivePrintClientCells(layer,options={}){
     const body=layer.querySelector(".pfa-print-table tbody"),rows=[...(body?.rows||[])];let start=0;
     while(start<rows.length){
       const key=rows[start].dataset.pfaPrintGroupKey||"",name=rows[start].cells[0]?.textContent.trim()||"";let end=start+1;
-      if(key&&name)while(end<rows.length&&rows[end].dataset.pfaPrintGroupKey===key&&(rows[end].cells[0]?.textContent.trim()||"")===name)end++;
+      if(key&&name)while(end<rows.length&&rows[end].dataset.pfaPrintGroupKey===key&&(rows[end].cells[0]?.textContent.trim()||"")===name&&!(options.respectPageBreak&&rows[end].dataset.pfaPrintPageStart==="1"))end++;
       if(end-start>1){rows[start].cells[0].rowSpan=end-start;for(let i=start+1;i<end;i++)rows[i].cells[0]?.remove();}
-      for(let i=start;i<end;i++)delete rows[i].dataset.pfaPrintGroupKey;
+      for(let i=start;i<end;i++){delete rows[i].dataset.pfaPrintGroupKey;delete rows[i].dataset.pfaPrintPageStart;}
       start=end;
     }
   }
-  function formatArchiveLayer(layer){
+  function prepareArchivePDFPageBreaks(layer){
+    const table=layer.querySelector(".pfa-print-table"),body=table?.tBodies?.[0];if(!table||!body)return;
+    const rows=[...body.rows];if(rows.length<2)return;
+    const title=layer.querySelector(".pfa-print-heading"),meta=layer.querySelector(".pfa-print-meta"),thead=table.tHead;
+    const pageHeight=1122-38,firstLimit=Math.max(420,pageHeight-(title?.getBoundingClientRect().height||0)-(meta?.getBoundingClientRect().height||0)-20),nextLimit=Math.max(420,pageHeight-(thead?.getBoundingClientRect().height||22));
+    let page=0,used=0;
+    rows.forEach((row,index)=>{
+      const height=Math.max(18,row.getBoundingClientRect().height||24),limit=page===0?firstLimit:nextLimit;
+      if(index>0&&used+height>limit){row.dataset.pfaPrintPageStart="1";row.style.setProperty("page-break-before","always","important");row.style.setProperty("break-before","page","important");page++;used=(thead?.getBoundingClientRect().height||22)+height;}
+      else used+=height;
+    });
+  }
+  function formatArchiveLayer(layer,options={}){
     /* تنسيق مستقل لسجل المتابعة، مماثل لقواعد تقرير الأقساط المستحقة دون تغيير التقرير الأصلي. */
     if(typeof applyArrearsPrintFormat==="function")applyArrearsPrintFormat(layer);
-    mergeArchivePrintClientCells(layer);
+    if(!options.skipClientMerge)mergeArchivePrintClientCells(layer);
     layer.style.setProperty("font-family","Arial,Tahoma,sans-serif","important");
     layer.style.setProperty("font-weight","700","important");
     layer.style.setProperty("color","#000","important");
@@ -13459,7 +13464,13 @@ body.pfa-resizing-rows,body.pfa-resizing-rows *{cursor:row-resize!important;user
     const button=document.querySelector("#paymentFollowupArchive .pfa-export-action.pdf-btn"),label=button?.querySelector(".action-label"),oldText=label?.textContent;busy=true;
     try{
       if(button){button.disabled=true;button.setAttribute("aria-busy","true");if(label)label.textContent="جاري الإنشاء..."}
-      formatArchiveLayer(layer);
+      formatArchiveLayer(layer,{skipClientMerge:true});
+      const originalLayerStyle=layer.getAttribute("style")||"";
+      layer.style.setProperty("position","absolute","important");layer.style.setProperty("left","-100000px","important");layer.style.setProperty("top","0","important");layer.style.setProperty("width","210mm","important");layer.style.setProperty("visibility","hidden","important");
+      document.body.appendChild(layer);
+      prepareArchivePDFPageBreaks(layer);
+      mergeArchivePrintClientCells(layer,{respectPageBreak:true});
+      layer.setAttribute("style",originalLayerStyle);
       const css=[...document.querySelectorAll("style")].map(style=>style.textContent||"").join("\n");
       const response=await fetch("/api/generate-pdf",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({html:layer.outerHTML,css,filename:exportFileName("pdf"),reportType:"due-installments"})});
       if(!response.ok){let detail="";try{detail=await response.text()}catch(e){}throw new Error(`PDF API ${response.status}: ${detail}`)}
