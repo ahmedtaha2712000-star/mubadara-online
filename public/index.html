@@ -7884,11 +7884,12 @@ async function downloadReportLayerPDF(layer,filename,className="report-pdf-downl
   const isWidePDF=isRiskPDF||isDuePDF;
   if(isWidePDF)applyArrearsPrintFormat(layer);
   const isPfaFormPDF=className==="pfa-form-pdf";
-  const captureWidth=isPfaFormPDF?1400:isDuePDF?1200:isRiskPDF?1800:1120;
+  const captureWidth=isPfaFormPDF?1056:isDuePDF?1200:isRiskPDF?1800:1120;
   const captureFont=isPfaFormPDF?"14px":isDuePDF?"8.5px":isRiskPDF?"16px":"7.8px";
   const captureHeadFont=isPfaFormPDF?"14px":isDuePDF?"8.5px":isRiskPDF?"15px":"7.4px";
   holder.style.cssText=`position:absolute;left:0;top:0;width:${captureWidth}px;min-width:${captureWidth}px;background:#fff;z-index:-1;visibility:visible;display:block;direction:ltr;overflow:visible;`;
   layer.style.cssText+=(layer.style.cssText?";":"")+`font-size:${captureFont}!important;line-height:1.3!important;width:${captureWidth}px!important;text-shadow:none!important;-webkit-text-stroke:0!important;filter:none!important;min-height:20px;height:auto;display:block!important;visibility:visible!important;opacity:1!important;background:#fff!important;color:#000!important;position:static!important;margin:0!important;padding:${isWidePDF?"5mm 3mm":"0 4px"}!important;box-sizing:border-box!important;`;
+  if(isPfaFormPDF){layer.style.setProperty("width","1056px","important");layer.style.setProperty("min-width","1056px","important");layer.style.setProperty("max-width","1056px","important");layer.style.setProperty("padding","0","important");layer.style.setProperty("font-family","Arial,Tahoma,sans-serif","important");layer.querySelectorAll(".pfa-form-page").forEach((page,index)=>{page.style.setProperty("width","1056px","important");page.style.setProperty("height","720px","important");page.style.setProperty("min-height","720px","important");page.style.setProperty("max-height","720px","important");page.style.setProperty("overflow","hidden","important");page.style.setProperty("page-break-after",index===layer.querySelectorAll(".pfa-form-page").length-1?"auto":"always","important");page.style.setProperty("break-after",index===layer.querySelectorAll(".pfa-form-page").length-1?"auto":"page","important")})}
   // تثبيت كل صفحة PDF كوحدة مستقلة حتى يبقى التذييل داخلها ولا يُرحّل لصفحة جديدة.
   if(isWidePDF){
     layer.querySelectorAll(".due-report-page-block").forEach((page,index)=>{
@@ -7983,8 +7984,8 @@ async function downloadReportLayerPDF(layer,filename,className="report-pdf-downl
       filename,
       image:{type:"jpeg",quality:.97},
       html2canvas:{scale:isPfaFormPDF?2.5:1,useCORS:true,backgroundColor:"#fff",logging:false,width:captureWidth,windowWidth:captureWidth,x:0,y:0,scrollX:0,scrollY:0},
-      jsPDF:{unit:"mm",format:isDuePDF?"a4":isRiskPDF?"a2":"a4",orientation:"landscape",compress:true},
-      pagebreak:isWidePDF
+      jsPDF:{unit:"mm",format:isPfaFormPDF?"letter":isDuePDF?"a4":isRiskPDF?"a2":"a4",orientation:"landscape",compress:true},
+      pagebreak:isWidePDF||isPfaFormPDF
         ?{mode:["css"],avoid:[".print-page",".page-footer","tr","thead","tfoot"]}
         :{mode:["css","legacy"],avoid:["tr","thead","tfoot"]}
     }).from(layer);
