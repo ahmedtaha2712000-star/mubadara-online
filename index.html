@@ -13608,6 +13608,8 @@ body.pfa-resizing-rows,body.pfa-resizing-rows *{cursor:row-resize!important;user
     const style=document.createElement("style");style.id="pfaFormPrintStyle";style.textContent=pfaFormCss;document.head.appendChild(style);document.body.appendChild(root);return style;
   }
   function pfaFormFilename(root){return `متابعة السداد عن يوم ${root?.dataset?.pfaFormDate||pfaFormDate(new Date()).replace(/\//g,"-")}.pdf`}
+  function pfaFormPreparePdf(root){root.style.setProperty("font-family","Arial,Tahoma,sans-serif","important");root.style.setProperty("color","#000","important");root.style.setProperty("text-shadow","none","important");root.style.setProperty("-webkit-text-stroke","0","important");root.querySelectorAll("*").forEach(el=>{el.style.setProperty("font-family","Arial,Tahoma,sans-serif","important");el.style.setProperty("color","#000","important");el.style.setProperty("font-weight","900","important");el.style.setProperty("text-shadow","none","important");el.style.setProperty("-webkit-text-stroke","0","important")})}
+  function pfaFormShowShareCard(blob,filename,message){const old=document.getElementById("pfaFormShareCard");old?.remove();const url=URL.createObjectURL(blob),card=document.createElement("div");card.id="pfaFormShareCard";card.dir="rtl";card.style.cssText="position:fixed;inset:0;z-index:2147483000;display:grid;place-items:center;padding:16px;background:rgba(15,23,42,.62);font-family:Arial,Tahoma,sans-serif";card.innerHTML=`<div role="dialog" aria-modal="true" aria-labelledby="pfaFormShareTitle" style="width:min(480px,100%);box-sizing:border-box;padding:20px;border:1px solid #cbd5e1;border-radius:16px;background:#fff;color:#000;box-shadow:0 20px 55px rgba(15,23,42,.3);text-align:right"><div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px"><h3 id="pfaFormShareTitle" style="margin:0;font:900 19px Arial,Tahoma,sans-serif;color:#000">ملف متابعة السداد</h3><button type="button" data-pfa-share-close aria-label="إغلاق" title="إغلاق" style="width:34px;height:34px;border:1px solid #cbd5e1;border-radius:9px;background:#f8fafc;color:#000;font:900 22px Arial;cursor:pointer">×</button></div><p style="margin:0 0 6px;font:900 14px Arial,Tahoma,sans-serif;color:#000">تم إنشاء ملف PDF بنجاح</p><p style="margin:0 0 18px;word-break:break-word;font:900 12px/1.6 Arial,Tahoma,sans-serif;color:#000">${pfaFormEscape(filename)}</p><div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-start"><button type="button" data-pfa-share-send style="flex:1 1 140px;min-height:42px;border:0;border-radius:9px;background:#128c7e;color:#fff;font:900 14px Arial;cursor:pointer">مشاركة واتساب</button><button type="button" data-pfa-share-open style="flex:1 1 110px;min-height:42px;border:1px solid #1d4ed8;border-radius:9px;background:#eff6ff;color:#1d4ed8;font:900 14px Arial;cursor:pointer">فتح الملف</button><button type="button" data-pfa-share-download style="flex:1 1 110px;min-height:42px;border:1px solid #15803d;border-radius:9px;background:#f0fdf4;color:#166534;font:900 14px Arial;cursor:pointer">تنزيل الملف</button></div><button type="button" data-pfa-share-close style="width:100%;min-height:40px;margin-top:12px;border:1px solid #94a3b8;border-radius:9px;background:#fff;color:#000;font:900 14px Arial;cursor:pointer">إغلاق البطاقة</button></div>`;document.body.appendChild(card);const close=()=>{card.remove();URL.revokeObjectURL(url);document.removeEventListener("keydown",onKey)};const onKey=e=>{if(e.key==="Escape")close()};card.querySelectorAll("[data-pfa-share-close]").forEach(btn=>btn.addEventListener("click",close));card.querySelector("[data-pfa-share-open]").addEventListener("click",()=>window.open(url,"_blank","noopener,noreferrer"));card.querySelector("[data-pfa-share-download]").addEventListener("click",()=>{const a=document.createElement("a");a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove()});card.querySelector("[data-pfa-share-send]").addEventListener("click",async()=>{try{const file=new File([blob],filename,{type:"application/pdf"});if(navigator.share&&(!navigator.canShare||navigator.canShare({files:[file]}))){await navigator.share({files:[file],title:filename,text:message})}else{window.open(`https://wa.me/?text=${encodeURIComponent(message)}`,"_blank","noopener,noreferrer");alert("تم فتح واتساب. إذا لم يظهر الملف كمرفق، استخدم زر تنزيل الملف ثم أرفقه من واتساب.")}}catch(error){if(error?.name!=="AbortError")console.error("Payment follow-up share:",error)}});document.addEventListener("keydown",onKey);return card}
   function printPaymentFollowupFormTemplate(event){
     event?.preventDefault?.();event?.stopImmediatePropagation?.();if(busy)return false;
     const root=buildPaymentFollowupFormTemplate();if(!root){alert("لا توجد سجلات ظاهرة في الأرشيف للطباعة.");return false}
@@ -13621,6 +13623,7 @@ body.pfa-resizing-rows,body.pfa-resizing-rows *{cursor:row-resize!important;user
     const button=event?.currentTarget,label=button?.querySelector(".action-label"),oldText=label?.textContent;busy=true;let style=null;
     try{
       if(button){button.disabled=true;button.setAttribute("aria-busy","true");if(label)label.textContent="جاري الإنشاء..."}
+      pfaFormPreparePdf(root);
       style=pfaFormAttach(root);
       const created=await downloadReportLayerPDF(root,pfaFormFilename(root),"pfa-form-pdf");
       if(!created)throw new Error("لم يتم إنشاء ملف PDF صالح للنموذج.");
@@ -13631,16 +13634,11 @@ body.pfa-resizing-rows,body.pfa-resizing-rows *{cursor:row-resize!important;user
   async function sharePaymentFollowupFormWhatsApp(event){
     event?.preventDefault?.();event?.stopImmediatePropagation?.();if(busy)return false;
     const root=buildPaymentFollowupFormTemplate();if(!root){alert("لا توجد سجلات ظاهرة في الأرشيف لمشاركتها.");return false}
-    const filename=pfaFormFilename(root),message=`متابعة السداد عن يوم ${root.dataset.pfaFormDate||""}`;busy=true;
+    const filename=pfaFormFilename(root),message=`متابعة السداد عن يوم ${root.dataset.pfaFormDate||""}`;busy=true;let style=null;
     try{
-      const css=[...document.querySelectorAll("style")].map(style=>style.textContent||"").join("\n")+"\n"+pfaFormCss+"\n#pfaFormPrintRoot{display:block!important;visibility:visible!important;position:static!important;width:100%!important;background:#fff!important}#pfaFormPrintRoot *{visibility:visible!important}#pfaFormPrintRoot .pfa-form-page{display:block!important;visibility:visible!important}";
-      const response=await fetch("/api/generate-pdf",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({html:root.outerHTML,css,filename,reportType:"due-installments"})});
-      if(!response.ok)throw new Error(`PDF API ${response.status}`);const blob=await response.blob();if(blob.size<100)throw new Error("ملف PDF غير صالح");
-      const file=new File([blob],filename,{type:"application/pdf"});
-      if(navigator.share&&navigator.canShare?.({files:[file]})){await navigator.share({files:[file],title:filename,text:message})}
-      else{window.open(`https://wa.me/?text=${encodeURIComponent(message)}`,"_blank","noopener,noreferrer");alert("جهازك لا يدعم إرفاق الملف مباشرة من المتصفح؛ تم فتح واتساب برسالة جاهزة. أرفق ملف PDF بعد تنزيله.")}
-    }catch(error){if(error?.name!=="AbortError"){console.error("Share payment follow-up form:",error);window.open(`https://wa.me/?text=${encodeURIComponent(message)}`,"_blank","noopener,noreferrer")}}
-    finally{root.remove();busy=false}
+      pfaFormPreparePdf(root);style=pfaFormAttach(root);const blob=await downloadReportLayerPDF(root,filename,"pfa-form-pdf",true);if(!(blob instanceof Blob)||blob.size<100)throw new Error("ملف PDF غير صالح");pfaFormShowShareCard(blob,filename,message);
+    }catch(error){if(error?.name!=="AbortError"){console.error("Share payment follow-up form:",error);alert("تعذر إنشاء ملف المشاركة. حاول مرة أخرى بعد تحميل الصفحة بالكامل.")}}
+    finally{style?.remove();root.remove();busy=false}
     return false;
   }
   function exportPaymentFollowupCompactExcel(event){
@@ -13656,6 +13654,7 @@ body.pfa-resizing-rows,body.pfa-resizing-rows *{cursor:row-resize!important;user
   window.exportPaymentFollowupArchiveExcel=exportPaymentFollowupArchiveExcel;
   window.printPaymentFollowupFormTemplate=printPaymentFollowupFormTemplate;
   window.downloadPaymentFollowupFormTemplatePDF=downloadPaymentFollowupFormTemplatePDF;
+  window.pfaFormShowShareCard=pfaFormShowShareCard;
   window.exportPaymentFollowupCompactExcel=exportPaymentFollowupCompactExcel;
 })();
 </script>
