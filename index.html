@@ -16932,7 +16932,7 @@ body.group-lead-mode #groupLeadScopeBar{display:none!important;visibility:hidden
 (function(){
  const TABLE="app_shared_ui_preferences", PREF_KEY="desktop_screen_order", SIDEBAR_ID="desktopScreenSidebar";
  const GROUPS=[
-  {id:"all",title:"",screens:["dash","dailyOperations","clients","collection","search","risk","dueInstallments","installmentCalculator","paymentFollowup","portfolio","issuedLoans","dropoutClients","print","specialists","users","audit","import","uploadTool","operatingDocuments","iskorCodes","location","groupLeadFollowup","settings"]}
+  {id:"all",title:"",screens:["dash","dailyOperations","clients","collection","search","risk","dueInstallments","installmentCalculator","paymentFollowup","portfolio","issuedLoans","dropoutClients","dropoutTracker","print","specialists","users","audit","import","uploadTool","operatingDocuments","iskorCodes","location","groupLeadFollowup","settings"]}
  ];
  const $=id=>document.getElementById(id), root=()=>$(SIDEBAR_ID), sourceNav=()=>document.querySelector('.layout>nav[aria-label="التنقل الرئيسي"]');
  let sourceById=new Map(), defaultOrder=[], savedOrder=[], editOrder=[], editing=false, dragging=null, loading=false, syncStarted=false;
