@@ -1584,6 +1584,12 @@ button.icon-action .action-glyph svg{width:22px!important;height:22px!important;
 @media screen and (max-height:700px) and (min-width:761px){
  #paymentFollowup .pf-table-wrap{max-height:calc(100vh - 220px);min-height:220px}
 }
+@media screen and (max-width:760px){
+ #paymentFollowup .pf-table-wrap{display:block!important;max-height:calc(100vh - 280px);min-height:220px;overflow:auto!important;overscroll-behavior:contain}
+ #paymentFollowup .pf-mobile-cases{display:none!important}
+ #paymentFollowup .pf-table{width:100%;min-width:1280px}
+ #paymentFollowup .pf-table th{position:sticky;top:0;z-index:5;background:#17263c}
+}
 </style>
 
 <style id="unified-table-visual-style">
@@ -10534,7 +10540,7 @@ function pfOpenClientProfile(caseKey){
   }
   function pfMobileCard(item){
     const loan=item.loanAmount!==""&&item.loanAmount!=null?money(item.loanAmount):"—";
-    return `<article class="pf-case"><div class="pf-case-head"><div><button type="button" class="pf-main-name pf-client-profile-link" data-pf-profile-key="${escAttr(item.key)}" title="فتح ملف العميل">${esc(item.client||"—")}</button>${pfCustomerStatusHTML(item)}<span class="pf-secondary">القرض ${esc(item.loanLabel)} · ${esc(item.officer||"بدون أخصائي")}</span></div><span class="pf-delay">${esc(item.delay)} يوم تأخير</span></div><div class="pf-card-grid"><div class="pf-card-field"><small>مبلغ القرض</small><b>${esc(loan)}</b></div><div class="pf-card-field"><small>تاريخ الاستحقاق</small><b>${esc(pfTextDate(item.due)||"—")}</b></div><div class="pf-card-field"><small>رقم القسط</small><b>${esc(item.installment||"—")}</b></div><div class="pf-card-field"><small>قيمة القسط</small><b>${esc(money(item.installmentValue))}</b></div><div class="pf-card-field"><small>المسدد / تاريخ السداد</small><b>${esc(money(item.paid))} · ${esc(pfTextDate(item.paymentDate))}</b></div><div class="pf-card-field"><small>المتبقي من القسط</small><b class="pf-arrears">${esc(money(item.remaining))}</b></div><div class="pf-card-field"><small>إجمالي متأخرات العميل</small><b class="pf-arrears">${esc(money(item.customerArrears))}</b></div></div><div class="pf-card-field pf-wide" style="margin-top:8px"><small>العميل والضامنون</small>${pfContactsHTML(item)}</div>${pfLatestHTML(item)}${pfActorHTML(item)}<button type="button" class="pf-archive-btn" data-pf-archive-key="${escAttr(item.key)}">📚 فتح أرشيف العميل والضامنين</button>${pfFormHTML(item)}${pfHistoryHTML(item)}</article>`;
+    return `<article class="pf-case"><div class="pf-case-head"><div><div class="pf-main-name">${esc(item.client||"—")}</div>${pfCustomerStatusHTML(item)}<span class="pf-secondary">القرض ${esc(item.loanLabel)} · ${esc(item.officer||"بدون أخصائي")}</span></div><span class="pf-delay">${esc(item.delay)} يوم تأخير</span></div><div class="pf-card-grid"><div class="pf-card-field"><small>مبلغ القرض</small><b>${esc(loan)}</b></div><div class="pf-card-field"><small>تاريخ الاستحقاق</small><b>${esc(pfTextDate(item.due)||"—")}</b></div><div class="pf-card-field"><small>رقم القسط</small><b>${esc(item.installment||"—")}</b></div><div class="pf-card-field"><small>قيمة القسط</small><b>${esc(money(item.installmentValue))}</b></div><div class="pf-card-field"><small>المسدد / تاريخ السداد</small><b>${esc(money(item.paid))} · ${esc(pfTextDate(item.paymentDate))}</b></div><div class="pf-card-field"><small>المتبقي من القسط</small><b class="pf-arrears">${esc(money(item.remaining))}</b></div><div class="pf-card-field"><small>إجمالي متأخرات العميل</small><b class="pf-arrears">${esc(money(item.customerArrears))}</b></div></div><div class="pf-card-field pf-wide" style="margin-top:8px"><small>العميل والضامنون</small>${pfContactsHTML(item)}</div>${pfLatestHTML(item)}${pfActorHTML(item)}<button type="button" class="pf-archive-btn" data-pf-archive-key="${escAttr(item.key)}">📚 فتح أرشيف العميل والضامنين</button>${pfFormHTML(item)}${pfHistoryHTML(item)}</article>`;
   }
   function pfUpdateOfficerOptions(){
     const input=document.getElementById("paymentFollowupOfficer"),list=document.getElementById("paymentFollowupOfficerList");if(!input||!list)return;
@@ -10564,8 +10570,8 @@ function pfOpenClientProfile(caseKey){
     const countLabel=document.getElementById("paymentFollowupCountLabel");if(countLabel)countLabel.textContent=allClientsMode?"عملاء معروضون":"حالات المتابعة";
     const mobile=window.matchMedia&&window.matchMedia("(max-width: 760px)").matches;
     const tbody=document.getElementById("paymentFollowupTableBody"),cards=document.getElementById("paymentFollowupMobileCases");
-    if(mobile){if(tbody)tbody.innerHTML="";if(cards)cards.innerHTML=filtered.length?filtered.map(pfMobileCard).join(""):(allClientsMode?'<div class="pf-empty">لا يوجد عملاء مطابقون للفلاتر الحالية.</div>':'<div class="pf-empty">لا توجد حالات متأخرة مطابقة لعوامل البحث.</div>');}
-    else {if(cards)cards.innerHTML="";if(tbody)tbody.innerHTML=filtered.length?filtered.map(pfDesktopRow).join(""):(allClientsMode?'<tr><td colspan="14" class="pf-empty">لا يوجد عملاء مطابقون للفلاتر الحالية.</td></tr>':'<tr><td colspan="14" class="pf-empty">لا توجد حالات متأخرة مطابقة لعوامل البحث.</td></tr>');}
+    if(cards)cards.innerHTML="";
+    if(tbody)tbody.innerHTML=filtered.length?filtered.map(pfDesktopRow).join(""):(allClientsMode?'<tr><td colspan="14" class="pf-empty">لا يوجد عملاء مطابقون للفلاتر الحالية.</td></tr>':'<tr><td colspan="14" class="pf-empty">لا توجد حالات متأخرة مطابقة لعوامل البحث.</td></tr>');
     const uniqueClients=new Map();filtered.forEach(x=>{const key=pfKeyPart(x.client);if(key&&!uniqueClients.has(key))uniqueClients.set(key,x.customerArrears)});
     const count=document.getElementById("paymentFollowupCount"),clients=document.getElementById("paymentFollowupClientsCount"),amount=document.getElementById("paymentFollowupTotalArrears"),feedback=document.getElementById("paymentFollowupFeedback");
     if(count)count.textContent=filtered.length.toLocaleString("en-US");
