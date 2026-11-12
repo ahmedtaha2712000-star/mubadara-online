@@ -7805,7 +7805,7 @@ function buildDuePrintLayer(forPdf=false){
     preserveGuidePrintStyle(guidePage);
     layer.appendChild(guidePage);
   }
-  const title=document.createElement("h1");title.className="due-print-title";title.textContent=`جمعية المبادرة — الأقساط المستحقة للأخصائي: ${officer}`;
+  const title=document.createElement("h1");title.className="due-print-title";title.textContent=`جمعية المبادرة — ${window.__seasonalDueMode?"الأقساط الموسمية المستحقة للأخصائي":"الأقساط المستحقة للأخصائي"}: ${officer}`;
   const meta=document.createElement("div");meta.className="due-print-meta";meta.innerHTML=specialistReport?`الفترة من ${esc(from)} إلى ${esc(to)}<br>تاريخ الطباعة: ${esc(formatPrintDate(new Date()))}`:`الفترة من ${esc(from)} إلى ${esc(to)} — إجمالي الأقساط ${esc(money(grand.due))}<br>تاريخ الطباعة: ${esc(formatPrintDate(new Date()))}`;
   let grandSummary=null;
   if(specialistReport){grandSummary=document.createElement("div");grandSummary.className="due-print-grand-total";grandSummary.innerHTML=`<strong>الإجمالي العام</strong><span>عدد الأخصائيين: <b>${groups.length.toLocaleString("en-US")}</b></span><span>عدد العملاء: <b>${grand.clients.toLocaleString("en-US")}</b></span><span>عدد الأقساط: <b>${grand.installments.toLocaleString("en-US")}</b></span><span>إجمالي الأقساط: <b>${esc(money(grand.due))}</b></span><span>المسدد: <b>${esc(money(grand.paid))}</b></span><span>المتبقي: <b>${esc(money(grand.remaining))}</b></span><span>عدد الأقساط المتأخرة: <b>${grand.lateCount.toLocaleString("en-US")}</b></span><span>المتأخرات: <b>${esc(money(grand.arrears))}</b></span>`}
@@ -17890,5 +17890,14 @@ window.__seasonalFinalHotfixV5=true;
     return result;
   };
   window.__seasonalDefaultDatesOnlyFix=true;
+})();
+</script>
+
+<script id="seasonal-dates-entry-final-v2">
+(function(){
+ function setDefaults(){if(!window.__seasonalDueMode)return;const f=document.getElementById("dueFrom"),t=document.getElementById("dueTo");if(!f||!t)return;const now=new Date(),last=new Date(now.getFullYear(),now.getMonth()+1,0).getDate();if(!f.value)f.value="2023/1/1";if(!t.value)t.value=now.getFullYear()+"/"+(now.getMonth()+1)+"/"+last;}
+ document.addEventListener("click",function(e){if(e.target.closest('a[data-screen="seasonalInstallments"]')){setTimeout(setDefaults,0);setTimeout(setDefaults,150);setTimeout(setDefaults,500);}},true);
+ const prev=window.openSeasonalDueClone;if(typeof prev==="function")window.openSeasonalDueClone=function(){const r=prev.apply(this,arguments);setDefaults();setTimeout(setDefaults,100);setTimeout(setDefaults,400);return r;};
+ window.__seasonalDatesEntryFinalV2=true;
 })();
 </script>
