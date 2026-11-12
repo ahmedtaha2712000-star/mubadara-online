@@ -17901,3 +17901,12 @@ window.__seasonalFinalHotfixV5=true;
  window.__seasonalDatesEntryFinalV2=true;
 })();
 </script>
+
+<script id="seasonal-date-force-on-open-v3">
+(function(){
+ function apply(){if(!window.__seasonalDueMode)return;const f=document.getElementById("dueFrom"),t=document.getElementById("dueTo");if(!f||!t)return;const d=new Date(),last=new Date(d.getFullYear(),d.getMonth()+1,0).getDate();f.value="2023/1/1";t.value=d.getFullYear()+"/"+(d.getMonth()+1)+"/"+last;}
+ const old=window.openSeasonalDueClone;if(typeof old==="function")window.openSeasonalDueClone=function(){const r=old.apply(this,arguments);apply();if(typeof window.renderDueInstallments==="function")window.renderDueInstallments();setTimeout(function(){apply();if(typeof window.renderDueInstallments==="function")window.renderDueInstallments()},120);setTimeout(apply,500);return r};
+ document.addEventListener("click",function(e){if(e.target.closest('a[data-screen="seasonalInstallments"]')){setTimeout(apply,20);setTimeout(apply,200);setTimeout(apply,600)}},true);
+ window.__seasonalDateForceOnOpenV3=true;
+})();
+</script>
