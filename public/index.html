@@ -4569,7 +4569,7 @@ let screenDataVersion=0;const screenRenderVersion=Object.create(null);
 let dataLastLoadedAt=0;
 const BACKGROUND_REFRESH_INTERVAL=5*60*1000;
 function showScreen(id){
-  if(id==="seasonalInstallments"){openSeasonalDueClone();return;}
+  
   if(!enforceSession()) return;
   if(!SCREEN_IDS.includes(id)) id="import";
   if(id==="groupLeadFollowup"&&session.role!=="group_lead")id="search";
@@ -17955,3 +17955,14 @@ window.__seasonalFinalHotfixV5=true;
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();window.__seasonalShortcutAfterRenderV2=true;
 })();
 </script>
+<script id="seasonal-route-to-independent-screen-v1">
+(function(){
+ window.openSeasonalDueClone=function(){
+  window.__seasonalDueMode=false;document.body.classList.remove('seasonal-due-active');
+  if(typeof window.showScreen==='function')window.showScreen('seasonalInstallments');
+  else{document.querySelectorAll('.screen').forEach(function(x){x.classList.remove('active');x.setAttribute('aria-hidden','true')});var target=document.getElementById('seasonalInstallments');if(target){target.classList.add('active');target.setAttribute('aria-hidden','false');if(typeof window.renderSeasonal==='function')window.renderSeasonal()}}
+ };
+ window.__seasonalUsesIndependentScreen=true;
+})();
+</script>
+
