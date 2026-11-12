@@ -3720,7 +3720,7 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
 </div>
 <div class="command-center">
   <div class="command-copy"><span class="command-eyebrow">مركز القيادة</span><h3>ابدأ من هنا</h3><p>الوصول السريع إلى أكثر المهام استخدامًا بدل التنقل بين القوائم.</p></div>
-  <div class="command-actions"><button class="command-action seasonal-command-action no-print" type="button" aria-label="فتح شاشة الأقساط الموسمية" title="فتح شاشة الأقساط الموسمية" onclick="showScreen('seasonalInstallments')"><b>🌾</b><span>الأقساط الموسمية<small>عرض الأقساط الموسمية</small></span></button><button class="command-action primary" onclick="showScreen('collection')"><b>📅</b><span>متابعة التحصيل<small>الأقساط والفترات</small></span></button><button class="command-action" onclick="showScreen('search')"><b>🔍</b><span>بحث سريع<small>عميل أو قرض</small></span></button><button class="command-action" onclick="showScreen('risk')"><b>⚠️</b><span>مراجعة المخاطر<small>المتأخرات الحالية</small></span></button><button class="command-action" onclick="showScreen('import')"><b>📥</b><span>تحديث البيانات<small>رفع ملف Excel</small></span></button></div>
+  <div class="command-actions"><button class="command-action seasonal-command-action no-print" type="button" aria-label="فتح شاشة الأقساط الموسمية" title="فتح شاشة الأقساط الموسمية" onclick="if(typeof window.showScreen==='function')window.showScreen('seasonalInstallments');else location.hash='#seasonalInstallments';var m=document.querySelector('#app .layout>main');if(m)m.scrollTop=0;window.scrollTo(0,0)"><b>🌾</b><span>الأقساط الموسمية<small>عرض الأقساط الموسمية</small></span></button><button class="command-action primary" onclick="showScreen('collection')"><b>📅</b><span>متابعة التحصيل<small>الأقساط والفترات</small></span></button><button class="command-action" onclick="showScreen('search')"><b>🔍</b><span>بحث سريع<small>عميل أو قرض</small></span></button><button class="command-action" onclick="showScreen('risk')"><b>⚠️</b><span>مراجعة المخاطر<small>المتأخرات الحالية</small></span></button><button class="command-action" onclick="showScreen('import')"><b>📥</b><span>تحديث البيانات<small>رفع ملف Excel</small></span></button></div>
 </div>
 <div class="pro-kpis">
   <div class="pro-kpi"><span>👥 العملاء / القروض</span><b id="n">0</b><small>إجمالي السجلات المجمعة</small></div>
@@ -16998,7 +16998,7 @@ body.group-lead-mode #groupLeadScopeBar{display:none!important;visibility:hidden
 (function(){
  const TABLE="app_shared_ui_preferences", PREF_KEY="desktop_screen_order", SIDEBAR_ID="desktopScreenSidebar";
  const GROUPS=[
-  {id:"all",title:"",screens:["dash","dailyOperations","clients","collection","search","risk","dueInstallments","installmentCalculator","paymentFollowup","portfolio","issuedLoans","dropoutClients","dropoutTracker","print","specialists","users","audit","import","uploadTool","operatingDocuments","iskorCodes","location","groupLeadFollowup","settings"]}
+  {id:"all",title:"",screens:["dash","dailyOperations","clients","collection","search","risk","dueInstallments","seasonalInstallments","installmentCalculator","paymentFollowup","portfolio","issuedLoans","dropoutClients","dropoutTracker","print","specialists","users","audit","import","uploadTool","operatingDocuments","iskorCodes","location","groupLeadFollowup","settings"]}
  ];
  const $=id=>document.getElementById(id), root=()=>$(SIDEBAR_ID), sourceNav=()=>document.querySelector('.layout>nav[aria-label="التنقل الرئيسي"]');
  let sourceById=new Map(), defaultOrder=[], savedOrder=[], editOrder=[], editing=false, dragging=null, loading=false, syncStarted=false;
@@ -17910,20 +17910,12 @@ window.__seasonalFinalHotfixV5=true;
 #dropoutTracker a.dtt-phone-call:focus-visible{outline:3px solid #60a5fa;outline-offset:2px}
 @media print{#dropoutTracker a.dtt-phone-call{min-height:0;padding:0;color:#000!important;text-decoration:none}}
 </style>
-<style id="seasonal-sidebar-shortcut-style">
-@media screen and (min-width:801px){#desktopScreenSidebar .seasonal-desktop-shortcut{display:flex!important;align-items:center;gap:10px;min-height:48px;margin:5px 0 10px;padding:10px 12px;border:1px solid #34d399;border-radius:11px;background:#124e36;color:#fff;text-decoration:none;font:800 14px/1.4 Arial,Tahoma,sans-serif;cursor:pointer}#desktopScreenSidebar .seasonal-desktop-shortcut:hover{background:#0f6846;color:#fff}#desktopScreenSidebar .seasonal-desktop-shortcut .seasonal-shortcut-icon{font-size:19px}#desktopScreenSidebar .seasonal-desktop-shortcut .seasonal-shortcut-label{display:block;color:#fff!important}}
-</style>
+
 <style id="desktop-single-sidebar-no-duplicate">
 @media screen and (min-width:801px){#app .layout>nav[aria-label="التنقل الرئيسي"]{display:none!important;visibility:hidden!important}#desktopScreenSidebar{display:flex!important;visibility:visible!important}}
 </style>
 
-<script id="seasonal-sidebar-shortcut-after-render-v2">
-(function(){
- function add(){var side=document.getElementById('desktopScreenSidebar'),host=side&&side.querySelector('#dssGroups .dss-group-items');if(!side||!host)return false;if(side.querySelector('.seasonal-desktop-shortcut'))return true;var a=document.createElement('a');a.href='#seasonalInstallments';a.className='dss-item seasonal-desktop-shortcut';a.dataset.screen='seasonalInstallments';a.setAttribute('role','link');a.setAttribute('aria-label','فتح شاشة الأقساط الموسمية');a.innerHTML='<span class="dss-grip" aria-hidden="true"></span><span class="dss-icon" aria-hidden="true">🌾</span><span class="dss-label">الأقساط الموسمية</span>';a.addEventListener('click',function(e){e.preventDefault();e.stopPropagation();if(typeof window.showScreen==='function')window.showScreen('seasonalInstallments');else if(typeof window.openSeasonalDueClone==='function')window.openSeasonalDueClone();});host.insertBefore(a,host.firstChild);return true;}
- function start(){var tries=0,t=setInterval(function(){tries++;if(add()||tries>=60)clearInterval(t)},250);add();}
- if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();window.__seasonalShortcutAfterRenderV2=true;
-})();
-</script>
+
 <script id="seasonal-route-to-independent-screen-v2">
 (function(){
  const DUE_TITLE='📅 الأقساط المستحقة';
