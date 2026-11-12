@@ -17893,49 +17893,6 @@ window.__seasonalFinalHotfixV5=true;
 })();
 </script>
 
-<script id="seasonal-dates-entry-final-v2">
-(function(){
- function setDefaults(){if(!window.__seasonalDueMode)return;const f=document.getElementById("dueFrom"),t=document.getElementById("dueTo");if(!f||!t)return;const now=new Date(),last=new Date(now.getFullYear(),now.getMonth()+1,0).getDate();if(!f.value)f.value="2023/1/1";if(!t.value)t.value=now.getFullYear()+"/"+(now.getMonth()+1)+"/"+last;}
- document.addEventListener("click",function(e){if(e.target.closest('a[data-screen="seasonalInstallments"]')){setTimeout(setDefaults,0);setTimeout(setDefaults,150);setTimeout(setDefaults,500);}},true);
- const prev=window.openSeasonalDueClone;if(typeof prev==="function")window.openSeasonalDueClone=function(){const r=prev.apply(this,arguments);setDefaults();setTimeout(setDefaults,100);setTimeout(setDefaults,400);return r;};
- window.__seasonalDatesEntryFinalV2=true;
-})();
-</script>
-
-<script id="seasonal-date-force-on-open-v3">
-(function(){
- function apply(){if(!window.__seasonalDueMode)return;const f=document.getElementById("dueFrom"),t=document.getElementById("dueTo");if(!f||!t)return;const d=new Date(),last=new Date(d.getFullYear(),d.getMonth()+1,0).getDate();f.value="2023/1/1";t.value=d.getFullYear()+"/"+(d.getMonth()+1)+"/"+last;}
- const old=window.openSeasonalDueClone;if(typeof old==="function")window.openSeasonalDueClone=function(){const r=old.apply(this,arguments);apply();if(typeof window.renderDueInstallments==="function")window.renderDueInstallments();setTimeout(function(){apply();if(typeof window.renderDueInstallments==="function")window.renderDueInstallments()},120);setTimeout(apply,500);return r};
- document.addEventListener("click",function(e){if(e.target.closest('a[data-screen="seasonalInstallments"]')){setTimeout(apply,20);setTimeout(apply,200);setTimeout(apply,600)}},true);
- window.__seasonalDateForceOnOpenV3=true;
-})();
-</script>
-<style id="seasonal-desktop-direct-display-v2">
-@media screen and (min-width:801px){body.seasonal-due-active #app .layout{display:flex!important;min-height:calc(100vh - 68px)!important;height:auto!important;overflow:visible!important}body.seasonal-due-active #app .layout>nav{display:flex!important;flex:0 0 250px!important;width:250px!important}body.seasonal-due-active #app .layout>main{display:block!important;flex:1 1 auto!important;width:auto!important;min-width:0!important;height:auto!important;max-height:none!important;min-height:calc(100vh - 80px)!important;overflow:visible!important}body.seasonal-due-active #dueInstallments.screen.active{display:block!important;visibility:visible!important;opacity:1!important;position:relative!important}}
-</style>
-<script id="seasonal-desktop-direct-navigation-v2">
-(function(){
- function openDirect(){
-  if(typeof window.enforceSession==='function'&&!window.enforceSession())return false;
-  window.__seasonalDueMode=true;document.body.classList.add('seasonal-due-active');
-  const screens=document.querySelectorAll('#app .screen');screens.forEach(s=>{s.classList.remove('active');s.setAttribute('aria-hidden','true');s.style.removeProperty('display');});
-  const section=document.getElementById('dueInstallments'),main=document.querySelector('#app .layout>main');
-  if(section){section.classList.add('active');section.setAttribute('aria-hidden','false');section.style.setProperty('display','block','important');section.style.setProperty('visibility','visible','important');}
-  if(main){main.style.setProperty('display','block','important');main.style.setProperty('height','auto','important');main.style.setProperty('max-height','none','important');main.style.setProperty('min-height','calc(100vh - 80px)','important');main.style.setProperty('overflow','visible','important');}
-  const title=section&&section.querySelector('h2');if(title)title.textContent='🌾 الأقساط الموسمية';
-  document.querySelectorAll('nav a[data-screen]').forEach(a=>a.classList.toggle('active',a.dataset.screen==='seasonalInstallments'));
-  history.replaceState(null,'','#seasonalInstallments');
-  if(typeof window.ensureSeasonalProductControl==='function')window.ensureSeasonalProductControl();
-  if(typeof window.renderDueInstallments==='function')window.renderDueInstallments();
-  return false;
- }
- window.openSeasonalDueClone=openDirect;
- document.addEventListener('click',function(e){const a=e.target.closest('nav a[data-screen="seasonalInstallments"]');if(!a)return;e.preventDefault();e.stopImmediatePropagation();openDirect()},true);
- window.__seasonalDesktopDirectNavigationV2=true;
-})();
-</script>
-
-
 <style id="dtt-tracker-call-link-css">
 #dropoutTracker a.dtt-phone-call{position:relative;z-index:2;display:inline-flex;align-items:center;min-height:38px;padding:4px 8px;border-radius:7px;color:#1769aa!important;font-weight:900;text-decoration:underline;text-underline-offset:2px;direction:ltr;white-space:nowrap;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:rgba(23,105,170,.18)}
 #dropoutTracker a.dtt-phone-call:focus-visible{outline:3px solid #60a5fa;outline-offset:2px}
@@ -17955,13 +17912,23 @@ window.__seasonalFinalHotfixV5=true;
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();window.__seasonalShortcutAfterRenderV2=true;
 })();
 </script>
-<script id="seasonal-route-to-independent-screen-v1">
+<script id="seasonal-route-to-independent-screen-v2">
 (function(){
- window.openSeasonalDueClone=function(){
-  window.__seasonalDueMode=false;document.body.classList.remove('seasonal-due-active');
-  if(typeof window.showScreen==='function')window.showScreen('seasonalInstallments');
-  else{document.querySelectorAll('.screen').forEach(function(x){x.classList.remove('active');x.setAttribute('aria-hidden','true')});var target=document.getElementById('seasonalInstallments');if(target){target.classList.add('active');target.setAttribute('aria-hidden','false');if(typeof window.renderSeasonal==='function')window.renderSeasonal()}}
- };
+ const DUE_TITLE='📅 الأقساط المستحقة';
+ function clearLegacy(){
+  const body=document.body,wasLegacy=!!(window.__seasonalDueMode||body.classList.contains('seasonal-due-active')||document.getElementById('seasonalDueProductBox')||document.getElementById('seasonalDueProduct')||/الأقساط الموسمية/.test(document.querySelector('#dueInstallments h2')?.textContent||''));
+  window.__seasonalDueMode=false;body.classList.remove('seasonal-due-active');
+  const due=document.getElementById('dueInstallments'),title=due?.querySelector('h2');
+  if(title&&/الأقساط الموسمية/.test(title.textContent))title.textContent=DUE_TITLE;
+  document.getElementById('seasonalDueProductBox')?.remove();
+  const oldInput=document.getElementById('seasonalDueProduct');if(oldInput)oldInput.closest('.seasonal-due-product-box,.seasonal-product-control')?.remove();
+  if(wasLegacy){const main=document.querySelector('#app .layout>main');if(main)['height','max-height','min-height','overflow','overflow-x','overflow-y','display'].forEach(k=>main.style.removeProperty(k));if(due)['height','max-height','min-height','overflow','overflow-x','overflow-y','display','visibility','position'].forEach(k=>due.style.removeProperty(k));}
+ }
+ const oldShow=window.showScreen;
+ if(typeof oldShow==='function'&&!oldShow.__seasonalRouteV2){
+  const wrapped=function(id){clearLegacy();return oldShow.apply(this,arguments)};wrapped.__seasonalRouteV2=true;window.showScreen=wrapped;
+ }
+ window.openSeasonalDueClone=function(){clearLegacy();return window.showScreen('seasonalInstallments')};
  window.__seasonalUsesIndependentScreen=true;
 })();
 </script>
