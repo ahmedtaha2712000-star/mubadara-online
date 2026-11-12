@@ -16986,7 +16986,7 @@ body.group-lead-mode #groupLeadScopeBar{display:none!important;visibility:hidden
 (function(){
  const TABLE="app_shared_ui_preferences", PREF_KEY="desktop_screen_order", SIDEBAR_ID="desktopScreenSidebar";
  const GROUPS=[
-  {id:"all",title:"",screens:["dash","dailyOperations","clients","collection","search","risk","dueInstallments","installmentCalculator","paymentFollowup","portfolio","issuedLoans","dropoutClients","dropoutTracker","print","specialists","users","audit","import","uploadTool","operatingDocuments","iskorCodes","location","groupLeadFollowup","settings"]}
+  {id:"all",title:"",screens:["dash","dailyOperations","clients","collection","search","risk","dueInstallments","seasonalInstallments","installmentCalculator","paymentFollowup","portfolio","issuedLoans","dropoutClients","dropoutTracker","print","specialists","users","audit","import","uploadTool","operatingDocuments","iskorCodes","location","groupLeadFollowup","settings"]}
  ];
  const $=id=>document.getElementById(id), root=()=>$(SIDEBAR_ID), sourceNav=()=>document.querySelector('.layout>nav[aria-label="التنقل الرئيسي"]');
  let sourceById=new Map(), defaultOrder=[], savedOrder=[], editOrder=[], editing=false, dragging=null, loading=false, syncStarted=false;
@@ -17941,37 +17941,14 @@ window.__seasonalFinalHotfixV5=true;
 #dropoutTracker a.dtt-phone-call:focus-visible{outline:3px solid #60a5fa;outline-offset:2px}
 @media print{#dropoutTracker a.dtt-phone-call{min-height:0;padding:0;color:#000!important;text-decoration:none}}
 </style>
-<style id="seasonal-nav-visible-desktop-only">
-@media screen and (min-width:801px){#app .layout>nav a[data-screen="seasonalInstallments"]{display:flex!important;visibility:visible!important;opacity:1!important;position:relative!important;order:-9999!important;width:100%!important;min-height:48px!important;background:#124e36!important;color:#fff!important;border:2px solid #34d399!important;z-index:1002!important}#app .layout>nav a[data-screen="seasonalInstallments"] .nav-label,#app .layout>nav a[data-screen="seasonalInstallments"] small{display:block!important;visibility:visible!important;color:#fff!important}#app .layout>nav{overflow-y:auto!important;max-height:calc(100vh - 75px)!important;scrollbar-width:thin!important}}
+
+<style id="seasonal-nav-lean-desktop-fix">
+@media screen and (min-width:801px){#app .layout>nav{display:flex!important;flex-direction:column!important;max-height:calc(100vh - 76px)!important;overflow-y:auto!important;overflow-x:hidden!important}#app .layout>nav>a[data-screen="seasonalInstallments"]{display:flex!important;visibility:visible!important;opacity:1!important;order:-10000!important;position:sticky!important;top:0!important;flex:0 0 auto!important;min-height:50px!important;background:#124e36!important;color:#fff!important;border:2px solid #34d399!important;z-index:1005!important}#app .layout>nav>a[data-screen="seasonalInstallments"] .nav-label,#app .layout>nav>a[data-screen="seasonalInstallments"] small{display:block!important;visibility:visible!important;color:#fff!important}}
 </style>
-<script id="seasonal-nav-pin-desktop">
-(function(){
- function pin(){const nav=document.querySelector('#app .layout>nav');if(!nav)return;let link=nav.querySelector('a[data-screen="seasonalInstallments"]');if(!link){link=document.createElement('a');link.href='#seasonalInstallments';link.dataset.screen='seasonalInstallments';link.innerHTML='<span class="nav-icon" aria-hidden="true">🌾</span><span class="nav-label">الأقساط الموسمية</span><small>المنتجات الموسمية</small>';nav.insertBefore(link,nav.firstElementChild);link.addEventListener('click',function(e){e.preventDefault();if(typeof window.openSeasonalDueClone==='function')window.openSeasonalDueClone()})}const title=nav.querySelector('.nav-title');if(title&&link.nextElementSibling!==title.nextElementSibling)title.insertAdjacentElement('afterend',link);else if(!title&&nav.firstElementChild!==link)nav.insertBefore(link,nav.firstElementChild);link.style.setProperty('display','flex','important');link.style.setProperty('visibility','visible','important');link.style.setProperty('opacity','1','important');}
- if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',pin);else pin();
- new MutationObserver(pin).observe(document.documentElement,{childList:true,subtree:true});
- window.__seasonalNavPinnedDesktop=true;
-})();
+<script id="seasonal-nav-init-once">
+(function(){function showSeasonalLink(){var a=document.querySelector('#app .layout>nav a[data-screen="seasonalInstallments"]');if(a){a.classList.remove('hidden');a.removeAttribute('hidden');a.style.setProperty('display','flex','important');a.style.setProperty('visibility','visible','important');}}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',showSeasonalLink,{once:true});else showSeasonalLink();window.__seasonalNavInitOnce=true;})();
 </script>
 
-<style id="seasonal-nav-unclipped-first-desktop">
-@media screen and (min-width:801px){
- #app .layout>nav{display:flex!important;flex-direction:column!important;visibility:visible!important;overflow-x:hidden!important;overflow-y:auto!important;height:auto!important;max-height:calc(100vh - 76px)!important;min-height:0!important;align-self:flex-start!important;scrollbar-width:thin!important}
- #app .layout>nav>a[data-screen="seasonalInstallments"]{display:flex!important;visibility:visible!important;opacity:1!important;order:-10000!important;position:sticky!important;top:0!important;flex:0 0 auto!important;width:100%!important;min-height:50px!important;margin:0 0 8px!important;background:#124e36!important;color:#fff!important;border:2px solid #34d399!important;z-index:1005!important}
- #app .layout>nav>a[data-screen="seasonalInstallments"] *{display:block!important;visibility:visible!important;color:#fff!important}
-}
-</style>
-<script id="seasonal-nav-force-first-and-allowed">
-(function(){
- function ensure(){
-  const nav=document.querySelector('#app .layout>nav')||document.querySelector('#app nav');if(!nav)return;
-  let a=nav.querySelector('a[data-screen="seasonalInstallments"]');
-  if(!a){a=document.createElement('a');a.href='#seasonalInstallments';a.dataset.screen='seasonalInstallments';a.innerHTML='<span class="nav-icon" aria-hidden="true">🌾</span><span class="nav-label">الأقساط الموسمية</span><small>المنتجات الموسمية</small>';}
-  a.classList.remove('hidden');a.removeAttribute('hidden');a.setAttribute('aria-label','فتح شاشة الأقساط الموسمية');a.style.setProperty('display','flex','important');a.style.setProperty('visibility','visible','important');a.style.setProperty('opacity','1','important');
-  const first=nav.querySelector('a');if(first!==a)nav.insertBefore(a,first||nav.firstElementChild);
- }
- document.addEventListener('click',function(e){const a=e.target.closest('#app nav a[data-screen="seasonalInstallments"]');if(!a)return;e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();if(typeof window.openSeasonalDueClone==='function')window.openSeasonalDueClone();},true);
- if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ensure);else ensure();
- new MutationObserver(ensure).observe(document.documentElement,{childList:true,subtree:true,attributes:true,attributeFilter:['class','hidden','style']});
- window.__seasonalNavForceFirstAndAllowed=true;
-})();
+<script id="seasonal-sidebar-item-one-shot-v2">
+(function(){function update(){var source=document.querySelector('.layout>nav[aria-label="التنقل الرئيسي"] a[data-screen="seasonalInstallments"]');var item=document.querySelector('#desktopScreenSidebar .dss-item[data-screen="seasonalInstallments"]');if(item){item.classList.remove('hidden');item.removeAttribute('hidden');item.style.setProperty('display','flex','important');item.style.setProperty('visibility','visible','important');}if(source&&item){var label=item.querySelector('.dss-label');if(label)label.textContent=source.querySelector('.nav-label')?.textContent||'الأقساط الموسمية';}}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',update,{once:true});else update();window.__seasonalSidebarItemOneShotV2=true})();
 </script>
