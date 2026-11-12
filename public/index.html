@@ -17941,3 +17941,25 @@ window.__seasonalFinalHotfixV5=true;
 #dropoutTracker a.dtt-phone-call:focus-visible{outline:3px solid #60a5fa;outline-offset:2px}
 @media print{#dropoutTracker a.dtt-phone-call{min-height:0;padding:0;color:#000!important;text-decoration:none}}
 </style>
+<style id="seasonal-nav-visible-desktop-only">
+@media screen and (min-width:801px){#app .layout>nav a[data-screen="seasonalInstallments"]{display:flex!important;visibility:visible!important;opacity:1!important;position:relative!important;order:-9999!important;width:100%!important;min-height:48px!important;background:#124e36!important;color:#fff!important;border:2px solid #34d399!important;z-index:1002!important}#app .layout>nav a[data-screen="seasonalInstallments"] .nav-label,#app .layout>nav a[data-screen="seasonalInstallments"] small{display:block!important;visibility:visible!important;color:#fff!important}#app .layout>nav{overflow-y:auto!important;max-height:calc(100vh - 75px)!important;scrollbar-width:thin!important}}
+</style>
+<script id="seasonal-nav-pin-desktop">
+(function(){
+ function pin(){const nav=document.querySelector('#app .layout>nav');if(!nav)return;let link=nav.querySelector('a[data-screen="seasonalInstallments"]');if(!link){link=document.createElement('a');link.href='#seasonalInstallments';link.dataset.screen='seasonalInstallments';link.innerHTML='<span class="nav-icon" aria-hidden="true">🌾</span><span class="nav-label">الأقساط الموسمية</span><small>المنتجات الموسمية</small>';nav.insertBefore(link,nav.firstElementChild);link.addEventListener('click',function(e){e.preventDefault();if(typeof window.openSeasonalDueClone==='function')window.openSeasonalDueClone()})}const title=nav.querySelector('.nav-title');if(title&&link.nextElementSibling!==title.nextElementSibling)title.insertAdjacentElement('afterend',link);else if(!title&&nav.firstElementChild!==link)nav.insertBefore(link,nav.firstElementChild);link.style.setProperty('display','flex','important');link.style.setProperty('visibility','visible','important');link.style.setProperty('opacity','1','important');}
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',pin);else pin();
+ new MutationObserver(pin).observe(document.documentElement,{childList:true,subtree:true});
+ window.__seasonalNavPinnedDesktop=true;
+})();
+</script>
+
+<style id="dtt-tracker-table-numbers-slightly-smaller">
+/* أرقام جدول لون تراكر فقط: الرقم التسلسلي، الهاتف، التواريخ والمبالغ */
+#dropoutTracker .dtt-table tbody td:nth-child(1),
+#dropoutTracker .dtt-table tbody td:nth-child(4),
+#dropoutTracker .dtt-table tbody td:nth-child(5),
+#dropoutTracker .dtt-table tbody td:nth-child(6),
+#dropoutTracker .dtt-table tbody td:nth-child(7){font-size:13px!important}
+#dropoutTracker .dtt-table tbody td:nth-child(4) .dtt-phone,
+#dropoutTracker .dtt-table tbody td:nth-child(4) .dtt-phone-call{font-size:14px!important}
+</style>
