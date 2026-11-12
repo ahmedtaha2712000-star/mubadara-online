@@ -17944,24 +17944,14 @@ window.__seasonalFinalHotfixV5=true;
 <style id="seasonal-sidebar-shortcut-style">
 @media screen and (min-width:801px){#desktopScreenSidebar .seasonal-desktop-shortcut{display:flex!important;align-items:center;gap:10px;min-height:48px;margin:5px 0 10px;padding:10px 12px;border:1px solid #34d399;border-radius:11px;background:#124e36;color:#fff;text-decoration:none;font:800 14px/1.4 Arial,Tahoma,sans-serif;cursor:pointer}#desktopScreenSidebar .seasonal-desktop-shortcut:hover{background:#0f6846;color:#fff}#desktopScreenSidebar .seasonal-desktop-shortcut .seasonal-shortcut-icon{font-size:19px}#desktopScreenSidebar .seasonal-desktop-shortcut .seasonal-shortcut-label{display:block;color:#fff!important}}
 </style>
-<script id="seasonal-sidebar-shortcut-isolated-v1">
-(function(){
- function addShortcut(){
-  var sidebar=document.getElementById('desktopScreenSidebar');
-  var host=sidebar&&sidebar.querySelector('#dssGroups .dss-group-items');
-  if(!host||sidebar.querySelector('.seasonal-desktop-shortcut'))return false;
-  var link=document.createElement('a');link.href='#seasonalInstallments';link.className='seasonal-desktop-shortcut';link.setAttribute('role','link');link.setAttribute('aria-label','فتح شاشة الأقساط الموسمية');
-  link.innerHTML='<span class="seasonal-shortcut-icon" aria-hidden="true">🌾</span><span class="seasonal-shortcut-label">الأقساط الموسمية</span>';
-  link.addEventListener('click',function(e){e.preventDefault();if(typeof window.openSeasonalDueClone==='function')window.openSeasonalDueClone();});
-  host.insertBefore(link,host.firstChild);return true;
- }
- function init(){if(!addShortcut())setTimeout(addShortcut,350);}
- if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
- window.__seasonalSidebarShortcutIsolatedV1=true;
-})();
-</script>
-
-
 <style id="desktop-single-sidebar-no-duplicate">
 @media screen and (min-width:801px){#app .layout>nav[aria-label="التنقل الرئيسي"]{display:none!important;visibility:hidden!important}#desktopScreenSidebar{display:flex!important;visibility:visible!important}}
 </style>
+
+<script id="seasonal-sidebar-shortcut-after-render-v2">
+(function(){
+ function add(){var side=document.getElementById('desktopScreenSidebar'),host=side&&side.querySelector('#dssGroups .dss-group-items');if(!side||!host)return false;if(side.querySelector('.seasonal-desktop-shortcut'))return true;var a=document.createElement('a');a.href='#seasonalInstallments';a.className='dss-item seasonal-desktop-shortcut';a.dataset.screen='seasonalInstallments';a.setAttribute('role','link');a.setAttribute('aria-label','فتح شاشة الأقساط الموسمية');a.innerHTML='<span class="dss-grip" aria-hidden="true"></span><span class="dss-icon" aria-hidden="true">🌾</span><span class="dss-label">الأقساط الموسمية</span>';a.addEventListener('click',function(e){e.preventDefault();e.stopPropagation();if(typeof window.showScreen==='function')window.showScreen('seasonalInstallments');else if(typeof window.openSeasonalDueClone==='function')window.openSeasonalDueClone();});host.insertBefore(a,host.firstChild);return true;}
+ function start(){var tries=0,t=setInterval(function(){tries++;if(add()||tries>=60)clearInterval(t)},250);add();}
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();window.__seasonalShortcutAfterRenderV2=true;
+})();
+</script>
