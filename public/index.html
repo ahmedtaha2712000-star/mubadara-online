@@ -17851,3 +17851,44 @@ window.__seasonalFinalHotfixV5=true;
 })();
 </script>
 
+<script id="seasonal-print-title-only-fix">
+(function(){
+  const originalBuild=window.buildDuePrintLayer;
+  if(typeof originalBuild==='function'){
+    window.buildDuePrintLayer=function(){
+      const layer=originalBuild.apply(this,arguments);
+      if(!layer||!window.__seasonalDueMode)return layer;
+      layer.querySelectorAll('.due-print-title,h1,h2,[class*="title"],[class*="heading"]').forEach(function(node){
+        if(!node.textContent)return;
+        node.textContent=node.textContent
+          .replace(/الأقساط المستحقة للأخصائيين/g,'الأقساط الموسمية المستحقة للأخصائيين')
+          .replace(/الأقساط المستحقة للأخصائي(?=[:：])/g,'الأقساط الموسمية المستحقة للأخصائي');
+      });
+      return layer;
+    };
+  }
+  const originalName=window.dueExportFileName;
+  if(typeof originalName==='function'){
+    window.dueExportFileName=function(extension){
+      const name=originalName.apply(this,arguments);
+      return window.__seasonalDueMode?name.replace(/الأقساط_المستحقة/g,'الأقساط_الموسمية_المستحقة'):name;
+    };
+  }
+  window.__seasonalPrintTitleOnlyFix=true;
+})();
+</script>
+<script id="seasonal-default-dates-only-fix">
+(function(){
+  const previousOpen=window.openSeasonalDueClone;
+  if(typeof previousOpen==='function')window.openSeasonalDueClone=function(){
+    const result=previousOpen.apply(this,arguments);
+    const from=document.getElementById('dueFrom'),to=document.getElementById('dueTo');
+    const now=new Date(),lastDay=new Date(now.getFullYear(),now.getMonth()+1,0).getDate();
+    if(from&&!from.value)from.value='2023/1/1';
+    if(to&&!to.value)to.value=now.getFullYear()+'/'+(now.getMonth()+1)+'/'+lastDay;
+    if(typeof window.renderDueInstallments==='function')window.renderDueInstallments();
+    return result;
+  };
+  window.__seasonalDefaultDatesOnlyFix=true;
+})();
+</script>
