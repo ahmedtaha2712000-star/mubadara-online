@@ -17910,16 +17910,28 @@ window.__seasonalFinalHotfixV5=true;
  window.__seasonalDateForceOnOpenV3=true;
 })();
 </script>
-<style id="dropout-phone-tap-target">
-#dropoutClients .dropout-phone-link{position:relative;z-index:2;display:inline-flex;align-items:center;min-height:38px;padding:4px 8px;border-radius:7px;color:#1769aa!important;font-weight:900;text-decoration:underline;text-underline-offset:2px;direction:ltr;white-space:nowrap;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:rgba(23,105,170,.18)}
-#dropoutClients .dropout-phone-link:focus-visible{outline:3px solid #60a5fa;outline-offset:2px}
-@media print{#dropoutClients .dropout-phone-link{min-height:0;padding:0;color:#000!important;text-decoration:none}}
+<style id="seasonal-desktop-direct-display-v2">
+@media screen and (min-width:801px){body.seasonal-due-active #app .layout{display:flex!important;min-height:calc(100vh - 68px)!important;height:auto!important;overflow:visible!important}body.seasonal-due-active #app .layout>nav{display:flex!important;flex:0 0 250px!important;width:250px!important}body.seasonal-due-active #app .layout>main{display:block!important;flex:1 1 auto!important;width:auto!important;min-width:0!important;height:auto!important;max-height:none!important;min-height:calc(100vh - 80px)!important;overflow:visible!important}body.seasonal-due-active #dueInstallments.screen.active{display:block!important;visibility:visible!important;opacity:1!important;position:relative!important}}
 </style>
-<script id="dropout-phone-click-final">
+<script id="seasonal-desktop-direct-navigation-v2">
 (function(){
- const root=document.getElementById('dropoutClients');if(!root)return;
- root.addEventListener('click',function(e){const link=e.target.closest('a.dropout-phone-link[href^="tel:"]');if(!link)return;e.stopPropagation();},true);
- window.__dropoutPhoneClickFinal=true;
+ function openDirect(){
+  if(typeof window.enforceSession==='function'&&!window.enforceSession())return false;
+  window.__seasonalDueMode=true;document.body.classList.add('seasonal-due-active');
+  const screens=document.querySelectorAll('#app .screen');screens.forEach(s=>{s.classList.remove('active');s.setAttribute('aria-hidden','true');s.style.removeProperty('display');});
+  const section=document.getElementById('dueInstallments'),main=document.querySelector('#app .layout>main');
+  if(section){section.classList.add('active');section.setAttribute('aria-hidden','false');section.style.setProperty('display','block','important');section.style.setProperty('visibility','visible','important');}
+  if(main){main.style.setProperty('display','block','important');main.style.setProperty('height','auto','important');main.style.setProperty('max-height','none','important');main.style.setProperty('min-height','calc(100vh - 80px)','important');main.style.setProperty('overflow','visible','important');}
+  const title=section&&section.querySelector('h2');if(title)title.textContent='🌾 الأقساط الموسمية';
+  document.querySelectorAll('nav a[data-screen]').forEach(a=>a.classList.toggle('active',a.dataset.screen==='seasonalInstallments'));
+  history.replaceState(null,'','#seasonalInstallments');
+  if(typeof window.ensureSeasonalProductControl==='function')window.ensureSeasonalProductControl();
+  if(typeof window.renderDueInstallments==='function')window.renderDueInstallments();
+  return false;
+ }
+ window.openSeasonalDueClone=openDirect;
+ document.addEventListener('click',function(e){const a=e.target.closest('nav a[data-screen="seasonalInstallments"]');if(!a)return;e.preventDefault();e.stopImmediatePropagation();openDirect()},true);
+ window.__seasonalDesktopDirectNavigationV2=true;
 })();
 </script>
 
