@@ -17834,4 +17834,20 @@ if(typeof oldEnsure==='function')window.ensureSeasonalProductControl=function(){
 window.__seasonalFinalBehaviorV4=true;
 })();
 </script>
+<script id="seasonal-final-hotfix-v5">
+(function(){
+const KEY='seasonal-manual-products-v4', ALL='جميع الأقساط الموسمية';
+const N=v=>String(v==null?'':v).trim().toLocaleLowerCase('ar-EG').replace(/[أإآ]/g,'ا').replace(/[٠-٩]/g,c=>'٠١٢٣٤٥٦٧٨٩'.indexOf(c)).replace(/[۰-۹]/g,c=>'۰۱۲۳۴۵۶۷۸۹'.indexOf(c)).replace(/[\u200f\u200e\u00a0]/g,' ').replace(/\s+/g,' ');
+const load=()=>{try{return JSON.parse(localStorage.getItem(KEY)||'{}')||{}}catch(e){return {}}};
+function products(){let m=new Map(),src=typeof groups!=='undefined'&&Array.isArray(groups)?groups:(Array.isArray(window.groups)?window.groups:[]);src.forEach(g=>(g.items||[g.r]).filter(Boolean).forEach(r=>{let p='';try{p=String(get(r,'product')||getAny(r,['اسم المنتج','نوع المنتج','المنتج','نوع التمويل'])||'').trim()}catch(e){}if(p&&!m.has(N(p)))m.set(N(p),p)}));return m}
+function fill(){let input=document.getElementById('seasonalDueProduct'),list=document.getElementById('seasonalDueProductList');if(!input||!list)return;let p=products(),cfg=load(),old=input.value,options=[];options.push('<option value="'+ALL+'"></option>');p.forEach((name,k)=>{if(cfg[k]&&name.includes('موسمي'))options.push('<option value="'+name.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))+'"></option>')});list.innerHTML=options.join('');if(old!==ALL&&old&&!Array.from(p.values()).some(x=>x===old&&cfg[N(x)]&&x.includes('موسمي')))input.value=''}
+window.seasonalDueProductAllowed=function(r){let name='';try{name=String(get(r,'product')||getAny(r,['اسم المنتج','نوع المنتج','المنتج','نوع التمويل'])||'').trim()}catch(e){}if(!name||!name.includes('موسمي')||!load()[N(name)])return false;let v=document.getElementById('seasonalDueProduct')?.value||'';return !v||v===ALL||N(name)===N(v)};
+const prevRender=window.renderDueInstallments;if(typeof prevRender==='function')window.renderDueInstallments=function(){let out=prevRender.apply(this,arguments);if(window.__seasonalDueMode)fill();return out};
+const prevOpen=window.openSeasonalDueClone;window.openSeasonalDueClone=function(){document.body.classList.add('seasonal-due-active');window.__seasonalDueMode=true;if(typeof window.showScreen==='function')window.showScreen('dueInstallments');let section=document.getElementById('dueInstallments');if(section)section.classList.add('active');let main=document.querySelector('#app .layout>main');if(main){main.style.setProperty('display','block','important');main.style.setProperty('height','auto','important');main.style.setProperty('max-height','none','important');main.style.setProperty('overflow','visible','important');main.style.setProperty('min-height','calc(100vh - 90px)','important')}let title=section?.querySelector('h2');if(title)title.textContent='🌾 الأقساط الموسمية';document.querySelectorAll('nav a[data-screen]').forEach(a=>a.classList.toggle('active',a.dataset.screen==='seasonalInstallments'));fill();if(typeof window.renderDueInstallments==='function')window.renderDueInstallments();return false};
+function handle(ev){if(ev.target?.id!=='seasonalDueProduct')return;if(ev.target.value===ALL){ev.stopImmediatePropagation();ev.preventDefault();if(window.__seasonalDueMode&&typeof window.renderDueInstallments==='function')window.renderDueInstallments();return}if(window.__seasonalDueMode&&typeof window.renderDueInstallments==='function'&&ev.eventPhase===1)window.renderDueInstallments()}
+document.addEventListener('input',handle,true);document.addEventListener('change',handle,true);
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',fill);else fill();
+window.__seasonalFinalHotfixV5=true;
+})();
+</script>
 
