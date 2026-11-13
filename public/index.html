@@ -18013,3 +18013,71 @@ window.__seasonalFinalHotfixV5=true;
  window.exportSeasonal=function(){if(typeof XLSX==='undefined')return alert('مكتبة Excel غير متاحة.');const table=document.querySelector('#seasonalInstallments table.risk-installments-table');if(!table)return alert('لا يوجد جدول لتصديره.');const header=table.querySelector('tr.due-specialist-screen-header-row'),headers=header?[...header.cells].map(c=>c.innerText.trim()):[...table.querySelectorAll('thead th')].map(c=>c.innerText.trim()),data=[...table.querySelectorAll('tbody tr[data-due-data-row="1"]')].map(r=>[...r.cells].map(c=>c.innerText.trim()));const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet([headers,...data]),'الأقساط الموسمية');XLSX.writeFile(wb,'الأقساط_الموسمية.xlsx')};
 })();
 </script>
+
+<style id="seasonal-print-parity-and-table-typography-v2">
+@media screen {
+  #seasonalInstallments .risk-installments-table th,
+  #seasonalInstallments .risk-installments-table td {
+    font-size: 15px !important;
+    font-weight: 800 !important;
+    color: #000 !important;
+    text-shadow: none !important;
+    -webkit-text-stroke: 0 !important;
+  }
+}
+</style>
+<script id="seasonal-print-parity-v2">
+(function(){
+  const ALL_SPECIALISTS='جميع الأخصائيين';
+  const dueSeasonalPairs=[
+    ['dueFrom','seasonalFrom'],['dueTo','seasonalTo'],
+    ['dueOfficer',null],['dueClient','seasonalClient'],['dueAddress','seasonalAddress'],['dueStatus','seasonalStatus']
+  ];
+  function enterSeasonalReportContext(){
+    const season=document.getElementById('seasonalInstallments');
+    if(!season)return null;
+    try{if(typeof window.renderSeasonal==='function')window.renderSeasonal()}catch(error){console.warn('تعذر تحديث جدول الأقساط الموسمية قبل الطباعة:',error)}
+    const ids=[...new Set(dueSeasonalPairs.map(pair=>pair[0]).concat(['dueTableQuickSearch','dueExcelRowMode','dueSpecificMonth','dueSpecificYear']))];
+    const savedValues=Object.fromEntries(ids.map(id=>[id,document.getElementById(id)?.value]));
+    const savedExcel=document.getElementById('dueExcelRowMode')?.checked;
+    const savedRadios=[...document.querySelectorAll('#dueInstallments input[name="dueSpecialistStatus"]')].map(input=>[input.value,input.checked]);
+    const saved={mode:window.__seasonalDueMode,view:window.dueView,allowed:window.seasonalDueProductAllowed,location:window.__locationHierarchyMatch,state:window.__appSpecialistFilterState};
+    window.__seasonalDueMode=true;
+    dueSeasonalPairs.forEach(([dueId,seasonalId])=>{const due=document.getElementById(dueId);if(due)due.value=seasonalId?(document.getElementById(seasonalId)?.value||''):ALL_SPECIALISTS});
+    const quick=document.getElementById('dueTableQuickSearch');if(quick)quick.value='';
+    const excel=document.getElementById('dueExcelRowMode');if(excel)excel.checked=false;
+    ['dueSpecificMonth','dueSpecificYear'].forEach(id=>{const element=document.getElementById(id);if(element)element.value=''});
+    window.dueView=document.getElementById('seasonalView')?.value||'due';
+    return function restore(){
+      ids.forEach(id=>{const element=document.getElementById(id),value=savedValues[id];if(element&&value!==undefined)element.value=value});
+      if(excel&&savedExcel!==undefined)excel.checked=savedExcel;
+      document.querySelectorAll('#dueInstallments input[name="dueSpecialistStatus"]').forEach(input=>input.checked=!!savedRadios.find(pair=>pair[0]===input.value)?.[1]);
+      window.__seasonalDueMode=saved.mode;window.dueView=saved.view;window.seasonalDueProductAllowed=saved.allowed;window.__locationHierarchyMatch=saved.location;window.__appSpecialistFilterState=saved.state;
+    };
+  }
+  window.printSeasonal=function(event){
+    if(event?.preventDefault)event.preventDefault();
+    const restore=enterSeasonalReportContext();
+    if(!restore){alert('تعذر العثور على شاشة الأقساط الموسمية.');return false}
+    try{return typeof window.printDueReport==='function'?window.printDueReport(event):(alert('وظيفة طباعة الأقساط المستحقة غير متاحة.'),false)}
+    finally{restore()}
+  };
+  window.downloadSeasonalPDF=async function(event){
+    if(event?.preventDefault)event.preventDefault();
+    const restore=enterSeasonalReportContext(),button=document.querySelector('#seasonalInstallments .seasonal-actions .red'),oldText=button?.textContent;
+    if(!restore){alert('تعذر العثور على شاشة الأقساط الموسمية.');return false}
+    try{
+      if(button){button.disabled=true;button.textContent='جاري إنشاء PDF...';button.setAttribute('aria-busy','true')}
+      return typeof window.downloadDuePDF==='function'?await window.downloadDuePDF(event):(alert('وظيفة إنشاء PDF غير متاحة.'),false);
+    }finally{
+      restore();if(button){button.disabled=false;button.textContent=oldText||'📄 PDF';button.removeAttribute('aria-busy')}
+    }
+  };
+  const bindPdfButton=()=>{
+    const button=document.querySelector('#seasonalInstallments .seasonal-actions .red');
+    if(button)button.onclick=function(event){return window.downloadSeasonalPDF(event)};
+  };
+  bindPdfButton();
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bindPdfButton,{once:true});
+})();
+</script>
