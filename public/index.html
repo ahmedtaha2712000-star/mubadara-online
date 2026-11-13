@@ -4063,8 +4063,8 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
   <label>اسم الأخصائي<select id="seasonalOfficer"><option value="">كل الأخصائيين</option></select></label>
   <label>البحث باسم العميل<input id="seasonalClient" type="search" placeholder="اكتب أي حرف من اسم العميل"></label>
   <label>البحث بالعنوان<input id="seasonalAddress" type="search" placeholder="اكتب أي حرف من العنوان أو المنطقة"></label>
-  <label>من تاريخ<input id="seasonalFrom" type="date" aria-label="من تاريخ"></label>
-  <label>إلى تاريخ<input id="seasonalTo" type="date" aria-label="إلى تاريخ"></label>
+  <label>من تاريخ<input id="seasonalFrom" type="text" inputmode="numeric" autocomplete="off" placeholder="yyyy/mm/dd" aria-label="من تاريخ — yyyy/mm/dd"></label>
+  <label>إلى تاريخ<input id="seasonalTo" type="text" inputmode="numeric" autocomplete="off" placeholder="yyyy/mm/dd" aria-label="إلى تاريخ — yyyy/mm/dd"></label>
   <label>بحث سريع داخل الجدول<input id="seasonalQuickSearch" type="search" placeholder="العميل أو الهاتف أو الرقم القومي"></label>
   <button class="light seasonal-clear" type="button" onclick="clearSeasonal()">مسح الفلاتر</button>
 </div><div class="wrap"><table class="seasonal-table"><thead><tr><th>م</th><th>اسم العميل</th><th>الرقم القومي</th><th>اسم المنتج</th><th>رقم القسط</th><th>تاريخ الاستحقاق</th><th>قيمة القسط</th><th>المسدد</th><th>المتبقي</th><th>الهاتف</th><th>العنوان</th></tr></thead><tbody id="seasonalBody"></tbody><tfoot><tr><th colspan="6">إجمالي الصفوف الظاهرة</th><th id="seasonalFootTotal">0</th><th id="seasonalFootPaid">0</th><th id="seasonalFootRemaining">0</th><th colspan="2"></th></tr></tfoot></table></div></section><section id="installmentCalculator" class="card screen no-print installment-calculator-screen" aria-label="حاسبة الأقساط">
@@ -18081,3 +18081,136 @@ window.__seasonalFinalHotfixV5=true;
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bindPdfButton,{once:true});
 })();
 </script>
+
+<style id="seasonal-filter-polish-v1">
+#seasonalInstallments .seasonal-filters{position:relative!important;overflow:visible!important;z-index:2!important}
+#seasonalInstallments .seasonal-filters>label{position:relative!important;min-width:0;z-index:1;overflow:visible!important;color:#000!important;font-family:Arial,Tahoma,sans-serif!important;font-size:15px!important;font-weight:800!important}
+#seasonalInstallments .seasonal-filters>label:focus-within{z-index:1200!important}
+#seasonalInstallments .seasonal-filters input,#seasonalInstallments .seasonal-filters select,#seasonalInstallments .seasonal-filters option{color:#000!important;font-family:Arial,Tahoma,sans-serif!important;font-size:15px!important;font-weight:800!important}
+#seasonalInstallments .seasonal-filters input::placeholder{color:#525252!important;opacity:1;font-family:Arial,Tahoma,sans-serif!important;font-weight:600!important}
+#seasonalInstallments .seasonal-autocomplete{position:relative!important;display:block!important;width:100%;z-index:2}
+#seasonalInstallments .seasonal-autocomplete:focus-within{z-index:1201!important}
+#seasonalInstallments .seasonal-suggest-menu{position:absolute!important;top:calc(100% + 3px)!important;right:0!important;left:0!important;z-index:20000!important;display:none;max-height:min(280px,45vh);overflow:auto;padding:5px;border:1px solid #748397;border-radius:9px;background:#fff;box-shadow:0 12px 28px rgba(15,23,42,.22);direction:rtl;font-family:Arial,Tahoma,sans-serif!important}
+#seasonalInstallments .seasonal-suggest-menu.is-open{display:block!important}
+#seasonalInstallments .seasonal-suggest-option{display:block;width:100%;min-height:37px;margin:0;padding:8px 10px;border:0;border-radius:6px;background:#fff;color:#000;text-align:right;font:800 15px/1.35 Arial,Tahoma,sans-serif;white-space:normal;overflow-wrap:anywhere;cursor:pointer}
+#seasonalInstallments .seasonal-suggest-option:hover,#seasonalInstallments .seasonal-suggest-option:focus{background:#e9f2ff;outline:2px solid #4685c4;outline-offset:-2px}
+#seasonalInstallments .seasonal-suggest-empty{padding:9px;color:#4b5563;font:700 14px Arial,Tahoma,sans-serif;text-align:center}
+#seasonalInstallments .seasonal-date-control{display:flex;align-items:stretch;gap:4px;width:100%;position:relative}
+#seasonalInstallments .seasonal-date-control input[type="text"]{flex:1;min-width:0;direction:ltr;text-align:center;letter-spacing:.2px}
+#seasonalInstallments .seasonal-date-calendar{flex:0 0 40px;width:40px;min-height:40px;padding:4px;border:1px solid #cbd8e2;border-radius:8px;background:#f8fafc;color:#000;font:800 19px Arial,Tahoma,sans-serif}
+#seasonalInstallments .seasonal-date-native{position:absolute!important;width:1px!important;height:1px!important;opacity:0!important;pointer-events:none!important;inset:auto!important;clip-path:inset(50%)!important}
+@media(max-width:600px){#seasonalInstallments .seasonal-suggest-menu{max-height:40vh}#seasonalInstallments .seasonal-suggest-option{min-height:42px}}
+</style>
+<script id="seasonal-filter-polish-v1">
+(function(){
+ const FILTERS=['seasonalProduct','seasonalClient','seasonalAddress','seasonalQuickSearch'];
+ const DATE_IDS=['seasonalFrom','seasonalTo'];
+ const labels={seasonalProduct:'اقتراحات أسماء المنتجات الموسمية',seasonalClient:'اقتراحات أسماء العملاء',seasonalAddress:'اقتراحات العناوين',seasonalQuickSearch:'اقتراحات البحث السريع'};
+ const menus=new Map();let internalRender=false;
+ const norm=value=>String(value??'').trim().toLocaleLowerCase('ar-EG').replace(/[أإآ]/g,'ا').replace(/[٠-٩]/g,c=>'٠١٢٣٤٥٦٧٨٩'.indexOf(c)).replace(/[۰-۹]/g,c=>'۰۱۲۳۴۵۶۷۸۹'.indexOf(c)).replace(/[\u200f\u200e\u00a0]/g,' ').replace(/\s+/g,' ');
+ const digits=value=>String(value??'').replace(/[٠-٩]/g,c=>'٠١٢٣٤٥٦٧٨٩'.indexOf(c)).replace(/[۰-۹]/g,c=>'۰۱۲۳۴۵۶۷۸۹'.indexOf(c));
+ function parseDate(value){
+  const raw=digits(String(value||'').trim());if(!raw)return null;
+  let y,m,d,hit=raw.match(/^(\d{4})[\/.-](\d{1,2})[\/.-](\d{1,2})$/);
+  if(hit){y=+hit[1];m=+hit[2];d=+hit[3]}
+  else{hit=raw.match(/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{4})$/);if(!hit)return null;d=+hit[1];m=+hit[2];y=+hit[3]}
+  const date=new Date(y,m-1,d);if(y<1900||y>2100||m<1||m>12||d<1||date.getFullYear()!==y||date.getMonth()!==m-1||date.getDate()!==d)return null;
+  return {iso:`${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`,display:`${y}/${String(m).padStart(2,'0')}/${String(d).padStart(2,'0')}`};
+ }
+ function prepDates(){
+  const state={};
+  DATE_IDS.forEach(id=>{const el=document.getElementById(id);if(!el)return;const visible=el.value,parsed=parseDate(visible);state[id]={visible,valid:!!parsed};el.value=parsed?parsed.iso:''});
+  return state;
+ }
+ function restoreDates(state){
+  DATE_IDS.forEach(id=>{const el=document.getElementById(id),old=state[id];if(!el||!old)return;const now=parseDate(el.value);if(old.valid)el.value=now?now.display:old.visible;else if(!old.visible&&now)el.value=now.display;else el.value=old.visible});
+ }
+ function refreshOfficerChoices(){
+  const select=document.getElementById('seasonalOfficer'),state=document.getElementById('seasonalSpecialistStatus')?.value||'active';
+  if(!select||typeof window.specialistDirectoryNames!=='function'||typeof window.specialistMatchesState!=='function')return false;
+  const selected=select.value,all=window.specialistDirectoryNames().filter(name=>window.specialistMatchesState(name,state)).map(name=>String(name).trim()).filter(Boolean);
+  const distinct=[...new Map(all.map(name=>[norm(name),name])).values()].sort((a,b)=>a.localeCompare(b,'ar'));
+  select.innerHTML='<option value="">كل الأخصائيين</option>'+distinct.map(name=>'<option value="'+String(name).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))+'">'+name.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]) )+'</option>').join('');
+  const kept=distinct.some(name=>norm(name)===norm(selected));select.value=kept?selected:'';
+  return !!selected&&!kept;
+ }
+ function rowSource(){
+  const rows=[...(document.querySelectorAll('#seasonalInstallments #seasonalBody tr'))].filter(row=>row.cells?.length>2&&!/لا توجد أقساط موسمية/.test(row.textContent));
+  return rows;
+ }
+ function productOptions(){
+  return [...(document.getElementById('seasonalProductList')?.options||[])].map(option=>option.value.trim()).filter(Boolean);
+ }
+ function valuesFor(id){
+  const rows=rowSource(),set=new Map(),add=value=>{const text=String(value||'').trim();if(text&&text!=='—'&&!set.has(norm(text)))set.set(norm(text),text)};
+  if(id==='seasonalProduct')productOptions().forEach(add);
+  else rows.forEach(row=>{
+   if(id==='seasonalClient')add(row.cells[1]?.textContent);
+   else if(id==='seasonalAddress')add(row.cells[10]?.textContent);
+   else if(id==='seasonalQuickSearch'){[row.cells[1],row.cells[2],row.cells[9],row.cells[10],row.cells[3]].forEach(cell=>add(cell?.textContent))}
+  });
+  const query=norm(document.getElementById(id)?.value||'');
+  return [...set.values()].filter(value=>!query||norm(value).includes(query)).sort((a,b)=>a.localeCompare(b,'ar')).slice(0,40);
+ }
+ function closeMenu(id){const item=menus.get(id);if(!item)return;item.menu.classList.remove('is-open');item.input.setAttribute('aria-expanded','false');item.open=false}
+ function renderMenu(id){
+  const item=menus.get(id);if(!item||!item.open)return;
+  const options=valuesFor(id);item.menu.replaceChildren();
+  if(!options.length){const empty=document.createElement('div');empty.className='seasonal-suggest-empty';empty.textContent='لا توجد اقتراحات مطابقة';item.menu.appendChild(empty)}
+  else options.forEach(value=>{const button=document.createElement('button');button.type='button';button.className='seasonal-suggest-option';button.setAttribute('role','option');button.textContent=value;button.addEventListener('pointerdown',event=>event.preventDefault());button.addEventListener('click',()=>{item.selecting=true;item.input.value=value;closeMenu(id);item.input.dispatchEvent(new Event('input',{bubbles:true}));setTimeout(()=>{item.selecting=false;closeMenu(id)},0)});item.menu.appendChild(button)});
+  item.menu.classList.add('is-open');item.input.setAttribute('aria-expanded','true');
+ }
+ function attachAutocomplete(id){
+  const input=document.getElementById(id);if(!input||input.dataset.seasonalAutocomplete==='1')return;
+  const parent=input.parentElement;if(!parent)return;
+  const wrapper=document.createElement('div');wrapper.className='seasonal-autocomplete';
+  parent.insertBefore(wrapper,input);wrapper.appendChild(input);
+  if(id==='seasonalProduct'){
+   const list=document.getElementById('seasonalProductList');if(list&&list.parentNode===parent)wrapper.appendChild(list);
+   input.removeAttribute('list');
+  }
+  input.autocomplete='off';input.setAttribute('aria-autocomplete','list');input.setAttribute('aria-expanded','false');input.setAttribute('aria-controls',id+'Suggestions');
+  const menu=document.createElement('div');menu.id=id+'Suggestions';menu.className='seasonal-suggest-menu';menu.setAttribute('role','listbox');menu.setAttribute('aria-label',labels[id]);wrapper.appendChild(menu);
+  const item={input,menu,open:false};menus.set(id,item);input.dataset.seasonalAutocomplete='1';
+  input.addEventListener('focus',()=>{item.open=true;renderMenu(id)});
+  input.addEventListener('input',()=>{if(item.selecting)return;item.open=true;setTimeout(()=>renderMenu(id),0)});
+  input.addEventListener('keydown',event=>{if(event.key==='Escape'){closeMenu(id);return}if(event.key==='ArrowDown'&&item.menu.classList.contains('is-open')){event.preventDefault();item.menu.querySelector('button')?.focus()}if(event.key==='Enter'&&item.menu.classList.contains('is-open')){const first=item.menu.querySelector('button');if(first){event.preventDefault();first.click()}}});
+  input.addEventListener('blur',()=>setTimeout(()=>{if(!wrapper.contains(document.activeElement))closeMenu(id)},180));
+ }
+ function attachDatePicker(id){
+  const input=document.getElementById(id);if(!input||input.dataset.seasonalDateReady==='1')return;
+  const parent=input.parentElement,wrap=document.createElement('div');wrap.className='seasonal-date-control';parent.insertBefore(wrap,input);wrap.appendChild(input);
+  const button=document.createElement('button');button.type='button';button.className='seasonal-date-calendar';button.setAttribute('aria-label','اختيار التاريخ');button.title='اختيار التاريخ';button.textContent='▦';
+  const picker=document.createElement('input');picker.type='date';picker.className='seasonal-date-native';picker.tabIndex=-1;picker.setAttribute('aria-hidden','true');
+  button.addEventListener('click',()=>{const parsed=parseDate(input.value);picker.value=parsed?.iso||'';if(typeof picker.showPicker==='function'){try{picker.showPicker();return}catch(e){}}picker.click()});
+  picker.addEventListener('change',()=>{const parsed=parseDate(picker.value);if(parsed){input.value=parsed.display;input.dispatchEvent(new Event('input',{bubbles:true}));input.dispatchEvent(new Event('change',{bubbles:true}))}});
+  wrap.append(button,picker);input.dataset.seasonalDateReady='1';input.placeholder='yyyy/mm/dd';input.inputMode='numeric';input.title='أدخل التاريخ بصيغة yyyy/mm/dd';input.addEventListener('blur',()=>{const parsed=parseDate(input.value);if(parsed)input.value=parsed.display});
+ }
+ function updateOpenMenus(){menus.forEach((item,id)=>{if(item.open)renderMenu(id)})}
+ function init(){
+  if(!document.getElementById('seasonalInstallments'))return;
+  FILTERS.forEach(attachAutocomplete);DATE_IDS.forEach(attachDatePicker);refreshOfficerChoices();
+  const officer=document.getElementById('seasonalSpecialistStatus');officer?.addEventListener('change',()=>{const changed=refreshOfficerChoices();if(changed)document.getElementById('seasonalOfficer').value='';if(typeof window.renderSeasonal==='function')window.renderSeasonal()});
+  document.addEventListener('click',event=>{menus.forEach((item,id)=>{if(!item.input.closest('.seasonal-autocomplete')?.contains(event.target))closeMenu(id)})});
+  const initialRender=window.renderSeasonal;
+  if(typeof initialRender==='function'&&!initialRender.__seasonalFilterPolish){
+   const wrapped=function(){
+    if(internalRender)return initialRender.apply(this,arguments);
+    internalRender=true;let result;
+    try{
+     const dates=prepDates();result=initialRender.apply(this,arguments);
+     const invalid=refreshOfficerChoices();
+     if(invalid)result=initialRender.apply(this,arguments);
+     refreshOfficerChoices();restoreDates(dates);updateOpenMenus();
+    }finally{internalRender=false}
+    return result;
+   };
+   wrapped.__seasonalFilterPolish=true;window.renderSeasonal=wrapped;
+  }
+  document.getElementById('seasonalInstallments')?.addEventListener('change',event=>{if(event.target?.id==='seasonalSpecialistStatus')return;if(DATE_IDS.includes(event.target?.id)){const parsed=parseDate(event.target.value);if(parsed)event.target.value=parsed.display}});
+  updateOpenMenus();
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
+})();
+</script>
+
