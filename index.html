@@ -8068,7 +8068,8 @@ function printDueReport(event){
  try{window.print()}catch(e){cleanup();alert("تعذر تشغيل الطباعة. حاول مرة أخرى.")}
  setTimeout(cleanup,60000);return false;
 }
-async function downloadDuePDF(event){
+async function downloadDuePDF(event,options){
+ const returnBlob=options===true||options?.returnBlob===true;
  if(event?.preventDefault)event.preventDefault();if(event?.stopImmediatePropagation)event.stopImmediatePropagation();const now=Date.now();if(now<duePrintActionBusyUntil)return false;duePrintActionBusyUntil=now+1400;
  let layer=buildDuePrintLayer(false);if(!layer){alert("لا توجد أقساط مستحقة لتحميلها PDF.");return false}
  const button=document.querySelector('#dueInstallments .pdf-btn'),oldText=button?.querySelector('.action-label')?.textContent;
@@ -8080,10 +8081,10 @@ async function downloadDuePDF(event){
   let css=[...document.querySelectorAll("style")].map(style=>style.textContent||"").join("\n"),requestBody=JSON.stringify({html:layer.outerHTML,css,filename:dueExportFileName("pdf"),reportType:"due-installments"});
   const response=await fetch("/api/generate-pdf",{method:"POST",headers:{"Content-Type":"application/json"},body:requestBody});requestBody=null;css=null;releaseDuePdfBuildLayer(layer);layer=null;
   if(!response.ok){let detail="";try{detail=await response.text()}catch(e){}throw new Error(`Vercel PDF API ${response.status}: ${detail}`)}
-  const blob=await response.blob();if(blob.size<100)throw new Error("لم يُرجع خادم Vercel ملف PDF صالحًا.");
-  const url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=dueExportFileName("pdf");document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);
+  const blob=await response.blob();if(blob.size<100)throw new Error("لم يُرجع خادم Vercel ملف PDF صالحًا.");const filename=dueExportFileName("pdf");if(returnBlob)return{blob,filename};
+  const url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);
   if(typeof showMsg==="function")showMsg("تم إنشاء ملف PDF من خادم Vercel بنجاح.","ok");
- }catch(error){console.error("Vercel PDF API:",error);alert("تعذر إنشاء PDF من خادم Vercel. تأكد من نشر تحديث المشروع ثم أعد المحاولة.")}
+ }catch(error){console.error("Vercel PDF API:",error);if(returnBlob)return null;alert("تعذر إنشاء PDF من خادم Vercel. تأكد من نشر تحديث المشروع ثم أعد المحاولة.")}
  finally{releaseDuePdfBuildLayer(layer);if(button){button.disabled=false;const label=button.querySelector('.action-label');if(label)label.textContent=oldText||"PDF";button.removeAttribute("aria-busy")}duePrintActionBusyUntil=0}
  return false;
 }
@@ -18062,13 +18063,13 @@ window.__seasonalFinalHotfixV5=true;
     try{return typeof window.printDueReport==='function'?window.printDueReport(event):(alert('وظيفة طباعة الأقساط المستحقة غير متاحة.'),false)}
     finally{restore()}
   };
-  window.downloadSeasonalPDF=async function(event){
+  window.downloadSeasonalPDF=async function(event,outputMode){
     if(event?.preventDefault)event.preventDefault();
-    const restore=enterSeasonalReportContext(),button=document.querySelector('#seasonalInstallments .seasonal-actions .red'),oldText=button?.textContent;
+    const restore=enterSeasonalReportContext(),button=outputMode==='blob'?null:document.querySelector('#seasonalInstallments .seasonal-actions .red'),oldText=button?.textContent;
     if(!restore){alert('تعذر العثور على شاشة الأقساط الموسمية.');return false}
     try{
       if(button){button.disabled=true;button.textContent='جاري إنشاء PDF...';button.setAttribute('aria-busy','true')}
-      return typeof window.downloadDuePDF==='function'?await window.downloadDuePDF(event):(alert('وظيفة إنشاء PDF غير متاحة.'),false);
+      const result=typeof window.downloadDuePDF==='function'?await window.downloadDuePDF(event,outputMode==='blob'?{returnBlob:true}:undefined):(alert('وظيفة إنشاء PDF غير متاحة.'),false);if(outputMode==='blob'&&result?.blob)result.filename='الأقساط_الموسمية_'+new Date().toISOString().slice(0,10)+'.pdf';return result;
     }finally{
       restore();if(button){button.disabled=false;button.textContent=oldText||'📄 PDF';button.removeAttribute('aria-busy')}
     }
@@ -18273,8 +18274,7 @@ window.__seasonalFinalHotfixV5=true;
  const escDate=()=>new Date().toISOString().slice(0,10);
  function makeUrl(blob){if(pdfUrl)return pdfUrl;pdfUrl=URL.createObjectURL(blob);urlSet.add(pdfUrl);return pdfUrl}
  function getTable(){return document.querySelector('#seasonalInstallments .seasonal-table-wrap .seasonal-table, #seasonalInstallments .seasonal-table')}
- function makeLayer(){const source=getTable();if(!source)throw new Error('لم يظهر جدول الأقساط الموسمية بعد.');const layer=document.createElement('div');layer.dir='rtl';layer.className='seasonal-share-pdf-layer';layer.style.cssText='width:1200px;min-width:1200px;box-sizing:border-box;background:#fff;color:#111;padding:8px 10px;font-family:Arial,Tahoma,sans-serif;direction:rtl;';const title=document.createElement('div');title.textContent='جمعية المبادرة — تقرير الأقساط الموسمية';title.style.cssText='text-align:center;font:900 20px Arial,Tahoma,sans-serif;color:#111;margin:0 0 5px;';layer.appendChild(title);const detail=document.createElement('div');const value=id=>document.getElementById(id)?.selectedOptions?.[0]?.textContent||document.getElementById(id)?.value||'';const product=document.getElementById('seasonalProduct')?.value||'جميع الأقساط الموسمية';const status=value('seasonalStatus');const from=document.getElementById('seasonalFrom')?.value||'';const to=document.getElementById('seasonalTo')?.value||'';detail.textContent=['المنتج: '+product,'حالة القرض: '+status,from||to?'الفترة: '+(from||'—')+' إلى '+(to||'—'):'', 'تاريخ التقرير: '+escDate()].filter(Boolean).join('   |   ');detail.style.cssText='font:700 11px Arial,Tahoma,sans-serif;color:#222;margin:0 0 7px;line-height:1.5;';layer.appendChild(detail);const table=source.cloneNode(true);table.classList.add('risk-installments-table');table.removeAttribute('id');table.querySelectorAll('[id]').forEach(el=>el.removeAttribute('id'));table.querySelectorAll('button,input,select,textarea,.no-print').forEach(el=>el.remove());table.style.cssText+=';width:100%;min-width:0;max-width:100%;table-layout:fixed;direction:rtl;border-collapse:collapse;';layer.appendChild(table);return layer}
- async function createPdf(){if(typeof window.html2pdf!=='function'||typeof window.downloadReportLayerPDF!=='function')throw new Error('أداة إنشاء PDF غير متاحة. تحقق من اتصال الإنترنت ثم أعد المحاولة.');if(typeof window.renderSeasonal==='function')window.renderSeasonal();const layer=makeLayer();const name=FILE_BASE+'_'+escDate()+'.pdf';const blob=await window.downloadReportLayerPDF(layer,name,'printing-due-pdf',true);if(!(blob instanceof Blob)||blob.size<100)throw new Error('تعذر إنشاء ملف PDF صالح. أعد المحاولة.');return{blob,name}}
+ async function createPdf(){if(typeof window.downloadSeasonalPDF!=='function')throw new Error('مسار PDF للأقساط الموسمية غير متاح.');const result=await window.downloadSeasonalPDF(null,'blob');if(!result||!(result.blob instanceof Blob)||result.blob.size<100)throw new Error('تعذر إنشاء ملف PDF صالح من مسار PDF المعتاد. أعد المحاولة.');return{blob:result.blob,name:result.filename||FILE_BASE+'_'+escDate()+'.pdf'}}
  function showStatus(text,tone){const status=document.getElementById('seasonalShareStatus'),retry=document.getElementById('seasonalShareRetry');if(!status)return;status.textContent=text;status.dataset.tone=tone||'';retry?.classList.toggle('is-visible',tone==='error')}
  function setActionsEnabled(enabled){document.querySelectorAll('#seasonalShareDialog .seasonal-share-action').forEach(button=>button.disabled=!enabled)}
  async function preparePdf(force){if(pdfBlob&&!force){setActionsEnabled(true);showStatus('ملف PDF جاهز للمشاركة أو الفتح أو التنزيل.','success');return pdfBlob}if(busyPromise)return busyPromise;pdfBlob=null;pdfUrl='';pdfName=FILE_BASE+'_'+escDate()+'.pdf';setActionsEnabled(false);showStatus('جارٍ تجهيز ملف PDF من الجدول الحالي…');busyPromise=createPdf().then(result=>{pdfBlob=result.blob;pdfName=result.name;setActionsEnabled(true);showStatus('ملف PDF جاهز. اختر طريقة الاستخدام.','success');return pdfBlob}).catch(error=>{console.error('Seasonal PDF preparation:',error);setActionsEnabled(false);showStatus(error?.message||'تعذر تجهيز ملف PDF. أعد المحاولة.','error');return null}).finally(()=>{busyPromise=null});return busyPromise}
