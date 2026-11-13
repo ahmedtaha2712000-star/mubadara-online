@@ -1456,6 +1456,9 @@ button.icon-action .action-glyph svg{width:22px!important;height:22px!important;
 #paymentFollowup .pf-table td{padding:10px 9px;vertical-align:top;border-bottom:1px solid #e9edf2;line-height:1.5}
 #paymentFollowup .pf-table tbody tr:nth-child(even){background:#fafbfd}
 #paymentFollowup .pf-table tbody tr:hover{background:#fffaf0}
+#paymentFollowup #paymentFollowupTable,#paymentFollowup #paymentFollowupTable *{font-family:Arial,sans-serif}
+#paymentFollowup #paymentFollowupTable tbody td{font-family:Arial,sans-serif;font-size:14px;font-weight:700;color:#111}
+#paymentFollowup #paymentFollowupTable tbody td :is(span,strong,b,small,summary){font-family:Arial,sans-serif;font-size:inherit;font-weight:700;color:#111}
 #paymentFollowup .pf-main-name{font-weight:800;color:#152943;font-size:13px}
 #paymentFollowup .pf-secondary{display:block;margin-top:3px;color:#64748b;font-size:11px}
 #paymentFollowup .pf-amount{font-weight:800;color:#18324f;white-space:nowrap}
@@ -10375,14 +10378,16 @@ document.addEventListener('DOMContentLoaded', function () {
   function pfEnsureEditDialog(){
     let dialog=document.getElementById("paymentFollowupEditDialog");if(dialog)return dialog;
     dialog=document.createElement("dialog");dialog.id="paymentFollowupEditDialog";dialog.className="no-print";
-    dialog.innerHTML=`<form class="pf-edit-inner" data-pf-edit-form><h3>تعديل سجل المكالمة</h3><div class="pf-edit-fields"><label>تم الاتصال بـ<select name="callParty" required></select></label><label>نتيجة الاتصال<select name="status" required></select></label><label>المتابعة القادمة<input name="next" type="date"></label><label class="pf-edit-wide">ملاحظات المكالمة<textarea name="note" maxlength="2000"></textarea></label></div><div class="pf-edit-error" role="alert"></div><div class="pf-edit-actions"><button type="submit" data-pf-edit-save>حفظ التعديلات</button><button type="button" data-pf-edit-cancel>إلغاء</button></div></form>`;
+    dialog.innerHTML=`<form class="pf-edit-inner" data-pf-edit-form><h3>تعديل سجل المكالمة</h3><div class="pf-edit-fields"><label>تم الاتصال بـ<select name="callParty" required></select></label><label>نتيجة الاتصال (اختياري)<select name="status"></select></label><label>المتابعة القادمة<input name="next" type="date"></label><label class="pf-edit-wide">ملاحظات المكالمة<select name="notePreset" aria-label="اختر نتيجة لكتابتها في الملاحظات">${pfNotePresetOptions()}</select><textarea name="note" maxlength="2000"></textarea></label></div><div class="pf-edit-error" role="alert"></div><div class="pf-edit-actions"><button type="submit" data-pf-edit-save>حفظ التعديلات</button><button type="button" data-pf-edit-cancel>إلغاء</button></div></form>`;
     document.body.appendChild(dialog);
     dialog.querySelector("[data-pf-edit-cancel]").addEventListener("click",()=>dialog.close("cancel"));
     dialog.addEventListener("cancel",()=>{dialog.dataset.logId=""});
-    dialog.querySelector("[data-pf-edit-form]").addEventListener("submit",async event=>{
+    const editForm=dialog.querySelector("[data-pf-edit-form]");
+    editForm.elements.status.addEventListener("change",()=>pfSyncCallNote(editForm,editForm.elements.status));
+    editForm.elements.notePreset.addEventListener("change",()=>pfSyncCallNote(editForm,editForm.elements.notePreset));
+    editForm.addEventListener("submit",async event=>{
       event.preventDefault();const form=event.currentTarget,error=dialog.querySelector(".pf-edit-error"),save=dialog.querySelector("[data-pf-edit-save]");
       const values={callParty:form.elements.callParty.value,status:form.elements.status.value,next:form.elements.next.value,note:form.elements.note.value.trim()};
-      if(!values.status){error.textContent="أدخل نتيجة الاتصال قبل الحفظ.";error.classList.add("show");return}
       save.disabled=true;error.textContent="";error.classList.remove("show");
       try{await pfUpdateCallLog(decodeURIComponent(dialog.dataset.logId||""),values);dialog.close("saved");feedbackText="تم تعديل سجل المكالمة مع الاحتفاظ بتاريخ التسجيل واسم المستخدم.";feedbackKind="ok";renderPaymentFollowup()}
       catch(e){error.textContent=String(e?.message||"تعذر حفظ التعديل.");error.classList.add("show")}
@@ -10396,7 +10401,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const parties=[...new Set([log.callParty,...(item?.contacts||[]).map(c=>c.label+(c.name&&c.name!==c.label?` — ${c.name}`:""))].filter(Boolean))];
     form.elements.callParty.innerHTML=parties.map(v=>`<option value="${escAttr(v)}">${esc(v)}</option>`).join("");
     form.elements.status.innerHTML=`<option value="">اختر النتيجة</option>${CALL_RESULTS.map(x=>`<option value="${escAttr(x)}">${esc(x)}</option>`).join("")}`;
-    form.elements.callParty.value=log.callParty||parties[0]||"";form.elements.status.value=log.status||"";form.elements.next.value=log.next||"";form.elements.note.value=log.note||"";
+    form.elements.callParty.value=log.callParty||parties[0]||"";form.elements.status.value=log.status||"";form.elements.next.value=log.next||"";form.elements.note.value=log.note||"";form.elements.notePreset.value=log.status&&log.status!=="أخرى"?log.status:"";
     dialog.dataset.logId=encodeURIComponent(String(log.logId||""));const error=dialog.querySelector(".pf-edit-error");error.textContent="";error.classList.remove("show");
     if(typeof dialog.showModal==="function")dialog.showModal();else alert("المتصفح لا يدعم نافذة تعديل السجل.");
   }
@@ -10516,11 +10521,26 @@ document.addEventListener('DOMContentLoaded', function () {
     if(!item.logs?.length)return "";
     return `<details class="pf-history"><summary>سجل المكالمات (${item.logs.length})</summary><div class="pf-history-list">${item.logs.map((log,index)=>`<div class="pf-history-item"><div class="pf-history-item-head"><b>${esc(log.status||"متابعة")} · ${esc(pfDateTime(log.createdAt))}</b>${pfLogActionButtonsHTML(log)}</div><div>${esc(log.callParty||"")}${log.next?` · المتابعة القادمة: ${esc(pfTextDate(log.next))}`:""}${log.user?` · بواسطة ${esc(log.user)}`:""}</div><p>${esc(log.note||"—")}</p></div>`).join("")}</div></details>`;
   }
+  function pfNotePresetOptions(){return `<option value="">اختر نتيجة لكتابتها في الملاحظات</option>${CALL_RESULTS.filter(x=>x!=="أخرى").map(x=>`<option value="${escAttr(x)}">${esc(x)}</option>`).join("")}<option value="أخرى">أخرى</option>`}
+  function pfSyncCallNote(form,source){
+    const status=form.elements.status,note=form.elements.note,preset=form.elements.notePreset;
+    if(!status||!note||!preset)return;
+    if(source?.name==="notePreset"){
+      if(!preset.value)return;
+      if(preset.value==="أخرى"){status.value="";note.value="";note.focus();return}
+      status.value=preset.value;note.value=preset.value;return;
+    }
+    if(source?.name==="status"){
+      if(!status.value)return;
+      if(status.value==="أخرى"){status.value="";preset.value="أخرى";note.value="";note.focus();return}
+      preset.value=status.value;note.value=status.value;
+    }
+  }
   function pfFormHTML(item){
     const options=item.contacts.map(c=>`<option value="${esc(c.label+(c.name&&c.name!==c.label?` — ${c.name}`:""))}">${esc(c.label+(c.name&&c.name!==c.label?` — ${c.name}`:""))}</option>`).join("");
-    return `<details class="pf-editor"><summary>تسجيل مكالمة أو ملاحظة</summary><form class="pf-form" data-case-key="${encodeURIComponent(item.key)}"><label>تم الاتصال بـ<select name="callParty" required>${options}</select></label><label>نتيجة الاتصال<select name="status" required><option value="">اختر النتيجة</option>${CALL_RESULTS.map(x=>`<option value="${esc(x)}">${esc(x)}</option>`).join("")}</select></label><label>المتابعة القادمة<input name="next" type="date"></label><label aria-hidden="true"></label><label style="grid-column:1/-1">ملاحظات المكالمة<textarea name="note" maxlength="2000" placeholder="اكتب باختصار ما قاله العميل أو الضامن…"></textarea></label><button class="pf-save" type="submit">حفظ سجل المكالمة</button></form></details>`;
+    return `<details class="pf-editor"><summary>تسجيل مكالمة أو ملاحظة</summary><form class="pf-form" data-case-key="${encodeURIComponent(item.key)}"><label>تم الاتصال بـ<select name="callParty" required>${options}</select></label><label>نتيجة الاتصال (اختياري)<select name="status"><option value="">بدون نتيجة اتصال</option>${CALL_RESULTS.map(x=>`<option value="${esc(x)}">${esc(x)}</option>`).join("")}</select></label><label>المتابعة القادمة<input name="next" type="date"></label><label aria-hidden="true"></label><label style="grid-column:1/-1">ملاحظات المكالمة<select name="notePreset" aria-label="اختر نتيجة لكتابتها في الملاحظات">${pfNotePresetOptions()}</select><textarea name="note" maxlength="2000" placeholder="اكتب باختصار ما قاله العميل أو الضامن…"></textarea></label><button class="pf-save" type="submit">حفظ سجل المكالمة</button></form></details>`;
   }
-  function pfLastStatus(item){return item.logs?.[0]?.status||"لم يتم الاتصال";}
+  function pfLastStatus(item){const latest=item.logs?.[0];return latest?(latest.status||"لم تسجل نتيجة الاتصال"):"لم يتم الاتصال";}
   function pfLatestNote(item){const l=item.logs?.[0];return l?String(l.note||""):"—";}
   function pfCustomerStatusHTML(item){if(document.getElementById("paymentFollowupAllClients")?.checked!==true)return "";const late=Number(item.overdueCount)>0;return `<span class="pf-client-status ${late?"is-overdue":"is-regular"}">${late?"متأخر":"منتظم"}</span>`}
 function pfOpenClientProfile(caseKey){
@@ -10746,12 +10766,11 @@ function pfOpenClientProfile(caseKey){
     const caseKey=decodeURIComponent(form.dataset.caseKey||"");
     const item=currentCases.find(x=>x.key===caseKey);if(!item)return;
     const data=new FormData(form),note=String(data.get("note")||"").trim(),status=String(data.get("status")||"").trim();
-    if(!status){feedbackText="أدخل نتيجة الاتصال قبل الحفظ.";feedbackKind="warn";renderPaymentFollowup();return}
     const meta={version:1,caseKey:item.key,client:item.client,loanCode:item.loanCode,loanNo:item.loanNo,installment:item.installment,callParty:String(data.get("callParty")||"العميل"),status,next:String(data.get("next")||"")};
     const entry={client:item.client,field:LOG_MARKER,oldValue:JSON.stringify(meta),newValue:note,time:new Date().toISOString(),user:session?.name||session?.user||"غير محدد"};
     try{
       const phoneRequestCompleted=await pfCompletePhoneBridgeRequest(item);
-      feedbackText="تم حفظ سجل المكالمة"+(phoneRequestCompleted?" وإبلاغ الهاتف بإتمام الطلب.":(cloudReady?".":" على هذا الجهاز."));feedbackKind="ok";
+      feedbackText="تم حفظ سجل المكالمة أو الملاحظة"+(phoneRequestCompleted?" وإبلاغ الهاتف بإتمام الطلب.":(cloudReady?".":" على هذا الجهاز."));feedbackKind="ok";
       const pending=addClientContactLog(entry);renderPaymentFollowup();
       try{await pending}catch(e){console.warn("Payment follow-up save:",e)}
     }catch(error){
@@ -10776,6 +10795,7 @@ function pfOpenClientProfile(caseKey){
   document.addEventListener("input",event=>{if(["paymentFollowupArchiveClientSearch","paymentFollowupArchiveOfficerSearch","paymentFollowupArchiveParty","paymentFollowupArchiveStatus","paymentFollowupArchiveSearch","paymentFollowupArchiveFrom","paymentFollowupArchiveTo"].includes(event.target?.id))renderPaymentFollowupArchive()});
   document.addEventListener("change",event=>{if(["paymentFollowupArchiveClientSearch","paymentFollowupArchiveOfficerSearch","paymentFollowupArchiveParty","paymentFollowupArchiveStatus","paymentFollowupArchiveFrom","paymentFollowupArchiveTo"].includes(event.target?.id))renderPaymentFollowupArchive()});
   document.addEventListener("click",event=>{const editButton=event.target?.closest?.("[data-pfa-edit-log]");if(editButton&&document.getElementById("paymentFollowupArchive")?.contains(editButton)){event.preventDefault();event.stopImmediatePropagation();let editId="";try{editId=decodeURIComponent(editButton.dataset.pfaEditLog||"")}catch(e){}const log=pfReadLogs().find(x=>x.logId===editId);if(!log){alert("لم يعد سجل المتابعة متاحًا؛ حدّث الشاشة.");return}pfOpenEditDialog(log);return}const deleteButton=event.target?.closest?.("[data-pfa-delete-log]");if(deleteButton&&document.getElementById("paymentFollowupArchive")?.contains(deleteButton)){event.preventDefault();event.stopImmediatePropagation();let logId="";try{logId=decodeURIComponent(deleteButton.dataset.pfaDeleteLog||"")}catch(e){}const log=pfReadLogs().find(x=>x.logId===logId);if(!log){alert("لم يعد سجل المتابعة متاحًا؛ حدّث الشاشة.");return}pfOpenDeleteDialog({kind:"one",logId,log});return}const preset=event.target?.closest?.("[data-pfa-range]");if(preset){pfaSetArchiveDateRange(preset.dataset.pfaRange);return}if(event.target?.closest?.("#paymentFollowupArchiveClear")){["paymentFollowupArchiveClientSearch","paymentFollowupArchiveOfficerSearch","paymentFollowupArchiveParty","paymentFollowupArchiveStatus","paymentFollowupArchiveSearch"].forEach(id=>{const el=document.getElementById(id);if(el)el.value=""});pfaSetArchiveDateRange("month")}});
+  document.addEventListener("change",event=>{const form=event.target?.closest?.("#paymentFollowup .pf-form");if(!form)return;if(event.target?.name==="status"||event.target?.name==="notePreset")pfSyncCallNote(form,event.target)});
   document.addEventListener("submit",event=>{const form=event.target;if(!form?.matches?.("#paymentFollowup .pf-form"))return;event.preventDefault();pfSaveCall(form)});
   window.addEventListener("resize",()=>{if(document.getElementById(SCREEN_ID)?.classList.contains("active")){const mobile=window.matchMedia&&window.matchMedia("(max-width: 760px)").matches;if(mobile!==lastRenderedMobile)renderPaymentFollowup()}});
   document.addEventListener("DOMContentLoaded",()=>{if(document.getElementById(SCREEN_ID)?.classList.contains("active"))renderPaymentFollowup()});
