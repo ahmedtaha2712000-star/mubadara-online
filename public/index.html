@@ -18146,7 +18146,9 @@ window.__seasonalFinalHotfixV5=true;
    else if(id==='seasonalQuickSearch'){[row.cells[1],row.cells[2],row.cells[9],row.cells[10],row.cells[3]].forEach(cell=>add(cell?.textContent))}
   });
   const query=norm(document.getElementById(id)?.value||'');
-  return [...set.values()].filter(value=>!query||norm(value).includes(query)).sort((a,b)=>a.localeCompare(b,'ar')).slice(0,40);
+  const filtered=[...set.values()].filter(value=>!query||norm(value).includes(query)).sort((a,b)=>a.localeCompare(b,'ar'));
+  if(id==='seasonalProduct'){const all='جميع الأقساط الموسمية';return [...(!query||norm(all).includes(query)?[all]:[]),...filtered.filter(value=>norm(value)!==norm(all))].slice(0,40)}
+  return filtered.slice(0,40);
  }
  function closeMenu(id){const item=menus.get(id);if(!item)return;item.menu.classList.remove('is-open');item.input.setAttribute('aria-expanded','false');item.open=false}
  function renderMenu(id){
@@ -18168,6 +18170,8 @@ window.__seasonalFinalHotfixV5=true;
   }
   input.autocomplete='off';input.setAttribute('aria-autocomplete','list');input.setAttribute('aria-expanded','false');input.setAttribute('aria-controls',id+'Suggestions');
   const menu=document.createElement('div');menu.id=id+'Suggestions';menu.className='seasonal-suggest-menu';menu.setAttribute('role','listbox');menu.setAttribute('aria-label',labels[id]);wrapper.appendChild(menu);
+  const clear=document.createElement('button');clear.type='button';clear.className='seasonal-clear-field';clear.textContent='×';clear.title='مسح محتوى الحقل';clear.setAttribute('aria-label','مسح محتوى الحقل');wrapper.appendChild(clear);
+  const syncClear=()=>wrapper.classList.toggle('has-value',!!input.value);syncClear();input.addEventListener('input',syncClear);input.addEventListener('change',syncClear);clear.addEventListener('pointerdown',event=>event.preventDefault());clear.addEventListener('click',()=>{input.value='';syncClear();input.dispatchEvent(new Event('input',{bubbles:true}));closeMenu(id);setTimeout(()=>closeMenu(id),0)});
   const item={input,menu,open:false};menus.set(id,item);input.dataset.seasonalAutocomplete='1';
   input.addEventListener('focus',()=>{item.open=true;renderMenu(id)});
   input.addEventListener('input',()=>{if(item.selecting)return;item.open=true;setTimeout(()=>renderMenu(id),0)});
@@ -18211,3 +18215,25 @@ window.__seasonalFinalHotfixV5=true;
 })();
 </script>
 
+
+<style id="seasonal-filter-clear-and-scrollbar-v1">
+#seasonalInstallments .seasonal-filters,
+#seasonalInstallments .seasonal-filters *{font-family:Arial,Tahoma,sans-serif!important}
+#seasonalInstallments .seasonal-autocomplete{position:relative!important}
+#seasonalInstallments .seasonal-autocomplete input{padding-left:36px!important;-webkit-appearance:none;appearance:none}
+#seasonalInstallments .seasonal-autocomplete input::-webkit-search-cancel-button{-webkit-appearance:none;appearance:none;display:none}
+#seasonalInstallments .seasonal-clear-field{display:none;position:absolute;left:7px;top:50%;transform:translateY(-50%);z-index:5;width:25px;height:25px;min-height:25px;padding:0;border:0;border-radius:50%;background:#edf1f5;color:#243447;font:700 19px/23px Arial,Tahoma,sans-serif!important;text-align:center;cursor:pointer}
+#seasonalInstallments .seasonal-autocomplete.has-value>.seasonal-clear-field{display:block}
+#seasonalInstallments .seasonal-clear-field:hover,#seasonalInstallments .seasonal-clear-field:focus{background:#dce5ee;color:#000;outline:2px solid #6b91bb;outline-offset:1px}
+#seasonalInstallments .seasonal-table-scroll-top{width:100%;height:15px;overflow-x:auto;overflow-y:hidden;margin:0 0 4px;border-radius:5px;background:#eef1f4;direction:rtl;scrollbar-width:auto}
+#seasonalInstallments .seasonal-table-scroll-top>div{height:1px;min-width:1050px}
+#seasonalInstallments .seasonal-table-wrap{overflow-x:auto!important;overflow-y:visible!important;scrollbar-width:auto}
+@media print{#seasonalInstallments .seasonal-table-scroll-top{display:none!important}}
+</style>
+<script id="seasonal-horizontal-scroll-sync-v1">
+(function(){
+ function sync(){const root=document.getElementById('seasonalInstallments'),track=root?.querySelector('.seasonal-table-scroll-top'),wrap=root?.querySelector('.seasonal-table-wrap'),table=wrap?.querySelector('.seasonal-table');if(!track||!wrap||!table)return;const spacer=track.firstElementChild;if(spacer)spacer.style.width=Math.max(table.scrollWidth,wrap.clientWidth)+'px';if(track.scrollLeft!==wrap.scrollLeft)track.scrollLeft=wrap.scrollLeft}
+ function init(){const root=document.getElementById('seasonalInstallments'),table=root?.querySelector('.seasonal-table');if(!root||!table)return;let wrap=table.closest('.wrap');if(!wrap)return;wrap.classList.add('seasonal-table-wrap');let track=root.querySelector('.seasonal-table-scroll-top');if(!track){track=document.createElement('div');track.className='seasonal-table-scroll-top';track.setAttribute('aria-label','شريط التمرير الأفقي أعلى جدول الأقساط الموسمية');track.setAttribute('role','scrollbar');track.setAttribute('aria-orientation','horizontal');const spacer=document.createElement('div');track.appendChild(spacer);wrap.parentNode.insertBefore(track,wrap)}if(track.dataset.ready!=='1'){track.dataset.ready='1';track.addEventListener('scroll',()=>{if(wrap.scrollLeft!==track.scrollLeft)wrap.scrollLeft=track.scrollLeft},{passive:true});wrap.addEventListener('scroll',()=>{if(track.scrollLeft!==wrap.scrollLeft)track.scrollLeft=wrap.scrollLeft},{passive:true});new MutationObserver(()=>requestAnimationFrame(sync)).observe(wrap,{childList:true,subtree:true});new MutationObserver(()=>requestAnimationFrame(sync)).observe(root,{attributes:true,attributeFilter:['class','style']});window.addEventListener('resize',sync,{passive:true})}const original=window.renderSeasonal;if(typeof original==='function'&&!original.__seasonalTopScrollSync){const wrapped=function(){const result=original.apply(this,arguments);requestAnimationFrame(sync);return result};wrapped.__seasonalTopScrollSync=true;window.renderSeasonal=wrapped}requestAnimationFrame(sync)}
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();setTimeout(init,0);window.syncSeasonalTableScrollbars=sync;
+})();
+</script>
