@@ -7924,15 +7924,16 @@ async function downloadReportLayerPDF(layer,filename,className="report-pdf-downl
   if(typeof window.html2pdf!=="function"){layer.remove();alert("تعذر تشغيل تحميل PDF. تأكد من اتصال الإنترنت ثم أعد المحاولة.");return null}
   const holder=document.createElement("div");
   const isRiskPDF=className==="printing-risk-report";
+  const isCollectionDifferencesPDF=className==="collection-differences-pdf";
   const isDuePDF=className==="printing-due-pdf";
   const isWidePDF=isRiskPDF||isDuePDF;
   if(isWidePDF)applyArrearsPrintFormat(layer);
   const isPfaFormPDF=className==="pfa-form-pdf";
-  const captureWidth=isPfaFormPDF?1056:isDuePDF?1200:isRiskPDF?1800:1120;
+  const captureWidth=isPfaFormPDF?1056:isDuePDF?1200:isRiskPDF?1800:isCollectionDifferencesPDF?1062:1120;
   const captureFont=isPfaFormPDF?"14px":isDuePDF?"8.5px":isRiskPDF?"16px":"7.8px";
   const captureHeadFont=isPfaFormPDF?"14px":isDuePDF?"8.5px":isRiskPDF?"15px":"7.4px";
   holder.style.cssText=`position:absolute;left:0;top:0;width:${captureWidth}px;min-width:${captureWidth}px;background:#fff;z-index:-1;visibility:visible;display:block;direction:ltr;overflow:visible;`;
-  layer.style.cssText+=(layer.style.cssText?";":"")+`font-size:${captureFont}!important;line-height:1.3!important;width:${captureWidth}px!important;text-shadow:none!important;-webkit-text-stroke:0!important;filter:none!important;min-height:20px;height:auto;display:block!important;visibility:visible!important;opacity:1!important;background:#fff!important;color:#000!important;position:static!important;margin:0!important;padding:${isWidePDF?"5mm 3mm":"0 4px"}!important;box-sizing:border-box!important;`;
+  layer.style.cssText+=(layer.style.cssText?";":"")+`font-size:${captureFont}!important;line-height:1.3!important;width:${captureWidth}px!important;text-shadow:none!important;-webkit-text-stroke:0!important;filter:none!important;min-height:20px;height:auto;display:block!important;visibility:visible!important;opacity:1!important;background:#fff!important;color:#000!important;position:static!important;margin:0!important;padding:${isWidePDF||isCollectionDifferencesPDF?"5mm 3mm":"0 4px"}!important;box-sizing:border-box!important;`;
   if(isPfaFormPDF){layer.style.setProperty("width","1056px","important");layer.style.setProperty("min-width","1056px","important");layer.style.setProperty("max-width","1056px","important");layer.style.setProperty("padding","0","important");layer.style.setProperty("font-family","Arial,Tahoma,sans-serif","important");layer.querySelectorAll(".pfa-form-page").forEach((page,index)=>{page.style.setProperty("width","1056px","important");page.style.setProperty("height","720px","important");page.style.setProperty("min-height","720px","important");page.style.setProperty("max-height","720px","important");page.style.setProperty("overflow","hidden","important");page.style.setProperty("page-break-after",index===layer.querySelectorAll(".pfa-form-page").length-1?"auto":"always","important");page.style.setProperty("break-after",index===layer.querySelectorAll(".pfa-form-page").length-1?"auto":"page","important")})}
   // تثبيت كل صفحة PDF كوحدة مستقلة حتى يبقى التذييل داخلها ولا يُرحّل لصفحة جديدة.
   if(isWidePDF){
@@ -7948,7 +7949,7 @@ async function downloadReportLayerPDF(layer,filename,className="report-pdf-downl
       page.style.setProperty("break-before",index>0?"page":"auto","important");
     });
   }
-  layer.querySelectorAll("table").forEach(table=>{table.style.width="100%";table.style.maxWidth="100%";table.style.minWidth="0";table.style.tableLayout="fixed";table.style.overflow="visible";table.style.direction="rtl";table.querySelectorAll("thead").forEach(t=>{t.style.display="table-header-group";t.style.position="static";t.style.breakInside="avoid";t.style.pageBreakInside="avoid";t.style.cssText+=";display:table-header-group!important;page-break-inside:avoid!important;break-inside:avoid!important;"});table.querySelectorAll("th,td").forEach((cell,index)=>{cell.style.maxWidth="none";cell.style.minWidth="0";cell.style.overflow="hidden";cell.style.overflowWrap="anywhere";cell.style.wordBreak="break-word";cell.style.whiteSpace="normal";cell.style.setProperty("font-size",isDuePDF?(index<14?(cell.tagName==="TH"?"12px":"13px"):(index>=14&&index<=17)?(cell.tagName==="TH"?"12px":"8.5px"):"8.5px"):(isRiskPDF||isDuePDF)?"8.5px":"8.8px","important");cell.style.setProperty("line-height",isDuePDF?"1.12":"1.22","important");cell.style.setProperty("padding",isDuePDF||isRiskPDF?"3px 2px":"2px 1px","important");cell.style.setProperty("min-height",isDuePDF?"28px":"0","important");cell.style.setProperty("height",isDuePDF?"82px":"auto","important");cell.style.setProperty("font-weight",isDuePDF?(index<14?"800":index===14?"400":"400"): "400","important");cell.style.setProperty("vertical-align","middle","important");cell.style.textShadow="none";cell.style.webkitTextStroke="0";cell.style.filter="none";cell.style.setProperty("color","#000","important");
+  layer.querySelectorAll("table").forEach(table=>{if(isCollectionDifferencesPDF)return;table.style.width="100%";table.style.maxWidth="100%";table.style.minWidth="0";table.style.tableLayout="fixed";table.style.overflow="visible";table.style.direction="rtl";table.querySelectorAll("thead").forEach(t=>{t.style.display="table-header-group";t.style.position="static";t.style.breakInside="avoid";t.style.pageBreakInside="avoid";t.style.cssText+=";display:table-header-group!important;page-break-inside:avoid!important;break-inside:avoid!important;"});table.querySelectorAll("th,td").forEach((cell,index)=>{cell.style.maxWidth="none";cell.style.minWidth="0";cell.style.overflow="hidden";cell.style.overflowWrap="anywhere";cell.style.wordBreak="break-word";cell.style.whiteSpace="normal";cell.style.setProperty("font-size",isDuePDF?(index<14?(cell.tagName==="TH"?"12px":"13px"):(index>=14&&index<=17)?(cell.tagName==="TH"?"12px":"8.5px"):"8.5px"):(isRiskPDF||isDuePDF)?"8.5px":"8.8px","important");cell.style.setProperty("line-height",isDuePDF?"1.12":"1.22","important");cell.style.setProperty("padding",isDuePDF||isRiskPDF?"3px 2px":"2px 1px","important");cell.style.setProperty("min-height",isDuePDF?"28px":"0","important");cell.style.setProperty("height",isDuePDF?"82px":"auto","important");cell.style.setProperty("font-weight",isDuePDF?(index<14?"800":index===14?"400":"400"): "400","important");cell.style.setProperty("vertical-align","middle","important");cell.style.textShadow="none";cell.style.webkitTextStroke="0";cell.style.filter="none";cell.style.setProperty("color","#000","important");
     if(cell.matches("td:nth-child(3),td:nth-child(4),td:nth-child(6)")){
       // الرقم القومي ورقم الهاتف: رقم كامل داخل نفس الخلية بلا التفاف أو انتقال.
       cell.style.setProperty("white-space","nowrap","important");cell.style.setProperty("word-break","keep-all","important");cell.style.setProperty("overflow-wrap","normal","important");cell.style.setProperty("direction","ltr","important");cell.style.setProperty("text-align","center","important");cell.style.setProperty("font-family","Arial,Tahoma,sans-serif","important");cell.style.setProperty("font-variant-numeric","tabular-nums","important");
@@ -8024,7 +8025,7 @@ async function downloadReportLayerPDF(layer,filename,className="report-pdf-downl
   try{
     await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
     const pdfWorker=window.html2pdf().set({
-      margin:isWidePDF?[5,3,5,3]:0,
+      margin:isWidePDF?[5,3,5,3]:isCollectionDifferencesPDF?[8,8,8,8]:0,
       filename,
       image:{type:"jpeg",quality:.97},
       html2canvas:{scale:isPfaFormPDF?2.5:1,useCORS:true,backgroundColor:"#fff",logging:false,width:captureWidth,windowWidth:captureWidth,x:0,y:0,scrollX:0,scrollY:0},
@@ -14368,14 +14369,14 @@ window.markDailyOpsBranchDate=markDailyOpsBranchDate;window.syncDailyOpsBranchFi
  }
  function printCollectionDifferences(){
    const layer=buildCollectionDifferencesReportLayer();if(!layer)return;
-   const style=document.createElement("style");style.id="collectionDifferencesPrintRuntimeStyle";style.textContent="@media print{@page{size:A4 landscape;margin:8mm}body.printing-collection-differences>:not(#collectionDifferencesPrintLayer){display:none!important}body.printing-collection-differences #collectionDifferencesPrintLayer{display:block!important;position:static!important;left:auto!important;top:auto!important;width:100%!important;visibility:visible!important;opacity:1!important}body.printing-collection-differences #collectionDifferencesPrintLayer,body.printing-collection-differences #collectionDifferencesPrintLayer *{visibility:visible!important;opacity:1!important}}";
+   const style=document.createElement("style");style.id="collectionDifferencesPrintRuntimeStyle";style.textContent="@media print{@page{size:A4 landscape;margin:8mm}html,body.printing-collection-differences{background:#fff!important}body.printing-collection-differences>:not(#collectionDifferencesPrintLayer){display:none!important}body.printing-collection-differences #collectionDifferencesPrintLayer{display:block!important;position:static!important;left:auto!important;top:auto!important;width:100%!important;visibility:visible!important;opacity:1!important}body.printing-collection-differences #collectionDifferencesPrintLayer,body.printing-collection-differences #collectionDifferencesPrintLayer *{visibility:visible!important;opacity:1!important}}";
    document.head.appendChild(style);document.body.appendChild(layer);document.body.classList.add("printing-collection-differences");
    let cleaned=false;const cleanup=()=>{if(cleaned)return;cleaned=true;document.body.classList.remove("printing-collection-differences");layer.remove();style.remove();window.removeEventListener("afterprint",cleanup)};
    window.addEventListener("afterprint",cleanup,{once:true});requestAnimationFrame(()=>requestAnimationFrame(()=>setTimeout(()=>{try{window.print()}catch(e){cleanup();alert("تعذرت طباعة ملخص التحصيلات الجديدة.")}},150)));setTimeout(cleanup,60000);
  }
  async function exportCollectionDifferencesPDF(){
-   const layer=buildCollectionDifferencesReportLayer();if(!layer)return;
-   await downloadReportLayerPDF(layer,`التحصيلات_الجديدة_${new Date().toISOString().slice(0,10)}.pdf`,`collection-differences-pdf`);
+   const filename=collectionDifferencesPdfFilename(),blob=await makeCollectionDifferencesPdfBlob();
+   if(blob)downloadCollectionDifferencesBlob(blob,filename);
  }
  function collectionDifferencesPdfFilename(){return `التحصيلات_الجديدة_${new Date().toISOString().slice(0,10)}.pdf`}
  function downloadCollectionDifferencesBlob(blob,filename){
@@ -14383,18 +14384,11 @@ window.markDailyOpsBranchDate=markDailyOpsBranchDate;window.syncDailyOpsBranchFi
  }
  async function makeCollectionDifferencesPdfBlob(){
    const layer=buildCollectionDifferencesReportLayer();if(!layer)return null;
-   return await downloadReportLayerPDF(layer,collectionDifferencesPdfFilename(),"collection-differences-share",true);
+   return await downloadReportLayerPDF(layer,collectionDifferencesPdfFilename(),"collection-differences-pdf",true);
  }
  async function runCollectionDifferencesPdfAction(action){
-   const filename=collectionDifferencesPdfFilename();let pendingWindow=null,waOpened=false,waUrl="";
-   if(action==="open"){
-     try{pendingWindow=window.open("about:blank","_blank")}catch(e){}
-   }else if(action==="whatsapp"){
-     const message=`ملخص التحصيلات الجديدة — ${collectionPaymentRangeLabel()} — سيتم تنزيل ملف PDF؛ أرفقه قبل إرسال الرسالة.`;
-     waUrl=`https://wa.me/?text=${encodeURIComponent(message)}`;
-     try{pendingWindow=window.open(waUrl,"_blank");waOpened=!!pendingWindow}catch(e){}
-     if(!waOpened){try{const link=document.createElement("a");link.href=waUrl;link.target="_blank";link.rel="noopener";link.style.display="none";document.body.appendChild(link);link.click();link.remove();waOpened=true}catch(e){}}
-   }
+   const filename=collectionDifferencesPdfFilename();let pendingWindow=null;
+   if(action==="open"){try{pendingWindow=window.open("about:blank","_blank")}catch(e){}}
    try{
      const blob=await makeCollectionDifferencesPdfBlob();if(!blob){pendingWindow?.close();return}
      if(action==="download"){downloadCollectionDifferencesBlob(blob,filename);return}
@@ -14405,12 +14399,21 @@ window.markDailyOpsBranchDate=markDailyOpsBranchDate;window.syncDailyOpsBranchFi
        return;
      }
      if(action==="whatsapp"){
+       const file=new File([blob],filename,{type:"application/pdf"});let canShareFiles=!!navigator.share;
+       try{if(canShareFiles)canShareFiles=typeof navigator.canShare==="function"&&navigator.canShare({files:[file]})}catch(e){canShareFiles=false}
+       if(canShareFiles){
+         try{await navigator.share({files:[file],title:filename,text:`ملخص التحصيلات الجديدة — ${collectionPaymentRangeLabel()}`});alert("اكتملت المشاركة من قائمة الجهاز. لم يُرسل الملف تلقائيًا.");return}
+         catch(error){if(error?.name==="AbortError"){alert("أُلغيت المشاركة؛ لم يُرسل الملف.");return}console.warn("Collection PDF file share failed:",error)}
+       }
        downloadCollectionDifferencesBlob(blob,filename);
-       alert(waOpened?"تم فتح واتساب وتنزيل ملف PDF. أرفق الملف المحمّل يدويًا قبل الإرسال؛ لم يتم إرسال أي شيء تلقائيًا.":"تم تنزيل ملف PDF. افتح واتساب وأرفق الملف يدويًا قبل الإرسال.");
+       const message=`ملخص التحصيلات الجديدة — ${collectionPaymentRangeLabel()} — أرفق ملف PDF الذي تم تنزيله لإرساله.`;
+       const waUrl=`https://wa.me/?text=${encodeURIComponent(message)}`;let waOpened=false;
+       try{waOpened=!!window.open(waUrl,"_blank")}catch(e){}
+       if(!waOpened){try{const link=document.createElement("a");link.href=waUrl;link.target="_blank";link.rel="noopener";link.style.display="none";document.body.appendChild(link);link.click();link.remove();waOpened=true}catch(e){}}
+       alert(waOpened?"تم تنزيل ملف PDF وفتح واتساب. أرفق الملف قبل الإرسال.":"تم تنزيل ملف PDF. افتح واتساب وأرفق الملف قبل الإرسال.");
      }
-   }catch(e){pendingWindow?.close();console.error("Collection PDF action failed",e);alert(action==="whatsapp"?"تعذر تجهيز PDF. إذا كان واتساب مفتوحًا، أعد المحاولة بعد التحقق من وجود بيانات مطابقة.":"تعذر تجهيز ملف PDF. حاول مرة أخرى.")}
+   }catch(e){pendingWindow?.close();console.error("Collection PDF action failed",e);alert(action==="whatsapp"?"تعذر تجهيز PDF للمشاركة. حاول مرة أخرى.":"تعذر تجهيز ملف PDF. حاول مرة أخرى.")}
  }
-
  function renderCollectionDifferences(filter="all"){
    const panel=document.getElementById("collectionDifferencesPanel"),body=document.getElementById("collectionDifferencesBody"),metrics=document.getElementById("collectionDifferenceMetrics"),tbody=document.getElementById("collectionDifferencesBodyRows"),intro=document.getElementById("collectionDifferencesIntro");if(!panel||!metrics||!tbody)return;
    const d=diffState,toggleButton=document.getElementById("collectionDifferencesToggle"),closeButton=document.getElementById("collectionDifferencesClose");panel.hidden=false;
