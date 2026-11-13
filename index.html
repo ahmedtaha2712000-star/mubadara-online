@@ -3603,7 +3603,8 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
   <div class="previous-sheet-archive-grid">
     <div><small>اسم الشيت</small><b id="previousSheetArchiveName">الشيت السابق المؤرشف</b></div>
     <div><small>اسم ورقة Excel</small><b id="previousSheetArchiveSheetName">غير محفوظ في سجل الأرشيف</b></div>
-    <div><small>تاريخ ووقت الأرشفة</small><b id="previousSheetArchiveAt">جارٍ التحميل…</b></div>
+    <div><small>وقت حفظ الأرشيف على الخادم</small><b id="previousSheetArchiveAt">جارٍ التحميل…</b></div>
+    <div><small>تاريخ رفع الشيت مصدر الأرشيف</small><b id="previousSheetArchiveSourceAt">غير مسجل</b></div>
     <div><small>اسم المستخدم الرافع</small><b id="previousSheetArchiveBy">—</b></div>
     <div><small>عدد الصفوف</small><b id="previousSheetArchiveCount">—</b></div>
   </div>
@@ -5195,6 +5196,9 @@ async function importExcelFile(file){
   if(!file)throw new Error("لم يتم اختيار ملف.");
   /* إذا كان السابق جاهزًا نثبّت لقطته قبل أي await؛ أما عند التحميل، فنقرأ الحالي أولًا ثم ننتظر السابق في الخلفية. */
   let previousRows=collectionPreviousDataState==="ready"&&Array.isArray(rows)?rows:null;
+  /* التقط تاريخ رفع الشيت الذي تمثل بياناته previousRows قبل حفظ الشيت الجديد. */
+  let previousSourceUploadedAt=null;
+  try{const meta=JSON.parse(localStorage.getItem("mub_current_sheet_meta_v1")||"null"),stamp=Date.parse(meta?.uploadedAt||"");if(Number.isFinite(stamp))previousSourceUploadedAt=new Date(stamp).toISOString()}catch(e){}
   await ensureXLSXLoaded();
   if(!/\.(xlsx|xls)$/i.test(String(file.name||"")))throw new Error("صيغة الملف غير مدعومة؛ اختر ملفًا بامتداد .xlsx أو .xls.");
   const displayFileName=safeExcelFileName(file.name);
@@ -5259,7 +5263,7 @@ async function importExcelFile(file){
   if(cloudSaved)sharedDifferenceSaved=await window.saveSharedCollectionDifferences(comparison);
   const sharedDifferenceWarning=cloudSaved&&!sharedDifferenceSaved;
   /* الأرشفة لا تبدأ إلا بعد تأكيد حفظ الشيت الجديد والمقارنة؛ الإغلاق قبل ذلك لا يكتب أي أرشيف. */
-  if(cloudSaved&&archiveRequired)archiveResult=await archivePreviousSheetSnapshot(previousRows);
+  if(cloudSaved&&archiveRequired)archiveResult=await archivePreviousSheetSnapshot(previousRows,previousSourceUploadedAt);
   const archiveWarning=cloudSaved&&archiveRequired&&!archiveResult.saved;
   const loadedAt=new Date().toLocaleString("en-US",{dateStyle:"full",timeStyle:"medium"});
   safeLocalSet("mub_current_sheet_meta_v1",JSON.stringify({fileName:displayFileName,sheetName:name,uploadedAt:new Date().toISOString(),rowCount:rows.length,fileSize:file.size}));
@@ -9389,12 +9393,12 @@ async function saveCloud(data,progress){
     return false;
   }finally{cloudWriting=false}
 }
-async function archivePreviousSheetSnapshot(snapshotRows){
+async function archivePreviousSheetSnapshot(snapshotRows,sourceUploadedAt=null){
   if(!Array.isArray(snapshotRows)||!snapshotRows.length)return {saved:false,skipped:true};
   if(!cloudReady||!supabaseClient)return {saved:false,error:"اتصال الأرشيف السحابي غير متاح."};
   try{
     const archivedRows=await packCloudRows(snapshotRows);
-    const {error}=await supabaseClient.rpc("archive_previous_sheet",{p_rows:archivedRows,p_row_count:snapshotRows.length});
+    const {error}=await supabaseClient.rpc("archive_previous_sheet_v2",{p_rows:archivedRows,p_row_count:snapshotRows.length,p_source_uploaded_at:sourceUploadedAt});
     if(error)throw error;
     return {saved:true};
   }catch(e){
@@ -15054,15 +15058,18 @@ document.addEventListener("DOMContentLoaded",()=>{document.getElementById("notif
 <script id="previous-sheet-archive-card-logic">
 (function(){
   const TABLE="mubadara_data_archive";
-  let archivedRows=null,loading=false,lastLoadedAt=0,archiveDate="",archiveTimestamp=0,recoveringComparison=false,comparisonRecoveryAttempted=false;
+  let archivedRows=null,loading=false,lastLoadedAt=0,archiveDate="",archiveTimestamp=0,sourceUploadedTimestamp=0,recoveringComparison=false,comparisonRecoveryAttempted=false;
   const el=id=>document.getElementById(id);
   const status=(text,kind="")=>{const node=el("previousSheetArchiveStatus");if(!node)return;node.textContent=text;node.classList.toggle("is-error",kind==="error");node.classList.toggle("is-ok",kind==="ok")};
   function setMeta(data){
     const at=data?.archived_at?new Date(data.archived_at):null;
+    const sourceAt=data?.source_uploaded_at?new Date(data.source_uploaded_at):null;
     archiveDate=at&&!Number.isNaN(at.getTime())?at.toISOString().slice(0,10):"";archiveTimestamp=at&&!Number.isNaN(at.getTime())?at.getTime():0;
+    sourceUploadedTimestamp=sourceAt&&!Number.isNaN(sourceAt.getTime())?sourceAt.getTime():0;
     el("previousSheetArchiveName").textContent="الشيت السابق المؤرشف";
     el("previousSheetArchiveSheetName").textContent="غير محفوظ في بيانات هذه النسخة";
     el("previousSheetArchiveAt").textContent=at&&!Number.isNaN(at.getTime())?at.toLocaleString("ar-EG",{dateStyle:"full",timeStyle:"medium"}):"غير مسجل";
+    el("previousSheetArchiveSourceAt").textContent=sourceAt&&!Number.isNaN(sourceAt.getTime())?sourceAt.toLocaleString("ar-EG",{dateStyle:"full",timeStyle:"medium"}):"غير مسجل في الأرشيف السابق";
     el("previousSheetArchiveBy").textContent=String(data?.archived_by||"غير مسجل");
     el("previousSheetArchiveCount").textContent=Number(data?.row_count||archivedRows?.length||0).toLocaleString("ar-EG");
   }
@@ -15082,7 +15089,7 @@ document.addEventListener("DOMContentLoaded",()=>{document.getElementById("notif
       const currentRows=Array.isArray(rows)?rows:[];
       if(!currentRows.length){status("تم تحميل الأرشيف، لكن الشيت الحالي لم يكتمل تحميله؛ لم تُنشأ مقارنة أو كتابة بيانات. اضغط تحديث البيانات.","error");return}
       const currentStamp=currentSheetTimestamp();
-      if(archiveTimestamp&&currentStamp&&archiveTimestamp>currentStamp+1000){comparisonRecoveryAttempted=true;status("الأرشيف أحدث من الشيت الحالي؛ لم أستخدمه للمقارنة حتى لا أعرض فرقًا غير صحيح.","error");return}
+      if(sourceUploadedTimestamp&&currentStamp&&sourceUploadedTimestamp>currentStamp+1000){comparisonRecoveryAttempted=true;status("تاريخ رفع مصدر الأرشيف أحدث من الشيت الحالي؛ لم أستخدمه للمقارنة حتى لا أعرض فرقًا غير صحيح.","error");return}
       let saved=null;try{saved=JSON.parse(localStorage.getItem("mub_collection_cumulative_last_payment_deltas_v4")||"null")}catch(e){}
       const savedStamp=Date.parse(saved?.createdAt||"");
       const savedIsCurrent=saved?.mode==="cumulative-last-payment-by-client-v4"&&Array.isArray(saved.paymentHistory)&&Number(saved.counts?.previous)>0&&(!currentStamp||!savedStamp||savedStamp>=currentStamp-120000);
@@ -15105,9 +15112,9 @@ document.addEventListener("DOMContentLoaded",()=>{document.getElementById("notif
     if(!supabaseClient||!cloudReady){archivedRows=null;el("previousSheetArchiveDownload").disabled=true;status("تعذر الاتصال بالخادم لقراءة الأرشيف.","error");return}
     loading=true;if(button)button.disabled=true;status("جارٍ قراءة بيانات الأرشيف…");
     try{
-      const {data,error}=await supabaseClient.from(TABLE).select("rows,archived_at,archived_by,row_count").eq("id",1).maybeSingle();
+      const {data,error}=await supabaseClient.from(TABLE).select("rows,archived_at,archived_by,row_count,source_uploaded_at").eq("id",1).maybeSingle();
       if(error)throw error;
-      if(!data){archivedRows=null;archiveDate="";el("previousSheetArchiveName").textContent="لا توجد نسخة سابقة";el("previousSheetArchiveSheetName").textContent="—";el("previousSheetArchiveAt").textContent="—";el("previousSheetArchiveBy").textContent="—";el("previousSheetArchiveCount").textContent="0";el("previousSheetArchiveDownload").disabled=true;status("لا توجد نسخة سابقة محفوظة في الأرشيف.");lastLoadedAt=Date.now();return}
+      if(!data){archivedRows=null;archiveDate="";archiveTimestamp=0;sourceUploadedTimestamp=0;el("previousSheetArchiveName").textContent="لا توجد نسخة سابقة";el("previousSheetArchiveSheetName").textContent="—";el("previousSheetArchiveAt").textContent="—";el("previousSheetArchiveSourceAt").textContent="—";el("previousSheetArchiveBy").textContent="—";el("previousSheetArchiveCount").textContent="0";el("previousSheetArchiveDownload").disabled=true;status("لا توجد نسخة سابقة محفوظة في الأرشيف.");lastLoadedAt=Date.now();return}
       const decoded=typeof unpackCloudRows==="function"?await unpackCloudRows(data.rows):data.rows;
       if(!Array.isArray(decoded))throw new Error("صيغة بيانات الشيت المؤرشف غير صالحة.");
       archivedRows=decoded;setMeta(data);el("previousSheetArchiveDownload").disabled=!archivedRows.length;
