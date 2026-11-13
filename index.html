@@ -1450,6 +1450,7 @@ button.icon-action .action-glyph svg{width:22px!important;height:22px!important;
 #paymentFollowup .pf-feedback.show{display:block}
 #paymentFollowup .pf-feedback.ok{color:#176147;background:#e9f6ef;border:1px solid #b8e0c8}
 #paymentFollowup .pf-feedback.warn{color:#8a4e0d;background:#fff6e5;border:1px solid #ecd39b}
+.due-seasonal-shortcut{display:flex;justify-content:flex-start;margin:0 0 12px}.due-seasonal-shortcut .command-action{min-width:230px;max-width:320px}
 #paymentFollowup .pf-table-wrap{overflow:auto;border:1px solid #dce3eb;border-radius:14px;background:#fff;box-shadow:0 5px 18px #0f172a0a}
 #paymentFollowup .pf-table{width:100%;min-width:1280px;border-collapse:separate;border-spacing:0;font-size:12px}
 #paymentFollowup .pf-table th{position:sticky;top:0;z-index:1;background:#17263c;color:#f8fafc;padding:11px 9px;text-align:right;white-space:nowrap}
@@ -3961,6 +3962,7 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
   <button class="excel-btn icon-action" aria-label="تحميل Excel" title="تحميل ملف Excel" onclick="exportCurrentExcel()"><span class="action-glyph glyph-excel" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M7 2.5h7l4 4V21H7z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M14 2.5V7h4M8 12l4 4m0-4-4 4M14 12h2m-2 4h2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="action-label">Excel</span></button>
 </div>
 <h2>📅 الأقساط المستحقة</h2>
+<div class="due-seasonal-shortcut no-print"><button class="command-action seasonal-command-action" type="button" aria-label="فتح شاشة الأقساط الموسمية" title="فتح شاشة الأقساط الموسمية" onclick="if(typeof window.showScreen==='function')window.showScreen('seasonalInstallments');else location.hash='#seasonalInstallments';var m=document.querySelector('#app .layout>main');if(m)m.scrollTop=0;window.scrollTo(0,0)"><b>🌾</b><span>الأقساط الموسمية<small>عرض الأقساط الموسمية</small></span></button></div>
 <div class="risk-summary-cards" aria-label="ملخص الأقساط المستحقة">
   <div class="risk-summary-card risk-summary-due"><span>إجمالي قيمة الأقساط</span><b id="dueTotalDue">0</b><small>إجمالي الأقساط غير المسددة</small></div>
   <div class="risk-summary-card risk-summary-paid"><span>إجمالي المسدد</span><b id="dueTotalPaid">0</b><small>المبلغ المسدد من الأقساط الظاهرة</small></div>
