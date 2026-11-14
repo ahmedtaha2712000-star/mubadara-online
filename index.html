@@ -3785,13 +3785,13 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
 </label>
 <section id="collectionDifferencesPanel" class="collection-differences-panel no-print collection-mobile-hidden" aria-label="ملخص مبالغ التحصيل الجديدة">
   <div class="collection-differences-head">
-    <div><h3>التحصيلات الجديدة منذ آخر تحديث</h3><p id="collectionDifferencesIntro">تعرض كل الزيادات منذ آخر رفع. استخدم تاريخ البطاقة للبحث أو انسخ نطاق شاشة التحصيل عند الحاجة.</p></div>
+    <div><h3>التحصيلات الجديدة منذ آخر تحديث</h3><p id="collectionDifferencesIntro">تُطابق الأقساط برقم القرض ورقم القسط؛ يظهر انتقال المسدد من صفر إلى مبلغ كتحصيل جديد، وتظهر الزيادة على القسط المدفوع فقط.</p></div>
     <div class="collection-differences-actions"><button type="button" class="light" id="collectionDifferencesToggle">عرض ملخص التحصيل الجديد</button><button type="button" class="light collection-diff-export" id="collectionDifferencesPrint" hidden>طباعة</button><button type="button" class="light collection-diff-export" id="collectionDifferencesOpenPdf" hidden>فتح PDF</button><button type="button" class="light collection-diff-export" id="collectionDifferencesPdf" hidden>تنزيل PDF</button><button type="button" class="light collection-diff-export" id="collectionDifferencesWhatsapp" hidden>مشاركة PDF عبر واتساب</button><button type="button" class="light collection-diff-export" id="collectionDifferencesExcel" hidden>Excel</button><button type="button" class="light" id="collectionDifferencesClose" hidden>إخفاء</button></div>
   </div>
   <div id="collectionDifferencesBody" hidden>
     <div class="collection-difference-metrics" id="collectionDifferenceMetrics"></div>
     <div class="collection-difference-filters" role="tablist" aria-label="تصفية مبالغ التحصيل الجديدة">
-      <button type="button" class="is-active" data-diff-filter="all">كل مبالغ التحصيل الجديدة</button><button type="button" data-diff-filter="new">تحصيل جديد للعميل/التاريخ</button><button type="button" data-diff-filter="changed">زيادة على تحصيل سابق</button>
+      <button type="button" class="is-active" data-diff-filter="all">كل مبالغ التحصيل الجديدة</button><button type="button" data-diff-filter="new">أقساط بتحصيل جديد</button><button type="button" data-diff-filter="changed">أقساط بها زيادة تحصيل</button>
     </div>
     <div class="collection-difference-date-tools" aria-label="البحث بتاريخ السداد في فروقات التحصيل">
       <label>من تاريخ <input id="collectionDifferenceFrom" type="date" aria-label="من تاريخ السداد"></label>
@@ -3800,8 +3800,8 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
       <button type="button" class="light" id="collectionDifferenceClearDates">كل التواريخ</button>
       <span id="collectionDifferenceDateStatus" role="status" aria-live="polite">يعرض كل تواريخ السداد منذ آخر رفع.</span>
     </div>
-    <div class="collection-differences-table-wrap"><table class="collection-differences-table"><thead><tr><th>نوع التحصيل</th><th>اسم العميل</th><th>تاريخ السداد</th><th>مبلغ التحصيل الجديد</th></tr></thead><tbody id="collectionDifferencesBodyRows"></tbody></table></div>
-    <p class="collection-differences-note">تُجمع المبالغ حسب العميل وتاريخ السداد، ويُعرض المبلغ الإضافي مقارنة بالشيت السابق فقط. لا تُعرض تغييرات الصفوف أو المبالغ التي انخفضت.</p>
+    <div class="collection-differences-table-wrap"><table class="collection-differences-table"><thead><tr><th>نوع التحصيل</th><th>اسم العميل</th><th>رقم القرض</th><th>رقم القسط</th><th>تاريخ السداد</th><th>مبلغ التحصيل الجديد</th></tr></thead><tbody id="collectionDifferencesBodyRows"></tbody></table></div>
+    <p class="collection-differences-note">تتم مطابقة كل قسط برقم القرض ورقم القسط. يظهر المسدد من صفر إلى موجب كتحصيل جديد، وتظهر الزيادة فقط عند ارتفاع المسدد؛ لا تُعرض القيم غير المتغيرة أو المنخفضة.</p>
   </div>
 </section>
 
@@ -14175,14 +14175,14 @@ window.markDailyOpsBranchDate=markDailyOpsBranchDate;window.syncDailyOpsBranchFi
 .collection-difference-metrics{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin:13px 0 10px}.collection-difference-metric{padding:10px 11px;border:1px solid #d9e6e7;border-top:3px solid #64748b;border-radius:10px;background:#fff}.collection-difference-metric small{display:block;color:#667985;font-size:10px;font-weight:800}.collection-difference-metric b{display:block;margin-top:4px;color:#183b4a;font-size:20px;font-weight:950}.collection-difference-metric.new{border-top-color:#16a34a}.collection-difference-metric.changed{border-top-color:#d97706}.collection-difference-metric.removed{border-top-color:#dc2626}
 .collection-difference-filters{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 10px;padding:5px;border:1px solid #dbe7ea;border-radius:10px;background:#f8fbfc}.collection-difference-filters button{border:1px solid transparent;border-radius:8px;background:transparent;color:#526b76;padding:7px 10px;font:inherit;font-size:11px;font-weight:900;cursor:pointer}.collection-difference-filters button:hover,.collection-difference-filters button.is-active{background:#e0f2ec;color:#086044;border-color:#a9d8c9}
 .collection-difference-date-tools{display:flex;align-items:flex-end;gap:8px;flex-wrap:wrap;margin:0 0 10px;padding:9px;border:1px solid #dbe7ea;border-radius:10px;background:#fff}.collection-difference-date-tools label{display:flex;align-items:center;gap:6px;color:#526b76;font-size:11px;font-weight:900}.collection-difference-date-tools input{min-height:34px;padding:5px 7px;border:1px solid #cbd5e1;border-radius:7px;background:#fff;color:#1f2937;font:inherit}.collection-difference-date-tools button{min-height:34px}.collection-difference-date-tools span{flex:1 1 220px;color:#64748b;font-size:10px;font-weight:800}
-.collection-differences-table-wrap{max-height:360px;overflow:auto;border:1px solid #d8e4e7;border-radius:10px;background:#fff}.collection-differences-table{width:100%;min-width:760px;border-collapse:collapse;font-size:11px}.collection-differences-table th{position:sticky;top:0;z-index:1;background:#eaf5f2;color:#285564;font-weight:950}.collection-differences-table th,.collection-differences-table td{padding:9px 8px;border-bottom:1px solid #e6eef0;text-align:right;vertical-align:middle}.collection-differences-table tbody tr:hover td{background:#f2faf7}.collection-difference-badge{display:inline-flex;align-items:center;padding:4px 7px;border-radius:999px;font-size:10px;font-weight:900;white-space:nowrap}.collection-difference-badge.new{background:#dcfce7;color:#166534}.collection-difference-badge.changed{background:#ffedd5;color:#9a3412}.collection-difference-badge.removed{background:#fee2e2;color:#991b1b}.collection-difference-details{color:#526b76;font-size:10px;font-weight:800}.collection-differences-note{margin:9px 2px 0;color:#71828a;font-size:10px;line-height:1.6}
+.collection-differences-table-wrap{max-height:360px;overflow:auto;border:1px solid #d8e4e7;border-radius:10px;background:#fff}.collection-differences-table{width:100%;min-width:980px;border-collapse:collapse;font-size:11px}.collection-differences-table th{position:sticky;top:0;z-index:1;background:#eaf5f2;color:#285564;font-weight:950}.collection-differences-table th,.collection-differences-table td{padding:9px 8px;border-bottom:1px solid #e6eef0;text-align:right;vertical-align:middle}.collection-differences-table tbody tr:hover td{background:#f2faf7}.collection-difference-badge{display:inline-flex;align-items:center;padding:4px 7px;border-radius:999px;font-size:10px;font-weight:900;white-space:nowrap}.collection-difference-badge.new{background:#dcfce7;color:#166534}.collection-difference-badge.changed{background:#ffedd5;color:#9a3412}.collection-difference-badge.removed{background:#fee2e2;color:#991b1b}.collection-difference-details{color:#526b76;font-size:10px;font-weight:800}.collection-differences-note{margin:9px 2px 0;color:#71828a;font-size:10px;line-height:1.6}
 @media(max-width:800px){.collection-difference-metrics{grid-template-columns:repeat(3,minmax(0,1fr))}}@media(max-width:520px){.collection-differences-head{align-items:flex-start}.collection-difference-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.collection-difference-filters button{flex:1 1 44%}.collection-difference-date-tools label{flex:1 1 100%;justify-content:space-between}.collection-difference-date-tools input{flex:1}}
 @media print{#collectionDifferencesPanel{display:none!important}}
 </style>
 <script id="collection-differences-logic">
 (function(){
- const STORAGE_KEY="mub_collection_cumulative_last_payment_deltas_v4";
- const DIFF_MODE="cumulative-last-payment-by-client-v4";
+ const STORAGE_KEY="mub_collection_installment_paid_deltas_v5";
+ const DIFF_MODE="installment-paid-delta-by-loan-installment-v5";
  const diffState={mode:DIFF_MODE,items:[],counts:{previous:0,current:0,new:0,changed:0,customerCount:0,totalNewAmount:0,unchanged:0},error:false};
  function text(v){return String(v??"").trim()}
  function first(r,names){for(const name of names){const k=normFast(name);if(Object.prototype.hasOwnProperty.call(r||{},k)&&text(r[k]))return r[k]}return ""}
@@ -14199,79 +14199,72 @@ window.markDailyOpsBranchDate=markDailyOpsBranchDate;window.syncDailyOpsBranchFi
    if(typeof value==="number")return value;
    return String(value??"").normalize("NFKC").trim().replace(/[٠-٩]/g,d=>String("٠١٢٣٤٥٦٧٨٩".indexOf(d))).replace(/[۰-۹]/g,d=>String("۰۱۲۳۴۵۶۷۸۹".indexOf(d)));
  }
- function paymentGroupInfo(r){
+ function canonicalCollectionIdentityPart(value){
+   let raw=String(value??"").normalize("NFKC").trim();
+   raw=raw.replace(/[٠-٩]/g,d=>String("٠١٢٣٤٥٦٧٨٩".indexOf(d))).replace(/[۰-۹]/g,d=>String("۰۱۲۳۴۵۶۷۸۹".indexOf(d)));
+   raw=raw.replace(/٫/g,".").replace(/٬/g,"");
+   if(/^[+-]?[0-9]+(?:[.][0-9]+)?e[+-]?[0-9]+$/i.test(raw)){const numeric=Number(raw);if(Number.isFinite(numeric)&&Number.isInteger(numeric)&&Math.abs(numeric)<1e21)raw=numeric.toFixed(0)}
+   raw=raw.replace(/[.]0+$/g,"");
+   return raw.replace(/ {2,}/g," ").toLocaleUpperCase("en-US");
+ }
+ function installmentRowInfo(r,index){
    const nameValue=typeof get==="function"?get(r,"client"):first(r,[H.client,"اسم العميل","العميل"]);
    const nationalId=text((typeof get==="function"?get(r,"nid"):"")||first(r,[H.nid,"الرقم القومي","الرقم القومى","رقم قومي","الرقم القومي للعميل","رقم قومي للعميل","رقم الهوية"]));
-   const client=text(nameValue)||(nationalId?`عميل بدون اسم — ${nationalId}`:"");
-   if(!client)return null;
+   const loanValue=first(r,[H.loan,"رقم القرض","رقم القرض للعميل"])||first(r,[H.loanCode,"كود القرض"]);
+   const installmentValue=first(r,[H.installment,"رقم القسط","رقم القسط المستحق"]);
+   if(!text(loanValue)||!text(installmentValue))return null;
+   const loanKey=canonicalCollectionIdentityPart(loanValue),installmentKey=canonicalCollectionIdentityPart(installmentValue);
+   if(!loanKey||!installmentKey)return null;
+   const clientName=text(nameValue),canonicalId=nationalId?canonicalCollectionNationalId(nationalId):"";
+   const client=clientName||(canonicalId?`عميل بدون اسم — ${canonicalId}`:`عميل — القرض ${text(loanValue)}`);
+   const clientKey=canonicalId?"nid:"+canonicalId:clientName?"name:"+normFast(clientName):"loan:"+loanKey;
    const rawDate=typeof rowPaymentDate==="function"?rowPaymentDate(r):first(r,[H.paymentDate,"تاريخ دفع القسط","تاريخ الدفع","تاريخ دفع","تاريخ التحصيل","تاريخ تحصيل القسط","تاريخ السداد الفعلي"]);
-   if(!text(rawDate))return null;
    const normalizedDate=collectionPaymentDateValue(rawDate);
    const parsedDate=typeof parseExcelDate==="function"?parseExcelDate(normalizedDate):null;
-   const dateKey=parsedDate&&typeof isoDate==="function"?isoDate(parsedDate):normFast(normalizedDate);
-   const dateLabel=parsedDate?parsedDate.toLocaleDateString("ar-EG"):text(normalizedDate);
-   const amount=num(first(r,[H.paid,"المبلغ المدفوع","المبلغ المحصل","قيمة المسدد","المبلغ المسدد","المسدد","المدفوع","قيمة المدفوع"]));
-   if(!(amount>0))return null;
-   const canonicalId=nationalId?canonicalCollectionNationalId(nationalId):"";
-   const clientKey=canonicalId?"nid:"+canonicalId:"name:"+normFast(text(nameValue)||client);
-   return {key:clientKey+"|"+dateKey,clientKey,client,dateKey,dateLabel,amount};
+   const dateKey=parsedDate&&typeof isoDate==="function"?isoDate(parsedDate):"";
+   const dateLabel=parsedDate?parsedDate.toLocaleDateString("ar-EG"):text(rawDate);
+   const rawAmount=num(first(r,[H.paid,"المبلغ المدفوع","المبلغ المحصل","قيمة المسدد","المبلغ المسدد","المسدد","المدفوع","قيمة المدفوع"]));
+   const amount=Math.round((Math.max(0,Number(rawAmount)||0)+Number.EPSILON)*100)/100;
+   return {key:JSON.stringify([loanKey,installmentKey]),loanNumber:text(loanValue),installmentNumber:text(installmentValue),client,clientKey,dateKey,dateLabel,amount,index};
  }
- function latestPaymentItemsFromHistory(history,from="",to=""){
-   const items=[];
-   for(const customer of Array.isArray(history)?history:[]){
-     const key=String(customer?.key||"");if(!key)continue;
-     let latestCurrent=null;
-     for(const payment of Array.isArray(customer?.current)?customer.current:[]){
-       const dateKey=String(payment?.[0]||"");
-       if(!/^\d{4}-\d{2}-\d{2}$/.test(dateKey))continue;
-       if(from&&dateKey<from)continue;if(to&&dateKey>to)continue;
-       const order=Number(payment?.[3])||0;
-       if(!latestCurrent||dateKey>latestCurrent.dateKey||(dateKey===latestCurrent.dateKey&&order>=latestCurrent.order))
-         latestCurrent={dateKey,dateLabel:String(payment?.[1]||dateKey),amount:Number(payment?.[2])||0,order,client:String(payment?.[4]||customer.client||"")};
+ function preferInstallmentSnapshot(existing,candidate){
+   if(!existing)return candidate;
+   if(candidate.amount>existing.amount+0.009)return candidate;
+   if(Math.abs(candidate.amount-existing.amount)<=0.009&&candidate.dateKey>existing.dateKey)return candidate;
+   if(Math.abs(candidate.amount-existing.amount)<=0.009&&candidate.dateKey===existing.dateKey&&candidate.index>=existing.index)return candidate;
+   return existing;
+ }
+ async function compareCollectionSheetRows(previous,current,onProgress){
+   const oldRows=Array.isArray(previous)?previous:[],newRows=Array.isArray(current)?current:[];
+   const oldByInstallment=new Map(),currentByInstallment=new Map();
+   const total=oldRows.length+newRows.length;let processed=0;
+   const collect=async(source,target)=>{
+     for(let i=0;i<source.length;i++){
+       const info=installmentRowInfo(source[i],i);
+       if(info)target.set(info.key,preferInstallmentSnapshot(target.get(info.key),info));
+       processed++;
+       if(processed%1000===0){onProgress?.(60+Math.round((processed/Math.max(1,total))*12),"مطابقة الأقساط برقم القرض ورقم القسط",`${processed.toLocaleString("en-US")} / ${total.toLocaleString("en-US")}`);await new Promise(resolve=>requestAnimationFrame(resolve))}
      }
-     if(!latestCurrent||!(latestCurrent.amount>0))continue;
-     let latestPrevious=null;
-     for(const payment of Array.isArray(customer?.previous)?customer.previous:[]){
-       const dateKey=String(payment?.[0]||"");
-       if(!/^\d{4}-\d{2}-\d{2}$/.test(dateKey)||dateKey>latestCurrent.dateKey)continue;
-       const order=Number(payment?.[3])||0;
-       if(!latestPrevious||dateKey>latestPrevious.dateKey||(dateKey===latestPrevious.dateKey&&order>=latestPrevious.order))
-         latestPrevious={dateKey,dateLabel:String(payment?.[1]||dateKey),amount:Number(payment?.[2])||0,order};
-     }
-     const oldAmount=latestPrevious?.amount||0,delta=Math.round((latestCurrent.amount-oldAmount+Number.EPSILON)*100)/100;
+   };
+   await collect(oldRows,oldByInstallment);await collect(newRows,currentByInstallment);
+   const items=[];let eligibleCurrentInstallments=0;
+   for(const currentInstallment of currentByInstallment.values()){
+     if(!(currentInstallment.amount>0.009)||! /^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(currentInstallment.dateKey))continue;
+     eligibleCurrentInstallments++;
+     const previousInstallment=oldByInstallment.get(currentInstallment.key);
+     const previousPaid=Math.max(0,Number(previousInstallment?.amount)||0);
+     const isNew=!previousInstallment||previousPaid<=0.009;
+     const delta=Math.round(((isNew?currentInstallment.amount:currentInstallment.amount-previousPaid)+Number.EPSILON)*100)/100;
      if(delta<=0.009)continue;
-     items.push({type:latestPrevious?"changed":"new",current:{client:latestCurrent.client||customer.client||"—",clientKey:key,paymentDate:latestCurrent.dateLabel,dateKey:latestCurrent.dateKey,paid:delta,previousPaid:oldAmount,totalPaid:latestCurrent.amount,previousPaymentDate:latestPrevious?.dateLabel||""},details:latestPrevious?"فرق آخر مسدد تراكمي عن آخر سجل سابق":"تحصيل جديد؛ لا يوجد سجل سابق للعميل"});
+     items.push({type:isNew?"new":"changed",current:{client:currentInstallment.client||"—",clientKey:currentInstallment.clientKey,loanNumber:currentInstallment.loanNumber,installmentNumber:currentInstallment.installmentNumber,paymentDate:currentInstallment.dateLabel||"تاريخ غير محدد",dateKey:currentInstallment.dateKey,paid:delta,previousPaid,totalPaid:currentInstallment.amount,previousPaymentDate:previousInstallment?.dateLabel||""},details:isNew?"تحصيل جديد على القسط مقارنة بالشيت السابق":"زيادة المسدد على القسط مقارنة بالشيت السابق"});
    }
-   items.sort((a,b)=>String(a.current.dateKey).localeCompare(String(b.current.dateKey))||String(a.current.client).localeCompare(String(b.current.client),"ar"));
-   return items;
+   items.sort((a,b)=>String(a.current.dateKey).localeCompare(String(b.current.dateKey))||String(a.current.loanNumber).localeCompare(String(b.current.loanNumber),"ar")||String(a.current.installmentNumber).localeCompare(String(b.current.installmentNumber),"ar")||String(a.current.client).localeCompare(String(b.current.client),"ar"));
+   const newCount=items.filter(x=>x.type==="new").length,changed=items.filter(x=>x.type==="changed").length;
+   const totalNewAmount=Math.round((items.reduce((sum,item)=>sum+Number(item.current.paid||0),0)+Number.EPSILON)*100)/100;
+   const customerCount=new Set(items.map(item=>item.current.clientKey)).size;
+   return {mode:DIFF_MODE,items,counts:{previous:oldRows.length,current:newRows.length,new:newCount,changed,customerCount,totalNewAmount,unchanged:Math.max(0,eligibleCurrentInstallments-items.length)},createdAt:new Date().toISOString()};
  }
- function compareCollectionSheetRows(previous,current,onProgress){
-   return new Promise(async resolve=>{
-     const oldRows=Array.isArray(previous)?previous:[],newRows=Array.isArray(current)?current:[],byCustomer=new Map();
-     const total=oldRows.length+newRows.length;let processed=0;
-     const addRows=async(source,field)=>{
-       for(let i=0;i<source.length;i++){
-         const info=paymentGroupInfo(source[i]);
-         if(info&&/^\d{4}-\d{2}-\d{2}$/.test(info.dateKey)){
-           let customer=byCustomer.get(info.clientKey);
-           if(!customer){customer={key:info.clientKey,client:info.client,previous:[],current:[]};byCustomer.set(info.clientKey,customer)}
-           customer[field].push([info.dateKey,info.dateLabel,info.amount,i,info.client]);
-         }
-         processed++;
-         if(processed%1000===0){onProgress?.(60+Math.round((processed/Math.max(1,total))*12),"تحديد آخر مسدد لكل عميل",`${processed.toLocaleString("en-US")} / ${total.toLocaleString("en-US")}`);await new Promise(requestAnimationFrame)}
-       }
-     };
-     await addRows(oldRows,"previous");await addRows(newRows,"current");
-     const paymentHistory=Array.from(byCustomer.values());
-     const items=latestPaymentItemsFromHistory(paymentHistory);
-     const newCount=items.filter(x=>x.type==="new").length,changed=items.filter(x=>x.type==="changed").length;
-     const totalNewAmount=Math.round((items.reduce((sum,item)=>sum+Number(item.current.paid||0),0)+Number.EPSILON)*100)/100;
-     const customerCount=new Set(items.map(item=>item.current.clientKey)).size;
-     const currentCustomerCount=new Set(paymentHistory.filter(x=>x.current.length).map(x=>x.key)).size;
-     resolve({mode:DIFF_MODE,items,paymentHistory,counts:{previous:oldRows.length,current:newRows.length,new:newCount,changed,customerCount,totalNewAmount,unchanged:Math.max(0,currentCustomerCount-items.length)},createdAt:new Date().toISOString()});
-   });
- }
- function storeCollectionDifferences(result){const payload={...result,mode:DIFF_MODE};Object.assign(diffState,payload);try{localStorage.setItem(STORAGE_KEY,JSON.stringify(payload))}catch(e){console.warn("collection payment summary storage:",e)}}
+ function storeCollectionDifferences(result){const payload={...result,mode:DIFF_MODE,error:!!result?.error};delete payload.paymentHistory;delete diffState.paymentHistory;Object.assign(diffState,payload);try{localStorage.setItem(STORAGE_KEY,JSON.stringify(payload))}catch(e){console.warn("collection payment summary storage:",e)}}
  function loadCollectionDifferences(){try{const d=JSON.parse(localStorage.getItem(STORAGE_KEY)||"null");if(d&&d.mode===DIFF_MODE&&Array.isArray(d.items)){Object.assign(diffState,d);return d}}catch(e){}return null}
  async function saveSharedCollectionDifferences(result){
    if(!result||result.mode!==DIFF_MODE||!Array.isArray(result.items)||!cloudReady||!supabaseClient||!session||!isOwnerRole(session.role))return false;
@@ -14317,7 +14310,7 @@ window.markDailyOpsBranchDate=markDailyOpsBranchDate;window.syncDailyOpsBranchFi
  }
  function filteredDifferenceItems(filter=activeDifferenceFilter()){
    const {from,to}=selectedCollectionPaymentRange();
-   const source=Array.isArray(diffState.paymentHistory)?latestPaymentItemsFromHistory(diffState.paymentHistory,from,to):(diffState.items||[]).filter(item=>{
+   const source=(diffState.items||[]).filter(item=>{
      const dateKey=String(item.current?.dateKey||"");
      if((from||to)&&!/^\d{4}-\d{2}-\d{2}$/.test(dateKey))return false;
      if(from&&dateKey<from)return false;if(to&&dateKey>to)return false;return true;
@@ -14330,8 +14323,8 @@ window.markDailyOpsBranchDate=markDailyOpsBranchDate;window.syncDailyOpsBranchFi
  }
  function exportCollectionDifferencesExcel(){
    const filter=activeDifferenceFilter(),items=filteredDifferenceItems(filter);if(!items.length)return alert("لا توجد مبالغ تحصيل جديدة ضمن التصنيف الحالي للتصدير.");if(typeof XLSX==="undefined")return alert("مكتبة Excel غير متاحة.");
-   const rows=items.map(item=>({"نوع التحصيل":item.type==="new"?"تحصيل جديد":"زيادة على آخر سداد","اسم العميل":item.current.client||"—","تاريخ السداد":item.current.paymentDate||"تاريخ غير محدد","مبلغ التحصيل الجديد":Number(item.current.paid||0)}));
-   const c=differenceSummary(items),summary=[["ملخص آخر سداد لكل عميل ضمن فترة الفلترة"],["فترة تاريخ السداد",collectionPaymentRangeLabel()],["التصنيف",differenceLabel(filter)],["إجمالي الزيادات والتحصيل الجديد",c.totalNewAmount],["عدد العملاء",c.customerCount],["تحصيل جديد للعميل ضمن الفترة",c.new],["زيادة على آخر سداد",c.changed],["عدد الصفوف المصدرة",items.length],[],Object.keys(rows[0]),...rows.map(r=>Object.values(r))];
+   const rows=items.map(item=>({"نوع التحصيل":item.type==="new"?"تحصيل جديد":"زيادة تحصيل","اسم العميل":item.current.client||"—","رقم القرض":item.current.loanNumber||"—","رقم القسط":item.current.installmentNumber||"—","تاريخ السداد":item.current.paymentDate||"تاريخ غير محدد","مبلغ التحصيل الجديد":Number(item.current.paid||0)}));
+   const c=differenceSummary(items),summary=[["ملخص فروقات التحصيل لكل قسط ضمن فترة الفلترة"],["فترة تاريخ السداد",collectionPaymentRangeLabel()],["التصنيف",differenceLabel(filter)],["إجمالي الزيادات والتحصيل الجديد",c.totalNewAmount],["عدد العملاء",c.customerCount],["أقساط بتحصيل جديد",c.new],["أقساط بها زيادة تحصيل",c.changed],["عدد الأقساط المصدرة",items.length],[],Object.keys(rows[0]),...rows.map(r=>Object.values(r))];
    const ws=XLSX.utils.aoa_to_sheet(summary),wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,"التحصيلات الجديدة");XLSX.writeFile(wb,`التحصيلات_الجديدة_${differenceLabel(filter)}_${new Date().toISOString().slice(0,10)}.xlsx`);
  }
  function buildCollectionDifferencesReportLayer(){
@@ -14340,7 +14333,7 @@ window.markDailyOpsBranchDate=markDailyOpsBranchDate;window.syncDailyOpsBranchFi
    const c=differenceSummary(items),dt=typeof reportDateTime==="function"?reportDateTime():{date:new Date().toLocaleDateString("ar-EG"),time:new Date().toLocaleTimeString("ar-EG")};
    const brand=typeof reportLogoHTML==="function"?reportLogoHTML():"<strong>جمعية المبادرة</strong>";
    const user=typeof reportUserName==="function"?reportUserName():"غير محدد";
-   const rows=items.map(item=>`<tr><td>${esc(item.type==="new"?"تحصيل جديد":"زيادة على آخر سداد")}</td><td>${esc(item.current.client||"—")}</td><td>${esc(item.current.paymentDate||"—")}</td><td>${esc(fmtMoney(item.current.paid))}</td></tr>`).join("");
+   const rows=items.map(item=>`<tr><td>${esc(item.type==="new"?"تحصيل جديد":"زيادة تحصيل")}</td><td>${esc(item.current.client||"—")}</td><td>${esc(item.current.loanNumber||"—")}</td><td>${esc(item.current.installmentNumber||"—")}</td><td>${esc(item.current.paymentDate||"—")}</td><td>${esc(fmtMoney(item.current.paid))}</td></tr>`).join("");
    const layer=document.createElement("div");layer.id="collectionDifferencesPrintLayer";layer.dir="rtl";
    layer.style.cssText="display:block;position:fixed;left:-20000px;top:0;width:1120px;box-sizing:border-box;background:#fff;color:#000;font-family:Arial,Tahoma,sans-serif;direction:rtl;padding:5mm 3mm";
    layer.innerHTML=`<style>
@@ -14361,14 +14354,14 @@ window.markDailyOpsBranchDate=markDailyOpsBranchDate;window.syncDailyOpsBranchFi
      #collectionDifferencesPrintLayer tr{break-inside:avoid!important;page-break-inside:avoid!important}
      #collectionDifferencesPrintLayer th,#collectionDifferencesPrintLayer td{border:1px solid #111;padding:7px 5px;text-align:center;vertical-align:middle;background:#fff;overflow-wrap:anywhere}
      #collectionDifferencesPrintLayer th{background:#969eaa;font-size:9px;font-weight:900}
-     #collectionDifferencesPrintLayer th:nth-child(1){width:22%}#collectionDifferencesPrintLayer th:nth-child(2){width:38%}#collectionDifferencesPrintLayer th:nth-child(3){width:20%}#collectionDifferencesPrintLayer th:nth-child(4){width:20%}
+     #collectionDifferencesPrintLayer th:nth-child(1){width:16%}#collectionDifferencesPrintLayer th:nth-child(2){width:23%}#collectionDifferencesPrintLayer th:nth-child(3){width:15%}#collectionDifferencesPrintLayer th:nth-child(4){width:12%}#collectionDifferencesPrintLayer th:nth-child(5){width:17%}#collectionDifferencesPrintLayer th:nth-child(6){width:17%}
      #collectionDifferencesPrintLayer .footer{display:flex;justify-content:space-between;gap:8px;margin-top:7px;padding-top:5px;border-top:1px solid #777;font-size:8px;font-weight:700}
      @media print{#collectionDifferencesPrintLayer{display:block!important;position:static!important;left:auto!important;top:auto!important;width:100%!important}}
    </style>
    <div class="report-head"><div class="brand">${brand}</div><div class="title">جمعية المبادرة — ملخص التحصيلات الجديدة</div><div class="generated">الفترة: ${esc(collectionPaymentRangeLabel())}<br>التصنيف: ${esc(differenceLabel(filter).replaceAll("_"," "))}</div></div>
-   <div class="meta"><span>عدد العملاء: ${fmt(c.customerCount)}</span><span>صفوف التحصيل الجديدة: ${fmt(items.length)}</span><span>تاريخ التقرير: ${esc(dt.date)}</span><span>الوقت: ${esc(dt.time)}</span></div>
-   <div class="summary"><div><small>إجمالي مبالغ التحصيل الجديدة</small><b>${esc(fmtMoney(c.totalNewAmount))}</b></div><div><small>عدد العملاء</small><b>${fmt(c.customerCount)}</b></div><div><small>تحصيل جديد للعميل/التاريخ</small><b>${fmt(c.new)}</b></div><div><small>زيادة على تحصيل سابق</small><b>${fmt(c.changed)}</b></div></div>
-   <table><thead><tr><th>نوع التحصيل</th><th>اسم العميل</th><th>تاريخ السداد</th><th>مبلغ التحصيل الجديد</th></tr></thead><tbody>${rows}</tbody></table>
+   <div class="meta"><span>عدد العملاء: ${fmt(c.customerCount)}</span><span>عدد الأقساط المعروضة: ${fmt(items.length)}</span><span>تاريخ التقرير: ${esc(dt.date)}</span><span>الوقت: ${esc(dt.time)}</span></div>
+   <div class="summary"><div><small>إجمالي مبالغ التحصيل والزيادات</small><b>${esc(fmtMoney(c.totalNewAmount))}</b></div><div><small>عدد العملاء</small><b>${fmt(c.customerCount)}</b></div><div><small>أقساط بتحصيل جديد</small><b>${fmt(c.new)}</b></div><div><small>أقساط بها زيادة تحصيل</small><b>${fmt(c.changed)}</b></div></div>
+   <table><thead><tr><th>نوع التحصيل</th><th>اسم العميل</th><th>رقم القرض</th><th>رقم القسط</th><th>تاريخ السداد</th><th>مبلغ التحصيل الجديد</th></tr></thead><tbody>${rows}</tbody></table>
    <div class="footer"><span>المستخدم: ${esc(user)}</span><span>التاريخ: ${esc(dt.date)}</span><span>الوقت: ${esc(dt.time)}</span></div>`;
    return layer;
  }
@@ -14422,13 +14415,13 @@ window.markDailyOpsBranchDate=markDailyOpsBranchDate;window.syncDailyOpsBranchFi
  function renderCollectionDifferences(filter="all"){
    const panel=document.getElementById("collectionDifferencesPanel"),body=document.getElementById("collectionDifferencesBody"),metrics=document.getElementById("collectionDifferenceMetrics"),tbody=document.getElementById("collectionDifferencesBodyRows"),intro=document.getElementById("collectionDifferencesIntro");if(!panel||!metrics||!tbody)return;
    const d=diffState,toggleButton=document.getElementById("collectionDifferencesToggle"),closeButton=document.getElementById("collectionDifferencesClose");panel.hidden=false;
-   if(!d.createdAt&&!(d.items||[]).length){intro.textContent="جاهزة للمقارنة. بعد رفع الشيت التالي ستظهر زيادة آخر سداد لكل عميل ضمن نطاق تاريخ السداد المختار.";if(body){body.hidden=true;body.dataset.open="0"}if(toggleButton){toggleButton.textContent="لا توجد مقارنة بعد";toggleButton.disabled=true}if(closeButton)closeButton.hidden=true;return}
+   if(!d.createdAt&&!(d.items||[]).length){intro.textContent="جاهزة للمقارنة. بعد رفع الشيت التالي ستظهر التحصيلات والزيادات لكل قسط ضمن نطاق تاريخ السداد المختار.";if(body){body.hidden=true;body.dataset.open="0"}if(toggleButton){toggleButton.textContent="لا توجد مقارنة بعد";toggleButton.disabled=true}if(closeButton)closeButton.hidden=true;return}
    if(toggleButton){toggleButton.textContent="عرض ملخص التحصيل الجديد";toggleButton.disabled=false}
    const periodItems=filteredDifferenceItems("all"),c=differenceSummary(periodItems),list=filteredDifferenceItems(filter),dateStatus=document.getElementById("collectionDifferenceDateStatus"),dateRange=selectedCollectionPaymentRange();
-   if(dateStatus)dateStatus.textContent=(dateRange.from||dateRange.to)?`تصفية مستقلة حسب تاريخ السداد: ${collectionPaymentRangeLabel()}`:"يعرض آخر سداد لكل عميل منذ آخر رفع؛ غيّر نطاق تاريخ السداد لإعادة المقارنة.";
+   if(dateStatus)dateStatus.textContent=(dateRange.from||dateRange.to)?`تصفية مستقلة حسب تاريخ السداد: ${collectionPaymentRangeLabel()}`:"يعرض فروقات كل قسط منذ آخر رفع؛ غيّر نطاق تاريخ السداد لإعادة التصفية.";
    intro.textContent=d.error?"تعذر تجهيز ملخص التحصيل، بينما تم اعتماد الشيت الجديد بأمان.":`فترة المقارنة: ${collectionPaymentRangeLabel()} — مبالغ التحصيل الإضافية: ${fmtMoney(c.totalNewAmount)} عبر ${fmt(c.customerCount)} عميلًا.`;
-   metrics.innerHTML=[["إجمالي الزيادات والتحصيل الجديد",fmtMoney(c.totalNewAmount),"new"],["عدد العملاء",fmt(c.customerCount),""],["تحصيل جديد للعميل ضمن الفترة",fmt(c.new),"new"],["زيادة على آخر سداد",fmt(c.changed),"changed"]].map(x=>`<div class="collection-difference-metric ${x[2]}"><small>${x[0]}</small><b>${x[1]}</b></div>`).join("");
-   tbody.innerHTML=list.length?list.map(item=>`<tr><td>${badge(item.type)}</td><td>${esc(item.current?.client||"—")}</td><td>${esc(item.current?.paymentDate||"تاريخ غير محدد")}</td><td class="collection-difference-details">${esc(fmtMoney(item.current?.paid||0))}</td></tr>`).join(""):'<tr><td colspan="4" style="text-align:center;padding:22px;color:#71828a">لا توجد مبالغ تحصيل جديدة ضمن فترة التاريخ المختارة وهذا التصنيف.</td></tr>';
+   metrics.innerHTML=[["إجمالي الزيادات والتحصيل الجديد",fmtMoney(c.totalNewAmount),"new"],["عدد العملاء",fmt(c.customerCount),""],["أقساط بتحصيل جديد",fmt(c.new),"new"],["أقساط بها زيادة تحصيل",fmt(c.changed),"changed"]].map(x=>`<div class="collection-difference-metric ${x[2]}"><small>${x[0]}</small><b>${x[1]}</b></div>`).join("");
+   tbody.innerHTML=list.length?list.map(item=>`<tr><td>${badge(item.type)}</td><td>${esc(item.current?.client||"—")}</td><td>${esc(item.current?.loanNumber||"—")}</td><td>${esc(item.current?.installmentNumber||"—")}</td><td>${esc(item.current?.paymentDate||"تاريخ غير محدد")}</td><td class="collection-difference-details">${esc(fmtMoney(item.current?.paid||0))}</td></tr>`).join(""):'<tr><td colspan="6" style="text-align:center;padding:22px;color:#71828a">لا توجد تحصيلات جديدة أو زيادات على الأقساط ضمن نطاق التاريخ والتصنيف الحالي.</td></tr>';
    document.querySelectorAll("#collectionDifferencesPanel [data-diff-filter]").forEach(b=>b.classList.toggle("is-active",b.dataset.diffFilter===filter));
    if(body&&body.dataset.open==="1")body.hidden=false;
  }
@@ -15098,17 +15091,18 @@ document.addEventListener("DOMContentLoaded",()=>{document.getElementById("notif
       if(!currentRows.length){status("تم تحميل الأرشيف، لكن الشيت الحالي لم يكتمل تحميله؛ لم تُنشأ مقارنة أو كتابة بيانات. اضغط تحديث البيانات.","error");return}
       const currentStamp=currentSheetTimestamp();
       if(sourceUploadedTimestamp&&currentStamp&&sourceUploadedTimestamp>currentStamp+1000){comparisonRecoveryAttempted=true;status("تاريخ رفع مصدر الأرشيف أحدث من الشيت الحالي؛ لم أستخدمه للمقارنة حتى لا أعرض فرقًا غير صحيح.","error");return}
-      let saved=null;try{saved=JSON.parse(localStorage.getItem("mub_collection_cumulative_last_payment_deltas_v4")||"null")}catch(e){}
+      let saved=null;try{saved=JSON.parse(localStorage.getItem("mub_collection_installment_paid_deltas_v5")||"null")}catch(e){}
       const savedStamp=Date.parse(saved?.createdAt||"");
-      const savedIsCurrent=saved?.mode==="cumulative-last-payment-by-client-v4"&&Array.isArray(saved.paymentHistory)&&Number(saved.counts?.previous)>0&&(!currentStamp||!savedStamp||savedStamp>=currentStamp-120000);
+      const savedIsCurrent=saved?.mode==="installment-paid-delta-by-loan-installment-v5"&&Array.isArray(saved.items)&&Number(saved.counts?.previous)>0&&(!currentStamp||!savedStamp||savedStamp>=currentStamp-120000);
       if(savedIsCurrent){comparisonRecoveryAttempted=true;return}
       if(typeof window.compareCollectionSheetRows!=="function"||typeof window.storeCollectionDifferences!=="function")return;
       const result=await window.compareCollectionSheetRows(archivedRows,currentRows);
-      if(!result||!Array.isArray(result.paymentHistory))return;
+      if(!result||!Array.isArray(result.items))return;
       window.storeCollectionDifferences(result);
       window.renderCollectionDifferences?.();
+      const sharedSaved=typeof window.saveSharedCollectionDifferences==="function"?await window.saveSharedCollectionDifferences(result):false;
       comparisonRecoveryAttempted=true;
-      status("تم استعادة المقارنة محليًا من الشيت السابق المؤرشف. لم يتم إنشاء أرشيف جديد أو تعديل قاعدة البيانات.","ok");
+      status(sharedSaved?"تمت إعادة بناء ومزامنة مقارنة الأقساط من الأرشيف؛ لم تتغير بيانات الشيت أو الأرشيف.":"تمت إعادة بناء مقارنة الأقساط محليًا من الأرشيف؛ لم تتغير بيانات الشيت أو الأرشيف.","ok");
     }catch(error){console.warn("Recover collection comparison from archive:",error);status("تعذر استعادة المقارنة من الأرشيف؛ لم يتم تعديل الأرشيف أو قاعدة البيانات.","error")}
     finally{recoveringComparison=false}
   }
