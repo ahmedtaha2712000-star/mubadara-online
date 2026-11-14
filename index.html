@@ -3963,7 +3963,7 @@ body.printing-risk-report .risk-print-table td:nth-child(15){
   <button class="excel-btn icon-action" aria-label="تحميل Excel" title="تحميل ملف Excel" onclick="exportCurrentExcel()"><span class="action-glyph glyph-excel" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M7 2.5h7l4 4V21H7z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M14 2.5V7h4M8 12l4 4m0-4-4 4M14 12h2m-2 4h2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="action-label">Excel</span></button>
 </div>
 <h2>📅 الأقساط المستحقة</h2>
-<div class="due-seasonal-shortcut no-print"><button class="command-action seasonal-command-action" type="button" aria-label="فتح شاشة الأقساط الموسمية" title="فتح شاشة الأقساط الموسمية" onclick="if(typeof window.showScreen==='function')window.showScreen('seasonalInstallments');else location.hash='#seasonalInstallments';var m=document.querySelector('#app .layout>main');if(m)m.scrollTop=0;window.scrollTo(0,0)"><b>🌾</b><span>الأقساط الموسمية<small>عرض الأقساط الموسمية</small></span></button></div>
+<div class="due-seasonal-shortcut no-print"><button class="command-action seasonal-command-action" type="button" aria-label="فتح شاشة الأقساط الموسمية" title="فتح شاشة الأقساط الموسمية" onclick="if(typeof window.showScreen==='function')window.showScreen('seasonalInstallments');else location.hash='#seasonalInstallments';var m=document.querySelector('#app .layout>main');if(m)m.scrollTop=0;window.scrollTo(0,0)"><b>🌾</b><span>الأقساط الموسمية<small>عرض الأقساط الموسمية</small></span></button><button id="dueCollectionShortcut" class="command-action collection-shortcut-action" type="button" aria-label="فتح شاشة التحصيل" title="فتح شاشة التحصيل" onclick="if(typeof window.showScreen==='function')window.showScreen('collection');else location.hash='#collection';var m=document.querySelector('#app .layout>main');if(m)m.scrollTop=0;window.scrollTo(0,0)"><b aria-hidden="true">💰</b><span>شاشة التحصيل<small>فتح شاشة التحصيل</small></span></button></div>
 <div class="risk-summary-cards" aria-label="ملخص الأقساط المستحقة">
   <div class="risk-summary-card risk-summary-due"><span>إجمالي قيمة الأقساط</span><b id="dueTotalDue">0</b><small>إجمالي الأقساط غير المسددة</small></div>
   <div class="risk-summary-card risk-summary-paid"><span>إجمالي المسدد</span><b id="dueTotalPaid">0</b><small>المبلغ المسدد من الأقساط الظاهرة</small></div>
@@ -18342,4 +18342,12 @@ window.__seasonalFinalHotfixV5=true;
 #collection #collectionCumulativeCriterion .due-date-control input[type="text"]{flex:1 1 0!important;width:100%!important;min-width:0!important;padding:4px 5px!important}
 #collection #collectionCumulativeCriterion .due-calendar-picker{display:inline-grid!important;place-items:center!important;flex:0 0 28px!important;width:28px!important;height:28px!important;min-height:28px!important;padding:0!important;border:1px solid #8ca2b2!important;border-radius:6px!important;background:#f6fafc!important;color:#35536b!important;cursor:pointer!important}
 #collection #collectionCumulativeCriterion .due-calendar-picker svg{width:16px!important;height:16px!important}
+</style>
+
+<style id="due-collection-shortcut-style">
+#dueInstallments .due-seasonal-shortcut{gap:8px;flex-wrap:wrap;align-items:center}
+#dueInstallments .due-seasonal-shortcut .collection-shortcut-action{min-width:230px;max-width:320px;background:#eff6ff!important;color:#1e40af!important;border-color:#bfdbfe!important}
+#dueInstallments .due-seasonal-shortcut .collection-shortcut-action:hover{background:#dbeafe!important;border-color:#60a5fa!important;color:#1e3a8a!important}
+#dueInstallments .due-seasonal-shortcut .collection-shortcut-action>b{font-size:19px!important}
+@media screen and (min-width:801px){#dueInstallments .due-seasonal-shortcut .collection-shortcut-action>span{font-family:Arial,Tahoma,sans-serif!important;font-size:15px!important;font-weight:900!important}}
 </style>
